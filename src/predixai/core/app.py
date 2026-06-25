@@ -7,13 +7,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from predixai.capture import CaptureEngine
+from predixai.capture import CaptureEngine, CaptureEngineStatus, SnapshotMetadata
 from predixai.core.config import AppConfig, load_config
 from predixai.core.events import EventRegistry
 from predixai.core.logger import (
     configure_logger,
     log_capture_engine,
     log_error,
+    log_manual_snapshot,
     log_perception,
     log_startup,
 )
@@ -50,6 +51,8 @@ class PredixAIApp:
         self.logger = configure_logger(self.config)
         self.events = EventRegistry()
         self.modules: tuple[ModuleInfo, ...] = ()
+        self.capture_engine: CaptureEngine | None = None
+        self.capture_status: CaptureEngineStatus | None = None
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -97,6 +100,23 @@ class PredixAIApp:
             log_error(self.logger, "PredixAI initialization error", exc)
             raise
 
+    def capture_snapshot(self) -> SnapshotMetadata:
+        """Capture one manual snapshot after the foundation bootstrap."""
+        if self.capture_engine is None or self.capture_status is None:
+            capture_status = self._initialize_capture()
+            if capture_status is None:
+                raise RuntimeError("Capture Engine is disabled.")
+
+        if self.capture_engine is None or self.capture_status is None:
+            raise RuntimeError("Capture Engine is not available.")
+
+        metadata = self.capture_engine.capture_manual_snapshot(
+            self.capture_status
+        )
+        log_manual_snapshot(self.logger, metadata)
+        self.events.record("capture.snapshot_created", metadata.to_dict())
+        return metadata
+
     def _load_modules(self) -> tuple[ModuleInfo, ...]:
         loaded_modules: list[ModuleInfo] = []
         for module in self.config.v1_modules:
@@ -123,6 +143,8 @@ class PredixAIApp:
         if not bool(self.config.capture.get("enabled", False)):
             return None
 
-        status = CaptureEngine(self.config).bootstrap()
+        self.capture_engine = CaptureEngine(self.config)
+        status = self.capture_engine.bootstrap()
+        self.capture_status = status
         log_capture_engine(self.logger, status)
         return status

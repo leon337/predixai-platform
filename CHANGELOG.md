@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-25 — PTP-006 Manual Screen Snapshot Engine
+
+- Implementada captura manual de uma tela inteira via `python -m predixai.main --capture`.
+- Criados `capture_snapshot.py` e `snapshot_metadata.py` no Capture Engine.
+- A captura manual usa a sessão do Capture Engine e salva PNG no diretório `captures/`.
+- Adicionado bootstrap mínimo de pacote para permitir execução via `python -m predixai.main` a partir da raiz do repositório.
+- Registrados em log o início da sessão, horário, resolução, caminho do arquivo e tamanho do arquivo.
+- Mantida a ausência de captura automática, OCR, OpenCV, IA, estratégia, automação, leitura visual ou interação com corretora.
+
 ## 2026-06-25 — PTP-005 Screen Capture Engine Foundation
 
 - Criada a fundação do Capture Engine em `src/predixai/capture`.

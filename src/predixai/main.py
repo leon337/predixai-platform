@@ -2,25 +2,42 @@
 
 from __future__ import annotations
 
+import argparse
 import sys
+from collections.abc import Sequence
 
 from predixai.init import create_application
 
 
-def main() -> int:
-    """Initialize the PredixAI foundation and report the current version."""
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run PredixAI foundation commands."""
+    args = _parse_args(argv)
+
     try:
         app = create_application()
         report = app.bootstrap()
+        print(
+            f"{report.app_name} {report.version} initialized "
+            f"in {report.mode} mode."
+        )
+        if args.capture:
+            metadata = app.capture_snapshot()
+            print(f"Manual capture saved: {metadata.file_path}")
     except Exception as exc:
-        print(f"PredixAI initialization failed: {exc}", file=sys.stderr)
+        print(f"PredixAI command failed: {exc}", file=sys.stderr)
         return 1
 
-    print(
-        f"{report.app_name} {report.version} initialized "
-        f"in {report.mode} mode."
-    )
     return 0
+
+
+def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(prog="predixai")
+    parser.add_argument(
+        "--capture",
+        action="store_true",
+        help="Capture one manual full-screen PNG snapshot.",
+    )
+    return parser.parse_args(argv)
 
 
 if __name__ == "__main__":

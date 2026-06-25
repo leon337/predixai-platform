@@ -47,6 +47,7 @@
     "enabled": true,
     "output_directory": "captures",
     "image_format": "png",
+    "manual_snapshot": true,
     "automatic_capture": false,
     "visual_reading": false,
     "ocr": false,
@@ -54,8 +55,8 @@
     "strategy": false,
     "broker_interaction": false
   },
-  "next_task": "Implementar captura manual controlada de screenshot sem OCR, IA, estratégia, automação ou interação com corretora.",
-  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada e Capture Engine foundation criada",
+  "next_task": "Validar captura manual antes de qualquer OCR, IA, estratégia, automação ou interação com corretora.",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada e captura manual criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",

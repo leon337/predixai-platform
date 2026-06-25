@@ -97,6 +97,19 @@ def log_capture_engine(logger: logging.Logger, status: Any) -> None:
     logger.info("Compressão: %s", status.storage.compression)
 
 
+def log_manual_snapshot(logger: logging.Logger, metadata: Any) -> None:
+    """Record one manual snapshot action."""
+    logger.info("Início da sessão de captura: %s", metadata.session_id)
+    logger.info("Horário da captura: %s", metadata.captured_at)
+    logger.info(
+        "Resolução da captura: %sx%s",
+        metadata.resolution_width,
+        metadata.resolution_height,
+    )
+    logger.info("Arquivo da captura: %s", metadata.file_path)
+    logger.info("Tamanho do arquivo: %s bytes", metadata.file_size_bytes)
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

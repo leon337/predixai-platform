@@ -78,6 +78,9 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 - [x] Adicionar configuração capture em config/config.json
 - [x] Inicializar Capture Engine no Core apenas se enabled=true
 - [x] Registrar logs de inicialização, diretório, formato e compressão
+- [x] Criar captura manual via linha de comando
+- [x] Salvar uma captura manual em PNG no diretório captures
+- [x] Registrar sessão, horário, resolução, caminho e tamanho da captura manual
 - [ ] Realizar captura automática
 - [ ] Interpretar imagem capturada
 - [ ] Usar OCR

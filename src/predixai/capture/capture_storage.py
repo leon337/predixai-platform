@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from predixai.core.config import AppConfig
@@ -38,3 +39,21 @@ class CaptureStorage:
             "compression": self.compression,
             "max_history": self.max_history,
         }
+
+    def build_snapshot_path(self, captured_at: datetime) -> Path:
+        """Build a unique path for one manual snapshot."""
+        timestamp = captured_at.strftime("%Y%m%d_%H%M%S")
+        base_path = self.output_directory / (
+            f"capture_{timestamp}.{self.image_format}"
+        )
+        if not base_path.exists():
+            return base_path
+
+        for index in range(1, 1000):
+            candidate = self.output_directory / (
+                f"capture_{timestamp}_{index:03d}.{self.image_format}"
+            )
+            if not candidate.exists():
+                return candidate
+
+        raise RuntimeError("Unable to build a unique manual snapshot path.")
