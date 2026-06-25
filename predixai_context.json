@@ -57,6 +57,9 @@
   },
   "local_execution": {
     "windows_10": true,
+    "windows_10_codex_environment_validated": true,
+    "windows_10_leo_machine_validated": false,
+    "leo_validation_guide": "docs/setup/Leo_Windows10_Validation.md",
     "python_version_validated": "3.12.10",
     "virtual_environment": ".venv",
     "setup_guide": "docs/setup/Windows10.md",
@@ -75,13 +78,13 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-008",
-    "next_pending_ptp": "PTP-009",
+    "last_approved_ptp": "PTP-009",
+    "next_pending_ptp": "PTP-010",
     "audit_rule": "Nenhum PTP é aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
   },
-  "next_task": "Preparar validação de compatibilidade no Linux Mint sem OCR, IA, estratégia, automação ou interação com corretora.",
-  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, captura manual criada, execução local Windows 10 validada e governança criada",
+  "next_task": "Leo executar a validação real no Windows 10 usando docs/setup/Leo_Windows10_Validation.md e registrar o resultado.",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, captura manual criada, execução local Windows 10 no ambiente Codex validada, validação no Windows 10 do Leo pendente e governança criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-25 — PTP-009 Validação Real no Windows 10 do Leo
+
+- Corrigido `PROJECT_STATE.md` para separar Windows 10 do ambiente do Codex e Windows 10 do Leo.
+- Criado `docs/setup/Leo_Windows10_Validation.md` com comandos simples para Leo validar setup, execução e captura manual.
+- Atualizado `predixai_context.json` para registrar a validação no ambiente Codex como concluída e a validação no computador do Leo como pendente.
+- Mantida a restrição de não alterar código, arquitetura, módulos, escopo da V1 ou funcionalidades.
+
 ## 2026-06-25 — PTP-008 Arquivos de Governança do Projeto
 
 - Criado `PROJECT_STATE.md` com o estado oficial atual do projeto.
