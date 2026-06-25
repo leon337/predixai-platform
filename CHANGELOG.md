@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-25 — PTP-011 Region of Interest Foundation
+
+- Criada a fundação de ROI em `src/predixai/vision`.
+- Criados `roi.py`, `roi_manager.py`, `roi_registry.py` e `roi_validator.py`.
+- Adicionada a ROI padrão `FULL_SCREEN` como metadado ocupando 100% da captura.
+- Adicionada configuração `vision.roi.enabled` em `config/config.json`.
+- Registrados em log técnico o início do ROI Manager, o carregamento do ROI Registry, a quantidade de ROIs e a ROI `FULL_SCREEN`.
+- Mantida a restrição de não implementar OCR, OpenCV, recorte, leitura de pixels, IA, Gemini, Dashboard, Strategy, Broker Adapter ou Auditor.
+
 ## 2026-06-25 — PTP-010 Vision Engine Foundation
 
 - Criada a fundação do Vision Engine em `src/predixai/vision`.

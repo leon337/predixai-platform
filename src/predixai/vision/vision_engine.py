@@ -7,6 +7,8 @@ from predixai.core.config import AppConfig
 from predixai.vision.frame import Frame
 from predixai.vision.frame_storage import FrameStorage
 from predixai.vision.frame_validator import FrameValidator
+from predixai.vision.roi_manager import ROIManager
+from predixai.vision.roi_registry import ROIRegistry
 
 
 class VisionEngine:
@@ -16,6 +18,7 @@ class VisionEngine:
         self.config = config
         self.validator = FrameValidator()
         self.storage = FrameStorage()
+        self.roi_manager = ROIManager()
 
     def process_capture(self, snapshot: SnapshotMetadata) -> Frame:
         """Create one frame from a capture file path."""
@@ -34,3 +37,7 @@ class VisionEngine:
             sha256=file_metadata.sha256,
             image_format=validation.image_format,
         )
+
+    def register_rois(self, frame: Frame) -> ROIRegistry:
+        """Register default ROI metadata for future Vision steps."""
+        return self.roi_manager.load_default_registry(frame)

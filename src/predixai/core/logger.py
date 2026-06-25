@@ -126,6 +126,16 @@ def log_vision_frame(logger: logging.Logger, snapshot: Any, frame: Any) -> None:
     logger.info("Metadados registrados: %s", frame.to_dict())
 
 
+def log_roi_registry(logger: logging.Logger, registry: Any) -> None:
+    """Record ROI registry metadata without using image regions."""
+    logger.info("ROI Manager iniciado")
+    logger.info("ROI Registry carregado")
+    logger.info("%s ROI registrada", registry.count)
+    for roi in registry.rois:
+        if roi.id == "FULL_SCREEN":
+            logger.info("FULL_SCREEN registrada")
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)
