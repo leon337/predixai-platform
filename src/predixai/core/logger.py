@@ -147,6 +147,13 @@ def log_roi_registry(logger: logging.Logger, registry: Any) -> None:
             logger.info("FULL_SCREEN registrada")
 
 
+def log_roi_crop(logger: logging.Logger, roi_crop: Any) -> None:
+    """Record ROI crop metadata without pixel extraction."""
+    logger.info("ROI Crop Engine iniciado")
+    logger.info("ROI validada: %s", roi_crop.roi_id)
+    logger.info("ROICrop criado: %s", roi_crop.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

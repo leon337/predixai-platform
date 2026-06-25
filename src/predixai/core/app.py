@@ -17,6 +17,7 @@ from predixai.core.logger import (
     log_image_buffer,
     log_manual_snapshot,
     log_perception,
+    log_roi_crop,
     log_roi_registry,
     log_startup,
     log_vision_frame,
@@ -172,6 +173,12 @@ class PredixAIApp:
         roi_registry = self._register_vision_rois(frame)
         if roi_registry is not None:
             self.events.record("vision.roi_registry_loaded", roi_registry.to_dict())
+        if image_buffer is not None and roi_registry is not None:
+            roi_crops = self._create_roi_crops(roi_registry, image_buffer)
+            self.events.record(
+                "vision.roi_crops_created",
+                {"crops": [roi_crop.to_dict() for roi_crop in roi_crops]},
+            )
         return frame
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object | None:
@@ -199,3 +206,19 @@ class PredixAIApp:
         registry = self.vision_engine.register_rois(frame)
         log_roi_registry(self.logger, registry)
         return registry
+
+    def _create_roi_crops(
+        self,
+        roi_registry: object,
+        image_buffer: object,
+    ) -> tuple[object, ...]:
+        if self.vision_engine is None:
+            return ()
+
+        roi_crops = self.vision_engine.create_roi_crops(
+            roi_registry,
+            image_buffer,
+        )
+        for roi_crop in roi_crops:
+            log_roi_crop(self.logger, roi_crop)
+        return roi_crops

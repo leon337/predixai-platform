@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-25 — PTP-013 ROI Crop Foundation
+
+- Criada a fundação do ROI Crop Engine em `src/predixai/vision`.
+- Criados `roi_crop_engine.py`, `roi_crop.py` e `roi_crop_validator.py`.
+- Integrado o ROI Crop ao fluxo `python -m predixai.main --capture` após `ImageBuffer` e ROI estarem disponíveis.
+- Adicionada validação matemática de ROI contra os limites da imagem usando apenas metadados.
+- Registrados em log técnico o início do ROI Crop Engine, ROI validada e `ROICrop` criado.
+- Mantida a restrição de não implementar OCR, OpenCV, IA, Gemini, Strategy, Dashboard, Broker Adapter, Auditor, reconhecimento de imagem, leitura visual ou recorte de pixels.
+
 ## 2026-06-25 — PTP-012 Image Loader Foundation
 
 - Criada a fundação do Image Loader em `src/predixai/vision`.

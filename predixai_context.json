@@ -81,6 +81,19 @@
       "ai": false,
       "strategy": false
     },
+    "roi_crop": {
+      "enabled": true,
+      "metadata_only": true,
+      "validates_roi_bounds": true,
+      "pixel_crop": false,
+      "new_image": false,
+      "visual_reading": false,
+      "pixel_reading": false,
+      "ocr": false,
+      "opencv": false,
+      "ai": false,
+      "strategy": false
+    },
     "validates_file_exists": true,
     "validates_png_extension": true,
     "validates_file_size": true,
@@ -129,13 +142,13 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-012",
-    "next_pending_ptp": "PTP-013",
+    "last_approved_ptp": "PTP-013",
+    "next_pending_ptp": "PTP-014",
     "audit_rule": "Nenhum PTP é aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
   },
-  "next_task": "Definir PTP-013 com aprovação do Leo, mantendo a V1 sem OCR, IA, estratégia, automação ou interação com corretora até autorização explícita.",
-  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada",
+  "next_task": "Definir PTP-014 com aprovação do Leo, mantendo a V1 sem OCR, IA, estratégia, automação ou interação com corretora até autorização explícita.",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",

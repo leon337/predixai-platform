@@ -9,6 +9,8 @@ from predixai.vision.frame_storage import FrameStorage
 from predixai.vision.frame_validator import FrameValidator
 from predixai.vision.image_buffer import ImageBuffer
 from predixai.vision.image_loader import ImageLoader
+from predixai.vision.roi_crop import ROICrop
+from predixai.vision.roi_crop_engine import ROICropEngine
 from predixai.vision.roi_manager import ROIManager
 from predixai.vision.roi_registry import ROIRegistry
 
@@ -22,6 +24,7 @@ class VisionEngine:
         self.storage = FrameStorage()
         self.image_loader = ImageLoader()
         self.roi_manager = ROIManager()
+        self.roi_crop_engine = ROICropEngine()
 
     def process_capture(self, snapshot: SnapshotMetadata) -> Frame:
         """Create one frame from a capture file path."""
@@ -48,3 +51,11 @@ class VisionEngine:
     def load_image_buffer(self, snapshot: SnapshotMetadata) -> ImageBuffer:
         """Load PNG bytes and return image buffer metadata."""
         return self.image_loader.load(snapshot.file_path)
+
+    def create_roi_crops(
+        self,
+        registry: ROIRegistry,
+        image_buffer: ImageBuffer,
+    ) -> tuple[ROICrop, ...]:
+        """Create ROI crop metadata without extracting pixels."""
+        return self.roi_crop_engine.create_crops(registry, image_buffer)
