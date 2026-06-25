@@ -1,0 +1,43 @@
+{
+  "project": "PredixAI BR",
+  "repository": "predixai-platform",
+  "created_at": "2026-06-25",
+  "version": "0.1.0-foundation",
+  "current_phase": "Fase 0 - Fundação e Blueprint",
+  "first_product": "PredixAI Trader",
+  "v1_scope": {
+    "mode": "Observador",
+    "market": "Fixed Time",
+    "broker_initial": "Olymp Trade",
+    "strategy": "Rebote Triplo",
+    "indicators": [
+      "RSI 15",
+      "RSI 30",
+      "RSI 60"
+    ],
+    "execution": "disabled",
+    "clicks": false,
+    "real_account": false
+  },
+  "modules": [
+    "Core",
+    "Security",
+    "Vision",
+    "Auditor",
+    "Strategy",
+    "AI Provider",
+    "Dashboard",
+    "Broker Adapter",
+    "Trader"
+  ],
+  "ai_provider_v1": "Google Gemini",
+  "database_v1": "SQLite",
+  "next_task": "Enviar os documentos ao repositório e pedir ao Codex para criar a estrutura inicial seguindo o Blueprint.",
+  "architecture_status": "V1 congelada",
+  "rules": [
+    "Codex não decide arquitetura sem aprovação.",
+    "Nenhuma ordem financeira na V1.",
+    "IA é analista, não operadora.",
+    "Toda mudança relevante atualiza este arquivo."
+  ]
+}
