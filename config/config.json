@@ -58,6 +58,11 @@
       "enabled": true
     }
   },
+  "ocr": {
+    "enabled": true,
+    "provider": "mock",
+    "text_extraction_enabled": false
+  },
   "modules": {
     "v1": [
       {

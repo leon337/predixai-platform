@@ -1,28 +1,10 @@
-"""OCR provider contract for the foundation phase."""
+"""Compatibility OCR provider entrypoint."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from predixai.ocr.providers.base_provider import OCRProviderStatus
+from predixai.ocr.providers.mock_provider import MockOCRProvider
 
 
-@dataclass(frozen=True)
-class OCRProviderStatus:
-    """Loaded OCR provider metadata without a real OCR backend."""
-
-    name: str
-    loaded: bool
-    text_extraction_enabled: bool
-
-
-class OCRProvider:
-    """Foundation OCR provider with no text extraction backend."""
-
-    name = "PredixAI OCR Foundation Provider"
-
-    def load(self) -> OCRProviderStatus:
-        """Return provider status without loading external OCR libraries."""
-        return OCRProviderStatus(
-            name=self.name,
-            loaded=True,
-            text_extraction_enabled=False,
-        )
+class OCRProvider(MockOCRProvider):
+    """Default OCR provider alias for the foundation phase."""

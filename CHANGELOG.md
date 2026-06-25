@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-25 — PTP-016 OCR Provider Adapter Foundation
+
+- Criada a arquitetura de adaptadores OCR em `src/predixai/ocr/providers`.
+- Criados `base_provider.py`, `mock_provider.py`, `provider_registry.py`, `provider_selector.py` e `providers/__init__.py`.
+- Integrado o `OCREngine` ao `ProviderRegistry` e ao `ProviderSelector`.
+- Definido `mock` como provider OCR padrão em `config/config.json`.
+- Registrados em log técnico o início do OCR Provider Registry, provider `mock` registrado, provider selecionado e confirmação de que o OCR continua sem extração de texto.
+- Mantida a restrição de não implementar Tesseract, EasyOCR, PaddleOCR, Gemini, IA, extração de texto, leitura de RSI, leitura de saldo, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — PTP-015 OCR Foundation
 
 - Criada a fundação OCR em `src/predixai/ocr`.

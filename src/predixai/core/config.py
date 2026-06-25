@@ -68,6 +68,10 @@ class AppConfig:
         return self._section("vision")
 
     @property
+    def ocr(self) -> dict[str, Any]:
+        return self._section("ocr")
+
+    @property
     def v1_modules(self) -> tuple[dict[str, str], ...]:
         modules = self._section("modules").get("v1", [])
         if not isinstance(modules, list):

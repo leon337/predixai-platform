@@ -14,6 +14,8 @@ class OCRResult:
     image_format: str
     file_size: int
     provider_name: str
+    selected_provider: str
+    registered_providers: tuple[str, ...]
     provider_loaded: bool
     pipeline_ready: bool
     text_extraction_enabled: bool
@@ -26,6 +28,8 @@ class OCRResult:
             "image_format": self.image_format,
             "file_size": self.file_size,
             "provider_name": self.provider_name,
+            "selected_provider": self.selected_provider,
+            "registered_providers": list(self.registered_providers),
             "provider_loaded": self.provider_loaded,
             "pipeline_ready": self.pipeline_ready,
             "text_extraction_enabled": self.text_extraction_enabled,

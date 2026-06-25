@@ -126,6 +126,13 @@
     "enabled": true,
     "engine": true,
     "provider_contract": true,
+    "provider_adapters": true,
+    "default_provider": "mock",
+    "available_providers": [
+      "mock"
+    ],
+    "provider_registry": true,
+    "provider_selector": true,
     "validator": true,
     "result_contract": true,
     "pipeline_ready": true,
@@ -176,13 +183,13 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-015",
-    "next_pending_ptp": "PTP-016",
+    "last_approved_ptp": "PTP-016",
+    "next_pending_ptp": "PTP-017",
     "audit_rule": "Nenhum PTP é aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
   },
-  "next_task": "Definir PTP-016 com aprovação do Leo, mantendo a V1 sem OCR funcional, IA, estratégia, automação ou interação com corretora até autorização explícita.",
-  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criado, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada",
+  "next_task": "Definir PTP-017 com aprovação do Leo, mantendo a V1 sem OCR funcional, IA, estratégia, automação ou interação com corretora até autorização explícita.",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criado, OCR Provider Adapter foundation criado, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",

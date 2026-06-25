@@ -257,8 +257,10 @@ class PredixAIApp:
         self,
         roi_exports: tuple[object, ...],
     ) -> tuple[object, ...]:
+        if not bool(self.config.ocr.get("enabled", False)):
+            return ()
         if self.ocr_engine is None:
-            self.ocr_engine = OCREngine()
+            self.ocr_engine = OCREngine(self.config.ocr)
 
         ocr_results = tuple(
             self.ocr_engine.prepare_pipeline(roi_export.output_path)
