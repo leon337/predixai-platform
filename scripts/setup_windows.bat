@@ -1,7 +1,23 @@
 @echo off
 setlocal
 
-cd /d "%~dp0.."
+for %%I in ("%~dp0..") do set "PROJECT_ROOT=%%~fI"
+if /I "%PROJECT_ROOT%"=="%SystemRoot%\System32" (
+    echo Refusing to use C:\Windows\System32 as the project root.
+    exit /b 1
+)
+
+cd /d "%PROJECT_ROOT%"
+if /I "%CD%"=="%SystemRoot%\System32" (
+    echo Refusing to run from C:\Windows\System32.
+    exit /b 1
+)
+
+if not exist "predixai_context.json" (
+    echo predixai_context.json was not found in %CD%.
+    echo Run this script from the PredixAI repository.
+    exit /b 1
+)
 
 echo PredixAI Windows 10 setup
 echo Repository: %CD%

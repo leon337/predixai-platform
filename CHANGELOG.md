@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-25 — PTP-009A Ambiente Oficial Windows 10
+
+- Preparado o workspace oficial em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
+- Atualizados `scripts/setup_windows.bat` e `scripts/run_predixai.bat` para resolver a raiz do projeto pela localização do script.
+- Adicionada proteção para recusar execução a partir de `C:\Windows\System32`.
+- Validada execução de setup, bootstrap e captura manual no workspace oficial.
+- Atualizados `PROJECT_STATE.md` e `predixai_context.json` com caminhos oficiais de projeto, logs e capturas.
+
 ## 2026-06-25 — PTP-009 Validação Real no Windows 10 do Leo
 
 - Corrigido `PROJECT_STATE.md` para separar Windows 10 do ambiente do Codex e Windows 10 do Leo.
