@@ -126,8 +126,7 @@ class PredixAIApp:
         log_manual_snapshot(self.logger, metadata)
         self.events.record("capture.snapshot_created", metadata.to_dict())
         frame = self._process_vision_frame(metadata)
-        if frame is not None:
-            self.events.record("vision.frame_created", frame.to_dict())
+        self.events.record("vision.frame_created", frame.to_dict())
         return metadata
 
     def _load_modules(self) -> tuple[ModuleInfo, ...]:
@@ -162,9 +161,9 @@ class PredixAIApp:
         log_capture_engine(self.logger, status)
         return status
 
-    def _process_vision_frame(self, metadata: SnapshotMetadata) -> object | None:
+    def _process_vision_frame(self, metadata: SnapshotMetadata) -> object:
         if not bool(self.config.vision.get("enabled", False)):
-            return None
+            raise RuntimeError("Vision Engine is required for --capture.")
 
         if self.vision_engine is None:
             self.vision_engine = VisionEngine(self.config)
@@ -175,47 +174,45 @@ class PredixAIApp:
         if image_buffer is not None:
             self.events.record("vision.image_buffer_created", image_buffer.to_dict())
         roi_registry = self._register_vision_rois(frame)
-        if roi_registry is not None:
-            self.events.record("vision.roi_registry_loaded", roi_registry.to_dict())
-        if image_buffer is not None and roi_registry is not None:
-            roi_crops = self._create_roi_crops(roi_registry, image_buffer)
-            self.events.record(
-                "vision.roi_crops_created",
-                {"crops": [roi_crop.to_dict() for roi_crop in roi_crops]},
-            )
-            roi_exports = self._export_roi_crops(roi_crops, image_buffer)
-            self.events.record(
-                "vision.roi_crops_exported",
-                {"exports": [roi_export.to_dict() for roi_export in roi_exports]},
-            )
-            ocr_results = self._prepare_ocr_pipeline(roi_exports)
-            self.events.record(
-                "ocr.pipeline_ready",
-                {"results": [ocr_result.to_dict() for ocr_result in ocr_results]},
-            )
+        self.events.record("vision.roi_registry_loaded", roi_registry.to_dict())
+        roi_crops = self._create_roi_crops(roi_registry, image_buffer)
+        self.events.record(
+            "vision.roi_crops_created",
+            {"crops": [roi_crop.to_dict() for roi_crop in roi_crops]},
+        )
+        roi_exports = self._export_roi_crops(roi_crops, image_buffer)
+        self.events.record(
+            "vision.roi_crops_exported",
+            {"exports": [roi_export.to_dict() for roi_export in roi_exports]},
+        )
+        ocr_results = self._prepare_ocr_pipeline(roi_exports)
+        self.events.record(
+            "ocr.pipeline_ready",
+            {"results": [ocr_result.to_dict() for ocr_result in ocr_results]},
+        )
         return frame
 
-    def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object | None:
+    def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
         if not isinstance(image_loader_config, dict):
-            return None
+            raise RuntimeError("Image Loader config is required for --capture.")
         if not bool(image_loader_config.get("enabled", False)):
-            return None
+            raise RuntimeError("Image Loader is required for --capture.")
         if self.vision_engine is None:
-            return None
+            raise RuntimeError("Vision Engine is not available for --capture.")
 
         image_buffer = self.vision_engine.load_image_buffer(metadata)
         log_image_buffer(self.logger, image_buffer)
         return image_buffer
 
-    def _register_vision_rois(self, frame: object) -> object | None:
+    def _register_vision_rois(self, frame: object) -> object:
         roi_config = self.config.vision.get("roi", {})
         if not isinstance(roi_config, dict):
-            return None
+            raise RuntimeError("ROI config is required for --capture.")
         if not bool(roi_config.get("enabled", False)):
-            return None
+            raise RuntimeError("ROI registry is required for --capture.")
         if self.vision_engine is None:
-            return None
+            raise RuntimeError("Vision Engine is not available for --capture.")
 
         registry = self.vision_engine.register_rois(frame)
         log_roi_registry(self.logger, registry)
@@ -258,7 +255,9 @@ class PredixAIApp:
         roi_exports: tuple[object, ...],
     ) -> tuple[object, ...]:
         if not bool(self.config.ocr.get("enabled", False)):
-            return ()
+            raise RuntimeError("OCR pipeline is required for --capture.")
+        if not roi_exports:
+            raise RuntimeError("ROI export is required for OCR pipeline.")
         if self.ocr_engine is None:
             self.ocr_engine = OCREngine(self.config.ocr)
 

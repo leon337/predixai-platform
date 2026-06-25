@@ -36,7 +36,7 @@ def configure_logger(config: AppConfig) -> logging.Logger:
     file_handler.setLevel(level)
     file_handler.setFormatter(formatter)
 
-    stream_handler = logging.StreamHandler()
+    stream_handler = logging.StreamHandler(sys.stdout)
     stream_handler.setLevel(level)
     stream_handler.setFormatter(formatter)
 
@@ -112,7 +112,7 @@ def log_manual_snapshot(logger: logging.Logger, metadata: Any) -> None:
 
 def log_vision_frame(logger: logging.Logger, snapshot: Any, frame: Any) -> None:
     """Record one Vision Engine frame metadata action."""
-    logger.info("Vision Engine iniciado.")
+    logger.info("Vision Engine iniciado")
     logger.info("Frame recebido: %s", snapshot.file_path)
     logger.info(
         "Arquivo validado: %s (%sx%s, %s bytes)",
@@ -134,7 +134,7 @@ def log_image_buffer(logger: logging.Logger, image_buffer: Any) -> None:
     logger.info("largura: %s", image_buffer.width)
     logger.info("altura: %s", image_buffer.height)
     logger.info("SHA256: %s", image_buffer.sha256)
-    logger.info("Image Buffer criado: %s", image_buffer.to_dict())
+    logger.info("ImageBuffer criado: %s", image_buffer.to_dict())
 
 
 def log_roi_registry(logger: logging.Logger, registry: Any) -> None:
@@ -144,6 +144,7 @@ def log_roi_registry(logger: logging.Logger, registry: Any) -> None:
     logger.info("%s ROI registrada", registry.count)
     for roi in registry.rois:
         if roi.id == "FULL_SCREEN":
+            logger.info("ROI FULL_SCREEN registrada")
             logger.info("FULL_SCREEN registrada")
 
 

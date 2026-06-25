@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-25 — PTP-017C Forçar Execução Real do Pipeline OCR no --capture
+
+- Tornado obrigatório o pipeline completo após `python -m predixai.main --capture`: Vision, ImageBuffer, ROI, ROICrop, ROI Export e OCR Mock não são mais ignorados silenciosamente quando exigidos pela captura manual.
+- Ajustado o logger para escrever o console em `stdout` e manter o mesmo conteúdo em `logs/predixai.log`.
+- Padronizadas mensagens literais de validação: `Vision Engine iniciado`, `ImageBuffer criado`, `ROI FULL_SCREEN registrada`, `ROICrop criado`, `ROI exportada`, `Pipeline OCR iniciado`, `Provider selecionado: mock`, `OCR executado (Mock)`, `OCRResult criado` e `Pipeline OCR finalizado`.
+- Mantida a restrição de não implementar OCR real, extração de texto, IA, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — PTP-017B Hotfix de Validação do Pipeline OCR no Windows do Leo
 
 - Confirmado que o fluxo `python -m predixai.main --capture` já conectava Capture, Vision, ROI Export, OCR Engine, Provider Selector, Mock Provider e OCRResult.
