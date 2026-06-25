@@ -1,0 +1,82 @@
+{
+  "application": {
+    "name": "PredixAI Platform",
+    "version": "0.1.0-foundation",
+    "mode": "Observador",
+    "environment": "development"
+  },
+  "v1_scope": {
+    "market": "Fixed Time",
+    "strategy": "Rebote Triplo",
+    "capture_interval_seconds": 10,
+    "broker": "Olymp Trade",
+    "ai_provider": "Gemini",
+    "execution_enabled": false,
+    "clicks_enabled": false,
+    "real_account_enabled": false
+  },
+  "paths": {
+    "root": ".",
+    "config": "config",
+    "data": "data",
+    "logs": "logs",
+    "captures": "captures",
+    "assets": "assets"
+  },
+  "logging": {
+    "level": "INFO",
+    "technical_log_file": "predixai.log"
+  },
+  "modules": {
+    "v1": [
+      {
+        "name": "Core",
+        "package": "predixai.core"
+      },
+      {
+        "name": "Security",
+        "package": "predixai.security"
+      },
+      {
+        "name": "Vision",
+        "package": "predixai.vision"
+      },
+      {
+        "name": "Auditor",
+        "package": "predixai.auditor"
+      },
+      {
+        "name": "Strategy",
+        "package": "predixai.strategy"
+      },
+      {
+        "name": "AI Provider",
+        "package": "predixai.ai_provider"
+      },
+      {
+        "name": "Dashboard",
+        "package": "predixai.dashboard"
+      },
+      {
+        "name": "Broker Adapter",
+        "package": "predixai.broker_adapter"
+      },
+      {
+        "name": "Trader",
+        "package": "predixai.trader"
+      }
+    ],
+    "future": [
+      {
+        "name": "Learning",
+        "package": "predixai.learning"
+      }
+    ],
+    "support": [
+      {
+        "name": "Utils",
+        "package": "predixai.utils"
+      }
+    ]
+  }
+}

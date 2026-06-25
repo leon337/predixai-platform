@@ -32,8 +32,8 @@
   ],
   "ai_provider_v1": "Google Gemini",
   "database_v1": "SQLite",
-  "next_task": "Criar a fundação técnica inicial sem implementar funcionalidades de Vision, Auditor, Strategy, AI Provider ou Dashboard.",
-  "architecture_status": "V1 congelada e Fase 0 concluída",
+  "next_task": "Validar a fundação técnica inicial e preparar a Fase 2 - Vision sem OCR avançado, IA ou execução.",
+  "architecture_status": "V1 congelada, Fase 0 concluída e Fase 1 criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",

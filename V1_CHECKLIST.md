@@ -17,36 +17,36 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 
 ## Fundação
 
-- [ ] Criar estrutura do projeto
+- [x] Criar estrutura do projeto
 - [x] Criar README.md
 - [x] Criar docs/blueprint
 - [x] Criar predixai_context.json
-- [ ] Criar config.json
-- [ ] Criar requirements.txt
+- [x] Criar config.json
+- [x] Criar requirements.txt
 - [x] Criar CHANGELOG.md
 - [x] Criar ROADMAP.md
 
 ## Core
 
-- [ ] Inicializar aplicação
-- [ ] Carregar configurações
-- [ ] Inicializar módulos
-- [ ] Registrar status do sistema
-- [ ] Exibir versão atual
+- [x] Inicializar aplicação
+- [x] Carregar configurações
+- [x] Inicializar módulos
+- [x] Registrar status do sistema
+- [x] Exibir versão atual
 
 ## Config
 
-- [ ] Definir intervalo de captura padrão de 10 segundos
-- [ ] Definir plataforma inicial como Olymp Trade
-- [ ] Definir mercado inicial como Fixed Time
-- [ ] Definir estratégia inicial como Rebote Triplo
-- [ ] Definir modo inicial como Observador
+- [x] Definir intervalo de captura padrão de 10 segundos
+- [x] Definir plataforma inicial como Olymp Trade
+- [x] Definir mercado inicial como Fixed Time
+- [x] Definir estratégia inicial como Rebote Triplo
+- [x] Definir modo inicial como Observador
 
 ## Logs
 
-- [ ] Criar logs técnicos
-- [ ] Registrar inicialização
-- [ ] Registrar erros
+- [x] Criar logs técnicos
+- [x] Registrar inicialização
+- [x] Registrar erros
 - [ ] Registrar falhas de leitura
 - [ ] Registrar chamadas de IA
 - [ ] Separar logs técnicos do Auditor
@@ -56,9 +56,9 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 - [ ] Criar license.local.json local de teste
 - [ ] Validar licença local
 - [ ] Criar proteção básica para API Key
-- [ ] Criar .gitignore para arquivos sensíveis
-- [ ] Ignorar .env, license.local.json e secrets.local.json
-- [ ] Não expor segredos no GitHub
+- [x] Criar .gitignore para arquivos sensíveis
+- [x] Ignorar .env, license.local.json e secrets.local.json
+- [x] Não expor segredos no GitHub
 
 ## Vision
 

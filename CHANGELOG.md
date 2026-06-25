@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-25 — PTP-003 Fundação técnica
+
+- Criada a estrutura técnica inicial do projeto.
+- Criados os pacotes Python da plataforma em `src/predixai`.
+- Criado o Core inicial com bootstrap, leitura de configuração, logger técnico e eventos de inicialização.
+- Criado `config/config.json` com modo Observador, Fixed Time, Rebote Triplo, Olymp Trade e Gemini.
+- Criado `PROJECT_RULES.md` com regras técnicas para futuras implementações.
+- Criado `requirements.txt` sem dependências externas para a fundação.
+- Criados diretórios base para testes, dados, logs, capturas e assets.
+- Atualizados `MASTER_PLAN.md`, `V1_CHECKLIST.md` e `predixai_context.json`.
+
 ## 2026-06-25 — PTP-002 Correção documental
 
 - Alinhada a sequência oficial de fases para Fase 0 a Fase 7.
