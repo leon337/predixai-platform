@@ -162,6 +162,14 @@ def log_roi_crop_export(logger: logging.Logger, roi_export: Any) -> None:
     logger.info("tamanho do arquivo: %s bytes", roi_export.file_size)
 
 
+def log_ocr_pipeline(logger: logging.Logger, ocr_result: Any) -> None:
+    """Record OCR foundation metadata without text extraction."""
+    logger.info("OCR Engine iniciado")
+    logger.info("Imagem recebida: %s", ocr_result.image_path)
+    logger.info("OCR Provider carregado: %s", ocr_result.provider_name)
+    logger.info("Pipeline OCR pronto: %s", ocr_result.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

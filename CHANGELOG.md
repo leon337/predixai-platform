@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-25 — PTP-015 OCR Foundation
+
+- Criada a fundação OCR em `src/predixai/ocr`.
+- Criados `ocr_engine.py`, `ocr_provider.py`, `ocr_result.py`, `ocr_validator.py`, `init.py` e `__init__.py`.
+- Integrado o OCR foundation ao fluxo `python -m predixai.main --capture` após a exportação do PNG da ROI.
+- Adicionado contrato técnico para receber imagem da ROI, validar PNG, carregar provider de fundação e marcar o pipeline OCR como pronto.
+- Registrados em log técnico `OCR Engine iniciado`, `Imagem recebida`, `OCR Provider carregado` e `Pipeline OCR pronto`.
+- Mantida a restrição de não implementar extração de texto, Tesseract, EasyOCR, PaddleOCR, Gemini, IA, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — PTP-014 ROI Crop Image Export
 
 - Criado o exportador de ROI em `src/predixai/vision`.

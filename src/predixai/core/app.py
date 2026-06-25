@@ -16,6 +16,7 @@ from predixai.core.logger import (
     log_error,
     log_image_buffer,
     log_manual_snapshot,
+    log_ocr_pipeline,
     log_perception,
     log_roi_crop,
     log_roi_crop_export,
@@ -23,6 +24,7 @@ from predixai.core.logger import (
     log_startup,
     log_vision_frame,
 )
+from predixai.ocr import OCREngine
 from predixai.perception import PerceptionEngine
 from predixai.vision import VisionEngine
 
@@ -60,6 +62,7 @@ class PredixAIApp:
         self.capture_engine: CaptureEngine | None = None
         self.capture_status: CaptureEngineStatus | None = None
         self.vision_engine: VisionEngine | None = None
+        self.ocr_engine: OCREngine | None = None
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -185,6 +188,11 @@ class PredixAIApp:
                 "vision.roi_crops_exported",
                 {"exports": [roi_export.to_dict() for roi_export in roi_exports]},
             )
+            ocr_results = self._prepare_ocr_pipeline(roi_exports)
+            self.events.record(
+                "ocr.pipeline_ready",
+                {"results": [ocr_result.to_dict() for ocr_result in ocr_results]},
+            )
         return frame
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object | None:
@@ -244,3 +252,18 @@ class PredixAIApp:
         for roi_export in roi_exports:
             log_roi_crop_export(self.logger, roi_export)
         return roi_exports
+
+    def _prepare_ocr_pipeline(
+        self,
+        roi_exports: tuple[object, ...],
+    ) -> tuple[object, ...]:
+        if self.ocr_engine is None:
+            self.ocr_engine = OCREngine()
+
+        ocr_results = tuple(
+            self.ocr_engine.prepare_pipeline(roi_export.output_path)
+            for roi_export in roi_exports
+        )
+        for ocr_result in ocr_results:
+            log_ocr_pipeline(self.logger, ocr_result)
+        return ocr_results
