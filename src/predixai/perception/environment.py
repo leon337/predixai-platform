@@ -28,7 +28,7 @@ class ScreenArea:
 
 @dataclass(frozen=True)
 class ScreenResolution:
-    """Screen resolution in pixels."""
+    """Screen resolution."""
 
     width: int
     height: int

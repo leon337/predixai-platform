@@ -60,6 +60,10 @@ class AppConfig:
         return self._section("screen_profile")
 
     @property
+    def capture(self) -> dict[str, Any]:
+        return self._section("capture")
+
+    @property
     def v1_modules(self) -> tuple[dict[str, str], ...]:
         modules = self._section("modules").get("v1", [])
         if not isinstance(modules, list):

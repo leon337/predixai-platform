@@ -89,6 +89,14 @@ def log_perception(logger: logging.Logger, snapshot: Any) -> None:
     logger.info("Active window: %s", active_window)
 
 
+def log_capture_engine(logger: logging.Logger, status: Any) -> None:
+    """Record Capture Engine bootstrap metadata."""
+    logger.info("Capture Engine iniciado.")
+    logger.info("Diretório das capturas: %s", status.storage.output_directory)
+    logger.info("Formato: %s", status.storage.image_format.upper())
+    logger.info("Compressão: %s", status.storage.compression)
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

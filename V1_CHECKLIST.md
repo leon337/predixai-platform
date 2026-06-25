@@ -68,6 +68,22 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 - [ ] Interpretar imagem
 - [ ] Usar OCR
 
+## Capture Engine
+
+- [x] Criar estrutura src/predixai/capture
+- [x] Criar contrato técnico do Capture Engine
+- [x] Criar CaptureSession com ID único por sessão
+- [x] Criar CaptureStorage para definir diretório de futuras capturas
+- [x] Criar CaptureValidator para diretório existente, permissão de escrita e formato PNG
+- [x] Adicionar configuração capture em config/config.json
+- [x] Inicializar Capture Engine no Core apenas se enabled=true
+- [x] Registrar logs de inicialização, diretório, formato e compressão
+- [ ] Realizar captura automática
+- [ ] Interpretar imagem capturada
+- [ ] Usar OCR
+- [ ] Usar IA
+- [ ] Acionar estratégia
+
 ## Security básico
 
 - [ ] Criar license.local.json local de teste

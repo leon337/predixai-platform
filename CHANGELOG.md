@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-25 — PTP-005 Screen Capture Engine Foundation
+
+- Criada a fundação do Capture Engine em `src/predixai/capture`.
+- Criados contratos técnicos para engine, sessão, storage e validação de captura.
+- Adicionada configuração `capture` em `config/config.json`.
+- Integrado bootstrap condicional do Capture Engine ao Core.
+- Adicionados logs de inicialização, diretório, formato e compressão do Capture Engine.
+- Atualizados `PROJECT_RULES.md`, `V1_CHECKLIST.md` e `predixai_context.json`.
+- Mantida a restrição de não realizar captura automática, OCR, IA, estratégia, automação ou interação com corretora.
+
 ## 2026-06-25 — PTP-004 Perception Engine Foundation
 
 - Criada a fundação do Perception Engine em `src/predixai/perception`.

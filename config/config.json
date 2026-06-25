@@ -42,6 +42,13 @@
     "default_profile": "config/screen_profiles/default_screen_profile.json",
     "coordinates_enabled": false
   },
+  "capture": {
+    "enabled": true,
+    "output_directory": "captures",
+    "image_format": "png",
+    "compression": 6,
+    "max_history": 100
+  },
   "modules": {
     "v1": [
       {

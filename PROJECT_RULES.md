@@ -39,3 +39,14 @@
 - A V1 não usa conta real.
 - A IA é analista, não operadora.
 - O sinal exibido é sempre sinal sugerido.
+
+## Capture Engine
+
+- O Capture Engine inicializa somente se `capture.enabled=true`.
+- O Capture Engine não realiza captura automática no bootstrap.
+- O Capture Engine não interpreta imagens.
+- O Capture Engine não usa OCR, OpenCV, IA, PyAutoGUI ou automação.
+- O Capture Engine não interage com corretoras.
+- `CaptureSession` deve gerar um ID único por sessão.
+- `CaptureStorage` apenas define onde futuras capturas serão armazenadas.
+- `CaptureValidator` valida somente diretório existente, permissão de escrita e formato PNG.

@@ -7,10 +7,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from predixai.capture import CaptureEngine
 from predixai.core.config import AppConfig, load_config
 from predixai.core.events import EventRegistry
 from predixai.core.logger import (
     configure_logger,
+    log_capture_engine,
     log_error,
     log_perception,
     log_startup,
@@ -56,6 +58,7 @@ class PredixAIApp:
             module_names = tuple(module.name for module in self.modules)
             log_startup(self.logger, self.config, module_names)
             perception_snapshot = self._inspect_perception()
+            capture_status = self._initialize_capture()
             self.events.record(
                 "application.initialized",
                 {
@@ -70,6 +73,14 @@ class PredixAIApp:
                     {
                         "environment": perception_snapshot.environment.to_dict(),
                         "window_count": len(perception_snapshot.windows.windows),
+                    },
+                )
+            if capture_status is not None:
+                self.events.record(
+                    "capture.engine_initialized",
+                    {
+                        "session_id": capture_status.session.session_id,
+                        "storage": capture_status.storage.to_dict(),
                     },
                 )
             return StartupReport(
@@ -107,3 +118,11 @@ class PredixAIApp:
         if bool(self.config.perception.get("log_on_startup", True)):
             log_perception(self.logger, snapshot)
         return snapshot
+
+    def _initialize_capture(self) -> object | None:
+        if not bool(self.config.capture.get("enabled", False)):
+            return None
+
+        status = CaptureEngine(self.config).bootstrap()
+        log_capture_engine(self.logger, status)
+        return status
