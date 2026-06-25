@@ -9,7 +9,13 @@ from pathlib import Path
 
 from predixai.core.config import AppConfig, load_config
 from predixai.core.events import EventRegistry
-from predixai.core.logger import configure_logger, log_error, log_startup
+from predixai.core.logger import (
+    configure_logger,
+    log_error,
+    log_perception,
+    log_startup,
+)
+from predixai.perception import PerceptionEngine
 
 
 @dataclass(frozen=True)
@@ -49,6 +55,7 @@ class PredixAIApp:
             self.modules = self._load_modules()
             module_names = tuple(module.name for module in self.modules)
             log_startup(self.logger, self.config, module_names)
+            perception_snapshot = self._inspect_perception()
             self.events.record(
                 "application.initialized",
                 {
@@ -57,6 +64,14 @@ class PredixAIApp:
                     "modules": module_names,
                 },
             )
+            if perception_snapshot is not None:
+                self.events.record(
+                    "perception.environment_detected",
+                    {
+                        "environment": perception_snapshot.environment.to_dict(),
+                        "window_count": len(perception_snapshot.windows.windows),
+                    },
+                )
             return StartupReport(
                 app_name=self.config.name,
                 version=self.config.version,
@@ -83,3 +98,12 @@ class PredixAIApp:
                 )
             )
         return tuple(loaded_modules)
+
+    def _inspect_perception(self) -> object | None:
+        if not bool(self.config.perception.get("enabled", False)):
+            return None
+
+        snapshot = PerceptionEngine(self.config).inspect()
+        if bool(self.config.perception.get("log_on_startup", True)):
+            log_perception(self.logger, snapshot)
+        return snapshot

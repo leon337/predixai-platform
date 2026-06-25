@@ -51,6 +51,23 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 - [ ] Registrar chamadas de IA
 - [ ] Separar logs técnicos do Auditor
 
+## Perception Engine
+
+- [x] Criar estrutura src/predixai/perception
+- [x] Identificar sistema operacional
+- [x] Identificar resolução do monitor
+- [x] Identificar escala do sistema
+- [x] Identificar quantidade de monitores
+- [x] Identificar monitor principal
+- [x] Identificar área útil da tela
+- [x] Listar janelas por título, posição, largura e altura
+- [x] Identificar janela ativa
+- [x] Criar default_screen_profile.json sem coordenadas
+- [x] Criar arquitetura inicial de calibração sem interface gráfica
+- [ ] Detectar corretora
+- [ ] Interpretar imagem
+- [ ] Usar OCR
+
 ## Security básico
 
 - [ ] Criar license.local.json local de teste

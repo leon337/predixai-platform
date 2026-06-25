@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-06-25 — PTP-004 Perception Engine Foundation
+
+- Criada a fundação do Perception Engine em `src/predixai/perception`.
+- Implementada leitura do ambiente de tela: sistema operacional, resolução, escala, quantidade de monitores, monitor principal e área útil.
+- Implementada listagem inicial de janelas com título, posição, largura, altura e janela ativa.
+- Criado `config/screen_profiles/default_screen_profile.json` sem coordenadas.
+- Criada a estrutura inicial do futuro Calibration Wizard sem interface gráfica.
+- Atualizado `config/config.json` com `perception`, `window_detection` e `screen_profile`.
+- Integrado log técnico de ambiente, monitores, janelas encontradas e janela ativa.
+- Atualizados `V1_CHECKLIST.md` e `predixai_context.json`.
+
 ## 2026-06-25 — PTP-003 Fundação técnica
 
 - Criada a estrutura técnica inicial do projeto.

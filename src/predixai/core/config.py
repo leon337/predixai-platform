@@ -48,6 +48,18 @@ class AppConfig:
         return self._section("logging")
 
     @property
+    def perception(self) -> dict[str, Any]:
+        return self._section("perception")
+
+    @property
+    def window_detection(self) -> dict[str, Any]:
+        return self._section("window_detection")
+
+    @property
+    def screen_profile(self) -> dict[str, Any]:
+        return self._section("screen_profile")
+
+    @property
     def v1_modules(self) -> tuple[dict[str, str], ...]:
         modules = self._section("modules").get("v1", [])
         if not isinstance(modules, list):
@@ -72,6 +84,13 @@ class AppConfig:
         except KeyError as exc:
             raise KeyError(f"Missing configured path: {key}") from exc
 
+        path = Path(raw_path)
+        if path.is_absolute():
+            return path
+        return PROJECT_ROOT / path
+
+    def resolve_project_path(self, raw_path: str | Path) -> Path:
+        """Resolve a path relative to the project root."""
         path = Path(raw_path)
         if path.is_absolute():
             return path

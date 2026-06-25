@@ -18,6 +18,7 @@
   "paths": {
     "root": ".",
     "config": "config",
+    "screen_profiles": "config/screen_profiles",
     "data": "data",
     "logs": "logs",
     "captures": "captures",
@@ -26,6 +27,20 @@
   "logging": {
     "level": "INFO",
     "technical_log_file": "predixai.log"
+  },
+  "perception": {
+    "enabled": true,
+    "log_on_startup": true
+  },
+  "window_detection": {
+    "enabled": true,
+    "max_windows": 100,
+    "include_untitled": false,
+    "detect_broker": false
+  },
+  "screen_profile": {
+    "default_profile": "config/screen_profiles/default_screen_profile.json",
+    "coordinates_enabled": false
   },
   "modules": {
     "v1": [

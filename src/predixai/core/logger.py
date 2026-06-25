@@ -7,7 +7,7 @@ import platform
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 from predixai.core.config import AppConfig
 
@@ -61,6 +61,32 @@ def log_startup(
     logger.info("Python: %s", sys.version.replace("\n", " "))
     logger.info("Loaded modules: %s", ", ".join(module_names))
     logger.info("PredixAI initialization finished.")
+
+
+def log_perception(logger: logging.Logger, snapshot: Any) -> None:
+    """Record Perception Engine foundation metadata."""
+    environment = snapshot.environment
+    windows = snapshot.windows
+    active_window = windows.active_window.title if windows.active_window else "none"
+
+    logger.info(
+        "Screen resolution: %sx%s",
+        environment.resolution.width,
+        environment.resolution.height,
+    )
+    logger.info("Screen scale: %s%%", environment.scale_percent)
+    logger.info("Screen operating system: %s", environment.operating_system)
+    logger.info("Monitor count: %s", environment.monitor_count)
+    logger.info("Primary monitor: %s", environment.primary_monitor)
+    logger.info(
+        "Screen work area: x=%s y=%s width=%s height=%s",
+        environment.work_area.left,
+        environment.work_area.top,
+        environment.work_area.width,
+        environment.work_area.height,
+    )
+    logger.info("Windows found: %s", len(windows.windows))
+    logger.info("Active window: %s", active_window)
 
 
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:

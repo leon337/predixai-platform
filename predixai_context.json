@@ -3,7 +3,7 @@
   "repository": "predixai-platform",
   "created_at": "2026-06-25",
   "version": "0.1.0-foundation",
-  "current_phase": "Fase 1 - Fundação Técnica",
+  "current_phase": "Fase 2 - Vision",
   "first_product": "PredixAI Trader",
   "v1_scope": {
     "mode": "Observador",
@@ -32,8 +32,19 @@
   ],
   "ai_provider_v1": "Google Gemini",
   "database_v1": "SQLite",
-  "next_task": "Validar a fundação técnica inicial e preparar a Fase 2 - Vision sem OCR avançado, IA ou execução.",
-  "architecture_status": "V1 congelada, Fase 0 concluída e Fase 1 criada",
+  "perception_foundation": {
+    "environment_detection": true,
+    "window_listing": true,
+    "screen_profile": "config/screen_profiles/default_screen_profile.json",
+    "calibration_wizard": "architecture_only",
+    "visual_reading": false,
+    "ocr": false,
+    "ai": false,
+    "strategy": false,
+    "broker_interaction": false
+  },
+  "next_task": "Implementar captura de tela da Fase 2 - Vision sem OCR avançado, IA, estratégia ou interação com corretora.",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada e Perception Engine foundation criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",

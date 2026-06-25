@@ -1,0 +1,11 @@
+{
+  "name": "default",
+  "resolution": {
+    "width": 0,
+    "height": 0
+  },
+  "scale_percent": 100,
+  "language": "pt-BR",
+  "theme": "unknown",
+  "broker": "Olymp Trade"
+}
