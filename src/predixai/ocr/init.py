@@ -7,6 +7,7 @@ from predixai.ocr.ocr_validator import OCRValidationResult, OCRValidator
 from predixai.ocr.providers import (
     BaseOCRProvider,
     MockOCRProvider,
+    OCRProviderExecution,
     ProviderRegistry,
     ProviderSelector,
 )
@@ -15,6 +16,7 @@ __all__ = [
     "BaseOCRProvider",
     "MockOCRProvider",
     "OCREngine",
+    "OCRProviderExecution",
     "OCRProvider",
     "OCRProviderStatus",
     "OCRResult",

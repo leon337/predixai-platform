@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-25 — PTP-017 OCR Pipeline Validation Foundation
+
+- Validado o fluxo completo Capture → Vision → Frame → ImageBuffer → ROI → ROICrop → ROI Export → OCR Engine → Provider Selector → Mock Provider → OCRResult.
+- Atualizado `OCRResult` com `provider`, `status`, `pipeline_ready`, `text_extracted`, `text`, `confidence`, `processing_time_ms` e `timestamp`.
+- Adicionada execução mock no contrato de provider OCR, mantendo `text_extracted=false`, `text=""` e `confidence=0.0`.
+- Registrados em log técnico o início do pipeline OCR, provider selecionado, imagem recebida, execução mock, resultado criado e pipeline finalizado.
+- Mantida a restrição de não implementar OCR real, Tesseract, EasyOCR, PaddleOCR, Gemini, IA, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — PTP-016 OCR Provider Adapter Foundation
 
 - Criada a arquitetura de adaptadores OCR em `src/predixai/ocr/providers`.

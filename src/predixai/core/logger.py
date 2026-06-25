@@ -164,15 +164,19 @@ def log_roi_crop_export(logger: logging.Logger, roi_export: Any) -> None:
 
 def log_ocr_pipeline(logger: logging.Logger, ocr_result: Any) -> None:
     """Record OCR foundation metadata without text extraction."""
+    logger.info("Pipeline OCR iniciado")
     logger.info("OCR Engine iniciado")
-    logger.info("Imagem recebida: %s", ocr_result.image_path)
     logger.info("OCR Provider Registry iniciado")
     for provider_name in ocr_result.registered_providers:
         logger.info("Provider %s registrado", provider_name)
     logger.info("Provider selecionado: %s", ocr_result.selected_provider)
+    logger.info("Imagem recebida: %s", ocr_result.image_path)
     logger.info("OCR Provider carregado: %s", ocr_result.provider_name)
+    logger.info("OCR executado (Mock)")
+    logger.info("Resultado criado: %s", ocr_result.to_dict())
     logger.info("OCR continua sem extração de texto")
     logger.info("Pipeline OCR pronto: %s", ocr_result.to_dict())
+    logger.info("Pipeline finalizado")
 
 
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
