@@ -17,8 +17,10 @@ from predixai.core.logger import (
     log_manual_snapshot,
     log_perception,
     log_startup,
+    log_vision_frame,
 )
 from predixai.perception import PerceptionEngine
+from predixai.vision import VisionEngine
 
 
 @dataclass(frozen=True)
@@ -53,6 +55,7 @@ class PredixAIApp:
         self.modules: tuple[ModuleInfo, ...] = ()
         self.capture_engine: CaptureEngine | None = None
         self.capture_status: CaptureEngineStatus | None = None
+        self.vision_engine: VisionEngine | None = None
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -115,6 +118,9 @@ class PredixAIApp:
         )
         log_manual_snapshot(self.logger, metadata)
         self.events.record("capture.snapshot_created", metadata.to_dict())
+        frame = self._process_vision_frame(metadata)
+        if frame is not None:
+            self.events.record("vision.frame_created", frame.to_dict())
         return metadata
 
     def _load_modules(self) -> tuple[ModuleInfo, ...]:
@@ -148,3 +154,14 @@ class PredixAIApp:
         self.capture_status = status
         log_capture_engine(self.logger, status)
         return status
+
+    def _process_vision_frame(self, metadata: SnapshotMetadata) -> object | None:
+        if not bool(self.config.vision.get("enabled", False)):
+            return None
+
+        if self.vision_engine is None:
+            self.vision_engine = VisionEngine(self.config)
+
+        frame = self.vision_engine.process_capture(metadata)
+        log_vision_frame(self.logger, metadata, frame)
+        return frame

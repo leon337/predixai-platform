@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-25 — PTP-010 Vision Engine Foundation
+
+- Criada a fundação do Vision Engine em `src/predixai/vision`.
+- Criados `Frame`, `FrameStorage`, `FrameValidator` e `VisionEngine` para registrar apenas metadados técnicos de capturas.
+- Adicionada configuração `vision.enabled` em `config/config.json`.
+- Integrado o Vision Engine ao fluxo `python -m predixai.main --capture` após a captura manual.
+- Registrados em log técnico o início do Vision Engine, frame recebido, arquivo validado, SHA256 calculado e metadados registrados.
+- Mantida a restrição de não abrir imagem, não interpretar pixels, não usar OCR, OpenCV, Pillow, IA, Strategy, Dashboard, Broker Adapter ou Auditor.
+
 ## 2026-06-25 — PTP-009A Ambiente Oficial Windows 10
 
 - Preparado o workspace oficial em `C:\Users\Leo\Documents\GitHub\predixai-platform`.

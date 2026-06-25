@@ -110,6 +110,22 @@ def log_manual_snapshot(logger: logging.Logger, metadata: Any) -> None:
     logger.info("Tamanho do arquivo: %s bytes", metadata.file_size_bytes)
 
 
+def log_vision_frame(logger: logging.Logger, snapshot: Any, frame: Any) -> None:
+    """Record one Vision Engine frame metadata action."""
+    logger.info("Vision Engine iniciado.")
+    logger.info("Frame recebido: %s", snapshot.file_path)
+    logger.info(
+        "Arquivo validado: %s (%sx%s, %s bytes)",
+        frame.filename,
+        frame.width,
+        frame.height,
+        frame.file_size,
+    )
+    logger.info("SHA256 calculado: %s", frame.sha256)
+    logger.info("Frame criado: %s", frame.filename)
+    logger.info("Metadados registrados: %s", frame.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

@@ -55,6 +55,24 @@
     "strategy": false,
     "broker_interaction": false
   },
+  "vision_foundation": {
+    "enabled": true,
+    "frame_metadata": true,
+    "validates_file_exists": true,
+    "validates_png_extension": true,
+    "validates_file_size": true,
+    "validates_width_height": true,
+    "sha256": true,
+    "opens_image": false,
+    "visual_reading": false,
+    "pixel_reading": false,
+    "ocr": false,
+    "opencv": false,
+    "pillow": false,
+    "ai": false,
+    "strategy": false,
+    "broker_interaction": false
+  },
   "local_execution": {
     "windows_10": true,
     "windows_10_codex_environment_validated": true,
@@ -88,13 +106,13 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-009A",
-    "next_pending_ptp": "PTP-010",
+    "last_approved_ptp": "PTP-010",
+    "next_pending_ptp": "PTP-011",
     "audit_rule": "Nenhum PTP é aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
   },
-  "next_task": "Preparar validação de compatibilidade no Linux Mint sem OCR, IA, estratégia, automação ou interação com corretora.",
-  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada",
+  "next_task": "Definir PTP-011 com aprovação do Leo, mantendo a V1 sem OCR, IA, estratégia, automação ou interação com corretora até autorização explícita.",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",
