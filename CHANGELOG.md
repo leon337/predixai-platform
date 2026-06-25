@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-25 — PTP-007 Primeira Execução Local no Windows 10
+
+- Criado guia `docs/setup/Windows10.md` para primeira execucao local.
+- Criado `scripts/setup_windows.bat` para validar Python, ambiente virtual, dependencias, diretorios, compilacao e bootstrap.
+- Criado `scripts/run_predixai.bat` para executar a PredixAI localmente com ou sem `--capture`.
+- Validada execucao local de `python -m predixai.main` e `python -m predixai.main --capture` no Windows 10.
+- Mantida a ausencia de OCR, IA, Strategy, Dashboard, Broker Adapter, Auditor, automacao ou interacao com corretora.
+
 ## 2026-06-25 — PTP-006 Manual Screen Snapshot Engine
 
 - Implementada captura manual de uma tela inteira via `python -m predixai.main --capture`.

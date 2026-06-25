@@ -87,6 +87,20 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 - [ ] Usar IA
 - [ ] Acionar estratégia
 
+## Execução local
+
+- [x] Criar guia de setup local para Windows 10
+- [x] Criar script de setup para Windows 10
+- [x] Criar script de execução local
+- [x] Validar Python 3.11+
+- [x] Validar ambiente virtual
+- [x] Validar diretórios obrigatórios
+- [x] Validar permissões de escrita em logs e capturas
+- [x] Validar execução local do Core
+- [x] Validar execução local do Perception
+- [x] Validar execução local do Capture Engine
+- [x] Validar captura manual local em PNG
+
 ## Security básico
 
 - [ ] Criar license.local.json local de teste

@@ -55,8 +55,24 @@
     "strategy": false,
     "broker_interaction": false
   },
-  "next_task": "Validar captura manual antes de qualquer OCR, IA, estratégia, automação ou interação com corretora.",
-  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada e captura manual criada",
+  "local_execution": {
+    "windows_10": true,
+    "python_version_validated": "3.12.10",
+    "virtual_environment": ".venv",
+    "setup_guide": "docs/setup/Windows10.md",
+    "setup_script": "scripts/setup_windows.bat",
+    "run_script": "scripts/run_predixai.bat",
+    "core": true,
+    "perception": true,
+    "capture_engine": true,
+    "manual_capture": true,
+    "ocr": false,
+    "ai": false,
+    "strategy": false,
+    "broker_interaction": false
+  },
+  "next_task": "Preparar validação de compatibilidade no Linux Mint sem OCR, IA, estratégia, automação ou interação com corretora.",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, captura manual criada e execução local Windows 10 validada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",
