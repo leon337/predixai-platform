@@ -13,11 +13,11 @@ O PredixAI Trader é o primeiro produto dentro dessa plataforma.
 
 ## 2. Princípio central
 
-A PredixAI não começa como um robô trader.
+A PredixAI não começa como um sistema operador.
 
 Ela começa como uma plataforma modular, onde cada produto é apenas um módulo conectado ao Core.
 
-## 3. Módulos principais
+## 3. Módulos da V1
 
 - PredixAI Core
 - PredixAI Security
@@ -28,19 +28,24 @@ Ela começa como uma plataforma modular, onde cada produto é apenas um módulo 
 - PredixAI Dashboard
 - PredixAI Broker Adapter
 - PredixAI Trader
+
+## 4. Módulos futuros
+
 - PredixAI Learning
 - PredixAI Cloud
 - PredixAI Store
 
-## 4. Produto inicial
+Os módulos futuros não fazem parte do escopo da V1.
+
+## 5. Produto inicial
 
 O primeiro produto será o PredixAI Trader.
 
 Na V1, ele não executa operações, não clica em botões e não envia ordens.
 
-Ele apenas observa, interpreta, registra e sugere sinais.
+Ele atua em modo observando: interpreta, registra e gera sinal sugerido.
 
-## 5. Estratégia inicial
+## 6. Estratégia inicial
 
 A única estratégia da V1 será:
 
@@ -58,7 +63,7 @@ Sinais possíveis:
 - VENDA
 - AGUARDAR
 
-## 6. Mercado inicial
+## 7. Mercado inicial
 
 A V1 trabalhará apenas com:
 
@@ -66,7 +71,7 @@ A V1 trabalhará apenas com:
 
 Forex ficará para versões futuras.
 
-## 7. Papel da IA
+## 8. Papel da IA
 
 Na V1, a IA será analista, não operadora.
 
@@ -86,7 +91,7 @@ Ela não poderá:
 - alterar estratégia sozinha;
 - tomar decisão financeira final.
 
-## 8. Filosofia de desenvolvimento
+## 9. Filosofia de desenvolvimento
 
 Primeiro projetamos.  
 Depois implementamos.  
@@ -97,7 +102,7 @@ Nenhuma funcionalidade nova deve entrar no projeto sem responder:
 
 **Ela pertence à plataforma PredixAI ou apenas ao PredixAI Trader?**
 
-## 9. Regras congeladas da V1
+## 10. Regras congeladas da V1
 
 - Não executar cliques.
 - Não enviar ordens.
@@ -109,8 +114,8 @@ Nenhuma funcionalidade nova deve entrar no projeto sem responder:
 - Não implementar múltiplas estratégias.
 - Não permitir que IA opere sozinha.
 
-## 10. Objetivo real da V1
+## 11. Critério de sucesso da V1
 
-A V1 deve responder uma única pergunta:
+A V1 deve responder positivamente a uma única pergunta:
 
-**O sistema consegue enxergar a tela da corretora como um humano e registrar corretamente o que viu?**
+**A PredixAI consegue observar a tela da corretora, registrar dados, gerar sinal explicável e exibir tudo no dashboard sem executar nenhuma operação?**

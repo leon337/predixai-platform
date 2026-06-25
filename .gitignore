@@ -157,6 +157,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# PredixAI local secrets
+license.local.json
+secrets.local.json
+
 # Spyder project settings
 .spyderproject
 .spyproject

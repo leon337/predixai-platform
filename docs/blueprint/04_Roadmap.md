@@ -1,6 +1,6 @@
 # PredixAI BR — Roadmap Oficial
 
-## Fase 0 — Fundação
+## Fase 0 — Fundação documental
 
 - Criar documentação oficial
 - Criar arquitetura
@@ -8,22 +8,18 @@
 - Criar contexto do projeto
 - Criar repositório privado
 
-## Fase 1 — Core
+## Fase 1 — Fundação técnica
 
 - Estrutura de pastas
 - Sistema de configuração
 - Sistema de logs
 - Contexto JSON
 - Inicialização da aplicação
+- PROJECT_RULES.md
+- requirements.txt
+- Preparação para arquivos sensíveis: .env, license.local.json e secrets.local.json
 
-## Fase 2 — Security básico
-
-- license.json local
-- validação simples de licença
-- proteção básica de API Key
-- preparação para licença em nuvem
-
-## Fase 3 — Vision
+## Fase 2 — Vision
 
 - Captura de tela
 - Intervalo de 10 segundos
@@ -31,7 +27,7 @@
 - Detectar áreas da tela
 - Preparar OCR
 
-## Fase 4 — Auditor
+## Fase 3 — Auditor
 
 - Banco SQLite
 - Registrar capturas
@@ -39,14 +35,14 @@
 - Registrar sinais
 - Registrar motivo
 
-## Fase 5 — Strategy
+## Fase 4 — Strategy
 
 - Implementar Rebote Triplo
 - Ler RSI 15, RSI 30 e RSI 60
 - Gerar COMPRA, VENDA ou AGUARDAR
 - Explicar motivo do sinal
 
-## Fase 6 — AI Provider
+## Fase 5 — AI Provider
 
 - Configurar Gemini
 - Analisar registros
@@ -54,7 +50,7 @@
 - Não operar
 - Não tomar decisão financeira
 
-## Fase 7 — Dashboard
+## Fase 6 — Dashboard
 
 - Interface simples
 - Mostrar status
@@ -63,7 +59,7 @@
 - Mostrar logs
 - Mostrar sinal sugerido
 
-## Fase 8 — Validação V1
+## Fase 7 — Validação
 
 - Testar leitura da tela
 - Testar logs
@@ -71,7 +67,7 @@
 - Testar consistência
 - Medir taxa de leitura correta
 
-## Fase 9 — V2 futura
+## Após a V1 — V2 futura
 
 - Simulação em demo
 - Validação de estratégia

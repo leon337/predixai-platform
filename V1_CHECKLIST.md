@@ -18,13 +18,13 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 ## Fundação
 
 - [ ] Criar estrutura do projeto
-- [ ] Criar README profissional
-- [ ] Criar docs/blueprint
-- [ ] Criar predixai_context.json
+- [x] Criar README.md
+- [x] Criar docs/blueprint
+- [x] Criar predixai_context.json
 - [ ] Criar config.json
 - [ ] Criar requirements.txt
-- [ ] Criar CHANGELOG.md
-- [ ] Criar ROADMAP.md
+- [x] Criar CHANGELOG.md
+- [x] Criar ROADMAP.md
 
 ## Core
 
@@ -53,10 +53,11 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 
 ## Security básico
 
-- [ ] Criar license.json local de teste
+- [ ] Criar license.local.json local de teste
 - [ ] Validar licença local
 - [ ] Criar proteção básica para API Key
 - [ ] Criar .gitignore para arquivos sensíveis
+- [ ] Ignorar .env, license.local.json e secrets.local.json
 - [ ] Não expor segredos no GitHub
 
 ## Vision
@@ -117,7 +118,7 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 ## Dashboard
 
 - [ ] Criar interface simples
-- [ ] Mostrar status Observando
+- [ ] Mostrar status observando
 - [ ] Mostrar última captura
 - [ ] Mostrar ativo detectado
 - [ ] Mostrar saldo detectado
@@ -130,14 +131,7 @@ Validar se o sistema consegue observar a tela da corretora, identificar informa�
 
 ## Critério de sucesso da V1
 
-- [ ] Sistema captura a tela corretamente
-- [ ] Sistema salva screenshots
-- [ ] Sistema registra tudo no banco
-- [ ] Sistema lê os principais dados da tela
-- [ ] Sistema gera sinal explicável
-- [ ] Sistema mostra tudo no dashboard
-- [ ] Sistema não executa nenhuma ordem
-- [ ] Sistema atualiza predixai_context.json
+- [ ] A PredixAI consegue observar a tela da corretora, registrar dados, gerar sinal explicável e exibir tudo no dashboard sem executar nenhuma operação.
 
 ## Próximo passo depois da V1
 

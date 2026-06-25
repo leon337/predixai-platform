@@ -10,7 +10,7 @@ Na V1 haverá apenas segurança básica local.
 
 Recursos:
 
-- license.json local
+- license.local.json local
 - identificação simples da máquina
 - logs de inicialização
 - proteção para API Key
@@ -39,8 +39,11 @@ API Keys nunca devem ficar:
 Devem ficar em:
 
 - .env
-- arquivo local ignorado pelo Git
+- license.local.json
+- secrets.local.json
 - futuro cofre de segredos
+
+O nome license.json não deve ser usado como nome final para licença local da V1.
 
 ## 5. Pirataria
 

@@ -16,7 +16,7 @@ Visual escuro, tecnológico, limpo e profissional.
 
 A tela deve comunicar:
 
-**O robô está observando, não operando.**
+**A PredixAI está observando e não executa operações.**
 
 ## 4. Blocos principais
 

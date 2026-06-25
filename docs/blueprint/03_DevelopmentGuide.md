@@ -54,7 +54,7 @@ Exemplo:
 
 ```text
 .env
-secrets.json
+secrets.local.json
 license.local.json
 ```
 

@@ -139,7 +139,7 @@ GitHub
 
 # FASES DO PROJETO
 
-## FASE 0
+## FASE 0 — Fundação documental
 
 Status:
 
@@ -160,7 +160,7 @@ Entregas:
 
 ---
 
-## FASE 1
+## FASE 1 — Fundação técnica
 
 Status:
 
@@ -183,9 +183,7 @@ Sem funcionalidades.
 
 ---
 
-## FASE 2
-
-Vision
+## FASE 2 — Vision
 
 Objetivo:
 
@@ -197,9 +195,7 @@ Sem IA.
 
 ---
 
-## FASE 3
-
-Auditor
+## FASE 3 — Auditor
 
 Objetivo:
 
@@ -213,9 +209,7 @@ Screenshots.
 
 ---
 
-## FASE 4
-
-Strategy
+## FASE 4 — Strategy
 
 Implementar:
 
@@ -225,9 +219,7 @@ Sem execução.
 
 ---
 
-## FASE 5
-
-AI Provider
+## FASE 5 — AI Provider
 
 Integrar:
 
@@ -237,9 +229,7 @@ Somente análise.
 
 ---
 
-## FASE 6
-
-Dashboard
+## FASE 6 — Dashboard
 
 Criar painel.
 
@@ -248,14 +238,12 @@ Mostrar:
 * status;
 * captura;
 * RSI;
-* sinal;
+* sinal sugerido;
 * logs.
 
 ---
 
-## FASE 7
-
-Validação
+## FASE 7 — Validação
 
 Validar toda a V1.
 
@@ -309,7 +297,7 @@ Validar toda a V1.
 
 Responder positivamente à pergunta:
 
-> "A PredixAI consegue enxergar a tela da corretora como um humano, registrar tudo e explicar o motivo do sinal?"
+> "A PredixAI consegue observar a tela da corretora, registrar dados, gerar sinal explicável e exibir tudo no dashboard sem executar nenhuma operação."
 
 Se a resposta for SIM, a V1 estará concluída.
 

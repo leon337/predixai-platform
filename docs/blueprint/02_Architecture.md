@@ -81,7 +81,7 @@ Responsável por registrar tudo:
 - payout;
 - tempo;
 - RSI;
-- sinal;
+- sinal sugerido;
 - motivo;
 - status da leitura.
 
@@ -115,7 +115,7 @@ Interface visual do usuário.
 
 Na V1 deve mostrar:
 
-- status do robô;
+- status observando;
 - última captura;
 - dados detectados;
 - RSI detectados;
