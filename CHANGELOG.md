@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-25 — PTP-008 Arquivos de Governança do Projeto
+
+- Criado `PROJECT_STATE.md` com o estado oficial atual do projeto.
+- Criado `DECISIONS.md` com decisões congeladas e regra de alteração.
+- Criado `ARCHITECT_NOTES.md` para ideias futuras, backlog técnico, riscos e melhorias propostas.
+- Atualizado `predixai_context.json` com referências aos arquivos de governança.
+- Mantida a restrição de não alterar código, arquitetura, módulos, escopo da V1 ou funcionalidades.
+
 ## 2026-06-25 — PTP-007 Primeira Execução Local no Windows 10
 
 - Criado guia `docs/setup/Windows10.md` para primeira execucao local.

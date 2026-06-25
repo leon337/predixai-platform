@@ -71,8 +71,17 @@
     "strategy": false,
     "broker_interaction": false
   },
+  "governance": {
+    "project_state": "PROJECT_STATE.md",
+    "decisions": "DECISIONS.md",
+    "architect_notes": "ARCHITECT_NOTES.md",
+    "last_approved_ptp": "PTP-008",
+    "next_pending_ptp": "PTP-009",
+    "audit_rule": "Nenhum PTP é aprovado sem commit, push e auditoria.",
+    "source_of_truth": "GitHub origin/main"
+  },
   "next_task": "Preparar validação de compatibilidade no Linux Mint sem OCR, IA, estratégia, automação ou interação com corretora.",
-  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, captura manual criada e execução local Windows 10 validada",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, captura manual criada, execução local Windows 10 validada e governança criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",
