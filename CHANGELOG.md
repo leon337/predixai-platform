@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-06-25 — PTP-017B Hotfix de Validação do Pipeline OCR no Windows do Leo
+
+- Confirmado que o fluxo `python -m predixai.main --capture` já conectava Capture, Vision, ROI Export, OCR Engine, Provider Selector, Mock Provider e OCRResult.
+- Ajustado o logger para exibir no CMD as frases obrigatórias da validação do Windows do Leo: `OCR Provider Registry iniciado`, `Provider selecionado: mock`, `Resultado criado` e `Pipeline finalizado`.
+- Mantidos os logs do PTP-017A para preservar a auditoria anterior do pipeline OCR completo.
+- Mantida a restrição de não implementar OCR real, extração de texto, IA, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — PTP-017A Validar Pipeline OCR Completo
 
 - Confirmado que o pipeline OCR completo já estava conectado após `python -m predixai.main --capture`.

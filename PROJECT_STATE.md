@@ -10,11 +10,11 @@ Primeiro produto: PredixAI Trader.
 
 Fase 2 — Vision.
 
-A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
+A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
 
 ## Último PTP aprovado
 
-PTP-017A — Validar Pipeline OCR Completo.
+PTP-017B — Hotfix de Validação do Pipeline OCR no Windows do Leo.
 
 ## Próximo PTP pendente
 
@@ -24,7 +24,7 @@ PTP-018 — A definir pelo Leo.
 
 V1 congelada.
 
-A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois` e valida o pipeline OCR completo com provider `mock` sem extrair texto.
+A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois` e valida o pipeline OCR completo com provider `mock` sem extrair texto, com logs visíveis no CMD para a validação local.
 
 ## Ambiente principal atual
 
@@ -93,6 +93,7 @@ Toda mudança relevante deve atualizar:
 - O OCR Pipeline Validation foundation executa o fluxo Capture → Vision → Frame → ImageBuffer → ROI → ROICrop → ROI Export → OCR Engine → Provider Selector → Mock Provider → OCRResult.
 - O OCR Pipeline Validation foundation cria `OCRResult` com `text_extracted=false`, `text=""`, `confidence=0.0` e tempo de processamento, sem OCR real.
 - O PTP-017A confirmou que o pipeline OCR completo já estava conectado e padronizou os logs obrigatórios da validação.
+- O PTP-017B confirmou que o pipeline OCR continua conectado e ajustou o logger para exibir no CMD as mensagens literais exigidas na validação do Windows do Leo.
 - A primeira execução local no Windows 10 do ambiente do Codex foi validada.
 - O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
