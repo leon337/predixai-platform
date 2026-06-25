@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-25 — PTP-018 OCR Region Mapping Foundation
+
+- Criada a fundação de Region Mapping em `src/predixai/vision/regions`.
+- Criados `region.py`, `region_manager.py`, `region_registry.py`, `region_validator.py` e `__init__.py`.
+- Integrado o `RegionManager` ao `VisionEngine` para registrar a região lógica `FULL_SCREEN` durante o fluxo `python -m predixai.main --capture`.
+- Registrados em log técnico `Region Manager iniciado`, `Region Registry carregado`, `Região FULL_SCREEN registrada` e o total de regiões registradas.
+- Mantida a restrição de não implementar OCR real, leitura de pixels, OpenCV, Pillow, IA, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — PTP-017C Forçar Execução Real do Pipeline OCR no --capture
 
 - Tornado obrigatório o pipeline completo após `python -m predixai.main --capture`: Vision, ImageBuffer, ROI, ROICrop, ROI Export e OCR Mock não são mais ignorados silenciosamente quando exigidos pela captura manual.

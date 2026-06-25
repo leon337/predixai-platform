@@ -9,6 +9,7 @@ from predixai.vision.frame_storage import FrameStorage
 from predixai.vision.frame_validator import FrameValidator
 from predixai.vision.image_buffer import ImageBuffer
 from predixai.vision.image_loader import ImageLoader
+from predixai.vision.regions import RegionManager, RegionRegistry
 from predixai.vision.roi_crop import ROICrop
 from predixai.vision.roi_crop_engine import ROICropEngine
 from predixai.vision.roi_crop_exporter import ROICropExporter
@@ -25,6 +26,7 @@ class VisionEngine:
         self.validator = FrameValidator()
         self.storage = FrameStorage()
         self.image_loader = ImageLoader()
+        self.region_manager = RegionManager()
         self.roi_manager = ROIManager()
         self.roi_crop_engine = ROICropEngine()
         roi_output_directory = self.config.resolve_path("captures") / "rois"
@@ -53,6 +55,10 @@ class VisionEngine:
     def register_rois(self, frame: Frame) -> ROIRegistry:
         """Register default ROI metadata for future Vision steps."""
         return self.roi_manager.load_default_registry(frame)
+
+    def register_regions(self, frame: Frame) -> RegionRegistry:
+        """Register default logical regions for future mapping steps."""
+        return self.region_manager.load_default_registry(frame)
 
     def load_image_buffer(self, snapshot: SnapshotMetadata) -> ImageBuffer:
         """Load PNG bytes and return image buffer metadata."""

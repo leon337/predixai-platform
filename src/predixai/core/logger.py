@@ -148,6 +148,16 @@ def log_roi_registry(logger: logging.Logger, registry: Any) -> None:
             logger.info("FULL_SCREEN registrada")
 
 
+def log_region_registry(logger: logging.Logger, registry: Any) -> None:
+    """Record logical Region Mapping metadata."""
+    logger.info("Region Manager iniciado")
+    logger.info("Region Registry carregado")
+    for region in registry.regions:
+        if region.id == "FULL_SCREEN":
+            logger.info("Região FULL_SCREEN registrada")
+    logger.info("Total de regiões registradas: %s", registry.count)
+
+
 def log_roi_crop(logger: logging.Logger, roi_crop: Any) -> None:
     """Record ROI crop metadata without pixel extraction."""
     logger.info("ROI Crop Engine iniciado")

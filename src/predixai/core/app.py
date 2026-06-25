@@ -18,6 +18,7 @@ from predixai.core.logger import (
     log_manual_snapshot,
     log_ocr_pipeline,
     log_perception,
+    log_region_registry,
     log_roi_crop,
     log_roi_crop_export,
     log_roi_registry,
@@ -170,6 +171,12 @@ class PredixAIApp:
 
         frame = self.vision_engine.process_capture(metadata)
         log_vision_frame(self.logger, metadata, frame)
+        region_registry = self.vision_engine.register_regions(frame)
+        log_region_registry(self.logger, region_registry)
+        self.events.record(
+            "vision.region_registry_loaded",
+            region_registry.to_dict(),
+        )
         image_buffer = self._load_vision_image_buffer(metadata)
         if image_buffer is not None:
             self.events.record("vision.image_buffer_created", image_buffer.to_dict())
