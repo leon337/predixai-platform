@@ -10,21 +10,21 @@ Primeiro produto: PredixAI Trader.
 
 Fase 2 — Vision.
 
-A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
+A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
 
 ## Último PTP aprovado
 
-PTP-013 — ROI Crop Foundation.
+PTP-014 — ROI Crop Image Export.
 
 ## Próximo PTP pendente
 
-PTP-014 — A definir pelo Leo.
+PTP-015 — A definir pelo Leo.
 
 ## Status geral
 
 V1 congelada.
 
-A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN` e cria metadados de `ROICrop` após validação matemática da ROI.
+A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI e exporta a ROI `FULL_SCREEN` em PNG para `captures/rois`.
 
 ## Ambiente principal atual
 
@@ -84,7 +84,8 @@ Toda mudança relevante deve atualizar:
 - A ROI foundation registra apenas metadados da região `FULL_SCREEN`, ocupando 100% da captura.
 - A ROI foundation não recorta imagem, não lê pixels, não usa OCR, OpenCV ou IA.
 - O ROI Crop foundation valida matematicamente se a ROI está dentro dos limites do `ImageBuffer` e cria `ROICrop` apenas com metadados.
-- O ROI Crop foundation não recorta pixels, não gera nova imagem, não interpreta conteúdo, não usa OCR, OpenCV, IA ou Strategy.
+- O ROI Crop Image Export exporta a ROI `FULL_SCREEN` em PNG reutilizando a captura original, porque a ROI ocupa 100% da imagem.
+- O ROI Crop Image Export não usa OCR, OpenCV, Pillow, IA, Strategy ou leitura interpretativa de pixels.
 - A primeira execução local no Windows 10 do ambiente do Codex foi validada.
 - O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.

@@ -6,6 +6,8 @@ from predixai.vision.image_loader import ImageLoader
 from predixai.vision.roi import RegionOfInterest
 from predixai.vision.roi_crop import ROICrop
 from predixai.vision.roi_crop_engine import ROICropEngine
+from predixai.vision.roi_crop_exporter import ROICropExporter
+from predixai.vision.roi_crop_storage import ROICropExport, ROICropStorage
 from predixai.vision.roi_manager import ROIManager
 from predixai.vision.roi_registry import ROIRegistry
 from predixai.vision.vision_engine import VisionEngine
@@ -17,6 +19,9 @@ __all__ = [
     "RegionOfInterest",
     "ROICrop",
     "ROICropEngine",
+    "ROICropExport",
+    "ROICropExporter",
+    "ROICropStorage",
     "ROIManager",
     "ROIRegistry",
     "VisionEngine",

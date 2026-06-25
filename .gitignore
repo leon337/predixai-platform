@@ -161,6 +161,10 @@ venv.bak/
 license.local.json
 secrets.local.json
 
+# PredixAI runtime captures
+captures/*.png
+captures/rois/*.png
+
 # Spyder project settings
 .spyderproject
 .spyproject

@@ -18,6 +18,7 @@ from predixai.core.logger import (
     log_manual_snapshot,
     log_perception,
     log_roi_crop,
+    log_roi_crop_export,
     log_roi_registry,
     log_startup,
     log_vision_frame,
@@ -179,6 +180,11 @@ class PredixAIApp:
                 "vision.roi_crops_created",
                 {"crops": [roi_crop.to_dict() for roi_crop in roi_crops]},
             )
+            roi_exports = self._export_roi_crops(roi_crops, image_buffer)
+            self.events.record(
+                "vision.roi_crops_exported",
+                {"exports": [roi_export.to_dict() for roi_export in roi_exports]},
+            )
         return frame
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object | None:
@@ -222,3 +228,19 @@ class PredixAIApp:
         for roi_crop in roi_crops:
             log_roi_crop(self.logger, roi_crop)
         return roi_crops
+
+    def _export_roi_crops(
+        self,
+        roi_crops: tuple[object, ...],
+        image_buffer: object,
+    ) -> tuple[object, ...]:
+        if self.vision_engine is None:
+            return ()
+
+        roi_exports = self.vision_engine.export_roi_crops(
+            roi_crops,
+            image_buffer,
+        )
+        for roi_export in roi_exports:
+            log_roi_crop_export(self.logger, roi_export)
+        return roi_exports

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-25 — PTP-014 ROI Crop Image Export
+
+- Criado o exportador de ROI em `src/predixai/vision`.
+- Criados `roi_crop_exporter.py` e `roi_crop_storage.py`.
+- Integrada a exportação da ROI `FULL_SCREEN` ao fluxo `python -m predixai.main --capture`.
+- A ROI `FULL_SCREEN` é exportada para `captures/rois` reutilizando o PNG original, sem interpretação da imagem.
+- Adicionadas regras de `.gitignore` para PNGs gerados em `captures` e `captures/rois`.
+- Registrados em log técnico o início do ROI Crop Export, ROI exportada, caminho do PNG exportado e tamanho do arquivo.
+- Mantida a restrição de não implementar OCR, OpenCV, Pillow, IA, Gemini, Strategy, Dashboard, Broker Adapter, Auditor, detecção de RSI, saldo, corretora ou leitura interpretativa de pixels.
+
 ## 2026-06-25 — PTP-013 ROI Crop Foundation
 
 - Criada a fundação do ROI Crop Engine em `src/predixai/vision`.

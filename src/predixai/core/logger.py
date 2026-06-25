@@ -154,6 +154,14 @@ def log_roi_crop(logger: logging.Logger, roi_crop: Any) -> None:
     logger.info("ROICrop criado: %s", roi_crop.to_dict())
 
 
+def log_roi_crop_export(logger: logging.Logger, roi_export: Any) -> None:
+    """Record ROI crop export metadata without visual interpretation."""
+    logger.info("ROI Crop Export iniciado")
+    logger.info("ROI exportada: %s", roi_export.roi_id)
+    logger.info("caminho do PNG exportado: %s", roi_export.output_path)
+    logger.info("tamanho do arquivo: %s bytes", roi_export.file_size)
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)
