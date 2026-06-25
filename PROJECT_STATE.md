@@ -14,7 +14,7 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-017 — OCR Pipeline Validation Foundation.
+PTP-017A — Validar Pipeline OCR Completo.
 
 ## Próximo PTP pendente
 
@@ -92,6 +92,7 @@ Toda mudança relevante deve atualizar:
 - O OCR Provider Adapter foundation mantém `text_extraction_enabled=false` e não implementa OCR funcional, IA, Strategy ou Dashboard.
 - O OCR Pipeline Validation foundation executa o fluxo Capture → Vision → Frame → ImageBuffer → ROI → ROICrop → ROI Export → OCR Engine → Provider Selector → Mock Provider → OCRResult.
 - O OCR Pipeline Validation foundation cria `OCRResult` com `text_extracted=false`, `text=""`, `confidence=0.0` e tempo de processamento, sem OCR real.
+- O PTP-017A confirmou que o pipeline OCR completo já estava conectado e padronizou os logs obrigatórios da validação.
 - A primeira execução local no Windows 10 do ambiente do Codex foi validada.
 - O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.

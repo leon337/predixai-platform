@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-25 — PTP-017A Validar Pipeline OCR Completo
+
+- Confirmado que o pipeline OCR completo já estava conectado após `python -m predixai.main --capture`.
+- Padronizados os logs obrigatórios para registrar `Provider Registry iniciado`, `Provider mock selecionado`, `Imagem enviada ao Mock Provider`, `OCRResult criado` e `Pipeline OCR finalizado`.
+- Mantida a restrição de não implementar OCR real, extração de texto, Tesseract, EasyOCR, PaddleOCR, OpenCV, Pillow, Gemini, IA, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — PTP-017 OCR Pipeline Validation Foundation
 
 - Validado o fluxo completo Capture → Vision → Frame → ImageBuffer → ROI → ROICrop → ROI Export → OCR Engine → Provider Selector → Mock Provider → OCRResult.

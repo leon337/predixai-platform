@@ -134,6 +134,7 @@
     "provider_registry": true,
     "provider_selector": true,
     "pipeline_validation": true,
+    "pipeline_logging_validated": true,
     "mock_provider_executed": true,
     "validator": true,
     "result_contract": true,
@@ -198,13 +199,13 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-017",
+    "last_approved_ptp": "PTP-017A",
     "next_pending_ptp": "PTP-018",
     "audit_rule": "Nenhum PTP é aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
   },
   "next_task": "Definir PTP-018 com aprovação do Leo, mantendo a V1 sem OCR funcional, IA, estratégia, automação ou interação com corretora até autorização explícita.",
-  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criado, OCR Provider Adapter foundation criado, OCR Pipeline Validation foundation criado, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criado, OCR Provider Adapter foundation criado, OCR Pipeline Validation foundation criado, logs do pipeline OCR completo validados, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",
