@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-25 — PTP-012 Image Loader Foundation
+
+- Criada a fundação do Image Loader em `src/predixai/vision`.
+- Criados `image_loader.py`, `image_buffer.py` e `image_loader_validator.py`.
+- Integrado o Image Loader ao fluxo `python -m predixai.main --capture` após a criação do Frame.
+- Adicionada configuração `vision.image_loader.enabled` em `config/config.json`.
+- Registrados em log técnico o início do Image Loader, PNG carregado em memória, tamanho em bytes, largura, altura, SHA256 e metadados do Image Buffer.
+- Mantida a restrição de não implementar OCR, OpenCV, Pillow, IA, recorte, leitura de pixels, Strategy, Dashboard, Broker Adapter ou Auditor.
+
 ## 2026-06-25 — PTP-011 Region of Interest Foundation
 
 - Criada a fundação de ROI em `src/predixai/vision`.

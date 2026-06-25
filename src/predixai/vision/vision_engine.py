@@ -7,6 +7,8 @@ from predixai.core.config import AppConfig
 from predixai.vision.frame import Frame
 from predixai.vision.frame_storage import FrameStorage
 from predixai.vision.frame_validator import FrameValidator
+from predixai.vision.image_buffer import ImageBuffer
+from predixai.vision.image_loader import ImageLoader
 from predixai.vision.roi_manager import ROIManager
 from predixai.vision.roi_registry import ROIRegistry
 
@@ -18,6 +20,7 @@ class VisionEngine:
         self.config = config
         self.validator = FrameValidator()
         self.storage = FrameStorage()
+        self.image_loader = ImageLoader()
         self.roi_manager = ROIManager()
 
     def process_capture(self, snapshot: SnapshotMetadata) -> Frame:
@@ -41,3 +44,7 @@ class VisionEngine:
     def register_rois(self, frame: Frame) -> ROIRegistry:
         """Register default ROI metadata for future Vision steps."""
         return self.roi_manager.load_default_registry(frame)
+
+    def load_image_buffer(self, snapshot: SnapshotMetadata) -> ImageBuffer:
+        """Load PNG bytes and return image buffer metadata."""
+        return self.image_loader.load(snapshot.file_path)

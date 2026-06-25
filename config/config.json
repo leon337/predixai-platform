@@ -51,6 +51,9 @@
   },
   "vision": {
     "enabled": true,
+    "image_loader": {
+      "enabled": true
+    },
     "roi": {
       "enabled": true
     }

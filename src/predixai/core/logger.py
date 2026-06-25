@@ -126,6 +126,17 @@ def log_vision_frame(logger: logging.Logger, snapshot: Any, frame: Any) -> None:
     logger.info("Metadados registrados: %s", frame.to_dict())
 
 
+def log_image_buffer(logger: logging.Logger, image_buffer: Any) -> None:
+    """Record Image Loader metadata without visual interpretation."""
+    logger.info("Image Loader iniciado")
+    logger.info("PNG carregado em memória: %s", image_buffer.file_path)
+    logger.info("tamanho em bytes: %s", image_buffer.byte_size)
+    logger.info("largura: %s", image_buffer.width)
+    logger.info("altura: %s", image_buffer.height)
+    logger.info("SHA256: %s", image_buffer.sha256)
+    logger.info("Image Buffer criado: %s", image_buffer.to_dict())
+
+
 def log_roi_registry(logger: logging.Logger, registry: Any) -> None:
     """Record ROI registry metadata without using image regions."""
     logger.info("ROI Manager iniciado")

@@ -14,6 +14,7 @@ from predixai.core.logger import (
     configure_logger,
     log_capture_engine,
     log_error,
+    log_image_buffer,
     log_manual_snapshot,
     log_perception,
     log_roi_registry,
@@ -165,10 +166,26 @@ class PredixAIApp:
 
         frame = self.vision_engine.process_capture(metadata)
         log_vision_frame(self.logger, metadata, frame)
+        image_buffer = self._load_vision_image_buffer(metadata)
+        if image_buffer is not None:
+            self.events.record("vision.image_buffer_created", image_buffer.to_dict())
         roi_registry = self._register_vision_rois(frame)
         if roi_registry is not None:
             self.events.record("vision.roi_registry_loaded", roi_registry.to_dict())
         return frame
+
+    def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object | None:
+        image_loader_config = self.config.vision.get("image_loader", {})
+        if not isinstance(image_loader_config, dict):
+            return None
+        if not bool(image_loader_config.get("enabled", False)):
+            return None
+        if self.vision_engine is None:
+            return None
+
+        image_buffer = self.vision_engine.load_image_buffer(metadata)
+        log_image_buffer(self.logger, image_buffer)
+        return image_buffer
 
     def _register_vision_rois(self, frame: object) -> object | None:
         roi_config = self.config.vision.get("roi", {})
