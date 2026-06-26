@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-26 — MILESTONE-006 Visual Intelligence Foundation
+
+- Concluídos os PTPs 028, 029, 030, 031 e 032 da Milestone-006.
+- Criado o OCR Parser para transformar texto bruto do OCR em blocos estruturados.
+- Criado o Region Text Mapping para associar textos à região lógica `FULL_SCREEN`.
+- Criado o Structured OCR Result com regiões, textos, posições, confiança e metadados.
+- Criado o Visual Snapshot para consolidar captura, frame, Region Mapping, ROI Export e Structured OCR.
+- Criado o Visual Benchmark com tempo de processamento, pico de memória, quantidade de regiões, blocos, tamanho do texto e cache hits do OCR.
+- Mantida a restrição de não implementar IA, Gemini, LLM, Strategy, Dashboard, Broker Adapter, automação ou tomada de decisão.
+
 ## 2026-06-25 — MILESTONE-005 OCR Real Foundation
 
 - Concluídos os PTPs 024, 025, 026 e 027 da Milestone-005.
