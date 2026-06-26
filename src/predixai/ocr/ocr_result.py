@@ -96,10 +96,14 @@ class OCRResult:
         processing_time_ms: float,
         timestamp: str,
         benchmark: dict[str, object] | None = None,
+        image_path: Path | None = None,
+        file_size: int | None = None,
     ) -> "OCRResult":
         """Return this OCRResult with runtime-only metadata updated."""
         return replace(
             self,
+            image_path=image_path if image_path is not None else self.image_path,
+            file_size=file_size if file_size is not None else self.file_size,
             cache_hit=cache_hit,
             processing_time_ms=processing_time_ms,
             timestamp=timestamp,

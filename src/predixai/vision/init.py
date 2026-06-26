@@ -28,6 +28,8 @@ from predixai.vision.visual import (
     RegionTextMapping,
     StructuredOCRBuilder,
     StructuredOCRResult,
+    VisualSnapshot,
+    VisualSnapshotBuilder,
 )
 
 __all__ = [
@@ -56,5 +58,7 @@ __all__ = [
     "RegionTextMapping",
     "StructuredOCRBuilder",
     "StructuredOCRResult",
+    "VisualSnapshot",
+    "VisualSnapshotBuilder",
     "VisionEngine",
 ]

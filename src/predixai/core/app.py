@@ -28,6 +28,7 @@ from predixai.core.logger import (
     log_roi_registry,
     log_startup,
     log_structured_ocr,
+    log_visual_snapshot,
     log_vision_frame,
 )
 from predixai.ocr import OCREngine
@@ -36,6 +37,7 @@ from predixai.vision import (
     OCRParser,
     RegionTextMapper,
     StructuredOCRBuilder,
+    VisualSnapshotBuilder,
     VisionEngine,
 )
 
@@ -77,6 +79,7 @@ class PredixAIApp:
         self.ocr_parser = OCRParser()
         self.region_text_mapper = RegionTextMapper()
         self.structured_ocr_builder = StructuredOCRBuilder()
+        self.visual_snapshot_builder = VisualSnapshotBuilder()
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -232,6 +235,14 @@ class PredixAIApp:
             ocr_results,
         )
         self.events.record("visual.structured_ocr_created", structured_ocr.to_dict())
+        visual_snapshot = self._build_visual_snapshot(
+            frame,
+            image_buffer,
+            region_registry,
+            roi_exports,
+            structured_ocr,
+        )
+        self.events.record("visual.snapshot_created", visual_snapshot.to_dict())
         return frame
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
@@ -347,3 +358,21 @@ class PredixAIApp:
         )
         log_structured_ocr(self.logger, structured_ocr)
         return structured_ocr
+
+    def _build_visual_snapshot(
+        self,
+        frame: object,
+        image_buffer: object,
+        region_registry: object,
+        roi_exports: tuple[object, ...],
+        structured_ocr: object,
+    ) -> object:
+        visual_snapshot = self.visual_snapshot_builder.build(
+            frame,
+            image_buffer,
+            region_registry,
+            roi_exports,
+            structured_ocr,
+        )
+        log_visual_snapshot(self.logger, visual_snapshot)
+        return visual_snapshot

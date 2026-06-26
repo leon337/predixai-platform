@@ -9,6 +9,8 @@ from predixai.vision.visual.region_text_mapper import (
 )
 from predixai.vision.visual.structured_ocr_builder import StructuredOCRBuilder
 from predixai.vision.visual.structured_ocr_result import StructuredOCRResult
+from predixai.vision.visual.visual_snapshot import VisualSnapshot
+from predixai.vision.visual.visual_snapshot_builder import VisualSnapshotBuilder
 
 __all__ = [
     "OCRParsedText",
@@ -19,4 +21,6 @@ __all__ = [
     "RegionTextMapping",
     "StructuredOCRBuilder",
     "StructuredOCRResult",
+    "VisualSnapshot",
+    "VisualSnapshotBuilder",
 ]

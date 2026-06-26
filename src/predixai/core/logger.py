@@ -277,6 +277,23 @@ def log_structured_ocr(logger: logging.Logger, structured_ocr: Any) -> None:
     logger.info("Structured OCR Result criado: %s", structured_ocr.to_dict())
 
 
+def log_visual_snapshot(logger: logging.Logger, visual_snapshot: Any) -> None:
+    """Record Visual Snapshot metadata."""
+    logger.info("Visual Snapshot iniciado")
+    logger.info("Visual Snapshot sessão: %s", visual_snapshot.session_id)
+    logger.info("Visual Snapshot frame: %s", visual_snapshot.source_frame)
+    logger.info(
+        "Visual Snapshot regiões: %s",
+        visual_snapshot.structured_ocr.total_regions,
+    )
+    logger.info(
+        "Visual Snapshot blocos: %s",
+        visual_snapshot.structured_ocr.total_blocks,
+    )
+    logger.info("Visual Snapshot criado: %s", visual_snapshot.to_dict())
+    logger.info("Visual Snapshot finalizado")
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

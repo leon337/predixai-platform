@@ -59,7 +59,12 @@ class OCREngine:
             raise ValueError("; ".join(validation.errors))
 
         image_sha256 = self.cache.compute_key(resolved_path)
-        cached_result = self._load_cached_result(image_sha256, started_at)
+        cached_result = self._load_cached_result(
+            image_sha256,
+            resolved_path,
+            validation.file_size,
+            started_at,
+        )
         if cached_result is not None:
             return cached_result
 
@@ -125,6 +130,8 @@ class OCREngine:
     def _load_cached_result(
         self,
         image_sha256: str,
+        image_path: Path,
+        file_size: int,
         started_at: float,
     ) -> OCRResult | None:
         if not self.cache_enabled:
@@ -151,4 +158,6 @@ class OCREngine:
             processing_time_ms=processing_time_ms,
             timestamp=timestamp,
             benchmark=benchmark_result.to_dict(),
+            image_path=image_path,
+            file_size=file_size,
         )
