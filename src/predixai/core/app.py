@@ -16,9 +16,13 @@ from predixai.core.logger import (
     log_error,
     log_image_buffer,
     log_manual_snapshot,
+    log_market_benchmark,
+    log_market_elements,
+    log_market_scene,
     log_ocr_pipeline,
     log_ocr_parser,
     log_perception,
+    log_price_region_mapping,
     log_region_text_mapping,
     log_region_mapping_finished,
     log_region_mapping_started,
@@ -36,6 +40,7 @@ from predixai.core.logger import (
     log_semantic_scene,
     log_startup,
     log_structured_ocr,
+    log_time_region_mapping,
     log_visual_benchmark,
     log_visual_scene,
     log_visual_scene_benchmark,
@@ -45,7 +50,11 @@ from predixai.core.logger import (
 from predixai.ocr import OCREngine
 from predixai.perception import PerceptionEngine
 from predixai.vision import (
+    MarketBenchmark,
+    MarketElementBuilder,
+    MarketSceneBuilder,
     OCRParser,
+    PriceRegionMapper,
     RegionTextMapper,
     ScreenElementBuilder,
     ScreenLayoutBuilder,
@@ -56,6 +65,7 @@ from predixai.vision import (
     SemanticRegistryBuilder,
     SemanticSceneBuilder,
     StructuredOCRBuilder,
+    TimeRegionMapper,
     VisualBenchmark,
     VisualSceneBenchmark,
     VisualSceneBuilder,
@@ -118,6 +128,13 @@ class PredixAIApp:
         self.semantic_registry_builder = SemanticRegistryBuilder()
         self.semantic_benchmark = SemanticBenchmark(
             enabled=self._semantic_benchmark_enabled()
+        )
+        self.market_element_builder = MarketElementBuilder()
+        self.price_region_mapper = PriceRegionMapper()
+        self.time_region_mapper = TimeRegionMapper()
+        self.market_scene_builder = MarketSceneBuilder()
+        self.market_benchmark = MarketBenchmark(
+            enabled=self._market_benchmark_enabled()
         )
 
     def bootstrap(self) -> StartupReport:
@@ -345,6 +362,27 @@ class PredixAIApp:
         )
         log_semantic_benchmark(self.logger, semantic_benchmark)
         self.events.record("semantic.benchmark_completed", semantic_benchmark.to_dict())
+        market_benchmark_run = self.market_benchmark.start()
+        market_elements = self._build_market_elements(semantic_scene)
+        self.events.record("market.elements_created", market_elements.to_dict())
+        price_regions = self._map_price_regions(market_elements)
+        self.events.record("market.price_regions_mapped", price_regions.to_dict())
+        time_regions = self._map_time_regions(market_elements)
+        self.events.record("market.time_regions_mapped", time_regions.to_dict())
+        market_scene = self._build_market_scene(
+            visual_scene,
+            semantic_scene,
+            market_elements,
+            price_regions,
+            time_regions,
+        )
+        self.events.record("market.scene_created", market_scene.to_dict())
+        market_benchmark = self.market_benchmark.finish(
+            market_benchmark_run,
+            market_scene,
+        )
+        log_market_benchmark(self.logger, market_benchmark)
+        self.events.record("market.benchmark_completed", market_benchmark.to_dict())
         return frame
 
     def _visual_benchmark_enabled(self) -> bool:
@@ -364,6 +402,12 @@ class PredixAIApp:
         if not isinstance(visual_config, dict):
             return True
         return bool(visual_config.get("semantic_benchmark_enabled", True))
+
+    def _market_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(visual_config.get("market_benchmark_enabled", True))
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
@@ -570,3 +614,36 @@ class PredixAIApp:
         registry = self.semantic_registry_builder.build(semantic_scene)
         log_semantic_registry(self.logger, registry)
         return registry
+
+    def _build_market_elements(self, semantic_scene: object) -> object:
+        market_elements = self.market_element_builder.build(semantic_scene)
+        log_market_elements(self.logger, market_elements)
+        return market_elements
+
+    def _map_price_regions(self, market_elements: object) -> object:
+        mapping = self.price_region_mapper.map_regions(market_elements)
+        log_price_region_mapping(self.logger, mapping)
+        return mapping
+
+    def _map_time_regions(self, market_elements: object) -> object:
+        mapping = self.time_region_mapper.map_regions(market_elements)
+        log_time_region_mapping(self.logger, mapping)
+        return mapping
+
+    def _build_market_scene(
+        self,
+        visual_scene: object,
+        semantic_scene: object,
+        market_elements: object,
+        price_regions: object,
+        time_regions: object,
+    ) -> object:
+        market_scene = self.market_scene_builder.build(
+            visual_scene,
+            semantic_scene,
+            market_elements,
+            price_regions,
+            time_regions,
+        )
+        log_market_scene(self.logger, market_scene)
+        return market_scene

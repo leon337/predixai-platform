@@ -417,6 +417,70 @@ def log_semantic_benchmark(logger: logging.Logger, benchmark: Any) -> None:
     logger.info("Semantic Benchmark finalizado: %s", benchmark.to_dict())
 
 
+def log_market_elements(logger: logging.Logger, market_elements: Any) -> None:
+    """Record Market Element foundation metadata."""
+    logger.info("Market Element Foundation iniciado")
+    logger.info("Elementos de mercado criados: %s", market_elements.count)
+    logger.info("Entidades de mercado criadas: %s", market_elements.entity_count)
+    for element in market_elements.elements:
+        logger.info("Market Element registrado: %s", element.id)
+        logger.info("Market Element tipo: %s", element.market_type)
+    logger.info("Market Element Foundation finalizado: %s", market_elements.to_dict())
+
+
+def log_price_region_mapping(logger: logging.Logger, mapping: Any) -> None:
+    """Record structural Price Region Mapper metadata."""
+    logger.info("Price Region Mapper iniciado")
+    logger.info("Regioes de preco mapeadas: %s", mapping.count)
+    for region in mapping.regions:
+        logger.info("Price Region registrada: %s", region.id)
+    logger.info("Price Region Mapper finalizado: %s", mapping.to_dict())
+
+
+def log_time_region_mapping(logger: logging.Logger, mapping: Any) -> None:
+    """Record structural Time Region Mapper metadata."""
+    logger.info("Time Region Mapper iniciado")
+    logger.info("Regioes de tempo mapeadas: %s", mapping.count)
+    for region in mapping.regions:
+        logger.info("Time Region registrada: %s", region.id)
+    logger.info("Time Region Mapper finalizado: %s", mapping.to_dict())
+
+
+def log_market_scene(logger: logging.Logger, market_scene: Any) -> None:
+    """Record Market Scene metadata."""
+    logger.info("Market Scene Builder iniciado")
+    logger.info("Market Scene criada: %s", market_scene.id)
+    logger.info("Market Scene elementos: %s", market_scene.element_count)
+    logger.info("Market Scene entidades: %s", market_scene.entity_count)
+    logger.info("Market Scene regioes: %s", market_scene.region_count)
+    logger.info("Market Scene regioes de preco: %s", market_scene.price_region_count)
+    logger.info("Market Scene regioes de tempo: %s", market_scene.time_region_count)
+    logger.info("Market Scene Builder finalizado: %s", market_scene.to_dict())
+
+
+def log_market_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record Market Benchmark metadata."""
+    logger.info("Market Benchmark iniciado")
+    logger.info("Market Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Market Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info("Market Benchmark pico de memoria: %s KB", benchmark.peak_memory_kb)
+    logger.info("Market Benchmark elementos: %s", benchmark.element_count)
+    logger.info("Market Benchmark regioes: %s", benchmark.region_count)
+    logger.info("Market Benchmark entidades: %s", benchmark.entity_count)
+    logger.info(
+        "Market Benchmark regioes de preco: %s",
+        benchmark.price_region_count,
+    )
+    logger.info(
+        "Market Benchmark regioes de tempo: %s",
+        benchmark.time_region_count,
+    )
+    logger.info("Market Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

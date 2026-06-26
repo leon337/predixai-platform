@@ -7,6 +7,20 @@ from predixai.vision.visual.region_text_mapper import (
     RegionTextMapper,
     RegionTextMapping,
 )
+from predixai.vision.visual.market_benchmark import (
+    MarketBenchmark,
+    MarketBenchmarkResult,
+    MarketBenchmarkRun,
+)
+from predixai.vision.visual.market_element import MarketElement, MarketElements
+from predixai.vision.visual.market_element_builder import MarketElementBuilder
+from predixai.vision.visual.market_scene import MarketScene
+from predixai.vision.visual.market_scene_builder import MarketSceneBuilder
+from predixai.vision.visual.price_region_mapper import (
+    PriceRegion,
+    PriceRegionMapper,
+    PriceRegionMapping,
+)
 from predixai.vision.visual.screen_element import ScreenElement, ScreenElements
 from predixai.vision.visual.screen_element_builder import ScreenElementBuilder
 from predixai.vision.visual.screen_layout import ScreenLayout, ScreenLayoutNode
@@ -39,6 +53,11 @@ from predixai.vision.visual.semantic_scene import SemanticScene
 from predixai.vision.visual.semantic_scene_builder import SemanticSceneBuilder
 from predixai.vision.visual.structured_ocr_builder import StructuredOCRBuilder
 from predixai.vision.visual.structured_ocr_result import StructuredOCRResult
+from predixai.vision.visual.time_region_mapper import (
+    TimeRegion,
+    TimeRegionMapper,
+    TimeRegionMapping,
+)
 from predixai.vision.visual.visual_benchmark import (
     VisualBenchmark,
     VisualBenchmarkResult,
@@ -61,6 +80,17 @@ __all__ = [
     "RegionText",
     "RegionTextMapper",
     "RegionTextMapping",
+    "MarketBenchmark",
+    "MarketBenchmarkResult",
+    "MarketBenchmarkRun",
+    "MarketElement",
+    "MarketElementBuilder",
+    "MarketElements",
+    "MarketScene",
+    "MarketSceneBuilder",
+    "PriceRegion",
+    "PriceRegionMapper",
+    "PriceRegionMapping",
     "ScreenElement",
     "ScreenElementBuilder",
     "ScreenElements",
@@ -86,6 +116,9 @@ __all__ = [
     "SemanticSceneBuilder",
     "StructuredOCRBuilder",
     "StructuredOCRResult",
+    "TimeRegion",
+    "TimeRegionMapper",
+    "TimeRegionMapping",
     "VisualBenchmark",
     "VisualBenchmarkResult",
     "VisualBenchmarkRun",

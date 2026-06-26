@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-26 — MILESTONE-009 Market Interface Foundation
+
+- Concluídos os PTPs 043, 044, 045, 046 e 047 em uma única execução de milestone.
+- Criado o Market Element Foundation para derivar elementos estruturais de mercado a partir da Semantic Scene.
+- Criado o Price Region Mapper para mapear regiões estruturais de preço sem interpretar valores.
+- Criado o Time Region Mapper para mapear regiões estruturais de tempo sem interpretar valores.
+- Criado o Market Scene Builder para consolidar Visual Scene, Semantic Scene, Market Elements e regiões de mercado.
+- Criado o Market Benchmark com tempo de processamento, pico de memória, elementos, regiões, entidades e contagens de regiões de preço e tempo.
+- Mantida a restrição de não implementar IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automação ou tomada de decisão.
+
 ## 2026-06-26 — MILESTONE-008 Interface Semantic Foundation
 
 - Concluídos os PTPs 038, 039, 040, 041 e 042 em uma única execução de milestone.

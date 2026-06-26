@@ -57,12 +57,13 @@
     "roi": {
       "enabled": true
     },
-    "visual": {
-      "benchmark_enabled": true,
-      "scene_benchmark_enabled": true,
-      "semantic_benchmark_enabled": true
-    }
-  },
+        "visual": {
+            "benchmark_enabled": true,
+            "scene_benchmark_enabled": true,
+            "semantic_benchmark_enabled": true,
+            "market_benchmark_enabled": true
+        }
+    },
   "ocr": {
     "enabled": true,
     "provider": "tesseract",
