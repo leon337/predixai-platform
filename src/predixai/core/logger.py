@@ -603,6 +603,69 @@ def log_pattern_benchmark(logger: logging.Logger, benchmark: Any) -> None:
     logger.info("Pattern Benchmark finalizado: %s", benchmark.to_dict())
 
 
+def log_pattern_classification(logger: logging.Logger, registry: Any) -> None:
+    """Record deterministic pattern classification metadata."""
+    logger.info("Pattern Classifier iniciado")
+    logger.info("Classificacoes de padrao: %s", registry.count)
+    logger.info("Pattern Classifier finalizado: %s", registry.to_dict())
+
+
+def log_pattern_context(logger: logging.Logger, context: Any) -> None:
+    """Record structural pattern context metadata."""
+    logger.info("Pattern Context Builder iniciado")
+    logger.info("Pattern Context criado: %s", context.id)
+    logger.info("Pattern Context finalizado: %s", context.to_dict())
+
+
+def log_pattern_analysis(logger: logging.Logger, analysis: Any) -> None:
+    """Record pattern analysis metadata."""
+    logger.info("Pattern Analyzer iniciado")
+    logger.info("Pattern Analysis criada: %s", analysis.id)
+    logger.info("Pattern Analysis padroes: %s", analysis.pattern_count)
+    logger.info("Pattern Analysis classificacoes: %s", analysis.classification_count)
+    logger.info("Pattern Analysis contextos: %s", analysis.context_count)
+    logger.info("Pattern Analysis finalizado: %s", analysis.to_dict())
+
+
+def log_pattern_analysis_validation(logger: logging.Logger, validation: Any) -> None:
+    """Record pattern analysis validation metadata."""
+    logger.info("Pattern Analysis Validator iniciado")
+    logger.info("Pattern Analysis valida: %s", validation.valid)
+    logger.info("Pattern Analysis padroes validados: %s", validation.pattern_count)
+    logger.info("Pattern Analysis classificacoes validadas: %s", validation.classification_count)
+    logger.info("Pattern Analysis contextos validados: %s", validation.context_count)
+    for issue in validation.issues:
+        logger.warning("Pattern Analysis issue: %s", issue)
+    logger.info("Pattern Analysis Validator finalizado: %s", validation.to_dict())
+
+
+def log_pattern_analysis_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record pattern analysis benchmark metadata."""
+    logger.info("Pattern Analysis Benchmark iniciado")
+    logger.info("Pattern Analysis Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Pattern Analysis Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info(
+        "Pattern Analysis Benchmark pico de memoria: %s KB",
+        benchmark.peak_memory_kb,
+    )
+    logger.info(
+        "Pattern Analysis Benchmark padroes analisados: %s",
+        benchmark.analyzed_pattern_count,
+    )
+    logger.info(
+        "Pattern Analysis Benchmark classificacoes: %s",
+        benchmark.classification_count,
+    )
+    logger.info(
+        "Pattern Analysis Benchmark contextos: %s",
+        benchmark.context_count,
+    )
+    logger.info("Pattern Analysis Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

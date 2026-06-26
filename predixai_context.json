@@ -440,7 +440,8 @@
     "dashboard": false,
     "broker_adapter": false,
     "decision_making": false
-  },  "local_execution": {
+  },
+  "local_execution": {
     "windows_10": true,
     "windows_10_codex_environment_validated": true,
     "windows_10_leo_machine_validated": true,
@@ -473,17 +474,48 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-052",
-    "next_pending_ptp": "PTP-053",
+    "last_approved_ptp": "PTP-057",
+    "next_pending_ptp": "PTP-058",
     "audit_rule": "Nenhum PTP é aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
   },
-  "next_task": "Definir PTP-053 para a Pattern Foundation, mantendo a V1 sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automa\u00e7\u00e3o, tomada de decis\u00e3o ou intera\u00e7\u00e3o com corretora at\u00e9 autoriza\u00e7\u00e3o expl\u00edcita.",
-  "architecture_status": "V1 congelada, Fase 0 conclu\u00edda, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criada, OCR Provider Adapter foundation criada, OCR Pipeline Validation foundation criada, hotfix de logs do pipeline OCR para Windows do Leo aplicado, execu\u00e7\u00e3o obrigat\u00f3ria vis\u00edvel do pipeline OCR no --capture aplicada, OCR Region Mapping foundation criada, Milestone-004 Region Mapping Expansion conclu\u00eddo, Tesseract Provider foundation criado, Milestone-005 OCR Real Foundation conclu\u00edda com Tesseract OCR real, valida\u00e7\u00e3o, cache SHA256 e benchmark, Milestone-006 Visual Intelligence Foundation conclu\u00edda com OCR Parser, Region Text Mapping, Structured OCR Result, Visual Snapshot e Visual Benchmark, Milestone-007 Visual Understanding Foundation conclu\u00edda com Screen Elements, Screen Layout, Screen Object Registry, Visual Scene e Visual Scene Benchmark, Milestone-008 Interface Semantic Foundation conclu\u00edda com Semantic Elements, Semantic Label Mapper, Semantic Scene, Semantic Registry e Semantic Benchmark, Milestone-009 Market Interface Foundation conclu\u00edda com Market Elements, Price Region Mapper, Time Region Mapper, Market Scene e Market Benchmark, Milestone-010 Market Structure Foundation conclu\u00edda com Market Entities, Market Entity Registry, Market Structure, Market Structure Validator e Market Structure Benchmark, Milestone-011 Pattern Recognition Foundation conclu\u00edda com Pattern Foundation, Pattern Registry, Pattern Detector, Pattern Scene e Pattern Benchmark, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automa\u00e7\u00e3o ou tomada de decis\u00e3o, captura manual criada, execu\u00e7\u00e3o local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governan\u00e7a criada",
+  "next_task": "Definir PTP-058 para a Pattern Analyzer Foundation, mantendo a V1 sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automa??o, tomada de decis?o ou intera??o com corretora at? autoriza??o expl?cita.",
+  "architecture_status": "V1 congelada, Fase 0 concluída, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criada, OCR Provider Adapter foundation criada, OCR Pipeline Validation foundation criada, hotfix de logs do pipeline OCR para Windows do Leo aplicado, execução obrigatória visível do pipeline OCR no --capture aplicada, OCR Region Mapping foundation criada, Milestone-004 Region Mapping Expansion concluído, Tesseract Provider foundation criado, Milestone-005 OCR Real Foundation concluída com Tesseract OCR real, validação, cache SHA256 e benchmark, Milestone-006 Visual Intelligence Foundation concluída com OCR Parser, Region Text Mapping, Structured OCR Result, Visual Snapshot e Visual Benchmark, Milestone-007 Visual Understanding Foundation concluída com Screen Elements, Screen Layout, Screen Object Registry, Visual Scene e Visual Scene Benchmark, Milestone-008 Interface Semantic Foundation concluída com Semantic Elements, Semantic Label Mapper, Semantic Scene, Semantic Registry e Semantic Benchmark, Milestone-009 Market Interface Foundation concluída com Market Elements, Price Region Mapper, Time Region Mapper, Market Scene e Market Benchmark, Milestone-010 Market Structure Foundation concluída com Market Entities, Market Entity Registry, Market Structure, Market Structure Validator e Market Structure Benchmark, Milestone-011 Pattern Recognition Foundation concluída com Pattern Foundation, Pattern Registry, Pattern Detector, Pattern Scene e Pattern Benchmark, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automação ou tomada de decisão, captura manual criada, execução local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governança criada, Milestone-012 Pattern Analysis Foundation conclu?da com Pattern Analyzer, Pattern Analysis, Pattern Classification, Pattern Context Builder, Pattern Analysis Builder e Pattern Analysis Benchmark",
   "rules": [
     "Codex não decide arquitetura sem aprovação.",
     "Nenhuma ordem financeira na V1.",
     "IA é analista, não operadora.",
     "Toda mudança relevante atualiza este arquivo."
-  ]
+  ],
+  "pattern_analysis_foundation": {
+    "enabled": true,
+    "milestone_012_complete": true,
+    "pattern_analyzer": true,
+    "pattern_analysis": true,
+    "pattern_analysis_validator": true,
+    "pattern_classification": true,
+    "pattern_context_builder": true,
+    "pattern_analysis_builder": true,
+    "pattern_analysis_benchmark": true,
+    "source": "Pattern Scene",
+    "pattern_count": "runtime-dependent",
+    "classification_count": "runtime-dependent",
+    "context_count": "runtime-dependent",
+    "benchmark_metrics": [
+      "processing_time_ms",
+      "peak_memory_kb",
+      "current_memory_kb",
+      "pattern_count",
+      "classification_count",
+      "context_count"
+    ],
+    "structural_only": true,
+    "ai": false,
+    "gemini": false,
+    "llm": false,
+    "strategy": false,
+    "dashboard": false,
+    "broker_adapter": false,
+    "decision_making": false
+  }
 }

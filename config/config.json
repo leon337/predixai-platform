@@ -63,7 +63,8 @@
         "semantic_benchmark_enabled": true,
         "market_benchmark_enabled": true,
         "market_structure_benchmark_enabled": true,
-        "pattern_benchmark_enabled": true
+        "pattern_benchmark_enabled": true,
+        "pattern_analysis_benchmark_enabled": true
       }
   },
   "ocr": {

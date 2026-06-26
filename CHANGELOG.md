@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-26 — MILESTONE-012 Pattern Analysis Foundation
+
+- Concluídos os PTPs 058, 059, 060, 061 e 062 em uma única execução de milestone.
+- Criado o Pattern Analyzer Foundation para estruturar a análise de padrões sem IA ou tomada de decisão.
+- Criado o Pattern Classification com regras estruturais determinísticas.
+- Criado o Pattern Context Builder para relacionar Pattern Scene, Market Structure, Market Entities e Visual Snapshot.
+- Criado o Pattern Analysis Builder para consolidar análise, contexto e classificação.
+- Criado o Pattern Analysis Benchmark com tempo, memória, padrões analisados, classificações e contextos.
+- Mantida a restrição de não implementar IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automação ou tomada de decisão.
+
 ## 2026-06-26 — MILESTONE-011 Pattern Recognition Foundation
 
 - Concluídos os PTPs 053, 054, 055, 056 e 057 em uma única execução de milestone.

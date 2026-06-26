@@ -48,7 +48,28 @@ from predixai.vision.visual.pattern_benchmark import (
     PatternBenchmarkResult,
     PatternBenchmarkRun,
 )
+from predixai.vision.visual.pattern_analysis import PatternAnalysis
+from predixai.vision.visual.pattern_analysis_benchmark import (
+    PatternAnalysisBenchmark,
+    PatternAnalysisBenchmarkResult,
+    PatternAnalysisBenchmarkRun,
+)
+from predixai.vision.visual.pattern_analysis_builder import PatternAnalysisBuilder
+from predixai.vision.visual.pattern_analysis_validator import (
+    PatternAnalysisValidation,
+    PatternAnalysisValidator,
+)
+from predixai.vision.visual.pattern_analyzer import PatternAnalyzer
 from predixai.vision.visual.pattern_builder import PatternBuilder
+from predixai.vision.visual.pattern_classifier import (
+    PatternClassification,
+    PatternClassifier,
+)
+from predixai.vision.visual.pattern_classifier_registry import (
+    PatternClassifierRegistry,
+)
+from predixai.vision.visual.pattern_context import PatternContext
+from predixai.vision.visual.pattern_context_builder import PatternContextBuilder
 from predixai.vision.visual.pattern_detector import PatternDetector
 from predixai.vision.visual.pattern_matcher import PatternMatcher
 from predixai.vision.visual.pattern_registry import (
@@ -153,7 +174,20 @@ __all__ = [
     "PatternBenchmark",
     "PatternBenchmarkResult",
     "PatternBenchmarkRun",
+    "PatternAnalysis",
+    "PatternAnalysisBenchmark",
+    "PatternAnalysisBenchmarkResult",
+    "PatternAnalysisBenchmarkRun",
+    "PatternAnalysisBuilder",
+    "PatternAnalysisValidation",
+    "PatternAnalysisValidator",
+    "PatternAnalyzer",
     "PatternBuilder",
+    "PatternClassification",
+    "PatternClassifier",
+    "PatternClassifierRegistry",
+    "PatternContext",
+    "PatternContextBuilder",
     "PatternDetector",
     "PatternMatcher",
     "PatternRegistry",

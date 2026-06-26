@@ -26,6 +26,11 @@ from predixai.core.logger import (
     log_market_structure_benchmark,
     log_market_structure_validation,
     log_pattern_benchmark,
+    log_pattern_analysis,
+    log_pattern_analysis_benchmark,
+    log_pattern_analysis_validation,
+    log_pattern_classification,
+    log_pattern_context,
     log_pattern_detector,
     log_pattern_registry,
     log_pattern_scene,
@@ -71,7 +76,14 @@ from predixai.vision import (
     MarketStructureBuilder,
     MarketStructureValidator,
     PatternBenchmark,
+    PatternAnalysisBenchmark,
+    PatternAnalysisBuilder,
+    PatternAnalysisValidator,
+    PatternAnalyzer,
     PatternDetector,
+    PatternClassifier,
+    PatternClassifierRegistry,
+    PatternContextBuilder,
     PatternRegistryBuilder,
     PatternSceneBuilder,
     PatternValidator,
@@ -170,6 +182,14 @@ class PredixAIApp:
         self.pattern_validator = PatternValidator()
         self.pattern_benchmark = PatternBenchmark(
             enabled=self._pattern_benchmark_enabled()
+        )
+        self.pattern_classifier = PatternClassifier()
+        self.pattern_context_builder = PatternContextBuilder()
+        self.pattern_analysis_builder = PatternAnalysisBuilder()
+        self.pattern_analysis_validator = PatternAnalysisValidator()
+        self.pattern_analyzer = PatternAnalyzer()
+        self.pattern_analysis_benchmark = PatternAnalysisBenchmark(
+            enabled=self._pattern_analysis_benchmark_enabled()
         )
         self.price_region_mapper = PriceRegionMapper()
         self.time_region_mapper = TimeRegionMapper()
@@ -489,6 +509,48 @@ class PredixAIApp:
             "pattern.benchmark_completed",
             pattern_benchmark.to_dict(),
         )
+        pattern_analysis_benchmark_run = self.pattern_analysis_benchmark.start()
+        pattern_classifications = self._classify_patterns(pattern_scene)
+        self.events.record(
+            "pattern.classified",
+            {"classifications": [item.to_dict() for item in pattern_classifications]},
+        )
+        pattern_classification_registry = self._build_pattern_classification_registry(
+            pattern_classifications
+        )
+        self.events.record(
+            "pattern.classification_registry_created",
+            pattern_classification_registry.to_dict(),
+        )
+        pattern_context = self._build_pattern_context(
+            pattern_scene,
+            market_structure,
+            visual_snapshot,
+        )
+        self.events.record("pattern.context_created", pattern_context.to_dict())
+        pattern_analysis = self._build_pattern_analysis(
+            pattern_scene,
+            pattern_context,
+            pattern_classification_registry,
+        )
+        self.events.record("pattern.analysis_created", pattern_analysis.to_dict())
+        pattern_analysis_validation = self._validate_pattern_analysis(
+            pattern_analysis
+        )
+        self.events.record(
+            "pattern.analysis_validated",
+            pattern_analysis_validation.to_dict(),
+        )
+        pattern_analysis = self.pattern_analyzer.analyze(pattern_analysis)
+        pattern_analysis_benchmark = self.pattern_analysis_benchmark.finish(
+            pattern_analysis_benchmark_run,
+            pattern_analysis,
+        )
+        log_pattern_analysis_benchmark(self.logger, pattern_analysis_benchmark)
+        self.events.record(
+            "pattern.analysis_benchmark_completed",
+            pattern_analysis_benchmark.to_dict(),
+        )
         return frame
 
     def _visual_benchmark_enabled(self) -> bool:
@@ -526,6 +588,12 @@ class PredixAIApp:
         if not isinstance(visual_config, dict):
             return True
         return bool(visual_config.get("pattern_benchmark_enabled", True))
+
+    def _pattern_analysis_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(visual_config.get("pattern_analysis_benchmark_enabled", True))
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
@@ -834,3 +902,47 @@ class PredixAIApp:
         )
         log_pattern_scene(self.logger, pattern_scene)
         return pattern_scene
+
+    def _classify_patterns(self, pattern_scene: object) -> object:
+        classifications = self.pattern_classifier.classify(pattern_scene)
+        log_pattern_classification(
+            self.logger,
+            PatternClassifierRegistry(classifications),
+        )
+        return classifications
+
+    def _build_pattern_classification_registry(self, classifications: object) -> object:
+        return PatternClassifierRegistry(tuple(classifications))
+
+    def _build_pattern_context(
+        self,
+        pattern_scene: object,
+        market_structure: object,
+        visual_snapshot: object,
+    ) -> object:
+        context = self.pattern_context_builder.build(
+            pattern_scene,
+            market_structure,
+            visual_snapshot,
+        )
+        log_pattern_context(self.logger, context)
+        return context
+
+    def _build_pattern_analysis(
+        self,
+        pattern_scene: object,
+        pattern_context: object,
+        classification_registry: object,
+    ) -> object:
+        analysis = self.pattern_analysis_builder.build(
+            pattern_scene,
+            pattern_context,
+            classification_registry,
+        )
+        log_pattern_analysis(self.logger, analysis)
+        return analysis
+
+    def _validate_pattern_analysis(self, analysis: object) -> object:
+        validation = self.pattern_analysis_validator.validate(analysis)
+        log_pattern_analysis_validation(self.logger, validation)
+        return validation

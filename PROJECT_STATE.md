@@ -1,4 +1,4 @@
-# PredixAI BR — Estado Oficial do Projeto
+﻿# PredixAI BR — Estado Oficial do Projeto
 
 ## Projeto
 
