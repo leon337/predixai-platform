@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-26 â€” MILESTONE-014 Strategy Readiness Foundation
+
+- ConcluÃ­dos os PTPs 068, 069, 070, 071 e 072 em uma Ãºnica execuÃ§Ã£o de milestone.
+- Criada a infraestrutura de Signal Foundation para representar sinais estruturais derivados de Pattern Analysis e Intelligence Snapshot.
+- Criado o Signal Registry e o Signal Scoring Foundation com regras fixas e sem tomada de decisÃ£o.
+- Criado o Strategy Readiness Snapshot para consolidar Pattern Analysis, Intelligence Snapshot, Market Hypothesis, Signals e Scores.
+- Criado o Strategy Readiness Benchmark com tempo, memÃ³ria, quantidade de sinais, hipÃ³teses, anÃ¡lises e status.
+- Mantida a restriÃ§Ã£o de nÃ£o implementar IA, LLM, Gemini, Strategy real, Dashboard, Broker Adapter, execuÃ§Ã£o de ordens, tomada de decisÃ£o ou automaÃ§Ã£o.
+
 ## 2026-06-26 ? MILESTONE-013 Intelligence Foundation
 
 - Conclu?dos os PTPs 063, 064, 065, 066 e 067 em uma ?nica execu??o de milestone.

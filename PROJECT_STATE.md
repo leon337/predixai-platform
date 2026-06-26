@@ -10,15 +10,15 @@ Primeiro produto: PredixAI Trader.
 
 Fase 2 — Vision.
 
-A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, execução obrigatória visível do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, Milestone-004 Region Mapping Expansion, Tesseract Provider foundation, Milestone-005 OCR Real Foundation, Milestone-006 Visual Intelligence Foundation, Milestone-007 Visual Understanding Foundation, Milestone-008 Interface Semantic Foundation, Milestone-009 Market Interface Foundation, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
+A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, execução obrigatória visível do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, Milestone-004 Region Mapping Expansion, Tesseract Provider foundation, Milestone-005 OCR Real Foundation, Milestone-006 Visual Intelligence Foundation, Milestone-007 Visual Understanding Foundation, Milestone-008 Interface Semantic Foundation, Milestone-009 Market Interface Foundation, Milestone-010 Market Structure Foundation, Milestone-011 Pattern Recognition Foundation, Milestone-012 Pattern Analysis Foundation, Milestone-013 Intelligence Foundation, Milestone-014 Strategy Readiness Foundation, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
 
 ## Último PTP aprovado
 
-PTP-062 — Pattern Analysis Benchmark.
+PTP-072 — Strategy Readiness Benchmark.
 
 ## Próximo PTP pendente
 
-PTP-063 — Intelligence Context Foundation.
+PTP-073 — Próximo PTP a definir pelo Leo.
 
 ## Status geral
 
@@ -140,6 +140,11 @@ Toda mudança relevante deve atualizar:
 - O Hypothesis Evaluator avalia hipóteses apenas com regras estruturais.
 - O Intelligence Snapshot consolida Market Structure, Pattern Analysis, Intelligence Context e Market Hypothesis.
 - O Intelligence Benchmark registra tempo, memória, quantidade de hipóteses, análises, entidades e status.
+- A Milestone-014 Strategy Readiness Foundation cria a infraestrutura de preparação para Strategy sem tomada de decisão, execução ou automação.
+- O Signal Foundation representa sinais estruturais derivados de Pattern Analysis e Intelligence Snapshot.
+- O Signal Registry e o Signal Scoring Foundation registram e pontuam sinais com regras fixas.
+- O Strategy Readiness Snapshot consolida Pattern Analysis, Intelligence Snapshot, Market Hypothesis, Signals e Scores.
+- O Strategy Readiness Benchmark registra tempo, memória, quantidade de sinais, hipóteses, análises e status.
 - A primeira execução local no Windows 10 do ambiente do Codex foi validada.
 - O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.

@@ -31,10 +31,21 @@ from predixai.core.logger import (
     log_pattern_analysis_validation,
     log_pattern_classification,
     log_pattern_context,
+    log_hypothesis_evaluator,
+    log_intelligence_benchmark,
+    log_intelligence_context,
+    log_intelligence_context_validation,
+    log_intelligence_snapshot,
+    log_market_hypothesis,
+    log_market_hypothesis_registry,
     log_pattern_detector,
     log_pattern_registry,
     log_pattern_scene,
     log_pattern_validation,
+    log_signal,
+    log_signal_registry,
+    log_signal_score,
+    log_signal_validation,
     log_ocr_pipeline,
     log_ocr_parser,
     log_perception,
@@ -62,6 +73,8 @@ from predixai.core.logger import (
     log_visual_scene_benchmark,
     log_visual_snapshot,
     log_vision_frame,
+    log_strategy_readiness_benchmark,
+    log_strategy_readiness_snapshot,
 )
 from predixai.ocr import OCREngine
 from predixai.perception import PerceptionEngine
@@ -84,6 +97,15 @@ from predixai.vision import (
     PatternClassifier,
     PatternClassifierRegistry,
     PatternContextBuilder,
+    IntelligenceBenchmark,
+    IntelligenceContextBuilder,
+    IntelligenceContextValidator,
+    IntelligenceSnapshot,
+    IntelligenceSnapshotBuilder,
+    HypothesisEvaluator,
+    HypothesisScore,
+    MarketHypothesisBuilder,
+    MarketHypothesisRegistry,
     PatternRegistryBuilder,
     PatternSceneBuilder,
     PatternValidator,
@@ -100,6 +122,12 @@ from predixai.vision import (
     SemanticLabelMapper,
     SemanticRegistryBuilder,
     SemanticSceneBuilder,
+    SignalBuilder,
+    SignalRegistry,
+    SignalScorer,
+    SignalValidator,
+    StrategyReadinessBenchmark,
+    StrategyReadinessSnapshotBuilder,
     StructuredOCRBuilder,
     TimeRegionMapper,
     VisualBenchmark,
@@ -190,6 +218,23 @@ class PredixAIApp:
         self.pattern_analyzer = PatternAnalyzer()
         self.pattern_analysis_benchmark = PatternAnalysisBenchmark(
             enabled=self._pattern_analysis_benchmark_enabled()
+        )
+        self.intelligence_context_builder = IntelligenceContextBuilder()
+        self.intelligence_context_validator = IntelligenceContextValidator()
+        self.intelligence_snapshot_builder = IntelligenceSnapshotBuilder()
+        self.intelligence_benchmark = IntelligenceBenchmark(
+            enabled=self._intelligence_benchmark_enabled()
+        )
+        self.hypothesis_evaluator = HypothesisEvaluator()
+        self.market_hypothesis_builder = MarketHypothesisBuilder()
+        self.market_hypothesis_registry = MarketHypothesisRegistry
+        self.signal_builder = SignalBuilder()
+        self.signal_registry = SignalRegistry
+        self.signal_scorer = SignalScorer()
+        self.signal_validator = SignalValidator()
+        self.strategy_readiness_snapshot_builder = StrategyReadinessSnapshotBuilder()
+        self.strategy_readiness_benchmark = StrategyReadinessBenchmark(
+            enabled=self._strategy_readiness_benchmark_enabled()
         )
         self.price_region_mapper = PriceRegionMapper()
         self.time_region_mapper = TimeRegionMapper()
@@ -551,6 +596,92 @@ class PredixAIApp:
             "pattern.analysis_benchmark_completed",
             pattern_analysis_benchmark.to_dict(),
         )
+        intelligence_context = self._build_intelligence_context(
+            pattern_analysis,
+            market_structure,
+            visual_snapshot,
+        )
+        intelligence_context_validation = self._validate_intelligence_context(
+            intelligence_context
+        )
+        self.events.record(
+            "intelligence.context_validated",
+            intelligence_context_validation.to_dict(),
+        )
+        market_hypotheses = self._build_market_hypotheses(intelligence_context)
+        self.events.record(
+            "intelligence.hypotheses_created",
+            market_hypotheses.to_dict(),
+        )
+        hypothesis_scores = self._evaluate_hypotheses(market_hypotheses)
+        self.events.record(
+            "intelligence.hypotheses_scored",
+            {"scores": [score.to_dict() for score in hypothesis_scores]},
+        )
+        intelligence_benchmark_run = self.intelligence_benchmark.start()
+        intelligence_snapshot = self._build_intelligence_snapshot(
+            market_structure,
+            pattern_analysis,
+            intelligence_context,
+            market_hypotheses,
+        )
+        self.events.record(
+            "intelligence.snapshot_created",
+            intelligence_snapshot.to_dict(),
+        )
+        log_intelligence_snapshot(self.logger, intelligence_snapshot)
+        intelligence_benchmark = self.intelligence_benchmark.finish(
+            intelligence_benchmark_run,
+            intelligence_snapshot,
+        )
+        log_intelligence_benchmark(self.logger, intelligence_benchmark)
+        self.events.record(
+            "intelligence.benchmark_completed",
+            intelligence_benchmark.to_dict(),
+        )
+        signals = self._build_signals(intelligence_snapshot)
+        self.events.record("signal.created", signals.to_dict())
+        log_signal(self.logger, signals)
+        signal_registry = self._build_signal_registry(signals)
+        self.events.record("signal.registry_created", signal_registry.to_dict())
+        log_signal_registry(self.logger, signal_registry)
+        signal_validation = self._validate_signals(signals)
+        self.events.record("signal.validated", signal_validation.to_dict())
+        log_signal_validation(self.logger, signal_validation)
+        signal_scores = self._score_signals(signals)
+        self.events.record(
+            "signal.scored",
+            {"scores": [score.to_dict() for score in signal_scores]},
+        )
+        for signal_score in signal_scores:
+            log_signal_score(self.logger, signal_score)
+        strategy_readiness_benchmark_run = (
+            self.strategy_readiness_benchmark.start()
+        )
+        strategy_readiness_snapshot = self._build_strategy_readiness_snapshot(
+            pattern_analysis,
+            intelligence_snapshot,
+            market_hypotheses,
+            signals,
+            signal_scores,
+        )
+        self.events.record(
+            "strategy_readiness.snapshot_created",
+            strategy_readiness_snapshot.to_dict(),
+        )
+        strategy_readiness_benchmark = self.strategy_readiness_benchmark.finish(
+            strategy_readiness_benchmark_run,
+            strategy_readiness_snapshot,
+        )
+        log_strategy_readiness_snapshot(self.logger, strategy_readiness_snapshot)
+        log_strategy_readiness_benchmark(
+            self.logger,
+            strategy_readiness_benchmark,
+        )
+        self.events.record(
+            "strategy_readiness.benchmark_completed",
+            strategy_readiness_benchmark.to_dict(),
+        )
         return frame
 
     def _visual_benchmark_enabled(self) -> bool:
@@ -594,6 +725,20 @@ class PredixAIApp:
         if not isinstance(visual_config, dict):
             return True
         return bool(visual_config.get("pattern_analysis_benchmark_enabled", True))
+
+    def _intelligence_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(visual_config.get("intelligence_benchmark_enabled", True))
+
+    def _strategy_readiness_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(
+            visual_config.get("strategy_readiness_benchmark_enabled", True)
+        )
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
@@ -946,3 +1091,111 @@ class PredixAIApp:
         validation = self.pattern_analysis_validator.validate(analysis)
         log_pattern_analysis_validation(self.logger, validation)
         return validation
+
+    def _build_intelligence_context(
+        self,
+        pattern_analysis: object,
+        market_structure: object,
+        visual_snapshot: object,
+    ) -> object:
+        context = self.intelligence_context_builder.build(
+            pattern_analysis,
+            market_structure,
+            visual_snapshot,
+        )
+        log_intelligence_context(self.logger, context)
+        return context
+
+    def _validate_intelligence_context(self, context: object) -> object:
+        validation = self.intelligence_context_validator.validate(context)
+        log_intelligence_context_validation(self.logger, validation)
+        return validation
+
+    def _build_market_hypotheses(self, intelligence_context: object) -> object:
+        hypothesis_score = self._default_hypothesis_score()
+        hypotheses = self.market_hypothesis_builder.build(
+            intelligence_context,
+            hypothesis_score,
+        )
+        evaluated_scores = self.hypothesis_evaluator.evaluate(hypotheses)
+        log_hypothesis_evaluator(self.logger, evaluated_scores)
+        registry = self.market_hypothesis_registry(
+            id=f"market_hypothesis_registry:{intelligence_context.id}",
+            source_intelligence_context_id=intelligence_context.id,
+            source_pattern_analysis_id=intelligence_context.source_pattern_analysis_id,
+            source_market_structure_id=intelligence_context.source_market_structure_id,
+            source_market_scene_id=intelligence_context.source_market_scene_id,
+            source_visual_scene_id=intelligence_context.source_visual_scene_id,
+            source_frame=intelligence_context.source_frame,
+            created_at=hypotheses.created_at,
+            hypotheses=hypotheses.hypotheses,
+            metadata={"score_count": len(evaluated_scores)},
+        )
+        log_market_hypothesis(self.logger, hypotheses)
+        log_market_hypothesis_registry(self.logger, registry)
+        return hypotheses
+
+    def _default_hypothesis_score(self) -> object:
+        return HypothesisScore(
+            value=1.0,
+            rule="structural_hypothesis_rule",
+            confidence=1.0,
+            status="STRUCTURAL_READY",
+        )
+
+    def _evaluate_hypotheses(self, hypotheses: object) -> tuple[object, ...]:
+        return self.hypothesis_evaluator.evaluate(hypotheses)
+
+    def _build_intelligence_snapshot(
+        self,
+        market_structure: object,
+        pattern_analysis: object,
+        intelligence_context: object,
+        market_hypotheses: object,
+    ) -> object:
+        return self.intelligence_snapshot_builder.build(
+            market_structure,
+            pattern_analysis,
+            intelligence_context,
+            market_hypotheses,
+        )
+
+    def _build_signals(self, intelligence_snapshot: object) -> object:
+        return self.signal_builder.build(intelligence_snapshot)
+
+    def _build_signal_registry(self, signals: object) -> object:
+        registry = self.signal_registry(
+            id=f"signal_registry:{signals.source_intelligence_snapshot_id}",
+            source_intelligence_snapshot_id=signals.source_intelligence_snapshot_id,
+            source_market_structure_id=signals.source_market_structure_id,
+            source_pattern_analysis_id=signals.source_pattern_analysis_id,
+            source_market_scene_id=signals.source_market_scene_id,
+            source_visual_scene_id=signals.source_visual_scene_id,
+            source_frame=signals.source_frame,
+            created_at=signals.created_at,
+            signals=signals.signals,
+            metadata={"ai": False, "llm": False, "decision_making": False},
+        )
+        return registry
+
+    def _validate_signals(self, signals: object) -> object:
+        return self.signal_validator.validate(signals)
+
+    def _score_signals(self, signals: object) -> tuple[object, ...]:
+        return self.signal_scorer.score(signals)
+
+    def _build_strategy_readiness_snapshot(
+        self,
+        pattern_analysis: object,
+        intelligence_snapshot: object,
+        market_hypotheses: object,
+        signals: object,
+        signal_scores: tuple[object, ...],
+    ) -> object:
+        return self.strategy_readiness_snapshot_builder.build(
+            pattern_analysis,
+            intelligence_snapshot,
+            market_hypotheses,
+            signals,
+            signal_scores,
+        )

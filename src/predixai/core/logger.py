@@ -666,6 +666,144 @@ def log_pattern_analysis_benchmark(logger: logging.Logger, benchmark: Any) -> No
     logger.info("Pattern Analysis Benchmark finalizado: %s", benchmark.to_dict())
 
 
+def log_intelligence_context(logger: logging.Logger, context: Any) -> None:
+    """Record structural intelligence context metadata."""
+    logger.info("Intelligence Context iniciado")
+    logger.info("Intelligence Context criado: %s", context.id)
+    logger.info("Intelligence Context analises: %s", context.analysis_count)
+    logger.info("Intelligence Context entidades: %s", context.entity_count)
+    logger.info("Intelligence Context finalizado: %s", context.to_dict())
+
+
+def log_intelligence_context_validation(
+    logger: logging.Logger,
+    validation: Any,
+) -> None:
+    """Record intelligence context validation metadata."""
+    logger.info("Intelligence Context Validator iniciado")
+    logger.info("Intelligence Context valida: %s", validation.valid)
+    logger.info("Intelligence Context analises validadas: %s", validation.analysis_count)
+    logger.info("Intelligence Context entidades validadas: %s", validation.entity_count)
+    for issue in validation.issues:
+        logger.warning("Intelligence Context issue: %s", issue)
+    logger.info("Intelligence Context Validator finalizado: %s", validation.to_dict())
+
+
+def log_market_hypothesis(logger: logging.Logger, hypotheses: Any) -> None:
+    """Record market hypothesis metadata."""
+    logger.info("Market Hypothesis Builder iniciado")
+    logger.info("Market Hypotheses criadas: %s", hypotheses.count)
+    logger.info("Market Hypothesis Builder finalizado: %s", hypotheses.to_dict())
+
+
+def log_market_hypothesis_registry(logger: logging.Logger, registry: Any) -> None:
+    """Record market hypothesis registry metadata."""
+    logger.info("Market Hypothesis Registry iniciado")
+    logger.info("Market Hypothesis Registry hypotheses: %s", registry.hypothesis_count)
+    logger.info("Market Hypothesis Registry finalizado: %s", registry.to_dict())
+
+
+def log_hypothesis_evaluator(logger: logging.Logger, scores: Any) -> None:
+    """Record hypothesis evaluation metadata."""
+    logger.info("Hypothesis Evaluator iniciado")
+    logger.info("Hypothesis Scores criados: %s", len(scores))
+    logger.info("Hypothesis Evaluator finalizado")
+
+
+def log_intelligence_snapshot(logger: logging.Logger, snapshot: Any) -> None:
+    """Record intelligence snapshot metadata."""
+    logger.info("Intelligence Snapshot Builder iniciado")
+    logger.info("Intelligence Snapshot criado: %s", snapshot.id)
+    logger.info("Intelligence Snapshot hypotheses: %s", snapshot.hypothesis_count)
+    logger.info("Intelligence Snapshot analises: %s", snapshot.analysis_count)
+    logger.info("Intelligence Snapshot finalizado: %s", snapshot.to_dict())
+
+
+def log_intelligence_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record intelligence benchmark metadata."""
+    logger.info("Intelligence Benchmark iniciado")
+    logger.info("Intelligence Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Intelligence Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info(
+        "Intelligence Benchmark pico de memoria: %s KB",
+        benchmark.peak_memory_kb,
+    )
+    logger.info("Intelligence Benchmark hypotheses: %s", benchmark.hypothesis_count)
+    logger.info("Intelligence Benchmark analises: %s", benchmark.analysis_count)
+    logger.info("Intelligence Benchmark entidades: %s", benchmark.entity_count)
+    logger.info("Intelligence Benchmark finalizado: %s", benchmark.to_dict())
+
+
+def log_signal(logger: logging.Logger, signals: Any) -> None:
+    """Record structural signal metadata."""
+    logger.info("Signal Builder iniciado")
+    logger.info("Signals criados: %s", signals.count)
+    logger.info("Signal Builder finalizado: %s", signals.to_dict())
+
+
+def log_signal_registry(logger: logging.Logger, registry: Any) -> None:
+    """Record signal registry metadata."""
+    logger.info("Signal Registry iniciado")
+    logger.info("Signal Registry sinais: %s", registry.count)
+    logger.info("Signal Registry finalizado: %s", registry.to_dict())
+
+
+def log_signal_validation(logger: logging.Logger, validation: Any) -> None:
+    """Record signal validation metadata."""
+    logger.info("Signal Validator iniciado")
+    logger.info("Signal valida: %s", validation.valid)
+    logger.info("Signal validadas: %s", validation.signal_count)
+    for issue in validation.issues:
+        logger.warning("Signal issue: %s", issue)
+    logger.info("Signal Validator finalizado: %s", validation.to_dict())
+
+
+def log_signal_score(logger: logging.Logger, score: Any) -> None:
+    """Record signal scoring metadata."""
+    logger.info("Signal Scorer iniciado")
+    logger.info("Signal score criado: %s", score.to_dict())
+    logger.info("Signal Scorer finalizado")
+
+
+def log_strategy_readiness_snapshot(logger: logging.Logger, snapshot: Any) -> None:
+    """Record strategy readiness snapshot metadata."""
+    logger.info("Strategy Readiness Snapshot iniciado")
+    logger.info("Strategy Readiness Snapshot criado: %s", snapshot.id)
+    logger.info("Strategy Readiness Snapshot sinais: %s", snapshot.signal_count)
+    logger.info("Strategy Readiness Snapshot hipoteses: %s", snapshot.hypothesis_count)
+    logger.info("Strategy Readiness Snapshot finalizado: %s", snapshot.to_dict())
+
+
+def log_strategy_readiness_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record strategy readiness benchmark metadata."""
+    logger.info("Strategy Readiness Benchmark iniciado")
+    logger.info("Strategy Readiness Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Strategy Readiness Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info(
+        "Strategy Readiness Benchmark pico de memoria: %s KB",
+        benchmark.peak_memory_kb,
+    )
+    logger.info("Strategy Readiness Benchmark sinais: %s", benchmark.signal_count)
+    logger.info(
+        "Strategy Readiness Benchmark hipoteses: %s",
+        benchmark.hypothesis_count,
+    )
+    logger.info(
+        "Strategy Readiness Benchmark analises: %s",
+        benchmark.analysis_count,
+    )
+    logger.info(
+        "Strategy Readiness Benchmark finalizado: %s",
+        benchmark.to_dict(),
+    )
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)
