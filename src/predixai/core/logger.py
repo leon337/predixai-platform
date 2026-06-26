@@ -552,6 +552,57 @@ def log_market_structure_benchmark(logger: logging.Logger, benchmark: Any) -> No
     logger.info("Market Structure Benchmark finalizado: %s", benchmark.to_dict())
 
 
+def log_pattern_detector(logger: logging.Logger, patterns: Any) -> None:
+    """Record structural pattern detection metadata."""
+    logger.info("Pattern Detector iniciado")
+    logger.info("Patterns detectados: %s", patterns.count)
+    logger.info("Pattern Detector finalizado: %s", patterns.to_dict())
+
+
+def log_pattern_registry(logger: logging.Logger, registry: Any) -> None:
+    """Record structural pattern registry metadata."""
+    logger.info("Pattern Registry iniciado")
+    logger.info("Pattern Registry patterns: %s", registry.count)
+    logger.info("Pattern Registry regioes: %s", registry.region_count)
+    logger.info("Pattern Registry finalizado: %s", registry.to_dict())
+
+
+def log_pattern_validation(logger: logging.Logger, validation: Any) -> None:
+    """Record structural pattern validation metadata."""
+    logger.info("Pattern Validator iniciado")
+    logger.info("Pattern valida: %s", validation.valid)
+    logger.info("Pattern validadas: %s", validation.pattern_count)
+    logger.info("Pattern regioes validadas: %s", validation.region_count)
+    for issue in validation.issues:
+        logger.warning("Pattern issue: %s", issue)
+    logger.info("Pattern Validator finalizado: %s", validation.to_dict())
+
+
+def log_pattern_scene(logger: logging.Logger, pattern_scene: Any) -> None:
+    """Record structural pattern scene metadata."""
+    logger.info("Pattern Scene Builder iniciado")
+    logger.info("Pattern Scene criada: %s", pattern_scene.id)
+    logger.info("Pattern Scene patterns: %s", pattern_scene.pattern_count)
+    logger.info("Pattern Scene entidades: %s", pattern_scene.entity_count)
+    logger.info("Pattern Scene regioes: %s", pattern_scene.region_count)
+    logger.info("Pattern Scene Builder finalizado: %s", pattern_scene.to_dict())
+
+
+def log_pattern_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record structural pattern benchmark metadata."""
+    logger.info("Pattern Benchmark iniciado")
+    logger.info("Pattern Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Pattern Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info("Pattern Benchmark pico de memoria: %s KB", benchmark.peak_memory_kb)
+    logger.info("Pattern Benchmark patterns: %s", benchmark.pattern_count)
+    logger.info("Pattern Benchmark entidades: %s", benchmark.entity_count)
+    logger.info("Pattern Benchmark regioes: %s", benchmark.region_count)
+    logger.info("Pattern Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

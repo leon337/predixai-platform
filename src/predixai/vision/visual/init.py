@@ -42,6 +42,27 @@ from predixai.vision.visual.market_structure_validator import (
     MarketStructureValidation,
     MarketStructureValidator,
 )
+from predixai.vision.visual.pattern import Pattern, Patterns
+from predixai.vision.visual.pattern_benchmark import (
+    PatternBenchmark,
+    PatternBenchmarkResult,
+    PatternBenchmarkRun,
+)
+from predixai.vision.visual.pattern_builder import PatternBuilder
+from predixai.vision.visual.pattern_detector import PatternDetector
+from predixai.vision.visual.pattern_matcher import PatternMatcher
+from predixai.vision.visual.pattern_registry import (
+    PatternRegistry,
+    PatternSerializer,
+)
+from predixai.vision.visual.pattern_registry_builder import PatternRegistryBuilder
+from predixai.vision.visual.pattern_scene import PatternScene
+from predixai.vision.visual.pattern_scene_builder import PatternSceneBuilder
+from predixai.vision.visual.pattern_storage import PatternStorage
+from predixai.vision.visual.pattern_validator import (
+    PatternValidation,
+    PatternValidator,
+)
 from predixai.vision.visual.price_region_mapper import (
     PriceRegion,
     PriceRegionMapper,
@@ -127,6 +148,22 @@ __all__ = [
     "MarketStructureBuilder",
     "MarketStructureValidation",
     "MarketStructureValidator",
+    "Pattern",
+    "Patterns",
+    "PatternBenchmark",
+    "PatternBenchmarkResult",
+    "PatternBenchmarkRun",
+    "PatternBuilder",
+    "PatternDetector",
+    "PatternMatcher",
+    "PatternRegistry",
+    "PatternRegistryBuilder",
+    "PatternScene",
+    "PatternSceneBuilder",
+    "PatternSerializer",
+    "PatternStorage",
+    "PatternValidation",
+    "PatternValidator",
     "EntitySerializer",
     "EntityStorage",
     "MarketScene",

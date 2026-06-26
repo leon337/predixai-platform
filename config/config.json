@@ -59,11 +59,12 @@
     },
     "visual": {
       "benchmark_enabled": true,
-      "scene_benchmark_enabled": true,
-      "semantic_benchmark_enabled": true,
-      "market_benchmark_enabled": true,
-      "market_structure_benchmark_enabled": true
-    }
+        "scene_benchmark_enabled": true,
+        "semantic_benchmark_enabled": true,
+        "market_benchmark_enabled": true,
+        "market_structure_benchmark_enabled": true,
+        "pattern_benchmark_enabled": true
+      }
   },
   "ocr": {
     "enabled": true,

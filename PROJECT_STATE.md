@@ -14,17 +14,17 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-047 — Market Benchmark.
+PTP-052 — Market Structure Benchmark.
 
 ## Próximo PTP pendente
 
-PTP-048 — A definir pelo Leo.
+PTP-053 — Pattern Foundation.
 
 ## Status geral
 
 V1 congelada.
 
-A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega o Screen Profile padrão, vincula a região lógica `FULL_SCREEN`, registra a região no `RegionRegistry`, valida o Region Mapping, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois`, executa OCR real com provider `tesseract`, validação de resultado, cache por SHA256 e benchmark técnico, transforma o texto extraído em blocos estruturados, associa texto à região `FULL_SCREEN`, consolida o Structured OCR Result, cria Visual Snapshot, registra Visual Benchmark, cria Screen Elements, monta Screen Layout, registra Screen Objects, consolida Visual Scene, registra Visual Scene Benchmark, cria Semantic Elements, mapeia Semantic Labels, consolida Semantic Scene, registra Semantic Registry, registra Semantic Benchmark, cria Market Elements, mapeia regiões estruturais de preço e tempo, consolida Market Scene e registra Market Benchmark, com logs visíveis no CMD e em `logs/predixai.log`.
+A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega o Screen Profile padrão, vincula a região lógica `FULL_SCREEN`, registra a região no `RegionRegistry`, valida o Region Mapping, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois`, executa OCR real com provider `tesseract`, validação de resultado, cache por SHA256 e benchmark técnico, transforma o texto extraído em blocos estruturados, associa texto à região `FULL_SCREEN`, consolida o Structured OCR Result, cria Visual Snapshot, registra Visual Benchmark, cria Screen Elements, monta Screen Layout, registra Screen Objects, consolida Visual Scene, registra Visual Scene Benchmark, cria Semantic Elements, mapeia Semantic Labels, consolida Semantic Scene, registra Semantic Registry, registra Semantic Benchmark, cria Market Elements, mapeia regiões estruturais de preço e tempo, consolida Market Scene, registra Market Benchmark e agora consolida também Market Structure, Pattern Detector, Pattern Scene e Pattern Benchmark, com logs visíveis no CMD e em `logs/predixai.log`.
 
 ## Ambiente principal atual
 
@@ -128,6 +128,12 @@ Toda mudança relevante deve atualizar:
 - O Time Region Mapper mapeia regiões estruturais relacionadas a tempo e registra posição e metadados sem interpretar valores.
 - O Market Scene Builder consolida Visual Scene, Semantic Scene, Market Elements e mapeamentos de regiões em uma representação única da interface de mercado.
 - O Market Benchmark registra tempo de processamento, memória, elementos, regiões, entidades e contagens de regiões de preço e tempo.
+- A Milestone-010 Market Structure Foundation consolida Market Entities, Market Entity Registry, Market Structure, Market Structure Validator e Market Structure Benchmark.
+- O Pattern Foundation cria padrão estrutural determinístico a partir de Market Structure, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automação ou tomada de decisão.
+- O Pattern Registry registra padrões estruturais com metadados, versionamento e perfil padrão, sem interpretação inteligente.
+- O Pattern Detector usa apenas regras estruturais para derivar padrões a partir da Market Structure.
+- O Pattern Scene consolida Market Structure, Pattern Registry e Patterns em uma representação única de padrões.
+- O Pattern Benchmark registra tempo, memória, quantidade de padrões, entidades e regiões.
 - A primeira execução local no Windows 10 do ambiente do Codex foi validada.
 - O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.

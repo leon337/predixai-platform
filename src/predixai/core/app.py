@@ -25,6 +25,11 @@ from predixai.core.logger import (
     log_market_structure,
     log_market_structure_benchmark,
     log_market_structure_validation,
+    log_pattern_benchmark,
+    log_pattern_detector,
+    log_pattern_registry,
+    log_pattern_scene,
+    log_pattern_validation,
     log_ocr_pipeline,
     log_ocr_parser,
     log_perception,
@@ -65,6 +70,11 @@ from predixai.vision import (
     MarketStructureBenchmark,
     MarketStructureBuilder,
     MarketStructureValidator,
+    PatternBenchmark,
+    PatternDetector,
+    PatternRegistryBuilder,
+    PatternSceneBuilder,
+    PatternValidator,
     OCRParser,
     EntitySerializer,
     EntityStorage,
@@ -153,6 +163,13 @@ class PredixAIApp:
         self.market_structure_validator = MarketStructureValidator()
         self.market_structure_benchmark = MarketStructureBenchmark(
             enabled=self._market_structure_benchmark_enabled()
+        )
+        self.pattern_detector = PatternDetector()
+        self.pattern_registry_builder = PatternRegistryBuilder()
+        self.pattern_scene_builder = PatternSceneBuilder()
+        self.pattern_validator = PatternValidator()
+        self.pattern_benchmark = PatternBenchmark(
+            enabled=self._pattern_benchmark_enabled()
         )
         self.price_region_mapper = PriceRegionMapper()
         self.time_region_mapper = TimeRegionMapper()
@@ -444,6 +461,34 @@ class PredixAIApp:
             "market.structure_benchmark_completed",
             market_structure_benchmark.to_dict(),
         )
+        pattern_benchmark_run = self.pattern_benchmark.start()
+        detected_patterns = self._detect_patterns(market_structure)
+        self.events.record("pattern.detected", detected_patterns.to_dict())
+        pattern_registry = self._build_pattern_registry(detected_patterns)
+        self.events.record(
+            "pattern.registry_created",
+            pattern_registry.to_dict(),
+        )
+        pattern_validation = self._validate_patterns(detected_patterns)
+        self.events.record(
+            "pattern.validated",
+            pattern_validation.to_dict(),
+        )
+        pattern_scene = self._build_pattern_scene(
+            market_structure,
+            pattern_registry,
+            detected_patterns,
+        )
+        self.events.record("pattern.scene_created", pattern_scene.to_dict())
+        pattern_benchmark = self.pattern_benchmark.finish(
+            pattern_benchmark_run,
+            pattern_scene,
+        )
+        log_pattern_benchmark(self.logger, pattern_benchmark)
+        self.events.record(
+            "pattern.benchmark_completed",
+            pattern_benchmark.to_dict(),
+        )
         return frame
 
     def _visual_benchmark_enabled(self) -> bool:
@@ -475,6 +520,12 @@ class PredixAIApp:
         if not isinstance(visual_config, dict):
             return True
         return bool(visual_config.get("market_structure_benchmark_enabled", True))
+
+    def _pattern_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(visual_config.get("pattern_benchmark_enabled", True))
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
@@ -754,3 +805,32 @@ class PredixAIApp:
         validation = self.market_structure_validator.validate(market_structure)
         log_market_structure_validation(self.logger, validation)
         return validation
+
+    def _detect_patterns(self, market_structure: object) -> object:
+        patterns = self.pattern_detector.detect(market_structure)
+        log_pattern_detector(self.logger, patterns)
+        return patterns
+
+    def _build_pattern_registry(self, patterns: object) -> object:
+        registry = self.pattern_registry_builder.build(patterns)
+        log_pattern_registry(self.logger, registry)
+        return registry
+
+    def _validate_patterns(self, patterns: object) -> object:
+        validation = self.pattern_validator.validate(patterns)
+        log_pattern_validation(self.logger, validation)
+        return validation
+
+    def _build_pattern_scene(
+        self,
+        market_structure: object,
+        pattern_registry: object,
+        patterns: object,
+    ) -> object:
+        pattern_scene = self.pattern_scene_builder.build(
+            market_structure,
+            pattern_registry,
+            patterns,
+        )
+        log_pattern_scene(self.logger, pattern_scene)
+        return pattern_scene
