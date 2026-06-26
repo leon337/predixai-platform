@@ -21,6 +21,11 @@ class OCRResult:
     confidence: float
     language_used: str
     error: str
+    validation_errors: tuple[str, ...]
+    validation_warnings: tuple[str, ...]
+    min_confidence: float
+    confidence_valid: bool
+    language_valid: bool
     processing_time_ms: float
     timestamp: str
     provider_name: str
@@ -48,6 +53,11 @@ class OCRResult:
             "confidence": self.confidence,
             "language_used": self.language_used,
             "error": self.error,
+            "validation_errors": list(self.validation_errors),
+            "validation_warnings": list(self.validation_warnings),
+            "min_confidence": self.min_confidence,
+            "confidence_valid": self.confidence_valid,
+            "language_valid": self.language_valid,
             "processing_time_ms": self.processing_time_ms,
             "timestamp": self.timestamp,
             "provider_name": self.provider_name,

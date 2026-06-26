@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from csv import DictReader
+from io import StringIO
 from pathlib import Path
 
 from predixai.ocr.providers.base_provider import (
@@ -89,6 +91,7 @@ class TesseractOCRProvider(BaseOCRProvider):
             language_used,
             "--psm",
             str(self.psm),
+            "tsv",
         ]
 
         try:
@@ -111,7 +114,7 @@ class TesseractOCRProvider(BaseOCRProvider):
                 error="Tesseract OCR timed out.",
             )
 
-        text = (completed.stdout or "").strip()
+        text, confidence = self._parse_tsv_output(completed.stdout or "")
         error_output = (completed.stderr or "").strip()
         if completed.returncode != 0:
             return OCRProviderExecution(
@@ -127,7 +130,7 @@ class TesseractOCRProvider(BaseOCRProvider):
             status="OCR_COMPLETED" if text else "OCR_EMPTY",
             text_extracted=bool(text),
             text=text,
-            confidence=0.0,
+            confidence=confidence,
             language_used=language_used,
             error="",
         )
@@ -192,3 +195,30 @@ class TesseractOCRProvider(BaseOCRProvider):
             return self.fallback_language
 
         return self.language if self.language else ""
+
+    def _parse_tsv_output(self, output: str) -> tuple[str, float]:
+        words: list[str] = []
+        confidences: list[float] = []
+        reader = DictReader(StringIO(output), delimiter="\t")
+
+        for row in reader:
+            text = (row.get("text") or "").strip()
+            confidence_text = (row.get("conf") or "").strip()
+            if not text:
+                continue
+
+            words.append(text)
+            try:
+                confidence = float(confidence_text)
+            except ValueError:
+                continue
+
+            if confidence >= 0:
+                confidences.append(confidence)
+
+        average_confidence = (
+            round(sum(confidences) / len(confidences), 3)
+            if confidences
+            else 0.0
+        )
+        return " ".join(words), average_confidence

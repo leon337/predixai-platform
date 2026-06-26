@@ -8,6 +8,7 @@ from time import perf_counter
 from typing import Any
 
 from predixai.ocr.ocr_result import OCRResult
+from predixai.ocr.ocr_result_validator import OCRResultValidator
 from predixai.ocr.ocr_validator import OCRValidator
 from predixai.ocr.providers import (
     MockOCRProvider,
@@ -23,6 +24,9 @@ class OCREngine:
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         self.config = config or {}
         self.validator = OCRValidator()
+        self.result_validator = OCRResultValidator(
+            min_confidence=float(self.config.get("min_confidence", 0.0))
+        )
         self.registry = ProviderRegistry()
         self.registry.register(MockOCRProvider())
         self.registry.register(
@@ -53,6 +57,12 @@ class OCREngine:
             and provider_status.text_extraction_enabled
         )
         execution = provider.execute(resolved_path)
+        result_validation = self.result_validator.validate(
+            provider_status=provider_status,
+            execution=execution,
+            configured_language=str(self.config.get("language", "")),
+            fallback_language=str(self.config.get("fallback_language", "")),
+        )
         processing_time_ms = round((perf_counter() - started_at) * 1000, 3)
         timestamp = datetime.now().astimezone().isoformat()
 
@@ -68,6 +78,11 @@ class OCREngine:
             confidence=execution.confidence if text_extraction_enabled else 0.0,
             language_used=execution.language_used,
             error=execution.error,
+            validation_errors=result_validation.errors,
+            validation_warnings=result_validation.warnings,
+            min_confidence=result_validation.min_confidence,
+            confidence_valid=result_validation.confidence_valid,
+            language_valid=result_validation.language_valid,
             processing_time_ms=processing_time_ms,
             timestamp=timestamp,
             provider_name=provider_status.name,

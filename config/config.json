@@ -64,6 +64,7 @@
     "language": "por",
     "fallback_language": "eng",
     "text_extraction_enabled": true,
+    "min_confidence": 0.0,
     "psm": 6,
     "timeout_seconds": 20
   },
