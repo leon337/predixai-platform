@@ -6,15 +6,23 @@ import importlib
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from time import perf_counter
+from time import sleep
 
 from predixai.capture import CaptureEngine, CaptureEngineStatus, SnapshotMetadata
 from predixai.core.config import AppConfig, load_config
 from predixai.core.events import EventRegistry
 from predixai.core.logger import (
+    log_broker_window_state,
     configure_logger,
     log_capture_engine,
     log_error,
     log_image_buffer,
+    log_live_capture_tick,
+    log_live_market_reading,
+    log_live_session,
+    log_live_validation_benchmark,
+    log_live_validation_report,
     log_manual_snapshot,
     log_market_benchmark,
     log_market_elements,
@@ -77,6 +85,14 @@ from predixai.core.logger import (
     log_strategy_readiness_snapshot,
 )
 from predixai.ocr import OCREngine
+from predixai.live import (
+    BrokerWindowDetector,
+    LiveCaptureScheduler,
+    LiveMarketReader,
+    LiveSessionController,
+    LiveValidationBenchmark,
+    LiveValidationReport,
+)
 from predixai.perception import PerceptionEngine
 from predixai.vision import (
     MarketBenchmark,
@@ -236,12 +252,20 @@ class PredixAIApp:
         self.strategy_readiness_benchmark = StrategyReadinessBenchmark(
             enabled=self._strategy_readiness_benchmark_enabled()
         )
+        self.live_session_controller = LiveSessionController()
+        self.broker_window_detector = BrokerWindowDetector()
+        self.live_capture_scheduler = LiveCaptureScheduler()
+        self.live_market_reader = LiveMarketReader()
+        self.live_validation_benchmark = LiveValidationBenchmark(
+            enabled=self._live_validation_benchmark_enabled()
+        )
         self.price_region_mapper = PriceRegionMapper()
         self.time_region_mapper = TimeRegionMapper()
         self.market_scene_builder = MarketSceneBuilder()
         self.market_benchmark = MarketBenchmark(
             enabled=self._market_benchmark_enabled()
         )
+        self.last_capture_context: dict[str, object] = {}
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -307,6 +331,71 @@ class PredixAIApp:
         frame = self._process_vision_frame(metadata)
         self.events.record("vision.frame_created", frame.to_dict())
         return metadata
+
+    def live_once(self) -> object:
+        """Run one live validation candle without trading actions."""
+        live_config = self.config.live if isinstance(self.config.live, dict) else {}
+        timeframe = str(live_config.get("timeframe", "M1"))
+        interval_seconds = int(live_config.get("capture_interval_seconds", 10))
+        captures_per_candle = int(live_config.get("captures_per_candle", 6))
+        validation_candles = int(live_config.get("validation_candles", 1))
+
+        session = self.live_session_controller.start(
+            timeframe=timeframe,
+            capture_interval_seconds=interval_seconds,
+            captures_per_candle=captures_per_candle,
+            validation_candles=validation_candles,
+        )
+        log_live_session(self.logger, session)
+        broker_state = self.broker_window_detector.detect()
+        log_broker_window_state(self.logger, broker_state)
+
+        live_start = perf_counter()
+        benchmark_run = self.live_validation_benchmark.start()
+        readings: list[object] = []
+        ticks = self.live_capture_scheduler.schedule(
+            total_ticks=captures_per_candle,
+            interval_seconds=interval_seconds,
+        )
+        for tick in ticks:
+            metadata = self.capture_snapshot()
+            tick = type(tick)(
+                tick_index=tick.tick_index,
+                captured_at=tick.captured_at,
+                capture_path=metadata.file_path,
+                window_title=broker_state.title,
+                metadata={
+                    **tick.metadata,
+                    "session_id": session.session_id,
+                    "window_title": broker_state.title,
+                },
+            )
+            log_live_capture_tick(self.logger, tick)
+            capture_context = self.last_capture_context
+            structured_ocr = capture_context.get("structured_ocr")
+            ocr_confidence = float(getattr(structured_ocr, "average_confidence", 0.0))
+            ocr_text = str(getattr(structured_ocr, "combined_text", ""))
+            reading = self.live_market_reader.read(
+                ocr_text=ocr_text,
+                ocr_confidence=ocr_confidence,
+                timeframe=timeframe,
+            )
+            log_live_market_reading(self.logger, reading)
+            readings.append(reading)
+            if tick.tick_index < captures_per_candle:
+                sleep(interval_seconds)
+
+        report = self._build_live_validation_report(
+            session=session,
+            readings=tuple(readings),
+            broker_state=broker_state,
+            total_time_ms=round((perf_counter() - live_start) * 1000, 3),
+        )
+        log_live_validation_report(self.logger, report)
+        benchmark = self.live_validation_benchmark.finish(benchmark_run, report)
+        log_live_validation_benchmark(self.logger, benchmark)
+        self.events.record("live.validation_completed", report.to_dict())
+        return report
 
     def _load_modules(self) -> tuple[ModuleInfo, ...]:
         loaded_modules: list[ModuleInfo] = []
@@ -682,6 +771,30 @@ class PredixAIApp:
             "strategy_readiness.benchmark_completed",
             strategy_readiness_benchmark.to_dict(),
         )
+        self.last_capture_context = {
+            "metadata": metadata,
+            "frame": frame,
+            "image_buffer": image_buffer,
+            "roi_registry": roi_registry,
+            "roi_crops": roi_crops,
+            "roi_exports": roi_exports,
+            "ocr_results": ocr_results,
+            "parsed_ocr": parsed_ocr,
+            "region_text_mapping": region_text_mapping,
+            "structured_ocr": structured_ocr,
+            "visual_snapshot": visual_snapshot,
+            "visual_scene": visual_scene,
+            "semantic_scene": semantic_scene,
+            "market_scene": market_scene,
+            "market_structure": market_structure,
+            "pattern_scene": pattern_scene,
+            "pattern_analysis": pattern_analysis,
+            "intelligence_context": intelligence_context,
+            "market_hypotheses": market_hypotheses,
+            "signals": signals,
+            "signal_scores": signal_scores,
+            "strategy_readiness_snapshot": strategy_readiness_snapshot,
+        }
         return frame
 
     def _visual_benchmark_enabled(self) -> bool:
@@ -739,6 +852,10 @@ class PredixAIApp:
         return bool(
             visual_config.get("strategy_readiness_benchmark_enabled", True)
         )
+
+    def _live_validation_benchmark_enabled(self) -> bool:
+        live_config = self.config.live if isinstance(self.config.live, dict) else {}
+        return bool(live_config.get("benchmark_enabled", True))
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
@@ -1198,4 +1315,55 @@ class PredixAIApp:
             market_hypotheses,
             signals,
             signal_scores,
+        )
+
+    def _build_live_validation_report(
+        self,
+        session: object,
+        readings: tuple[object, ...],
+        broker_state: object,
+        total_time_ms: float,
+    ) -> LiveValidationReport:
+        fields_detected = tuple(
+            field
+            for field, value in {
+                "asset": readings[-1].asset if readings else "UNKNOWN",
+                "price": readings[-1].price if readings else "UNKNOWN",
+                "time": readings[-1].time if readings else "UNKNOWN",
+                "balance": readings[-1].balance if readings else "UNKNOWN",
+                "payout": readings[-1].payout if readings else "UNKNOWN",
+                "timeframe": readings[-1].timeframe if readings else "UNKNOWN",
+            }.items()
+            if value != "UNKNOWN"
+        )
+        unknown_fields = tuple(
+            field
+            for field, value in {
+                "asset": readings[-1].asset if readings else "UNKNOWN",
+                "price": readings[-1].price if readings else "UNKNOWN",
+                "time": readings[-1].time if readings else "UNKNOWN",
+                "balance": readings[-1].balance if readings else "UNKNOWN",
+                "payout": readings[-1].payout if readings else "UNKNOWN",
+                "timeframe": readings[-1].timeframe if readings else "UNKNOWN",
+            }.items()
+            if value == "UNKNOWN"
+        )
+        ocr_confidence = 0.0
+        if readings:
+            ocr_confidence = max(float(reading.confidence) for reading in readings)
+        return LiveValidationReport(
+            session_id=session.session_id,
+            total_captures=len(readings),
+            fields_detected=fields_detected,
+            unknown_fields=unknown_fields,
+            ocr_confidence=ocr_confidence,
+            total_time_ms=total_time_ms,
+            status="LIVE_VALIDATION_COMPLETED",
+            readings=readings,
+            metadata={
+                "window_title": broker_state.title,
+                "timeframe": session.timeframe,
+                "captures_per_candle": session.captures_per_candle,
+                "validation_candles": session.validation_candles,
+            },
         )

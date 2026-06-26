@@ -804,6 +804,77 @@ def log_strategy_readiness_benchmark(logger: logging.Logger, benchmark: Any) -> 
     )
 
 
+def log_live_session(logger: logging.Logger, session: Any) -> None:
+    """Record live session metadata."""
+    logger.info("Live Session Foundation iniciado")
+    logger.info("Live Session ID: %s", session.session_id)
+    logger.info("Live Session timeframe: %s", session.timeframe)
+    logger.info("Live Session captura: %s s", session.capture_interval_seconds)
+    logger.info("Live Session capturas por vela: %s", session.captures_per_candle)
+    logger.info("Live Session estado: %s", session.state.state)
+    logger.info("Live Session finalizado: %s", session.to_dict())
+
+
+def log_broker_window_state(logger: logging.Logger, state: Any) -> None:
+    """Record broker/browser window metadata."""
+    logger.info("Broker Window Detection iniciado")
+    logger.info("Título da janela: %s", state.title)
+    logger.info("Resolução da janela: %sx%s", state.resolution_width, state.resolution_height)
+    logger.info("Posição da janela: x=%s y=%s", state.left, state.top)
+    logger.info("Janela maximizada: %s", state.maximized)
+    logger.info("Janela em primeiro plano: %s", state.foreground)
+    logger.info("Broker Window Detection finalizado: %s", state.to_dict())
+
+
+def log_live_capture_tick(logger: logging.Logger, tick: Any) -> None:
+    """Record live capture tick metadata."""
+    logger.info("Live Capture Scheduler tick: %s", tick.tick_index)
+    logger.info("Live Capture tick horário: %s", tick.captured_at)
+    logger.info("Live Capture tick finalizado: %s", tick.to_dict())
+
+
+def log_live_market_reading(logger: logging.Logger, reading: Any) -> None:
+    """Record live market reading metadata."""
+    logger.info("Live Market Reading iniciado")
+    logger.info("Ativo detectado: %s", reading.asset)
+    logger.info("Preço detectado: %s", reading.price)
+    logger.info("Horário detectado: %s", reading.time)
+    logger.info("Saldo detectado: %s", reading.balance)
+    logger.info("Payout detectado: %s", reading.payout)
+    logger.info("Timeframe detectado: %s", reading.timeframe)
+    logger.info("Live Market Reading finalizado: %s", reading.to_dict())
+
+
+def log_live_validation_report(logger: logging.Logger, report: Any) -> None:
+    """Record live validation report metadata."""
+    logger.info("Live Validation Report iniciado")
+    logger.info("Total de capturas: %s", report.total_captures)
+    logger.info("Campos detectados: %s", ", ".join(report.fields_detected))
+    logger.info("Campos UNKNOWN: %s", ", ".join(report.unknown_fields))
+    logger.info("Confiança OCR: %s", report.ocr_confidence)
+    logger.info("Tempo total: %s ms", report.total_time_ms)
+    logger.info("Status: %s", report.status)
+    logger.info("Live Validation Report finalizado: %s", report.to_dict())
+
+
+def log_live_validation_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record live validation benchmark metadata."""
+    logger.info("Live Validation Benchmark iniciado")
+    logger.info("Live Validation Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Live Validation Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info(
+        "Live Validation Benchmark pico de memoria: %s KB",
+        benchmark.peak_memory_kb,
+    )
+    logger.info("Live Validation Benchmark capturas: %s", benchmark.total_captures)
+    logger.info("Live Validation Benchmark campos detectados: %s", benchmark.detected_fields)
+    logger.info("Live Validation Benchmark campos UNKNOWN: %s", benchmark.unknown_fields)
+    logger.info("Live Validation Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

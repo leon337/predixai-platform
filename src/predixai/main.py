@@ -23,6 +23,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.capture:
             metadata = app.capture_snapshot()
             print(f"Manual capture saved: {metadata.file_path}")
+        if args.live_once:
+            report = app.live_once()
+            print(
+                "Live validation completed: "
+                f"{report.total_captures} captures, status={report.status}"
+            )
     except Exception as exc:
         print(f"PredixAI command failed: {exc}", file=sys.stderr)
         return 1
@@ -36,6 +42,11 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--capture",
         action="store_true",
         help="Capture one manual full-screen PNG snapshot.",
+    )
+    parser.add_argument(
+        "--live-once",
+        action="store_true",
+        help="Run one live validation candle without automation.",
     )
     return parser.parse_args(argv)
 

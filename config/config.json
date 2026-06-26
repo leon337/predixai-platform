@@ -49,6 +49,16 @@
     "compression": 6,
     "max_history": 100
   },
+  "live": {
+    "enabled": true,
+    "timeframe": "M1",
+    "capture_interval_seconds": 10,
+    "captures_per_candle": 6,
+    "validation_candles": 1,
+    "benchmark_enabled": true,
+    "window_detection_enabled": true,
+    "market_reading_enabled": true
+  },
   "vision": {
     "enabled": true,
     "image_loader": {

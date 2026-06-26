@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-26 - MILESTONE-015 Live Market Validation Foundation
+
+- Concluida a primeira validacao ao vivo observadora com `python -m predixai.main --live-once`.
+- Criada a infraestrutura de Live Session, Broker Window Detection, Live Capture Scheduler, Live Market Reading e Live Validation Report.
+- Integrado o fluxo ao Core para executar sessoes live sem clicar, operar ou tomar decisao.
+- Registrados logs tecnicos no CMD e em `logs/predixai.log` para sessao, janela, capturas, leitura de mercado, relatorio e benchmark ao vivo.
+- Mantida a restricao de nao implementar IA, LLM, Gemini, Strategy real, Dashboard, Broker Adapter, automacao de operacoes ou tomada de decisao.
+
 ## 2026-06-26 â€” MILESTONE-014 Strategy Readiness Foundation
 
 - ConcluÃ­dos os PTPs 068, 069, 070, 071 e 072 em uma Ãºnica execuÃ§Ã£o de milestone.
