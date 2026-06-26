@@ -29,6 +29,11 @@ from predixai.core.logger import (
     log_screen_elements,
     log_screen_layout,
     log_screen_object_registry,
+    log_semantic_benchmark,
+    log_semantic_elements,
+    log_semantic_label_mapping,
+    log_semantic_registry,
+    log_semantic_scene,
     log_startup,
     log_structured_ocr,
     log_visual_benchmark,
@@ -45,6 +50,11 @@ from predixai.vision import (
     ScreenElementBuilder,
     ScreenLayoutBuilder,
     ScreenObjectRegistryBuilder,
+    SemanticBenchmark,
+    SemanticElementBuilder,
+    SemanticLabelMapper,
+    SemanticRegistryBuilder,
+    SemanticSceneBuilder,
     StructuredOCRBuilder,
     VisualBenchmark,
     VisualSceneBenchmark,
@@ -101,6 +111,13 @@ class PredixAIApp:
         self.visual_scene_builder = VisualSceneBuilder()
         self.visual_scene_benchmark = VisualSceneBenchmark(
             enabled=self._visual_scene_benchmark_enabled()
+        )
+        self.semantic_element_builder = SemanticElementBuilder()
+        self.semantic_label_mapper = SemanticLabelMapper()
+        self.semantic_scene_builder = SemanticSceneBuilder()
+        self.semantic_registry_builder = SemanticRegistryBuilder()
+        self.semantic_benchmark = SemanticBenchmark(
+            enabled=self._semantic_benchmark_enabled()
         )
 
     def bootstrap(self) -> StartupReport:
@@ -302,6 +319,32 @@ class PredixAIApp:
         )
         log_visual_scene_benchmark(self.logger, scene_benchmark)
         self.events.record("scene.benchmark_completed", scene_benchmark.to_dict())
+        semantic_benchmark_run = self.semantic_benchmark.start()
+        semantic_elements = self._build_semantic_elements(visual_scene)
+        self.events.record(
+            "semantic.elements_created",
+            semantic_elements.to_dict(),
+        )
+        semantic_label_mapping = self._map_semantic_labels(semantic_elements)
+        self.events.record(
+            "semantic.labels_mapped",
+            semantic_label_mapping.to_dict(),
+        )
+        semantic_scene = self._build_semantic_scene(
+            visual_scene,
+            semantic_elements,
+            semantic_label_mapping,
+        )
+        self.events.record("semantic.scene_created", semantic_scene.to_dict())
+        semantic_registry = self._build_semantic_registry(semantic_scene)
+        self.events.record("semantic.registry_created", semantic_registry.to_dict())
+        semantic_benchmark = self.semantic_benchmark.finish(
+            semantic_benchmark_run,
+            semantic_scene,
+            semantic_registry,
+        )
+        log_semantic_benchmark(self.logger, semantic_benchmark)
+        self.events.record("semantic.benchmark_completed", semantic_benchmark.to_dict())
         return frame
 
     def _visual_benchmark_enabled(self) -> bool:
@@ -315,6 +358,12 @@ class PredixAIApp:
         if not isinstance(visual_config, dict):
             return True
         return bool(visual_config.get("scene_benchmark_enabled", True))
+
+    def _semantic_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(visual_config.get("semantic_benchmark_enabled", True))
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
@@ -492,3 +541,32 @@ class PredixAIApp:
         )
         log_visual_scene(self.logger, visual_scene)
         return visual_scene
+
+    def _build_semantic_elements(self, visual_scene: object) -> object:
+        semantic_elements = self.semantic_element_builder.build(visual_scene)
+        log_semantic_elements(self.logger, semantic_elements)
+        return semantic_elements
+
+    def _map_semantic_labels(self, semantic_elements: object) -> object:
+        mapping = self.semantic_label_mapper.map_labels(semantic_elements)
+        log_semantic_label_mapping(self.logger, mapping)
+        return mapping
+
+    def _build_semantic_scene(
+        self,
+        visual_scene: object,
+        semantic_elements: object,
+        semantic_label_mapping: object,
+    ) -> object:
+        semantic_scene = self.semantic_scene_builder.build(
+            visual_scene,
+            semantic_elements,
+            semantic_label_mapping,
+        )
+        log_semantic_scene(self.logger, semantic_scene)
+        return semantic_scene
+
+    def _build_semantic_registry(self, semantic_scene: object) -> object:
+        registry = self.semantic_registry_builder.build(semantic_scene)
+        log_semantic_registry(self.logger, registry)
+        return registry

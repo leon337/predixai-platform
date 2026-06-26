@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-26 — MILESTONE-008 Interface Semantic Foundation
+
+- Concluídos os PTPs 038, 039, 040, 041 e 042 em uma única execução de milestone.
+- Criado o Semantic Element Foundation para derivar entidades semânticas de Screen Objects e Visual Scene.
+- Criado o Semantic Label Mapper com regras determinísticas simples baseadas em tipo, região, texto e metadados.
+- Criado o Semantic Scene Builder para consolidar Visual Scene, Semantic Elements e Semantic Labels.
+- Criado o Semantic Registry para registrar entidades semânticas com identificadores estáveis e reutilização futura.
+- Criado o Semantic Benchmark com tempo de processamento, pico de memória, entidades, labels e regiões.
+- Mantida a restrição de não implementar IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automação ou tomada de decisão.
+
 ## 2026-06-26 — MILESTONE-007 Visual Understanding Foundation
 
 - Concluídos os PTPs 033, 034, 035, 036 e 037 em uma única execução de milestone.

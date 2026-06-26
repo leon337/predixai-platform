@@ -15,6 +15,28 @@ from predixai.vision.visual.screen_object import ScreenObject, ScreenObjectRegis
 from predixai.vision.visual.screen_object_registry import (
     ScreenObjectRegistryBuilder,
 )
+from predixai.vision.visual.semantic_benchmark import (
+    SemanticBenchmark,
+    SemanticBenchmarkResult,
+    SemanticBenchmarkRun,
+)
+from predixai.vision.visual.semantic_element import (
+    SemanticElement,
+    SemanticElements,
+)
+from predixai.vision.visual.semantic_element_builder import SemanticElementBuilder
+from predixai.vision.visual.semantic_label import (
+    SemanticLabel,
+    SemanticLabelMapping,
+)
+from predixai.vision.visual.semantic_label_mapper import SemanticLabelMapper
+from predixai.vision.visual.semantic_registry import (
+    SemanticEntity,
+    SemanticRegistry,
+)
+from predixai.vision.visual.semantic_registry_builder import SemanticRegistryBuilder
+from predixai.vision.visual.semantic_scene import SemanticScene
+from predixai.vision.visual.semantic_scene_builder import SemanticSceneBuilder
 from predixai.vision.visual.structured_ocr_builder import StructuredOCRBuilder
 from predixai.vision.visual.structured_ocr_result import StructuredOCRResult
 from predixai.vision.visual.visual_benchmark import (
@@ -48,6 +70,20 @@ __all__ = [
     "ScreenObject",
     "ScreenObjectRegistry",
     "ScreenObjectRegistryBuilder",
+    "SemanticBenchmark",
+    "SemanticBenchmarkResult",
+    "SemanticBenchmarkRun",
+    "SemanticElement",
+    "SemanticElementBuilder",
+    "SemanticElements",
+    "SemanticEntity",
+    "SemanticLabel",
+    "SemanticLabelMapper",
+    "SemanticLabelMapping",
+    "SemanticRegistry",
+    "SemanticRegistryBuilder",
+    "SemanticScene",
+    "SemanticSceneBuilder",
     "StructuredOCRBuilder",
     "StructuredOCRResult",
     "VisualBenchmark",

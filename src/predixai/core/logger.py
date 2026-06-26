@@ -364,6 +364,59 @@ def log_visual_scene_benchmark(logger: logging.Logger, benchmark: Any) -> None:
     logger.info("Visual Scene Benchmark finalizado: %s", benchmark.to_dict())
 
 
+def log_semantic_elements(logger: logging.Logger, semantic_elements: Any) -> None:
+    """Record Semantic Element foundation metadata."""
+    logger.info("Semantic Element Foundation iniciado")
+    logger.info("Entidades semanticas criadas: %s", semantic_elements.count)
+    for element in semantic_elements.elements:
+        logger.info("Semantic Element registrado: %s", element.id)
+    logger.info("Semantic Element Foundation finalizado: %s", semantic_elements.to_dict())
+
+
+def log_semantic_label_mapping(logger: logging.Logger, mapping: Any) -> None:
+    """Record deterministic Semantic Label Mapper metadata."""
+    logger.info("Semantic Label Mapper iniciado")
+    logger.info("Labels semanticos mapeados: %s", mapping.count)
+    for label in mapping.labels:
+        logger.info("Semantic Label mapeado: %s", label.label)
+    logger.info("Semantic Label Mapper finalizado: %s", mapping.to_dict())
+
+
+def log_semantic_scene(logger: logging.Logger, semantic_scene: Any) -> None:
+    """Record Semantic Scene metadata."""
+    logger.info("Semantic Scene Builder iniciado")
+    logger.info("Semantic Scene criada: %s", semantic_scene.id)
+    logger.info("Semantic Scene entidades: %s", semantic_scene.entity_count)
+    logger.info("Semantic Scene labels: %s", semantic_scene.label_count)
+    logger.info("Semantic Scene regioes: %s", semantic_scene.region_count)
+    logger.info("Semantic Scene Builder finalizado: %s", semantic_scene.to_dict())
+
+
+def log_semantic_registry(logger: logging.Logger, registry: Any) -> None:
+    """Record Semantic Registry metadata."""
+    logger.info("Semantic Registry iniciado")
+    logger.info("Entidades semanticas registradas: %s", registry.count)
+    logger.info("Labels registrados: %s", registry.label_count)
+    for entity in registry.entities:
+        logger.info("Semantic Entity registrada: %s", entity.id)
+    logger.info("Semantic Registry finalizado: %s", registry.to_dict())
+
+
+def log_semantic_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record Semantic Benchmark metadata."""
+    logger.info("Semantic Benchmark iniciado")
+    logger.info("Semantic Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Semantic Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info("Semantic Benchmark pico de memoria: %s KB", benchmark.peak_memory_kb)
+    logger.info("Semantic Benchmark entidades: %s", benchmark.entity_count)
+    logger.info("Semantic Benchmark labels: %s", benchmark.label_count)
+    logger.info("Semantic Benchmark regioes: %s", benchmark.region_count)
+    logger.info("Semantic Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)
