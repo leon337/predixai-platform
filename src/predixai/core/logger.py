@@ -309,6 +309,61 @@ def log_visual_benchmark(logger: logging.Logger, benchmark: Any) -> None:
     logger.info("Visual Benchmark finalizado: %s", benchmark.to_dict())
 
 
+def log_screen_elements(logger: logging.Logger, screen_elements: Any) -> None:
+    """Record Screen Elements metadata."""
+    logger.info("Screen Elements Foundation iniciado")
+    logger.info("Elementos visuais criados: %s", screen_elements.count)
+    for element in screen_elements.elements:
+        logger.info("Elemento visual registrado: %s", element.id)
+    logger.info("Screen Elements Foundation finalizado: %s", screen_elements.to_dict())
+
+
+def log_screen_layout(logger: logging.Logger, screen_layout: Any) -> None:
+    """Record Screen Layout metadata."""
+    logger.info("Screen Layout Builder iniciado")
+    logger.info("Layout estruturado criado: %s", screen_layout.id)
+    logger.info("Nos de layout: %s", screen_layout.node_count)
+    logger.info("Hierarquia visual preservada")
+    logger.info("Screen Layout Builder finalizado: %s", screen_layout.to_dict())
+
+
+def log_screen_object_registry(logger: logging.Logger, registry: Any) -> None:
+    """Record Screen Object Registry metadata."""
+    logger.info("Screen Object Registry iniciado")
+    logger.info("Objetos registrados: %s", registry.count)
+    for screen_object in registry.objects:
+        logger.info("Objeto visual registrado: %s", screen_object.id)
+    logger.info("Screen Object Registry finalizado: %s", registry.to_dict())
+
+
+def log_visual_scene(logger: logging.Logger, visual_scene: Any) -> None:
+    """Record Visual Scene metadata."""
+    logger.info("Visual Scene Builder iniciado")
+    logger.info("Visual Scene criada: %s", visual_scene.id)
+    logger.info("Visual Scene objetos: %s", visual_scene.object_count)
+    logger.info("Visual Scene elementos: %s", visual_scene.element_count)
+    logger.info("Visual Scene regioes: %s", visual_scene.region_count)
+    logger.info("Visual Scene finalizado: %s", visual_scene.to_dict())
+
+
+def log_visual_scene_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record Visual Scene Benchmark metadata."""
+    logger.info("Visual Scene Benchmark iniciado")
+    logger.info("Visual Scene Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Visual Scene Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info(
+        "Visual Scene Benchmark pico de memoria: %s KB",
+        benchmark.peak_memory_kb,
+    )
+    logger.info("Visual Scene Benchmark objetos: %s", benchmark.object_count)
+    logger.info("Visual Scene Benchmark elementos: %s", benchmark.element_count)
+    logger.info("Visual Scene Benchmark regioes: %s", benchmark.region_count)
+    logger.info("Visual Scene Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

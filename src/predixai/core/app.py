@@ -26,9 +26,14 @@ from predixai.core.logger import (
     log_roi_crop,
     log_roi_crop_export,
     log_roi_registry,
+    log_screen_elements,
+    log_screen_layout,
+    log_screen_object_registry,
     log_startup,
     log_structured_ocr,
     log_visual_benchmark,
+    log_visual_scene,
+    log_visual_scene_benchmark,
     log_visual_snapshot,
     log_vision_frame,
 )
@@ -37,8 +42,13 @@ from predixai.perception import PerceptionEngine
 from predixai.vision import (
     OCRParser,
     RegionTextMapper,
+    ScreenElementBuilder,
+    ScreenLayoutBuilder,
+    ScreenObjectRegistryBuilder,
     StructuredOCRBuilder,
     VisualBenchmark,
+    VisualSceneBenchmark,
+    VisualSceneBuilder,
     VisualSnapshotBuilder,
     VisionEngine,
 )
@@ -84,6 +94,13 @@ class PredixAIApp:
         self.visual_snapshot_builder = VisualSnapshotBuilder()
         self.visual_benchmark = VisualBenchmark(
             enabled=self._visual_benchmark_enabled()
+        )
+        self.screen_element_builder = ScreenElementBuilder()
+        self.screen_layout_builder = ScreenLayoutBuilder()
+        self.screen_object_registry_builder = ScreenObjectRegistryBuilder()
+        self.visual_scene_builder = VisualSceneBuilder()
+        self.visual_scene_benchmark = VisualSceneBenchmark(
+            enabled=self._visual_scene_benchmark_enabled()
         )
 
     def bootstrap(self) -> StartupReport:
@@ -259,6 +276,32 @@ class PredixAIApp:
             "visual.benchmark_completed",
             visual_benchmark.to_dict(),
         )
+        visual_scene_benchmark_run = self.visual_scene_benchmark.start()
+        screen_elements = self._build_screen_elements(visual_snapshot)
+        self.events.record("scene.screen_elements_created", screen_elements.to_dict())
+        screen_layout = self._build_screen_layout(visual_snapshot, screen_elements)
+        self.events.record("scene.screen_layout_created", screen_layout.to_dict())
+        screen_object_registry = self._build_screen_object_registry(
+            visual_snapshot,
+            screen_elements,
+        )
+        self.events.record(
+            "scene.object_registry_created",
+            screen_object_registry.to_dict(),
+        )
+        visual_scene = self._build_visual_scene(
+            visual_snapshot,
+            screen_elements,
+            screen_layout,
+            screen_object_registry,
+        )
+        self.events.record("scene.visual_scene_created", visual_scene.to_dict())
+        scene_benchmark = self.visual_scene_benchmark.finish(
+            visual_scene_benchmark_run,
+            visual_scene,
+        )
+        log_visual_scene_benchmark(self.logger, scene_benchmark)
+        self.events.record("scene.benchmark_completed", scene_benchmark.to_dict())
         return frame
 
     def _visual_benchmark_enabled(self) -> bool:
@@ -266,6 +309,12 @@ class PredixAIApp:
         if not isinstance(visual_config, dict):
             return True
         return bool(visual_config.get("benchmark_enabled", True))
+
+    def _visual_scene_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(visual_config.get("scene_benchmark_enabled", True))
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
@@ -398,3 +447,48 @@ class PredixAIApp:
         )
         log_visual_snapshot(self.logger, visual_snapshot)
         return visual_snapshot
+
+    def _build_screen_elements(self, visual_snapshot: object) -> object:
+        screen_elements = self.screen_element_builder.build(visual_snapshot)
+        log_screen_elements(self.logger, screen_elements)
+        return screen_elements
+
+    def _build_screen_layout(
+        self,
+        visual_snapshot: object,
+        screen_elements: object,
+    ) -> object:
+        screen_layout = self.screen_layout_builder.build(
+            visual_snapshot,
+            screen_elements,
+        )
+        log_screen_layout(self.logger, screen_layout)
+        return screen_layout
+
+    def _build_screen_object_registry(
+        self,
+        visual_snapshot: object,
+        screen_elements: object,
+    ) -> object:
+        registry = self.screen_object_registry_builder.build(
+            visual_snapshot,
+            screen_elements,
+        )
+        log_screen_object_registry(self.logger, registry)
+        return registry
+
+    def _build_visual_scene(
+        self,
+        visual_snapshot: object,
+        screen_elements: object,
+        screen_layout: object,
+        screen_object_registry: object,
+    ) -> object:
+        visual_scene = self.visual_scene_builder.build(
+            visual_snapshot,
+            screen_elements,
+            screen_layout,
+            screen_object_registry,
+        )
+        log_visual_scene(self.logger, visual_scene)
+        return visual_scene

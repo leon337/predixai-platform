@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-26 — MILESTONE-007 Visual Understanding Foundation
+
+- Concluídos os PTPs 033, 034, 035, 036 e 037 em uma única execução de milestone.
+- Criado o Screen Elements Foundation para representar elementos visuais derivados do Structured OCR, sem classificação por IA.
+- Criado o Screen Layout Builder para organizar elementos em layout estruturado com posições e hierarquia.
+- Criado o Screen Object Registry para registrar objetos visuais com identificadores estáveis e reutilização futura.
+- Criado o Visual Scene Builder para consolidar Visual Snapshot, Structured OCR, Layout e Objetos.
+- Criado o Visual Scene Benchmark com tempo de processamento, pico de memória, objetos, elementos, regiões e nós de layout.
+- Mantida a restrição de não implementar IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automação ou tomada de decisão.
+
 ## 2026-06-26 — MILESTONE-006 Visual Intelligence Foundation
 
 - Concluídos os PTPs 028, 029, 030, 031 e 032 da Milestone-006.

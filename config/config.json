@@ -58,7 +58,8 @@
       "enabled": true
     },
     "visual": {
-      "benchmark_enabled": true
+      "benchmark_enabled": true,
+      "scene_benchmark_enabled": true
     }
   },
   "ocr": {

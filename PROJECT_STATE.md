@@ -10,21 +10,21 @@ Primeiro produto: PredixAI Trader.
 
 Fase 2 — Vision.
 
-A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, execução obrigatória visível do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, Milestone-004 Region Mapping Expansion, Tesseract Provider foundation, Milestone-005 OCR Real Foundation, Milestone-006 Visual Intelligence Foundation, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
+A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, execução obrigatória visível do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, Milestone-004 Region Mapping Expansion, Tesseract Provider foundation, Milestone-005 OCR Real Foundation, Milestone-006 Visual Intelligence Foundation, Milestone-007 Visual Understanding Foundation, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
 
 ## Último PTP aprovado
 
-PTP-032 — Visual Benchmark.
+PTP-037 — Visual Scene Benchmark.
 
 ## Próximo PTP pendente
 
-PTP-033 — A definir pelo Leo.
+PTP-038 — A definir pelo Leo.
 
 ## Status geral
 
 V1 congelada.
 
-A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega o Screen Profile padrão, vincula a região lógica `FULL_SCREEN`, registra a região no `RegionRegistry`, valida o Region Mapping, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois`, executa OCR real com provider `tesseract`, validação de resultado, cache por SHA256 e benchmark técnico, transforma o texto extraído em blocos estruturados, associa texto à região `FULL_SCREEN`, consolida o Structured OCR Result, cria Visual Snapshot e registra Visual Benchmark, com logs visíveis no CMD e em `logs/predixai.log`.
+A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega o Screen Profile padrão, vincula a região lógica `FULL_SCREEN`, registra a região no `RegionRegistry`, valida o Region Mapping, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois`, executa OCR real com provider `tesseract`, validação de resultado, cache por SHA256 e benchmark técnico, transforma o texto extraído em blocos estruturados, associa texto à região `FULL_SCREEN`, consolida o Structured OCR Result, cria Visual Snapshot, registra Visual Benchmark, cria Screen Elements, monta Screen Layout, registra Screen Objects, consolida Visual Scene e registra Visual Scene Benchmark, com logs visíveis no CMD e em `logs/predixai.log`.
 
 ## Ambiente principal atual
 
@@ -110,8 +110,14 @@ Toda mudança relevante deve atualizar:
 - O Structured OCR Result consolida regiões, textos, posições, confiança e metadados em um objeto único serializável.
 - O Visual Snapshot consolida captura, frame, Region Mapping, ROI Export e Structured OCR em um snapshot técnico da tela.
 - O Visual Benchmark registra tempo de processamento, memória, regiões, blocos, tamanho do texto e cache hits do pipeline visual estruturado.
+- A Milestone-007 Visual Understanding Foundation cria a primeira camada estrutural de entendimento da interface, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter ou tomada de decisão.
+- O Screen Elements Foundation cria elementos visuais determinísticos a partir do Structured OCR e preserva posição, texto, confiança e metadados.
+- O Screen Layout Builder organiza os elementos em um layout estruturado com raiz de tela e filhos posicionados.
+- O Screen Object Registry registra objetos visuais com identificadores estáveis preparados para reutilização entre capturas futuras.
+- O Visual Scene Builder consolida Visual Snapshot, Structured OCR, Screen Layout e Screen Object Registry em uma representação única da tela.
+- O Visual Scene Benchmark registra tempo de processamento, memória, objetos, elementos, regiões e nós de layout.
 - A primeira execução local no Windows 10 do ambiente do Codex foi validada.
 - O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
 - O guia para Leo executar a validação real está em `docs/setup/Leo_Windows10_Validation.md`.
-- A próxima tarefa será definida pelo Leo em PTP-033.
+- A próxima tarefa será definida pelo Leo em PTP-038.
