@@ -27,11 +27,17 @@ from predixai.core.logger import (
     log_roi_crop_export,
     log_roi_registry,
     log_startup,
+    log_structured_ocr,
     log_vision_frame,
 )
 from predixai.ocr import OCREngine
 from predixai.perception import PerceptionEngine
-from predixai.vision import OCRParser, RegionTextMapper, VisionEngine
+from predixai.vision import (
+    OCRParser,
+    RegionTextMapper,
+    StructuredOCRBuilder,
+    VisionEngine,
+)
 
 
 @dataclass(frozen=True)
@@ -70,6 +76,7 @@ class PredixAIApp:
         self.ocr_engine: OCREngine | None = None
         self.ocr_parser = OCRParser()
         self.region_text_mapper = RegionTextMapper()
+        self.structured_ocr_builder = StructuredOCRBuilder()
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -219,6 +226,12 @@ class PredixAIApp:
             "visual.region_texts_mapped",
             region_text_mapping.to_dict(),
         )
+        structured_ocr = self._build_structured_ocr(
+            frame,
+            region_text_mapping,
+            ocr_results,
+        )
+        self.events.record("visual.structured_ocr_created", structured_ocr.to_dict())
         return frame
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
@@ -320,3 +333,17 @@ class PredixAIApp:
         )
         log_region_text_mapping(self.logger, mapping)
         return mapping
+
+    def _build_structured_ocr(
+        self,
+        frame: object,
+        region_text_mapping: object,
+        ocr_results: tuple[object, ...],
+    ) -> object:
+        structured_ocr = self.structured_ocr_builder.build(
+            frame,
+            region_text_mapping,
+            ocr_results,
+        )
+        log_structured_ocr(self.logger, structured_ocr)
+        return structured_ocr

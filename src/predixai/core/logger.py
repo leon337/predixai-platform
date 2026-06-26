@@ -268,6 +268,15 @@ def log_region_text_mapping(logger: logging.Logger, mapping: Any) -> None:
     logger.info("Region Text Mapping finalizado: %s", mapping.to_dict())
 
 
+def log_structured_ocr(logger: logging.Logger, structured_ocr: Any) -> None:
+    """Record Structured OCR metadata."""
+    logger.info("Structured OCR iniciado")
+    logger.info("Regiões estruturadas: %s", structured_ocr.total_regions)
+    logger.info("Blocos estruturados: %s", structured_ocr.total_blocks)
+    logger.info("Confiança média estruturada: %s", structured_ocr.average_confidence)
+    logger.info("Structured OCR Result criado: %s", structured_ocr.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

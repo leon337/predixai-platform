@@ -7,6 +7,8 @@ from predixai.vision.visual.region_text_mapper import (
     RegionTextMapper,
     RegionTextMapping,
 )
+from predixai.vision.visual.structured_ocr_builder import StructuredOCRBuilder
+from predixai.vision.visual.structured_ocr_result import StructuredOCRResult
 
 __all__ = [
     "OCRParsedText",
@@ -15,4 +17,6 @@ __all__ = [
     "RegionText",
     "RegionTextMapper",
     "RegionTextMapping",
+    "StructuredOCRBuilder",
+    "StructuredOCRResult",
 ]
