@@ -67,6 +67,7 @@
     "min_confidence": 0.0,
     "cache_enabled": true,
     "cache_directory": "data/ocr_cache",
+    "benchmark_enabled": true,
     "psm": 6,
     "timeout_seconds": 20
   },

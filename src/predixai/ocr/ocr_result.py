@@ -28,6 +28,7 @@ class OCRResult:
     confidence_valid: bool
     language_valid: bool
     cache_hit: bool
+    benchmark: dict[str, object]
     processing_time_ms: float
     timestamp: str
     provider_name: str
@@ -67,6 +68,7 @@ class OCRResult:
             confidence_valid=bool(data["confidence_valid"]),
             language_valid=bool(data["language_valid"]),
             cache_hit=bool(data.get("cache_hit", False)),
+            benchmark=dict(data.get("benchmark", {})),
             processing_time_ms=float(data["processing_time_ms"]),
             timestamp=str(data["timestamp"]),
             provider_name=str(data["provider_name"]),
@@ -93,6 +95,7 @@ class OCRResult:
         cache_hit: bool,
         processing_time_ms: float,
         timestamp: str,
+        benchmark: dict[str, object] | None = None,
     ) -> "OCRResult":
         """Return this OCRResult with runtime-only metadata updated."""
         return replace(
@@ -100,6 +103,7 @@ class OCRResult:
             cache_hit=cache_hit,
             processing_time_ms=processing_time_ms,
             timestamp=timestamp,
+            benchmark=benchmark if benchmark is not None else self.benchmark,
         )
 
     def to_dict(self) -> dict[str, object]:
@@ -123,6 +127,7 @@ class OCRResult:
             "confidence_valid": self.confidence_valid,
             "language_valid": self.language_valid,
             "cache_hit": self.cache_hit,
+            "benchmark": self.benchmark,
             "processing_time_ms": self.processing_time_ms,
             "timestamp": self.timestamp,
             "provider_name": self.provider_name,

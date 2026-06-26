@@ -1,5 +1,6 @@
 """OCR foundation entrypoint."""
 
+from predixai.ocr.ocr_benchmark import OCRBenchmark, OCRBenchmarkResult
 from predixai.ocr.ocr_engine import OCREngine
 from predixai.ocr.ocr_cache import OCRCache
 from predixai.ocr.ocr_provider import OCRProvider, OCRProviderStatus
@@ -20,6 +21,8 @@ from predixai.ocr.providers import (
 __all__ = [
     "BaseOCRProvider",
     "MockOCRProvider",
+    "OCRBenchmark",
+    "OCRBenchmarkResult",
     "OCRCache",
     "OCREngine",
     "OCRProviderExecution",

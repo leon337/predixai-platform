@@ -3,6 +3,8 @@
 from predixai.ocr.init import (
     BaseOCRProvider,
     MockOCRProvider,
+    OCRBenchmark,
+    OCRBenchmarkResult,
     OCRCache,
     OCREngine,
     OCRProviderExecution,
@@ -20,6 +22,8 @@ from predixai.ocr.init import (
 __all__ = [
     "BaseOCRProvider",
     "MockOCRProvider",
+    "OCRBenchmark",
+    "OCRBenchmarkResult",
     "OCRCache",
     "OCREngine",
     "OCRProviderExecution",

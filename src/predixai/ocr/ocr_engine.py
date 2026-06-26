@@ -7,6 +7,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any
 
+from predixai.ocr.ocr_benchmark import OCRBenchmark
 from predixai.ocr.ocr_cache import OCRCache
 from predixai.ocr.ocr_result import OCRResult
 from predixai.ocr.ocr_result_validator import OCRResultValidator
@@ -25,6 +26,9 @@ class OCREngine:
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         self.config = config or {}
         self.validator = OCRValidator()
+        self.benchmark = OCRBenchmark(
+            enabled=bool(self.config.get("benchmark_enabled", False))
+        )
         self.cache_enabled = bool(self.config.get("cache_enabled", False))
         self.cache = OCRCache(
             Path(str(self.config.get("cache_directory", "data/ocr_cache")))
@@ -66,7 +70,9 @@ class OCREngine:
             bool(self.config.get("text_extraction_enabled", False))
             and provider_status.text_extraction_enabled
         )
-        execution = provider.execute(resolved_path)
+        execution, benchmark_result = self.benchmark.measure(
+            lambda: provider.execute(resolved_path)
+        )
         result_validation = self.result_validator.validate(
             provider_status=provider_status,
             execution=execution,
@@ -95,6 +101,7 @@ class OCREngine:
             confidence_valid=result_validation.confidence_valid,
             language_valid=result_validation.language_valid,
             cache_hit=False,
+            benchmark=benchmark_result.to_dict(),
             processing_time_ms=processing_time_ms,
             timestamp=timestamp,
             provider_name=provider_status.name,
@@ -134,8 +141,14 @@ class OCREngine:
 
         processing_time_ms = round((perf_counter() - started_at) * 1000, 3)
         timestamp = datetime.now().astimezone().isoformat()
+        benchmark_result = self.benchmark.cache_hit_result(
+            processing_time_ms=processing_time_ms,
+            text_length=len(result.text),
+            status=result.status,
+        )
         return result.with_runtime_metadata(
             cache_hit=True,
             processing_time_ms=processing_time_ms,
             timestamp=timestamp,
+            benchmark=benchmark_result.to_dict(),
         )
