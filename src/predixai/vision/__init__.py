@@ -21,6 +21,9 @@ from predixai.vision.init import (
     OCRParsedText,
     OCRParser,
     OCRTextBlock,
+    RegionText,
+    RegionTextMapper,
+    RegionTextMapping,
     VisionEngine,
 )
 
@@ -45,5 +48,8 @@ __all__ = [
     "OCRParsedText",
     "OCRParser",
     "OCRTextBlock",
+    "RegionText",
+    "RegionTextMapper",
+    "RegionTextMapping",
     "VisionEngine",
 ]

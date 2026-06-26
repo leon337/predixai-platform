@@ -259,6 +259,15 @@ def log_ocr_parser(logger: logging.Logger, parsed_text: Any) -> None:
     logger.info("OCR Parser finalizado: %s", parsed_text.to_dict())
 
 
+def log_region_text_mapping(logger: logging.Logger, mapping: Any) -> None:
+    """Record Region Text Mapping metadata."""
+    logger.info("Region Text Mapping iniciado")
+    for region_text in mapping.texts:
+        logger.info("Texto associado à região %s", region_text.region_id)
+    logger.info("Total de textos regionais: %s", mapping.count)
+    logger.info("Region Text Mapping finalizado: %s", mapping.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

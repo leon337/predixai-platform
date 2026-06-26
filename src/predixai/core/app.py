@@ -19,6 +19,7 @@ from predixai.core.logger import (
     log_ocr_pipeline,
     log_ocr_parser,
     log_perception,
+    log_region_text_mapping,
     log_region_mapping_finished,
     log_region_mapping_started,
     log_region_registry,
@@ -30,7 +31,7 @@ from predixai.core.logger import (
 )
 from predixai.ocr import OCREngine
 from predixai.perception import PerceptionEngine
-from predixai.vision import OCRParser, VisionEngine
+from predixai.vision import OCRParser, RegionTextMapper, VisionEngine
 
 
 @dataclass(frozen=True)
@@ -68,6 +69,7 @@ class PredixAIApp:
         self.vision_engine: VisionEngine | None = None
         self.ocr_engine: OCREngine | None = None
         self.ocr_parser = OCRParser()
+        self.region_text_mapper = RegionTextMapper()
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -208,6 +210,15 @@ class PredixAIApp:
             "visual.ocr_parsed",
             {"results": [parsed_text.to_dict() for parsed_text in parsed_ocr]},
         )
+        region_text_mapping = self._map_region_texts(
+            parsed_ocr,
+            region_registry,
+            roi_exports,
+        )
+        self.events.record(
+            "visual.region_texts_mapped",
+            region_text_mapping.to_dict(),
+        )
         return frame
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
@@ -295,3 +306,17 @@ class PredixAIApp:
         for parsed_text in parsed_results:
             log_ocr_parser(self.logger, parsed_text)
         return parsed_results
+
+    def _map_region_texts(
+        self,
+        parsed_ocr: tuple[object, ...],
+        region_registry: object,
+        roi_exports: tuple[object, ...],
+    ) -> object:
+        mapping = self.region_text_mapper.map_texts(
+            parsed_ocr,
+            region_registry,
+            roi_exports,
+        )
+        log_region_text_mapping(self.logger, mapping)
+        return mapping
