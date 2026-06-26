@@ -14,4 +14,4 @@ class ProviderSelector:
 
     def select(self, provider_name: str) -> BaseOCRProvider:
         """Select one provider from the registry."""
-        return self.registry.get(provider_name)
+        return self.registry.get(provider_name.strip().lower())

@@ -8,6 +8,7 @@ from predixai.ocr.providers.base_provider import (
 from predixai.ocr.providers.mock_provider import MockOCRProvider
 from predixai.ocr.providers.provider_registry import ProviderRegistry
 from predixai.ocr.providers.provider_selector import ProviderSelector
+from predixai.ocr.providers.tesseract_provider import TesseractOCRProvider
 
 __all__ = [
     "BaseOCRProvider",
@@ -16,4 +17,5 @@ __all__ = [
     "OCRProviderStatus",
     "ProviderRegistry",
     "ProviderSelector",
+    "TesseractOCRProvider",
 ]

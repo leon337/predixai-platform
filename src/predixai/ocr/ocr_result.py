@@ -26,6 +26,11 @@ class OCRResult:
     registered_providers: tuple[str, ...]
     provider_loaded: bool
     text_extraction_enabled: bool
+    provider_ready: bool
+    provider_version: str
+    provider_language: str
+    provider_installation_detected: bool
+    provider_language_available: bool
 
     def to_dict(self) -> dict[str, object]:
         """Return a serializable representation."""
@@ -46,4 +51,11 @@ class OCRResult:
             "registered_providers": list(self.registered_providers),
             "provider_loaded": self.provider_loaded,
             "text_extraction_enabled": self.text_extraction_enabled,
+            "provider_ready": self.provider_ready,
+            "provider_version": self.provider_version,
+            "provider_language": self.provider_language,
+            "provider_installation_detected": (
+                self.provider_installation_detected
+            ),
+            "provider_language_available": self.provider_language_available,
         }

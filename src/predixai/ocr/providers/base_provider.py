@@ -13,6 +13,11 @@ class OCRProviderStatus:
     name: str
     loaded: bool
     text_extraction_enabled: bool
+    ready: bool = False
+    version: str = ""
+    language: str = ""
+    installation_detected: bool = False
+    language_available: bool = False
 
 
 @dataclass(frozen=True)

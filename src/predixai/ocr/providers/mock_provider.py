@@ -20,6 +20,11 @@ class MockOCRProvider(BaseOCRProvider):
             name=self.name,
             loaded=True,
             text_extraction_enabled=False,
+            ready=True,
+            version="mock",
+            language="",
+            installation_detected=True,
+            language_available=True,
         )
 
     def execute(self, image_path: object) -> OCRProviderExecution:

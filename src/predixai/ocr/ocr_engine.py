@@ -9,7 +9,12 @@ from typing import Any
 
 from predixai.ocr.ocr_result import OCRResult
 from predixai.ocr.ocr_validator import OCRValidator
-from predixai.ocr.providers import MockOCRProvider, ProviderRegistry, ProviderSelector
+from predixai.ocr.providers import (
+    MockOCRProvider,
+    ProviderRegistry,
+    ProviderSelector,
+    TesseractOCRProvider,
+)
 
 
 class OCREngine:
@@ -20,6 +25,9 @@ class OCREngine:
         self.validator = OCRValidator()
         self.registry = ProviderRegistry()
         self.registry.register(MockOCRProvider())
+        self.registry.register(
+            TesseractOCRProvider(language=str(self.config.get("language", "por")))
+        )
         self.selector = ProviderSelector(self.registry)
 
     def prepare_pipeline(self, image_path: str | Path) -> OCRResult:
@@ -58,4 +66,11 @@ class OCREngine:
             registered_providers=self.registry.provider_names,
             provider_loaded=provider_status.loaded,
             text_extraction_enabled=text_extraction_enabled,
+            provider_ready=provider_status.ready,
+            provider_version=provider_status.version,
+            provider_language=provider_status.language,
+            provider_installation_detected=(
+                provider_status.installation_detected
+            ),
+            provider_language_available=provider_status.language_available,
         )

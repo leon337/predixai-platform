@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-25 — PTP-023 Tesseract Provider Foundation
+
+- Criada a fundação do Tesseract Provider em `src/predixai/ocr/providers/tesseract_provider.py`.
+- Integrado o provider `tesseract` ao `OCREngine`, `ProviderRegistry` e `ProviderSelector`.
+- Atualizada a configuração OCR para `provider=tesseract`, `language=por` e `text_extraction_enabled=false`.
+- Registrados em log técnico `Tesseract Provider iniciado`, versão detectada, idioma configurado e provider pronto.
+- Mantida a restrição de não executar OCR real, não extrair texto, não usar IA, Gemini, EasyOCR, PaddleOCR, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — MILESTONE-004 Region Mapping Expansion
 
 - Implementado o Screen Profile Binding com `profile_binding.py` e suporte a regiões no perfil padrão.

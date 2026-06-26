@@ -60,7 +60,8 @@
   },
   "ocr": {
     "enabled": true,
-    "provider": "mock",
+    "provider": "tesseract",
+    "language": "por",
     "text_extraction_enabled": false
   },
   "modules": {

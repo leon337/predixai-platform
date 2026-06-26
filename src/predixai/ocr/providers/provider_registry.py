@@ -18,17 +18,19 @@ class ProviderRegistry:
 
     def register(self, provider: BaseOCRProvider) -> None:
         """Register one OCR provider by name."""
-        if provider.name in self._providers:
-            raise ValueError(f"OCR provider already registered: {provider.name}")
-        self._providers[provider.name] = provider
+        provider_name = provider.name.strip().lower()
+        if provider_name in self._providers:
+            raise ValueError(f"OCR provider already registered: {provider_name}")
+        self._providers[provider_name] = provider
 
     def get(self, provider_name: str) -> BaseOCRProvider:
         """Return one registered OCR provider."""
+        normalized_name = provider_name.strip().lower()
         try:
-            return self._providers[provider_name]
+            return self._providers[normalized_name]
         except KeyError as exc:
             available = ", ".join(self.provider_names)
             raise ValueError(
-                f"OCR provider not registered: {provider_name}. "
+                f"OCR provider not registered: {normalized_name}. "
                 f"Available providers: {available}"
             ) from exc

@@ -202,9 +202,16 @@ def log_ocr_pipeline(logger: logging.Logger, ocr_result: Any) -> None:
     logger.info("Provider selecionado: %s", ocr_result.selected_provider)
     logger.info("Provider %s selecionado", ocr_result.selected_provider)
     logger.info("Imagem recebida: %s", ocr_result.image_path)
-    logger.info("Imagem enviada ao Mock Provider: %s", ocr_result.image_path)
     logger.info("OCR Provider carregado: %s", ocr_result.provider_name)
-    logger.info("OCR executado (Mock)")
+    if ocr_result.provider == "tesseract":
+        logger.info("Imagem enviada ao Tesseract Provider: %s", ocr_result.image_path)
+        logger.info("Tesseract Provider iniciado")
+        logger.info("Versão detectada: %s", ocr_result.provider_version)
+        logger.info("Idioma configurado: %s", ocr_result.provider_language)
+        logger.info("Provider pronto")
+    else:
+        logger.info("Imagem enviada ao Mock Provider: %s", ocr_result.image_path)
+        logger.info("OCR executado (Mock)")
     logger.info("Resultado criado: %s", ocr_result.to_dict())
     logger.info("OCRResult criado: %s", ocr_result.to_dict())
     logger.info("OCR continua sem extração de texto")
