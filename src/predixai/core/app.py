@@ -28,6 +28,7 @@ from predixai.core.logger import (
     log_roi_registry,
     log_startup,
     log_structured_ocr,
+    log_visual_benchmark,
     log_visual_snapshot,
     log_vision_frame,
 )
@@ -37,6 +38,7 @@ from predixai.vision import (
     OCRParser,
     RegionTextMapper,
     StructuredOCRBuilder,
+    VisualBenchmark,
     VisualSnapshotBuilder,
     VisionEngine,
 )
@@ -80,6 +82,9 @@ class PredixAIApp:
         self.region_text_mapper = RegionTextMapper()
         self.structured_ocr_builder = StructuredOCRBuilder()
         self.visual_snapshot_builder = VisualSnapshotBuilder()
+        self.visual_benchmark = VisualBenchmark(
+            enabled=self._visual_benchmark_enabled()
+        )
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -215,6 +220,7 @@ class PredixAIApp:
             "ocr.pipeline_ready",
             {"results": [ocr_result.to_dict() for ocr_result in ocr_results]},
         )
+        visual_benchmark_run = self.visual_benchmark.start()
         parsed_ocr = self._parse_ocr_results(ocr_results)
         self.events.record(
             "visual.ocr_parsed",
@@ -243,7 +249,23 @@ class PredixAIApp:
             structured_ocr,
         )
         self.events.record("visual.snapshot_created", visual_snapshot.to_dict())
+        visual_benchmark = self.visual_benchmark.finish(
+            visual_benchmark_run,
+            visual_snapshot,
+            ocr_results,
+        )
+        log_visual_benchmark(self.logger, visual_benchmark)
+        self.events.record(
+            "visual.benchmark_completed",
+            visual_benchmark.to_dict(),
+        )
         return frame
+
+    def _visual_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(visual_config.get("benchmark_enabled", True))
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})

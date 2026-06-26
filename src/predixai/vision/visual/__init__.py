@@ -9,6 +9,9 @@ from predixai.vision.visual.init import (
     RegionTextMapping,
     StructuredOCRBuilder,
     StructuredOCRResult,
+    VisualBenchmark,
+    VisualBenchmarkResult,
+    VisualBenchmarkRun,
     VisualSnapshot,
     VisualSnapshotBuilder,
 )
@@ -22,6 +25,9 @@ __all__ = [
     "RegionTextMapping",
     "StructuredOCRBuilder",
     "StructuredOCRResult",
+    "VisualBenchmark",
+    "VisualBenchmarkResult",
+    "VisualBenchmarkRun",
     "VisualSnapshot",
     "VisualSnapshotBuilder",
 ]

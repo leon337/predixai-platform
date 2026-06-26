@@ -294,6 +294,21 @@ def log_visual_snapshot(logger: logging.Logger, visual_snapshot: Any) -> None:
     logger.info("Visual Snapshot finalizado")
 
 
+def log_visual_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record Visual Benchmark metadata."""
+    logger.info("Visual Benchmark iniciado")
+    logger.info("Visual Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Visual Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info("Visual Benchmark pico de memória: %s KB", benchmark.peak_memory_kb)
+    logger.info("Visual Benchmark regiões: %s", benchmark.region_count)
+    logger.info("Visual Benchmark blocos: %s", benchmark.block_count)
+    logger.info("Visual Benchmark tamanho do texto: %s", benchmark.text_length)
+    logger.info("Visual Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

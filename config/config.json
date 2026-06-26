@@ -56,6 +56,9 @@
     },
     "roi": {
       "enabled": true
+    },
+    "visual": {
+      "benchmark_enabled": true
     }
   },
   "ocr": {
