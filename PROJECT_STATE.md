@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-052 — Market Structure Benchmark.
+PTP-062 — Pattern Analysis Benchmark.
 
 ## Próximo PTP pendente
 
-PTP-053 — Pattern Foundation.
+PTP-063 — Intelligence Context Foundation.
 
 ## Status geral
 
@@ -134,6 +134,12 @@ Toda mudança relevante deve atualizar:
 - O Pattern Detector usa apenas regras estruturais para derivar padrões a partir da Market Structure.
 - O Pattern Scene consolida Market Structure, Pattern Registry e Patterns em uma representação única de padrões.
 - O Pattern Benchmark registra tempo, memória, quantidade de padrões, entidades e regiões.
+- A Milestone-013 Intelligence Foundation cria a infraestrutura para transformar Pattern Analysis em hipóteses estruturais de mercado sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automação ou tomada de decisão.
+- O Intelligence Context Foundation consolida o contexto estruturado produzido pelas camadas anteriores.
+- O Market Hypothesis Foundation gera hipóteses estruturais do mercado.
+- O Hypothesis Evaluator avalia hipóteses apenas com regras estruturais.
+- O Intelligence Snapshot consolida Market Structure, Pattern Analysis, Intelligence Context e Market Hypothesis.
+- O Intelligence Benchmark registra tempo, memória, quantidade de hipóteses, análises, entidades e status.
 - A primeira execução local no Windows 10 do ambiente do Codex foi validada.
 - O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.

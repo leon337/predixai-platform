@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-26 ? MILESTONE-013 Intelligence Foundation
+
+- Conclu?dos os PTPs 063, 064, 065, 066 e 067 em uma ?nica execu??o de milestone.
+- Criado o Intelligence Context Foundation para consolidar o contexto estruturado produzido pelas camadas anteriores.
+- Criado o Market Hypothesis Foundation para gerar hip?teses estruturais do mercado.
+- Criado o Hypothesis Evaluator para avaliar hip?teses apenas com regras estruturais.
+- Criado o Intelligence Snapshot Builder para consolidar Market Structure, Pattern Analysis, Intelligence Context e Market Hypothesis.
+- Criado o Intelligence Benchmark com tempo, mem?ria, hip?teses, an?lises, entidades e status.
+- Mantida a restri??o de n?o implementar IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automa??o ou tomada de decis?o.
+
 ## 2026-06-26 — MILESTONE-012 Pattern Analysis Foundation
 
 - Concluídos os PTPs 058, 059, 060, 061 e 062 em uma única execução de milestone.
