@@ -151,11 +151,29 @@ def log_roi_registry(logger: logging.Logger, registry: Any) -> None:
 def log_region_registry(logger: logging.Logger, registry: Any) -> None:
     """Record logical Region Mapping metadata."""
     logger.info("Region Manager iniciado")
+    logger.info("Screen Profile carregado: %s", registry.profile_id)
+    logger.info("Region Binding iniciado")
     logger.info("Region Registry carregado")
+    logger.info("Region Validation iniciado")
     for region in registry.regions:
+        logger.info("Região registrada: %s", region.id)
+        logger.info("Região serializada: %s", region.to_dict())
+        logger.info("Região validada: %s", region.id)
         if region.id == "FULL_SCREEN":
+            logger.info("Região FULL_SCREEN vinculada")
             logger.info("Região FULL_SCREEN registrada")
+    logger.info("Total de regiões válidas: %s", registry.count)
     logger.info("Total de regiões registradas: %s", registry.count)
+
+
+def log_region_mapping_started(logger: logging.Logger) -> None:
+    """Record the beginning of Region Mapping."""
+    logger.info("Region Mapping iniciado")
+
+
+def log_region_mapping_finished(logger: logging.Logger) -> None:
+    """Record the end of Region Mapping."""
+    logger.info("Region Mapping finalizado")
 
 
 def log_roi_crop(logger: logging.Logger, roi_crop: Any) -> None:

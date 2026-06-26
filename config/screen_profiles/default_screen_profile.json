@@ -7,5 +7,14 @@
   "scale_percent": 100,
   "language": "pt-BR",
   "theme": "unknown",
-  "broker": "Olymp Trade"
+  "broker": "Olymp Trade",
+  "regions": [
+    {
+      "id": "FULL_SCREEN",
+      "enabled": true,
+      "metadata": {
+        "description": "Default full-screen logical region binding."
+      }
+    }
+  ]
 }

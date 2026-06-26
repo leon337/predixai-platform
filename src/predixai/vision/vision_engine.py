@@ -26,7 +26,10 @@ class VisionEngine:
         self.validator = FrameValidator()
         self.storage = FrameStorage()
         self.image_loader = ImageLoader()
-        self.region_manager = RegionManager()
+        profile_path = self.config.resolve_project_path(
+            str(self.config.screen_profile["default_profile"])
+        )
+        self.region_manager = RegionManager(profile_path)
         self.roi_manager = ROIManager()
         self.roi_crop_engine = ROICropEngine()
         roi_output_directory = self.config.resolve_path("captures") / "rois"

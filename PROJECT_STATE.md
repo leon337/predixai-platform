@@ -10,21 +10,21 @@ Primeiro produto: PredixAI Trader.
 
 Fase 2 — Vision.
 
-A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, execução obrigatória visível do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
+A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, execução obrigatória visível do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, Milestone-004 Region Mapping Expansion, primeira execução local validada no Windows 10 do ambiente do Codex e workspace oficial preparado no Windows 10 do Leo.
 
 ## Último PTP aprovado
 
-PTP-018 — OCR Region Mapping Foundation.
+MILESTONE-004 — Region Mapping Expansion.
 
 ## Próximo PTP pendente
 
-PTP-019 — A definir pelo Leo.
+PTP-023 — A definir pelo Leo.
 
 ## Status geral
 
 V1 congelada.
 
-A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, registra a região lógica `FULL_SCREEN` no Region Mapping, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois` e valida obrigatoriamente o pipeline OCR completo com provider `mock` sem extrair texto, com logs visíveis no CMD e em `logs/predixai.log`.
+A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega o Screen Profile padrão, vincula a região lógica `FULL_SCREEN`, registra a região no `RegionRegistry`, valida o Region Mapping, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois` e valida obrigatoriamente o pipeline OCR completo com provider `mock` sem extrair texto, com logs visíveis no CMD e em `logs/predixai.log`.
 
 ## Ambiente principal atual
 
@@ -96,6 +96,8 @@ Toda mudança relevante deve atualizar:
 - O PTP-017B confirmou que o pipeline OCR continua conectado e ajustou o logger para exibir no CMD as mensagens literais exigidas na validação do Windows do Leo.
 - O PTP-017C tornou obrigatório que `python -m predixai.main --capture` execute Vision, ImageBuffer, ROI, ROICrop, ROI Export e OCR Mock com logs no CMD e em `logs/predixai.log`.
 - O OCR Region Mapping foundation registra regiões lógicas de tela em `RegionRegistry`, começando apenas com `FULL_SCREEN`, sem ler texto, pixels ou conteúdo visual.
+- O Milestone-004 expandiu Region Mapping com Screen Profile Binding, metadata registry, validação de regiões e integração definitiva entre Frame e ROI.
+- O Region Mapping registra apenas metadados: não lê pixels, não executa OCR real, não usa IA e não altera Strategy, Dashboard ou Broker Adapter.
 - A primeira execução local no Windows 10 do ambiente do Codex foi validada.
 - O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.

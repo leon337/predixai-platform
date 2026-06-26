@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-25 — MILESTONE-004 Region Mapping Expansion
+
+- Implementado o Screen Profile Binding com `profile_binding.py` e suporte a regiões no perfil padrão.
+- Expandido o `RegionRegistry` com `version`, `enabled`, `profile_id`, `metadata` e serialização completa.
+- Implementado o Region Validation Pipeline para coordenadas, largura, altura, limites da captura e IDs duplicados.
+- Integrado o fluxo Capture → Vision → Frame → Region Mapping → ROI → ROICrop → ROI Export → OCR Pipeline.
+- Registrados logs de Screen Profile, Region Binding, Region Registry, Region Validation, Region Mapping iniciado e Region Mapping finalizado.
+- Mantida a restrição de não implementar OCR real, leitura de pixels, OpenCV, Pillow, EasyOCR, Tesseract, Gemini, IA, Strategy, Dashboard ou Broker Adapter.
+
 ## 2026-06-25 — PTP-018 OCR Region Mapping Foundation
 
 - Criada a fundação de Region Mapping em `src/predixai/vision/regions`.
