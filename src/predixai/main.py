@@ -23,6 +23,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.capture:
             metadata = app.capture_snapshot()
             print(f"Manual capture saved: {metadata.file_path}")
+        if args.live_calibrate:
+            result = app.live_calibrate()
+            print(
+                "Live calibration completed: "
+                f"{len(result.field_results)} fields, status=READY"
+            )
         if args.live_once:
             result = app.live_once()
             report = result["report"] if isinstance(result, dict) else result
@@ -48,6 +54,11 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--live-once",
         action="store_true",
         help="Run one live validation candle without automation.",
+    )
+    parser.add_argument(
+        "--live-calibrate",
+        action="store_true",
+        help="Run an isolated live calibration pass for broker fields.",
     )
     return parser.parse_args(argv)
 

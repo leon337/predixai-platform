@@ -91,6 +91,7 @@ from predixai.core.logger import (
 )
 from predixai.ocr import OCREngine
 from predixai.live import (
+    LiveCalibrationEngine,
     CandleSnapshotBuilder,
     CandleStatisticsBuilder,
     BrokerWindowDetector,
@@ -271,6 +272,14 @@ class PredixAIApp:
         self.candle_snapshot_builder = CandleSnapshotBuilder()
         self.candle_statistics_builder = CandleStatisticsBuilder()
         self.live_candle_benchmark = LiveCandleBenchmarkBuilder()
+        self.live_calibration_engine = LiveCalibrationEngine(
+            config=self.config,
+            capture_engine=self.capture_engine,
+            capture_status=self.capture_status,
+            vision_engine=self.vision_engine,
+            ocr_engine=self.ocr_engine if self.ocr_engine is not None else OCREngine(self.config.ocr),
+            logger=self.logger,
+        )
         self.live_validation_benchmark = LiveValidationBenchmark(
             enabled=self._live_validation_benchmark_enabled()
         )
@@ -346,6 +355,34 @@ class PredixAIApp:
         frame = self._process_vision_frame(metadata)
         self.events.record("vision.frame_created", frame.to_dict())
         return metadata
+
+    def live_calibrate(self) -> object:
+        """Run an isolated live calibration flow without changing live-once."""
+        if self.capture_engine is None or self.capture_status is None:
+            capture_status = self._initialize_capture()
+            if capture_status is None:
+                raise RuntimeError("Capture Engine is disabled.")
+
+        if self.capture_engine is None or self.capture_status is None:
+            raise RuntimeError("Capture Engine is not available.")
+
+        if self.vision_engine is None:
+            self.vision_engine = VisionEngine(self.config)
+        if self.ocr_engine is None:
+            self.ocr_engine = OCREngine(self.config.ocr)
+        self.live_calibration_engine = LiveCalibrationEngine(
+            config=self.config,
+            capture_engine=self.capture_engine,
+            capture_status=self.capture_status,
+            vision_engine=self.vision_engine,
+            ocr_engine=self.ocr_engine,
+            logger=self.logger,
+        )
+        broker_state = self.broker_window_detector.detect()
+        return self.live_calibration_engine.run(
+            countdown_seconds=10,
+            window_title=broker_state.title,
+        )
 
     def live_once(self) -> object:
         """Run one live validation candle without trading actions."""
