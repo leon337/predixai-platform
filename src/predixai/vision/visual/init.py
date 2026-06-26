@@ -14,8 +14,34 @@ from predixai.vision.visual.market_benchmark import (
 )
 from predixai.vision.visual.market_element import MarketElement, MarketElements
 from predixai.vision.visual.market_element_builder import MarketElementBuilder
+from predixai.vision.visual.market_entity import MarketEntities, MarketEntity
+from predixai.vision.visual.market_entity_builder import MarketEntityBuilder
+from predixai.vision.visual.market_entity_registry import (
+    EntitySerializer,
+    EntityRegistry,
+    MarketEntityRegistry,
+)
+from predixai.vision.visual.market_entity_registry_builder import (
+    MarketEntityRegistryBuilder,
+)
+from predixai.vision.visual.market_entity_validator import (
+    MarketEntityValidation,
+    MarketEntityValidator,
+)
+from predixai.vision.visual.market_entity_storage import EntityStorage
 from predixai.vision.visual.market_scene import MarketScene
 from predixai.vision.visual.market_scene_builder import MarketSceneBuilder
+from predixai.vision.visual.market_structure import MarketStructure
+from predixai.vision.visual.market_structure_benchmark import (
+    MarketStructureBenchmark,
+    MarketStructureBenchmarkResult,
+    MarketStructureBenchmarkRun,
+)
+from predixai.vision.visual.market_structure_builder import MarketStructureBuilder
+from predixai.vision.visual.market_structure_validator import (
+    MarketStructureValidation,
+    MarketStructureValidator,
+)
 from predixai.vision.visual.price_region_mapper import (
     PriceRegion,
     PriceRegionMapper,
@@ -86,6 +112,23 @@ __all__ = [
     "MarketElement",
     "MarketElementBuilder",
     "MarketElements",
+    "MarketEntities",
+    "MarketEntity",
+    "MarketEntityBuilder",
+    "MarketEntityRegistry",
+    "MarketEntityRegistryBuilder",
+    "MarketEntityValidation",
+    "MarketEntityValidator",
+    "EntityRegistry",
+    "MarketStructure",
+    "MarketStructureBenchmark",
+    "MarketStructureBenchmarkResult",
+    "MarketStructureBenchmarkRun",
+    "MarketStructureBuilder",
+    "MarketStructureValidation",
+    "MarketStructureValidator",
+    "EntitySerializer",
+    "EntityStorage",
     "MarketScene",
     "MarketSceneBuilder",
     "PriceRegion",

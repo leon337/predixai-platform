@@ -18,7 +18,13 @@ from predixai.core.logger import (
     log_manual_snapshot,
     log_market_benchmark,
     log_market_elements,
+    log_market_entities,
+    log_market_entity_validation,
+    log_market_entity_registry,
     log_market_scene,
+    log_market_structure,
+    log_market_structure_benchmark,
+    log_market_structure_validation,
     log_ocr_pipeline,
     log_ocr_parser,
     log_perception,
@@ -52,8 +58,16 @@ from predixai.perception import PerceptionEngine
 from predixai.vision import (
     MarketBenchmark,
     MarketElementBuilder,
+    MarketEntityBuilder,
+    MarketEntityRegistryBuilder,
+    MarketEntityValidator,
     MarketSceneBuilder,
+    MarketStructureBenchmark,
+    MarketStructureBuilder,
+    MarketStructureValidator,
     OCRParser,
+    EntitySerializer,
+    EntityStorage,
     PriceRegionMapper,
     RegionTextMapper,
     ScreenElementBuilder,
@@ -130,6 +144,16 @@ class PredixAIApp:
             enabled=self._semantic_benchmark_enabled()
         )
         self.market_element_builder = MarketElementBuilder()
+        self.market_entity_builder = MarketEntityBuilder()
+        self.market_entity_registry_builder = MarketEntityRegistryBuilder()
+        self.market_entity_validator = MarketEntityValidator()
+        self.market_entity_serializer = EntitySerializer()
+        self.market_entity_storage = EntityStorage()
+        self.market_structure_builder = MarketStructureBuilder()
+        self.market_structure_validator = MarketStructureValidator()
+        self.market_structure_benchmark = MarketStructureBenchmark(
+            enabled=self._market_structure_benchmark_enabled()
+        )
         self.price_region_mapper = PriceRegionMapper()
         self.time_region_mapper = TimeRegionMapper()
         self.market_scene_builder = MarketSceneBuilder()
@@ -383,6 +407,43 @@ class PredixAIApp:
         )
         log_market_benchmark(self.logger, market_benchmark)
         self.events.record("market.benchmark_completed", market_benchmark.to_dict())
+        market_structure_benchmark_run = self.market_structure_benchmark.start()
+        market_entities = self._build_market_entities(market_scene)
+        self.events.record("market.entities_created", market_entities.to_dict())
+        market_entity_validation = self._validate_market_entities(market_entities)
+        self.events.record(
+            "market.entities_validated",
+            market_entity_validation.to_dict(),
+        )
+        market_entity_registry = self._build_market_entity_registry(market_entities)
+        self.events.record(
+            "market.entity_registry_created",
+            market_entity_registry.to_dict(),
+        )
+        market_structure = self._build_market_structure(
+            visual_snapshot,
+            market_scene,
+            market_entities,
+            market_entity_registry,
+            ocr_results[0],
+        )
+        self.events.record("market.structure_created", market_structure.to_dict())
+        market_structure_validation = self._validate_market_structure(
+            market_structure
+        )
+        self.events.record(
+            "market.structure_validated",
+            market_structure_validation.to_dict(),
+        )
+        market_structure_benchmark = self.market_structure_benchmark.finish(
+            market_structure_benchmark_run,
+            market_structure,
+        )
+        log_market_structure_benchmark(self.logger, market_structure_benchmark)
+        self.events.record(
+            "market.structure_benchmark_completed",
+            market_structure_benchmark.to_dict(),
+        )
         return frame
 
     def _visual_benchmark_enabled(self) -> bool:
@@ -408,6 +469,12 @@ class PredixAIApp:
         if not isinstance(visual_config, dict):
             return True
         return bool(visual_config.get("market_benchmark_enabled", True))
+
+    def _market_structure_benchmark_enabled(self) -> bool:
+        visual_config = self.config.vision.get("visual", {})
+        if not isinstance(visual_config, dict):
+            return True
+        return bool(visual_config.get("market_structure_benchmark_enabled", True))
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
         image_loader_config = self.config.vision.get("image_loader", {})
@@ -647,3 +714,43 @@ class PredixAIApp:
         )
         log_market_scene(self.logger, market_scene)
         return market_scene
+
+    def _build_market_entities(self, market_scene: object) -> object:
+        market_entities = self.market_entity_builder.build(market_scene)
+        log_market_entities(self.logger, market_entities)
+        return market_entities
+
+    def _build_market_entity_registry(self, market_entities: object) -> object:
+        registry = self.market_entity_registry_builder.build(market_entities)
+        log_market_entity_registry(self.logger, registry)
+        storage_path = self.market_entity_storage.resolve(registry.id)
+        self.logger.info("Market Entity Storage caminho: %s", storage_path)
+        return registry
+
+    def _validate_market_entities(self, market_entities: object) -> object:
+        validation = self.market_entity_validator.validate(market_entities)
+        log_market_entity_validation(self.logger, validation)
+        return validation
+
+    def _build_market_structure(
+        self,
+        visual_snapshot: object,
+        market_scene: object,
+        market_entities: object,
+        market_entity_registry: object,
+        ocr_result: object,
+    ) -> object:
+        market_structure = self.market_structure_builder.build(
+            visual_snapshot,
+            market_scene,
+            market_entities,
+            market_entity_registry,
+            ocr_result,
+        )
+        log_market_structure(self.logger, market_structure)
+        return market_structure
+
+    def _validate_market_structure(self, market_structure: object) -> object:
+        validation = self.market_structure_validator.validate(market_structure)
+        log_market_structure_validation(self.logger, validation)
+        return validation

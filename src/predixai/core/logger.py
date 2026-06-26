@@ -481,6 +481,77 @@ def log_market_benchmark(logger: logging.Logger, benchmark: Any) -> None:
     logger.info("Market Benchmark finalizado: %s", benchmark.to_dict())
 
 
+def log_market_entities(logger: logging.Logger, market_entities: Any) -> None:
+    """Record Market Entity foundation metadata."""
+    logger.info("Market Entity Foundation iniciado")
+    logger.info("Entidades de mercado criadas: %s", market_entities.count)
+    for entity in market_entities.entities:
+        logger.info("Market Entity registrada: %s", entity.id)
+        logger.info("Market Entity tipo: %s", entity.entity_type)
+    logger.info("Market Entity Foundation finalizado: %s", market_entities.to_dict())
+
+
+def log_market_entity_validation(logger: logging.Logger, validation: Any) -> None:
+    """Record Market Entity validation metadata."""
+    logger.info("Market Entity Validator iniciado")
+    logger.info("Market Entity valida: %s", validation.valid)
+    logger.info("Market Entity validadas: %s", validation.entity_count)
+    logger.info("Market Entity regioes validadas: %s", validation.region_count)
+    for issue in validation.issues:
+        logger.warning("Market Entity issue: %s", issue)
+    logger.info("Market Entity Validator finalizado: %s", validation.to_dict())
+
+
+def log_market_entity_registry(logger: logging.Logger, registry: Any) -> None:
+    """Record market entity registry metadata."""
+    logger.info("Market Entity Registry iniciado")
+    logger.info("Market Entity Registry entidades: %s", registry.count)
+    logger.info("Market Entity Registry regioes: %s", registry.region_count)
+    logger.info("Market Entity Storage definido: %s", getattr(registry, "metadata", {}))
+    logger.info("Market Entity Registry finalizado: %s", registry.to_dict())
+
+
+def log_market_structure(logger: logging.Logger, market_structure: Any) -> None:
+    """Record Market Structure metadata."""
+    logger.info("Market Structure Builder iniciado")
+    logger.info("Market Structure criada: %s", market_structure.id)
+    logger.info("Market Structure entidades: %s", market_structure.entity_count)
+    logger.info("Market Structure regioes: %s", market_structure.region_count)
+    logger.info("Market Structure elementos: %s", market_structure.element_count)
+    logger.info("Market Structure Snapshot regioes: %s", market_structure.snapshot_region_count)
+    logger.info("Market Structure Builder finalizado: %s", market_structure.to_dict())
+
+
+def log_market_structure_validation(logger: logging.Logger, validation: Any) -> None:
+    """Record Market Structure validation metadata."""
+    logger.info("Market Structure Validator iniciado")
+    logger.info("Market Structure valida: %s", validation.valid)
+    logger.info("Market Structure entidades validadas: %s", validation.entity_count)
+    logger.info("Market Structure regioes validadas: %s", validation.region_count)
+    logger.info("Market Structure elementos validados: %s", validation.element_count)
+    for issue in validation.issues:
+        logger.warning("Market Structure issue: %s", issue)
+    logger.info("Market Structure Validator finalizado: %s", validation.to_dict())
+
+
+def log_market_structure_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record Market Structure benchmark metadata."""
+    logger.info("Market Structure Benchmark iniciado")
+    logger.info("Market Structure Benchmark status: %s", benchmark.status)
+    logger.info(
+        "Market Structure Benchmark tempo de processamento: %s ms",
+        benchmark.processing_time_ms,
+    )
+    logger.info(
+        "Market Structure Benchmark pico de memoria: %s KB",
+        benchmark.peak_memory_kb,
+    )
+    logger.info("Market Structure Benchmark entidades: %s", benchmark.entity_count)
+    logger.info("Market Structure Benchmark regioes: %s", benchmark.region_count)
+    logger.info("Market Structure Benchmark elementos: %s", benchmark.element_count)
+    logger.info("Market Structure Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)
