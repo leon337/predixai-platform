@@ -65,6 +65,8 @@
     "fallback_language": "eng",
     "text_extraction_enabled": true,
     "min_confidence": 0.0,
+    "cache_enabled": true,
+    "cache_directory": "data/ocr_cache",
     "psm": 6,
     "timeout_seconds": 20
   },

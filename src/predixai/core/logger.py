@@ -195,6 +195,9 @@ def log_ocr_pipeline(logger: logging.Logger, ocr_result: Any) -> None:
     """Record OCR foundation metadata without text extraction."""
     logger.info("Pipeline OCR iniciado")
     logger.info("OCR Engine iniciado")
+    logger.info("OCR Cache iniciado")
+    logger.info("OCR Cache hit: %s", ocr_result.cache_hit)
+    logger.info("OCR SHA256: %s", ocr_result.image_sha256)
     logger.info("OCR Provider Registry iniciado")
     logger.info("Provider Registry iniciado")
     for provider_name in ocr_result.registered_providers:
