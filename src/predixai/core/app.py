@@ -17,6 +17,7 @@ from predixai.core.logger import (
     log_image_buffer,
     log_manual_snapshot,
     log_ocr_pipeline,
+    log_ocr_parser,
     log_perception,
     log_region_mapping_finished,
     log_region_mapping_started,
@@ -29,7 +30,7 @@ from predixai.core.logger import (
 )
 from predixai.ocr import OCREngine
 from predixai.perception import PerceptionEngine
-from predixai.vision import VisionEngine
+from predixai.vision import OCRParser, VisionEngine
 
 
 @dataclass(frozen=True)
@@ -66,6 +67,7 @@ class PredixAIApp:
         self.capture_status: CaptureEngineStatus | None = None
         self.vision_engine: VisionEngine | None = None
         self.ocr_engine: OCREngine | None = None
+        self.ocr_parser = OCRParser()
 
     def bootstrap(self) -> StartupReport:
         """Load foundation services and return a startup report."""
@@ -201,6 +203,11 @@ class PredixAIApp:
             "ocr.pipeline_ready",
             {"results": [ocr_result.to_dict() for ocr_result in ocr_results]},
         )
+        parsed_ocr = self._parse_ocr_results(ocr_results)
+        self.events.record(
+            "visual.ocr_parsed",
+            {"results": [parsed_text.to_dict() for parsed_text in parsed_ocr]},
+        )
         return frame
 
     def _load_vision_image_buffer(self, metadata: SnapshotMetadata) -> object:
@@ -279,3 +286,12 @@ class PredixAIApp:
         for ocr_result in ocr_results:
             log_ocr_pipeline(self.logger, ocr_result)
         return ocr_results
+
+    def _parse_ocr_results(self, ocr_results: tuple[object, ...]) -> tuple[object, ...]:
+        parsed_results = tuple(
+            self.ocr_parser.parse(ocr_result)
+            for ocr_result in ocr_results
+        )
+        for parsed_text in parsed_results:
+            log_ocr_parser(self.logger, parsed_text)
+        return parsed_results

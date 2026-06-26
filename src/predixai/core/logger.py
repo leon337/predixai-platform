@@ -251,6 +251,14 @@ def log_ocr_pipeline(logger: logging.Logger, ocr_result: Any) -> None:
     logger.info("Pipeline OCR finalizado")
 
 
+def log_ocr_parser(logger: logging.Logger, parsed_text: Any) -> None:
+    """Record OCR parser foundation metadata."""
+    logger.info("OCR Parser iniciado")
+    logger.info("Texto OCR recebido: %s caracteres", len(parsed_text.raw_text))
+    logger.info("Blocos OCR criados: %s", parsed_text.block_count)
+    logger.info("OCR Parser finalizado: %s", parsed_text.to_dict())
+
+
 def log_error(logger: logging.Logger, message: str, error: Exception) -> None:
     """Record initialization errors without exposing secrets."""
     logger.exception("%s: %s", message, error)

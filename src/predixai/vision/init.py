@@ -19,6 +19,7 @@ from predixai.vision.roi_crop_storage import ROICropExport, ROICropStorage
 from predixai.vision.roi_manager import ROIManager
 from predixai.vision.roi_registry import ROIRegistry
 from predixai.vision.vision_engine import VisionEngine
+from predixai.vision.visual import OCRParsedText, OCRParser, OCRTextBlock
 
 __all__ = [
     "Frame",
@@ -38,5 +39,8 @@ __all__ = [
     "ROICropStorage",
     "ROIManager",
     "ROIRegistry",
+    "OCRParsedText",
+    "OCRParser",
+    "OCRTextBlock",
     "VisionEngine",
 ]

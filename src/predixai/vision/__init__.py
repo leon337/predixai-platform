@@ -18,6 +18,9 @@ from predixai.vision.init import (
     ROICropStorage,
     ROIManager,
     ROIRegistry,
+    OCRParsedText,
+    OCRParser,
+    OCRTextBlock,
     VisionEngine,
 )
 
@@ -39,5 +42,8 @@ __all__ = [
     "ROICropStorage",
     "ROIManager",
     "ROIRegistry",
+    "OCRParsedText",
+    "OCRParser",
+    "OCRTextBlock",
     "VisionEngine",
 ]
