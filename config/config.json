@@ -62,7 +62,10 @@
     "enabled": true,
     "provider": "tesseract",
     "language": "por",
-    "text_extraction_enabled": false
+    "fallback_language": "eng",
+    "text_extraction_enabled": true,
+    "psm": 6,
+    "timeout_seconds": 20
   },
   "modules": {
     "v1": [

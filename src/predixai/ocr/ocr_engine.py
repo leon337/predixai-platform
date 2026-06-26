@@ -1,4 +1,4 @@
-"""OCR Engine foundation."""
+"""OCR Engine."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from predixai.ocr.providers import (
 
 
 class OCREngine:
-    """Prepare the OCR pipeline without extracting text."""
+    """Execute the OCR pipeline."""
 
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         self.config = config or {}
@@ -26,12 +26,19 @@ class OCREngine:
         self.registry = ProviderRegistry()
         self.registry.register(MockOCRProvider())
         self.registry.register(
-            TesseractOCRProvider(language=str(self.config.get("language", "por")))
+            TesseractOCRProvider(
+                language=str(self.config.get("language", "por")),
+                fallback_language=str(
+                    self.config.get("fallback_language", "eng")
+                ),
+                psm=int(self.config.get("psm", 6)),
+                timeout_seconds=int(self.config.get("timeout_seconds", 20)),
+            )
         )
         self.selector = ProviderSelector(self.registry)
 
     def prepare_pipeline(self, image_path: str | Path) -> OCRResult:
-        """Validate the ROI image and prepare the OCR pipeline contract."""
+        """Validate the ROI image and execute the selected OCR provider."""
         started_at = perf_counter()
         resolved_path = Path(image_path)
         validation = self.validator.validate(resolved_path)
@@ -59,6 +66,8 @@ class OCREngine:
             text_extracted=execution.text_extracted and text_extraction_enabled,
             text=execution.text if text_extraction_enabled else "",
             confidence=execution.confidence if text_extraction_enabled else 0.0,
+            language_used=execution.language_used,
+            error=execution.error,
             processing_time_ms=processing_time_ms,
             timestamp=timestamp,
             provider_name=provider_status.name,

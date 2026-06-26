@@ -22,12 +22,14 @@ class OCRProviderStatus:
 
 @dataclass(frozen=True)
 class OCRProviderExecution:
-    """OCR provider execution metadata without extracted text."""
+    """OCR provider execution metadata."""
 
     status: str
     text_extracted: bool
     text: str
     confidence: float
+    language_used: str = ""
+    error: str = ""
 
 
 class BaseOCRProvider(ABC):
@@ -41,4 +43,4 @@ class BaseOCRProvider(ABC):
 
     @abstractmethod
     def execute(self, image_path: object) -> OCRProviderExecution:
-        """Execute provider pipeline without extracting text."""
+        """Execute provider pipeline."""

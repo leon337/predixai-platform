@@ -1,4 +1,4 @@
-"""OCR foundation result metadata."""
+"""OCR result metadata."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class OCRResult:
-    """Technical OCR pipeline result without text extraction."""
+    """Technical OCR pipeline result."""
 
     image_path: Path
     image_format: str
@@ -19,6 +19,8 @@ class OCRResult:
     text_extracted: bool
     text: str
     confidence: float
+    language_used: str
+    error: str
     processing_time_ms: float
     timestamp: str
     provider_name: str
@@ -44,6 +46,8 @@ class OCRResult:
             "text_extracted": self.text_extracted,
             "text": self.text,
             "confidence": self.confidence,
+            "language_used": self.language_used,
+            "error": self.error,
             "processing_time_ms": self.processing_time_ms,
             "timestamp": self.timestamp,
             "provider_name": self.provider_name,
