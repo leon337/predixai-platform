@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-26 - MILESTONE-016 Live Candle Analyzer
+
+- Concluida a fundacao da analise de vela ao vivo com `Field Locator`, `Field Extractor`, `Candle Snapshot`, `Candle Statistics` e `Live Candle Benchmark`.
+- Validado o fluxo `python -m predixai.main --live-once` com 6 capturas, extracao de campos e benchmark ao final da vela.
+- Registrados os campos detectados e os campos `UNKNOWN` de forma deterministica, sem IA, LLM, Strategy, Dashboard, Broker Adapter ou automacao.
+- Corrigido o fechamento do benchmark para usar horario local resiliente e evitar falha de fuso no Windows do Leo.
+- Mantida a arquitetura congelada da V1 e a validacao apenas estrutural, sem ampliar o escopo de interpretacao.
+
 ## 2026-06-26 - MILESTONE-015 Live Market Validation Foundation
 
 - Concluida a primeira validacao ao vivo observadora com `python -m predixai.main --live-once`.

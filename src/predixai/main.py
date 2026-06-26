@@ -24,7 +24,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             metadata = app.capture_snapshot()
             print(f"Manual capture saved: {metadata.file_path}")
         if args.live_once:
-            report = app.live_once()
+            result = app.live_once()
+            report = result["report"] if isinstance(result, dict) else result
             print(
                 "Live validation completed: "
                 f"{report.total_captures} captures, status={report.status}"

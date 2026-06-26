@@ -16,9 +16,14 @@ from predixai.core.logger import (
     log_broker_window_state,
     configure_logger,
     log_capture_engine,
+    log_candle_snapshot,
+    log_candle_statistics,
     log_error,
+    log_field_extraction_result,
+    log_field_location_map,
     log_image_buffer,
     log_live_capture_tick,
+    log_live_candle_benchmark,
     log_live_market_reading,
     log_live_session,
     log_live_validation_benchmark,
@@ -86,7 +91,12 @@ from predixai.core.logger import (
 )
 from predixai.ocr import OCREngine
 from predixai.live import (
+    CandleSnapshotBuilder,
+    CandleStatisticsBuilder,
     BrokerWindowDetector,
+    FieldExtractor,
+    FieldLocator,
+    LiveCandleBenchmarkBuilder,
     LiveCaptureScheduler,
     LiveMarketReader,
     LiveSessionController,
@@ -256,6 +266,11 @@ class PredixAIApp:
         self.broker_window_detector = BrokerWindowDetector()
         self.live_capture_scheduler = LiveCaptureScheduler()
         self.live_market_reader = LiveMarketReader()
+        self.field_locator = FieldLocator()
+        self.field_extractor = FieldExtractor()
+        self.candle_snapshot_builder = CandleSnapshotBuilder()
+        self.candle_statistics_builder = CandleStatisticsBuilder()
+        self.live_candle_benchmark = LiveCandleBenchmarkBuilder()
         self.live_validation_benchmark = LiveValidationBenchmark(
             enabled=self._live_validation_benchmark_enabled()
         )
@@ -353,6 +368,12 @@ class PredixAIApp:
         live_start = perf_counter()
         benchmark_run = self.live_validation_benchmark.start()
         readings: list[object] = []
+        field_location_map = self.field_locator.locate(
+            window_title=broker_state.title,
+            timeframe=timeframe,
+        )
+        log_field_location_map(self.logger, field_location_map)
+        extraction_results = []
         ticks = self.live_capture_scheduler.schedule(
             total_ticks=captures_per_candle,
             interval_seconds=interval_seconds,
@@ -382,8 +403,33 @@ class PredixAIApp:
             )
             log_live_market_reading(self.logger, reading)
             readings.append(reading)
+            extraction = self.field_extractor.extract(reading, field_location_map)
+            extraction_results.append(extraction)
+            log_field_extraction_result(self.logger, extraction)
             if tick.tick_index < captures_per_candle:
                 sleep(interval_seconds)
+
+        candle_snapshot_result = self.candle_snapshot_builder.build(
+            session_id=session.session_id,
+            timeframe=timeframe,
+            readings=tuple(readings),
+            extraction_results=tuple(extraction_results),
+            locator=field_location_map,
+        )
+        candle_snapshot = candle_snapshot_result.snapshot
+        log_candle_snapshot(self.logger, candle_snapshot)
+        candle_statistics_result = self.candle_statistics_builder.build(candle_snapshot)
+        candle_statistics = candle_statistics_result.statistics
+        log_candle_statistics(self.logger, candle_statistics)
+        live_candle_run = self.live_candle_benchmark.start(
+            enabled=bool(self.config.live.get("benchmark_enabled", True))
+        )
+        live_candle_benchmark = self.live_candle_benchmark.finish(
+            live_candle_run,
+            candle_snapshot,
+            candle_statistics,
+        )
+        log_live_candle_benchmark(self.logger, live_candle_benchmark.benchmark)
 
         report = self._build_live_validation_report(
             session=session,
@@ -394,8 +440,21 @@ class PredixAIApp:
         log_live_validation_report(self.logger, report)
         benchmark = self.live_validation_benchmark.finish(benchmark_run, report)
         log_live_validation_benchmark(self.logger, benchmark)
-        self.events.record("live.validation_completed", report.to_dict())
-        return report
+        self.events.record(
+            "live.validation_completed",
+            {
+                **report.to_dict(),
+                "candle_snapshot": candle_snapshot.to_dict(),
+                "candle_statistics": candle_statistics.to_dict(),
+                "live_candle_benchmark": live_candle_benchmark.benchmark.to_dict(),
+            },
+        )
+        return {
+            "report": report,
+            "candle_snapshot": candle_snapshot,
+            "candle_statistics": candle_statistics,
+            "live_candle_benchmark": live_candle_benchmark.benchmark,
+        }
 
     def _load_modules(self) -> tuple[ModuleInfo, ...]:
         loaded_modules: list[ModuleInfo] = []

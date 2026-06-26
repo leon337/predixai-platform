@@ -845,6 +845,51 @@ def log_live_market_reading(logger: logging.Logger, reading: Any) -> None:
     logger.info("Live Market Reading finalizado: %s", reading.to_dict())
 
 
+def log_field_location_map(logger: logging.Logger, location_map: Any) -> None:
+    """Record live candle field location metadata."""
+    logger.info("Field Locator iniciado")
+    logger.info("Campos mapeados: %s", len(location_map.definitions))
+    logger.info("Field Locator finalizado: %s", location_map.to_dict())
+
+
+def log_field_extraction_result(logger: logging.Logger, extraction: Any) -> None:
+    """Record live candle field extraction metadata."""
+    logger.info("Field Extractor iniciado")
+    logger.info("Campos encontrados: %s", len(extraction.fields))
+    logger.info("Campos UNKNOWN: %s", len(extraction.unknown_fields))
+    logger.info("Field Extractor finalizado: %s", extraction.to_dict())
+
+
+def log_candle_snapshot(logger: logging.Logger, snapshot: Any) -> None:
+    """Record candle snapshot metadata."""
+    logger.info("Candle Snapshot iniciado")
+    logger.info("Leituras da vela: %s", snapshot.capture_count)
+    logger.info("Campos da vela: %s", len(snapshot.field_names))
+    logger.info("Candle Snapshot finalizado: %s", snapshot.to_dict())
+
+
+def log_candle_statistics(logger: logging.Logger, statistics: Any) -> None:
+    """Record candle statistics metadata."""
+    logger.info("Candle Statistics iniciado")
+    logger.info("Média da vela: %s", statistics.average)
+    logger.info("Máxima da vela: %s", statistics.maximum)
+    logger.info("Mínima da vela: %s", statistics.minimum)
+    logger.info("Volatilidade da vela: %s", statistics.volatility)
+    logger.info("Candle Statistics finalizado: %s", statistics.to_dict())
+
+
+def log_live_candle_benchmark(logger: logging.Logger, benchmark: Any) -> None:
+    """Record live candle benchmark metadata."""
+    logger.info("Live Candle Benchmark iniciado")
+    logger.info("Live Candle Benchmark capturas: %s", benchmark.capture_count)
+    logger.info("Live Candle Benchmark campos: %s", benchmark.field_count)
+    logger.info("Live Candle Benchmark média: %s", benchmark.average)
+    logger.info("Live Candle Benchmark máxima: %s", benchmark.maximum)
+    logger.info("Live Candle Benchmark mínima: %s", benchmark.minimum)
+    logger.info("Live Candle Benchmark volatilidade: %s", benchmark.volatility)
+    logger.info("Live Candle Benchmark finalizado: %s", benchmark.to_dict())
+
+
 def log_live_validation_report(logger: logging.Logger, report: Any) -> None:
     """Record live validation report metadata."""
     logger.info("Live Validation Report iniciado")
