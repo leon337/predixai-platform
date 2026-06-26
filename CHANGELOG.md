@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-25 — MILESTONE-005 OCR Real Foundation
+
+- Concluídos os PTPs 024, 025, 026 e 027 da Milestone-005.
+- Implementada execução real do Tesseract sobre a ROI `FULL_SCREEN` exportada.
+- Atualizado `OCRResult` para registrar texto extraído, confiança, idioma utilizado, erros, warnings, SHA256 da imagem, cache hit/miss e benchmark.
+- Implementada validação de OCR com idioma configurado, fallback de idioma, confiança mínima e tratamento de erros.
+- Implementado cache OCR por SHA256 em `data/ocr_cache`, com artefatos locais ignorados pelo Git.
+- Implementado benchmark técnico com tempo de processamento do provider, pico de memória, tamanho do texto e status.
+- Mantida a restrição de não implementar IA, Gemini, EasyOCR, PaddleOCR, Strategy, Dashboard, Broker Adapter ou automação de operações.
+
 ## 2026-06-25 — PTP-023 Tesseract Provider Foundation
 
 - Criada a fundação do Tesseract Provider em `src/predixai/ocr/providers/tesseract_provider.py`.
