@@ -36,6 +36,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "Live validation completed: "
                 f"{report.total_captures} captures, status={report.status}"
             )
+        if args.live_loop:
+            result = app.live_once(
+                captures_per_candle_override=args.loop_count,
+                interval_seconds_override=args.loop_interval,
+            )
+            report = result["report"] if isinstance(result, dict) else result
+            print(
+                "Live loop completed: "
+                f"{report.total_captures} captures, status={report.status}"
+            )
         if args.dashboard:
             from predixai.dashboard.dashboard_server import run_dashboard_server
 
@@ -68,6 +78,23 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--dashboard",
         action="store_true",
         help="Run the local PredixAI visual dashboard.",
+    )
+    parser.add_argument(
+        "--live-loop",
+        action="store_true",
+        help="Run multiple live readings in observer mode.",
+    )
+    parser.add_argument(
+        "--loop-count",
+        type=int,
+        default=5,
+        help="Number of live readings to collect with --live-loop.",
+    )
+    parser.add_argument(
+        "--loop-interval",
+        type=int,
+        default=10,
+        help="Seconds between live readings with --live-loop.",
     )
     return parser.parse_args(argv)
 

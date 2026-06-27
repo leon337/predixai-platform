@@ -385,12 +385,23 @@ class PredixAIApp:
             window_title=broker_state.title,
         )
 
-    def live_once(self) -> object:
+    def live_once(
+        self,
+        *,
+        captures_per_candle_override: int | None = None,
+        interval_seconds_override: int | None = None,
+    ) -> object:
         """Run one live validation candle without trading actions."""
         live_config = self.config.live if isinstance(self.config.live, dict) else {}
         timeframe = str(live_config.get("timeframe", "M1"))
         interval_seconds = int(live_config.get("capture_interval_seconds", 10))
+        if interval_seconds_override is not None:
+            interval_seconds = max(1, int(interval_seconds_override))
+
         captures_per_candle = 1
+        if captures_per_candle_override is not None:
+            captures_per_candle = max(1, int(captures_per_candle_override))
+
         validation_candles = int(live_config.get("validation_candles", 1))
 
         session = self.live_session_controller.start(
