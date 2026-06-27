@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 class DashboardRequestHandler(BaseHTTPRequestHandler):
-    """Serve the PredixAI dashboard shell and last live reading."""
+    """Serve the PredixAI dashboard and runtime live reading data."""
 
     root = Path(__file__).resolve().parent
     project_root = Path(__file__).resolve().parents[3]
@@ -31,6 +31,10 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             self._send_json(self._load_last_reading())
             return
 
+        if self.path == "/api/price-history":
+            self._send_json(self._load_price_history())
+            return
+
         self.send_error(404, "Dashboard resource not found.")
 
     def log_message(self, format: str, *args: object) -> None:
@@ -48,7 +52,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
-    def _send_json(self, data: dict[str, object]) -> None:
+    def _send_json(self, data: object) -> None:
         payload = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -99,6 +103,92 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             "trade_value": data.get("trade_value") or "UNKNOWN",
             "duration": data.get("duration") or "UNKNOWN",
             "unknown_fields": data.get("unknown_fields", []),
+        }
+
+    def _load_price_history(self) -> dict[str, object]:
+        history_path = self.project_root / "data" / "runtime" / "live_price_history.json"
+
+        if not history_path.exists():
+            return {
+                "status": "WAITING",
+                "message": "Historico de precos ainda nao encontrado.",
+                "points": [],
+                "stats": {
+                    "count": 0,
+                    "minimum": "UNKNOWN",
+                    "maximum": "UNKNOWN",
+                    "average": "UNKNOWN",
+                    "amplitude": "UNKNOWN",
+                },
+            }
+
+        try:
+            points = json.loads(history_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            return {
+                "status": "ERROR",
+                "message": f"Falha ao ler historico: {exc}",
+                "points": [],
+                "stats": {
+                    "count": 0,
+                    "minimum": "UNKNOWN",
+                    "maximum": "UNKNOWN",
+                    "average": "UNKNOWN",
+                    "amplitude": "UNKNOWN",
+                },
+            }
+
+        if not isinstance(points, list):
+            points = []
+
+        clean_points = []
+        prices = []
+
+        for index, point in enumerate(points[-50:], start=1):
+            if not isinstance(point, dict):
+                continue
+
+            price_value = point.get("price_value")
+            if isinstance(price_value, (int, float)):
+                prices.append(float(price_value))
+
+            clean_points.append(
+                {
+                    "index": index,
+                    "timestamp": point.get("timestamp", "UNKNOWN"),
+                    "asset": point.get("asset", "UNKNOWN"),
+                    "price": point.get("price", "UNKNOWN"),
+                    "price_value": price_value,
+                    "confidence": point.get("confidence", 0.0),
+                }
+            )
+
+        if prices:
+            minimum = min(prices)
+            maximum = max(prices)
+            average = sum(prices) / len(prices)
+            amplitude = maximum - minimum
+            stats = {
+                "count": len(prices),
+                "minimum": round(minimum, 5),
+                "maximum": round(maximum, 5),
+                "average": round(average, 5),
+                "amplitude": round(amplitude, 5),
+            }
+        else:
+            stats = {
+                "count": 0,
+                "minimum": "UNKNOWN",
+                "maximum": "UNKNOWN",
+                "average": "UNKNOWN",
+                "amplitude": "UNKNOWN",
+            }
+
+        return {
+            "status": "READY",
+            "message": "Historico carregado.",
+            "points": clean_points,
+            "stats": stats,
         }
 
 

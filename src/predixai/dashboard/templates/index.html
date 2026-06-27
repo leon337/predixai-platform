@@ -24,11 +24,30 @@
       <article class="card"><span>Duracao</span><strong id="duration">Aguardando leitura</strong></article>
     </section>
 
+    <section class="chart-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Historico de preco</h2>
+          <p>Ultimas leituras armazenadas pelo live-once.</p>
+        </div>
+        <span id="history_count" class="pill">0 leituras</span>
+      </div>
+      <canvas id="price_chart" width="1000" height="360"></canvas>
+    </section>
+
+    <section class="stats-grid">
+      <article class="small-card"><span>Minima</span><strong id="stat_minimum">UNKNOWN</strong></article>
+      <article class="small-card"><span>Maxima</span><strong id="stat_maximum">UNKNOWN</strong></article>
+      <article class="small-card"><span>Media</span><strong id="stat_average">UNKNOWN</strong></article>
+      <article class="small-card"><span>Amplitude</span><strong id="stat_amplitude">UNKNOWN</strong></article>
+    </section>
+
     <section class="panel">
       <h2>Status da leitura</h2>
       <p id="reading_status">Aguardando ultima leitura do live-once.</p>
       <p id="reading_timestamp"></p>
       <p id="reading_unknown_fields"></p>
+      <p id="history_status">Aguardando historico.</p>
     </section>
   </main>
 

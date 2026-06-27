@@ -488,6 +488,47 @@ class PredixAIApp:
                 encoding="utf-8",
             )
 
+            try:
+                price_value = float(str(reading.price).replace(",", "."))
+            except ValueError:
+                price_value = None
+
+            history_path = runtime_dir / "live_price_history.json"
+            if history_path.exists():
+                try:
+                    history_payload = json.loads(history_path.read_text(encoding="utf-8"))
+                except json.JSONDecodeError:
+                    history_payload = []
+            else:
+                history_payload = []
+
+            if not isinstance(history_payload, list):
+                history_payload = []
+
+            history_payload.append(
+                {
+                    "status": "READY",
+                    "source": "live_once",
+                    "session_id": session.session_id,
+                    "timestamp": calibration_result.timestamp,
+                    "asset": reading.asset,
+                    "price": reading.price,
+                    "price_value": price_value,
+                    "payout": reading.payout,
+                    "balance": reading.balance,
+                    "trade_value": reading.trade_value,
+                    "duration": reading.duration,
+                    "timeframe": reading.timeframe,
+                    "confidence": reading.confidence,
+                    "unknown_fields": reading.metadata.get("unknown_fields", []),
+                }
+            )
+            history_payload = history_payload[-50:]
+            history_path.write_text(
+                json.dumps(history_payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+
             extraction = self.field_extractor.extract(reading, field_location_map)
             extraction_results.append(extraction)
             log_field_extraction_result(self.logger, extraction)
