@@ -150,3 +150,38 @@ Toda mudança relevante deve atualizar:
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
 - O guia para Leo executar a validação real está em `docs/setup/Leo_Windows10_Validation.md`.
 - A próxima tarefa será definida pelo Leo em PTP-048.
+
+## Milestone 017 ? Dashboard Visual Inicial da PredixAI BR
+
+Status: CONCLUIDA
+Publicado em: 2026-06-27 09:09:21
+
+Resumo:
+- Dashboard local criado com `python -m predixai.main --dashboard`.
+- Ultima leitura real exibida no painel visual.
+- Estado runtime salvo em `data/runtime/last_live_reading.json`.
+- Historico de preco salvo em `data/runtime/live_price_history.json`.
+- Grafico inicial de preco implementado no dashboard.
+- Estatisticas basicas exibidas: minima, maxima, media e amplitude.
+- Comando `--live-loop` criado para multiplas leituras em sequencia.
+- Dashboard refinado com horario inicial, horario final, primeiro preco, ultimo preco, variacao e direcao.
+- Limite de historico aumentado para 3000 leituras.
+- Checkpoint de continuidade entre chats criado com `CHAT_CONTEXT.md` e `CHAT_STARTUP_INSTRUCTIONS.md`.
+
+Comandos validados:
+- `python -m predixai.main --live-calibrate`
+- `python -m predixai.main --live-once`
+- `python -m predixai.main --dashboard`
+- `python -m predixai.main --live-loop --loop-count 3 --loop-interval 5`
+
+Regra preservada:
+- V1 continua em modo Observador.
+- Sem cliques.
+- Sem ordens.
+- Sem automacao operacional de corretora.
+- Sem promessa de lucro.
+- Sem previsao ainda.
+- Agora nao e previsao. Agora e memoria.
+
+Proximo foco:
+- Milestone 018 ? Fundacao da Inteligencia Observadora.

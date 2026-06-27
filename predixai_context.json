@@ -576,5 +576,29 @@
     "broker_adapter": false,
     "decision_making": false,
     "automation": false
+  },
+  "last_completed_milestone": "017",
+  "current_milestone": "018",
+  "current_focus": "Milestone 018 ? Observational Intelligence Foundation",
+  "project_mode": "V1 Observador",
+  "milestone_017_status": "CONCLUIDA",
+  "milestone_017_published_at": "2026-06-27 09:09:21",
+  "milestone_017_summary": {
+    "dashboard": true,
+    "last_live_reading": true,
+    "runtime_state": true,
+    "price_history": true,
+    "price_chart": true,
+    "live_loop": true,
+    "history_limit": 3000,
+    "chat_continuity_checkpoint": true,
+    "broker_interaction": false,
+    "trade_execution": false,
+    "prediction": false
+  },
+  "next_planned_milestone": {
+    "id": "018",
+    "name": "Observational Intelligence Foundation",
+    "goal": "Transformar historico e dashboard em analise observadora estatistica, ainda sem previsao e sem recomendacao de entrada."
   }
 }

@@ -534,7 +534,7 @@ class PredixAIApp:
                     "unknown_fields": reading.metadata.get("unknown_fields", []),
                 }
             )
-            history_payload = history_payload[-50:]
+            history_payload = history_payload[-3000:]
             history_path.write_text(
                 json.dumps(history_payload, ensure_ascii=False, indent=2),
                 encoding="utf-8",

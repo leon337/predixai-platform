@@ -1,217 +1,206 @@
-"""Local dashboard server for PredixAI BR."""
-
 from __future__ import annotations
 
 import json
+import threading
 import webbrowser
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from typing import Any
+
+from flask import Flask, jsonify, render_template
 
 
-class DashboardRequestHandler(BaseHTTPRequestHandler):
-    """Serve the PredixAI dashboard and runtime live reading data."""
-
-    root = Path(__file__).resolve().parent
-    project_root = Path(__file__).resolve().parents[3]
-
-    def do_GET(self) -> None:
-        if self.path in ("/", "/index.html"):
-            self._send_file(self.root / "templates" / "index.html", "text/html; charset=utf-8")
-            return
-
-        if self.path == "/static/style.css":
-            self._send_file(self.root / "static" / "style.css", "text/css; charset=utf-8")
-            return
-
-        if self.path == "/static/app.js":
-            self._send_file(self.root / "static" / "app.js", "application/javascript; charset=utf-8")
-            return
-
-        if self.path == "/api/last-reading":
-            self._send_json(self._load_last_reading())
-            return
-
-        if self.path == "/api/price-history":
-            self._send_json(self._load_price_history())
-            return
-
-        self.send_error(404, "Dashboard resource not found.")
-
-    def log_message(self, format: str, *args: object) -> None:
-        return
-
-    def _send_file(self, path: Path, content_type: str) -> None:
-        if not path.exists():
-            self.send_error(404, "Dashboard file not found.")
-            return
-
-        payload = path.read_bytes()
-        self.send_response(200)
-        self.send_header("Content-Type", content_type)
-        self.send_header("Content-Length", str(len(payload)))
-        self.end_headers()
-        self.wfile.write(payload)
-
-    def _send_json(self, data: object) -> None:
-        payload = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(payload)))
-        self.end_headers()
-        self.wfile.write(payload)
-
-    def _load_last_reading(self) -> dict[str, object]:
-        reading_path = self.project_root / "data" / "runtime" / "last_live_reading.json"
-
-        if not reading_path.exists():
-            return {
-                "status": "WAITING",
-                "message": "Nenhuma leitura live-once encontrada.",
-                "asset": "Aguardando leitura",
-                "price": "Aguardando leitura",
-                "payout": "Aguardando leitura",
-                "balance": "Aguardando leitura",
-                "trade_value": "Aguardando leitura",
-                "duration": "Aguardando leitura",
-                "unknown_fields": [],
-            }
-
-        try:
-            data = json.loads(reading_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
-            return {
-                "status": "ERROR",
-                "message": f"Falha ao ler ultima leitura: {exc}",
-                "asset": "Erro",
-                "price": "Erro",
-                "payout": "Erro",
-                "balance": "Erro",
-                "trade_value": "Erro",
-                "duration": "Erro",
-                "unknown_fields": [],
-            }
-
-        return {
-            "status": "READY",
-            "message": "Ultima leitura carregada do live-once.",
-            "timestamp": data.get("timestamp", "UNKNOWN"),
-            "window_title": data.get("window_title", "UNKNOWN"),
-            "asset": data.get("asset") or "UNKNOWN",
-            "price": data.get("price") or "UNKNOWN",
-            "payout": data.get("payout") or "UNKNOWN",
-            "balance": data.get("balance") or "UNKNOWN",
-            "trade_value": data.get("trade_value") or "UNKNOWN",
-            "duration": data.get("duration") or "UNKNOWN",
-            "unknown_fields": data.get("unknown_fields", []),
-        }
-
-    def _load_price_history(self) -> dict[str, object]:
-        history_path = self.project_root / "data" / "runtime" / "live_price_history.json"
-
-        if not history_path.exists():
-            return {
-                "status": "WAITING",
-                "message": "Historico de precos ainda nao encontrado.",
-                "points": [],
-                "stats": {
-                    "count": 0,
-                    "minimum": "UNKNOWN",
-                    "maximum": "UNKNOWN",
-                    "average": "UNKNOWN",
-                    "amplitude": "UNKNOWN",
-                },
-            }
-
-        try:
-            points = json.loads(history_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
-            return {
-                "status": "ERROR",
-                "message": f"Falha ao ler historico: {exc}",
-                "points": [],
-                "stats": {
-                    "count": 0,
-                    "minimum": "UNKNOWN",
-                    "maximum": "UNKNOWN",
-                    "average": "UNKNOWN",
-                    "amplitude": "UNKNOWN",
-                },
-            }
-
-        if not isinstance(points, list):
-            points = []
-
-        clean_points = []
-        prices = []
-
-        for index, point in enumerate(points[-50:], start=1):
-            if not isinstance(point, dict):
-                continue
-
-            price_value = point.get("price_value")
-            if isinstance(price_value, (int, float)):
-                prices.append(float(price_value))
-
-            clean_points.append(
-                {
-                    "index": index,
-                    "timestamp": point.get("timestamp", "UNKNOWN"),
-                    "asset": point.get("asset", "UNKNOWN"),
-                    "price": point.get("price", "UNKNOWN"),
-                    "price_value": price_value,
-                    "confidence": point.get("confidence", 0.0),
-                }
-            )
-
-        if prices:
-            minimum = min(prices)
-            maximum = max(prices)
-            average = sum(prices) / len(prices)
-            amplitude = maximum - minimum
-            stats = {
-                "count": len(prices),
-                "minimum": round(minimum, 5),
-                "maximum": round(maximum, 5),
-                "average": round(average, 5),
-                "amplitude": round(amplitude, 5),
-            }
-        else:
-            stats = {
-                "count": 0,
-                "minimum": "UNKNOWN",
-                "maximum": "UNKNOWN",
-                "average": "UNKNOWN",
-                "amplitude": "UNKNOWN",
-            }
-
-        return {
-            "status": "READY",
-            "message": "Historico carregado.",
-            "points": clean_points,
-            "stats": stats,
-        }
+ROOT_DIR = Path(__file__).resolve().parents[3]
+RUNTIME_DIR = ROOT_DIR / "data" / "runtime"
+LAST_READING_PATH = RUNTIME_DIR / "last_live_reading.json"
+PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
+HISTORY_LIMIT = 3000
 
 
-def run_dashboard_server(
-    host: str = "127.0.0.1",
-    port: int = 8765,
-    *,
-    open_browser: bool = True,
-) -> None:
-    """Run the local dashboard server."""
-    server = ThreadingHTTPServer((host, port), DashboardRequestHandler)
-    url = f"http://{host}:{port}/"
+def _read_json(path: Path, default: Any) -> Any:
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return default
 
-    print("PredixAI Dashboard iniciado.")
-    print(f"Acesse: {url}")
-    print("Pressione Ctrl+C para encerrar.")
 
-    if open_browser:
-        webbrowser.open(url)
+def _as_float(value: Any) -> float | None:
+    if isinstance(value, int | float):
+        return float(value)
+
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    text = text.replace("D", "").replace("R$", "").replace("$", "").strip()
+    text = text.replace(" ", "")
+
+    if "," in text and "." in text:
+        text = text.replace(".", "").replace(",", ".")
+    else:
+        text = text.replace(",", ".")
 
     try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("Dashboard encerrado.")
-    finally:
-        server.server_close()
+        return float(text)
+    except ValueError:
+        return None
+
+
+def _format_number(value: float | None) -> float | None:
+    if value is None:
+        return None
+    return round(float(value), 5)
+
+
+def _normalize_point(point: dict[str, Any], index: int) -> dict[str, Any]:
+    price_value = _as_float(point.get("price_value"))
+    if price_value is None:
+        price_value = _as_float(point.get("price"))
+
+    return {
+        "index": index,
+        "timestamp": point.get("timestamp"),
+        "asset": point.get("asset"),
+        "price": point.get("price"),
+        "price_value": _format_number(price_value),
+        "payout": point.get("payout"),
+        "balance": point.get("balance"),
+        "trade_value": point.get("trade_value"),
+        "duration": point.get("duration"),
+        "timeframe": point.get("timeframe"),
+        "confidence": point.get("confidence"),
+        "status": point.get("status"),
+    }
+
+
+def _build_history_response() -> dict[str, Any]:
+    raw_history = _read_json(PRICE_HISTORY_PATH, [])
+    if not isinstance(raw_history, list):
+        raw_history = []
+
+    raw_history = raw_history[-HISTORY_LIMIT:]
+    points = [
+        _normalize_point(point, index)
+        for index, point in enumerate(raw_history, start=1)
+        if isinstance(point, dict)
+    ]
+
+    valid_prices = [
+        point["price_value"]
+        for point in points
+        if isinstance(point.get("price_value"), int | float)
+    ]
+
+    stats: dict[str, Any] = {
+        "count": len(valid_prices),
+        "total_points": len(points),
+        "minimum": None,
+        "maximum": None,
+        "average": None,
+        "amplitude": None,
+        "first": None,
+        "last": None,
+        "variation": None,
+        "variation_percent": None,
+        "direction": "NO_DATA",
+        "start_timestamp": points[0]["timestamp"] if points else None,
+        "end_timestamp": points[-1]["timestamp"] if points else None,
+        "asset": points[-1]["asset"] if points else None,
+        "history_limit": HISTORY_LIMIT,
+    }
+
+    if valid_prices:
+        first = valid_prices[0]
+        last = valid_prices[-1]
+        minimum = min(valid_prices)
+        maximum = max(valid_prices)
+        average = sum(valid_prices) / len(valid_prices)
+        variation = last - first
+        variation_percent = (variation / first * 100) if first else None
+
+        if abs(variation) < 0.00001:
+            direction = "LATERAL"
+        elif variation > 0:
+            direction = "UP"
+        else:
+            direction = "DOWN"
+
+        stats.update(
+            {
+                "minimum": _format_number(minimum),
+                "maximum": _format_number(maximum),
+                "average": _format_number(average),
+                "amplitude": _format_number(maximum - minimum),
+                "first": _format_number(first),
+                "last": _format_number(last),
+                "variation": _format_number(variation),
+                "variation_percent": _format_number(variation_percent),
+                "direction": direction,
+            }
+        )
+
+    return {"points": points, "stats": stats}
+
+
+def create_dashboard_app() -> Flask:
+    app = Flask(
+        __name__,
+        template_folder="templates",
+        static_folder="static",
+    )
+
+    @app.after_request
+    def add_no_cache_headers(response):  # type: ignore[no-untyped-def]
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return response
+
+    @app.route("/")
+    def index():  # type: ignore[no-untyped-def]
+        return render_template("index.html")
+
+    @app.route("/api/last-reading")
+    def last_reading():  # type: ignore[no-untyped-def]
+        payload = _read_json(LAST_READING_PATH, {})
+        if not isinstance(payload, dict) or not payload:
+            return jsonify({"status": "NO_DATA"})
+        return jsonify(payload)
+
+    @app.route("/api/price-history")
+    def price_history():  # type: ignore[no-untyped-def]
+        return jsonify(_build_history_response())
+
+    return app
+
+
+def run_dashboard(
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    open_browser: bool = True,
+) -> None:
+    app = create_dashboard_app()
+    url = f"http://{host}:{port}"
+
+    if open_browser:
+        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+
+    print(f"PredixAI dashboard running at {url}")
+    app.run(host=host, port=port, debug=False, use_reloader=False)
+
+
+def run_dashboard_server() -> None:
+    run_dashboard()
+
+
+def launch_dashboard() -> None:
+    run_dashboard()
+
+
+def start_dashboard() -> None:
+    run_dashboard()
+
+
+run = run_dashboard

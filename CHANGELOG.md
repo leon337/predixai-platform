@@ -1,3 +1,23 @@
+## 2026-06-27 09:09:21 ? MILESTONE-017
+
+Milestone 017 concluida e publicada.
+
+Entregas:
+- Dashboard visual inicial da PredixAI BR.
+- Integracao do dashboard com a ultima leitura real.
+- Estado runtime oficial.
+- Historico de preco.
+- Grafico de preco.
+- Estatisticas basicas.
+- Comando de leitura em loop.
+- Refinamento visual do dashboard com horario, variacao e direcao.
+- Retencao de historico aumentada para 3000 leituras.
+- Checkpoint de continuidade entre chats.
+
+Observacao:
+- Produto continua em modo Observador.
+- Nenhuma automacao operacional de corretora foi implementada.
+
 # Changelog
 
 ## 2026-06-26 - MILESTONE-016 Live Candle Analyzer
