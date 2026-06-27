@@ -234,6 +234,84 @@ class LiveCalibrationEngine:
             )
         )
         return calibration_result
+
+    def read_snapshot_fields(
+        self,
+        *,
+        metadata: SnapshotMetadata,
+        window_title: str,
+        output_directory_name: str = "live_once_fields",
+        open_artifacts: bool = False,
+    ) -> CalibrationResult:
+        """Read calibrated broker fields from an existing captured snapshot."""
+        started_at = time.perf_counter()
+        full_frame = self.config.resolve_path("captures") / output_directory_name
+        full_frame.mkdir(parents=True, exist_ok=True)
+
+        screen_path = full_frame / "screen.png"
+        screen_path.write_bytes(Path(metadata.file_path).read_bytes())
+
+        image_buffer = self.image_loader.load(Path(metadata.file_path))
+        field_results: list[CalibrationFieldResult] = []
+
+        for box in self.field_boxes:
+            crop_path = full_frame / f"{box.field_name}.png"
+            crop_metadata = self._crop_png(
+                image_buffer.file_path,
+                crop_path,
+                image_buffer.width,
+                image_buffer.height,
+                box,
+            )
+            ocr_result = self.ocr_engine.prepare_pipeline(crop_metadata.file_path)
+            field_results.append(
+                CalibrationFieldResult(
+                    field_name=box.field_name,
+                    file_path=crop_path,
+                    text=ocr_result.text or "UNKNOWN",
+                    confidence=float(ocr_result.confidence),
+                    status=str(ocr_result.status),
+                    unknown=not bool(ocr_result.text_extracted),
+                    ocr_result=ocr_result.to_dict(),
+                )
+            )
+
+        calibration_result = CalibrationResult(
+            timestamp=datetime.now().astimezone().isoformat(),
+            window_title=window_title,
+            field_results=tuple(field_results),
+            unknown_fields=tuple(
+                result.field_name for result in field_results if result.unknown
+            ),
+            total_time_ms=round((time.perf_counter() - started_at) * 1000, 3),
+            output_directory=full_frame,
+        )
+
+        result_path = full_frame / "calibration_result.txt"
+        result_path.write_text(calibration_result.to_text(), encoding="utf-8")
+
+        json_path = full_frame / "calibration_result.json"
+        json_path.write_text(
+            json.dumps(
+                calibration_result.to_json_dict(),
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        if open_artifacts:
+            self._open_artifacts(
+                (
+                    result_path,
+                    json_path,
+                    screen_path,
+                    *(result.file_path for result in field_results),
+                )
+            )
+
+        return calibration_result
+
     def _get_active_window_title(self) -> str:
         if os.name != "nt":
             return ""

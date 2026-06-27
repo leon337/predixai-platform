@@ -827,23 +827,32 @@ def log_broker_window_state(logger: logging.Logger, state: Any) -> None:
 
 
 def log_live_capture_tick(logger: logging.Logger, tick: Any) -> None:
-    """Record live capture tick metadata."""
-    logger.info("Live Capture Scheduler tick: %s", tick.tick_index)
-    logger.info("Live Capture tick horário: %s", tick.captured_at)
-    logger.info("Live Capture tick finalizado: %s", tick.to_dict())
-
+    """Record compact live capture tick metadata."""
+    logger.info(
+        "LIVE_CAPTURE_TICK index=%s captured_at=%s capture_path=%s window_title=%s",
+        getattr(tick, "tick_index", "UNKNOWN"),
+        getattr(tick, "captured_at", "UNKNOWN"),
+        getattr(tick, "capture_path", "UNKNOWN"),
+        getattr(tick, "window_title", "UNKNOWN"),
+    )
 
 def log_live_market_reading(logger: logging.Logger, reading: Any) -> None:
-    """Record live market reading metadata."""
-    logger.info("Live Market Reading iniciado")
-    logger.info("Ativo detectado: %s", reading.asset)
-    logger.info("Preço detectado: %s", reading.price)
-    logger.info("Horário detectado: %s", reading.time)
-    logger.info("Saldo detectado: %s", reading.balance)
-    logger.info("Payout detectado: %s", reading.payout)
-    logger.info("Timeframe detectado: %s", reading.timeframe)
-    logger.info("Live Market Reading finalizado: %s", reading.to_dict())
+    """Record compact live market reading metadata."""
+    metadata = getattr(reading, "metadata", {}) or {}
+    unknown_fields = metadata.get("unknown_fields", [])
 
+    logger.info(
+        "LIVE_READING asset=%s price=%s payout=%s balance=%s trade_value=%s duration=%s timeframe=%s confidence=%s unknown_fields=%s",
+        getattr(reading, "asset", "UNKNOWN"),
+        getattr(reading, "price", "UNKNOWN"),
+        getattr(reading, "payout", "UNKNOWN"),
+        getattr(reading, "balance", "UNKNOWN"),
+        getattr(reading, "trade_value", "UNKNOWN"),
+        getattr(reading, "duration", "UNKNOWN"),
+        getattr(reading, "timeframe", "UNKNOWN"),
+        getattr(reading, "confidence", 0.0),
+        unknown_fields,
+    )
 
 def log_field_location_map(logger: logging.Logger, location_map: Any) -> None:
     """Record live candle field location metadata."""

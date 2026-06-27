@@ -389,7 +389,7 @@ class PredixAIApp:
         live_config = self.config.live if isinstance(self.config.live, dict) else {}
         timeframe = str(live_config.get("timeframe", "M1"))
         interval_seconds = int(live_config.get("capture_interval_seconds", 10))
-        captures_per_candle = int(live_config.get("captures_per_candle", 6))
+        captures_per_candle = 1
         validation_candles = int(live_config.get("validation_candles", 1))
 
         session = self.live_session_controller.start(
@@ -399,6 +399,12 @@ class PredixAIApp:
             validation_candles=validation_candles,
         )
         log_live_session(self.logger, session)
+
+        print("Preparando live-once. Coloque a Olymp Trade maximizada em primeiro plano.")
+        for remaining in range(10, 0, -1):
+            print(f"Captura em {remaining}...")
+            sleep(1)
+
         broker_state = self.broker_window_detector.detect()
         log_broker_window_state(self.logger, broker_state)
 
@@ -429,10 +435,23 @@ class PredixAIApp:
                 },
             )
             log_live_capture_tick(self.logger, tick)
-            capture_context = self.last_capture_context
-            structured_ocr = capture_context.get("structured_ocr")
-            ocr_confidence = float(getattr(structured_ocr, "average_confidence", 0.0))
-            ocr_text = str(getattr(structured_ocr, "combined_text", ""))
+            calibration_result = self.live_calibration_engine.read_snapshot_fields(
+                metadata=metadata,
+                window_title=broker_state.title,
+                output_directory_name="live_once_fields",
+                open_artifacts=False,
+            )
+            confidence_values = [
+                result.confidence
+                for result in calibration_result.field_results
+                if result.confidence > 0
+            ]
+            ocr_confidence = (
+                round(sum(confidence_values) / len(confidence_values), 3)
+                if confidence_values
+                else 0.0
+            )
+            ocr_text = calibration_result.to_text()
             reading = self.live_market_reader.read(
                 ocr_text=ocr_text,
                 ocr_confidence=ocr_confidence,

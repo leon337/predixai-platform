@@ -16,6 +16,8 @@ class LiveMarketReading:
     timeframe: str
     confidence: float
     source_ocr_text: str
+    trade_value: str = "UNKNOWN"
+    duration: str = "UNKNOWN"
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, object]:
@@ -25,6 +27,8 @@ class LiveMarketReading:
             "time": self.time,
             "balance": self.balance,
             "payout": self.payout,
+            "trade_value": self.trade_value,
+            "duration": self.duration,
             "timeframe": self.timeframe,
             "confidence": self.confidence,
             "source_ocr_text": self.source_ocr_text,
