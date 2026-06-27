@@ -97,7 +97,7 @@ class CalibrationResult:
                     if not result.unknown
                 ),
                 "Campos UNKNOWN: " + ", ".join(self.unknown_fields),
-                "ConfianÃ§a do OCR por campo:",
+                "Confiança do OCR por campo:",
             ]
         )
         for result in self.field_results:
@@ -105,7 +105,7 @@ class CalibrationResult:
                 f"- {result.field_name}: {result.confidence} ({result.status})"
             )
         lines.append("")
-        lines.append(f"Tempo total da calibraÃ§Ã£o: {self.total_time_ms} ms")
+        lines.append(f"Tempo total da calibração: {self.total_time_ms} ms")
         return "\n".join(lines)
 
     def to_json_dict(self) -> dict[str, object]:
@@ -314,7 +314,7 @@ def _normalize_field_text(field_name: str, text: str) -> str:
             return match.group(0).replace("brl", "BRL").replace("Brl", "BRL") if match else clean_text
 
         match = re.search(r"\d{1,3}(?:\.\d{3})*,\d{2}", clean_text)
-        return f"Ä {match.group(0)}" if match else clean_text
+        return f"D {match.group(0)}" if match else clean_text
 
     if field_name == "trade_value":
         amount = re.search(r"\d+[.,]?\d*", clean_text)
@@ -323,7 +323,7 @@ def _normalize_field_text(field_name: str, text: str) -> str:
             return f"R$ {amount.group(0)}" if amount else clean_text.replace("RS", "R$")
 
         if amount:
-            return f"Ä {amount.group(0)}"
+            return f"D {amount.group(0)}"
 
         return clean_text
 
@@ -335,9 +335,9 @@ def _normalize_field_text(field_name: str, text: str) -> str:
         return (
             clean_text
             .replace("RS", "R$")
-            .replace("Â£)", "Ä")
-            .replace("DB", "Ä")
-            .replace("0 17,8", "Ä 17,8")
+            .replace("Â£)", "D")
+            .replace("DB", "D")
+            .replace("0 17,8", "D 17,8")
         )
 
     return clean_text
