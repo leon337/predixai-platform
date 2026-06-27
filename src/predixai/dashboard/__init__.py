@@ -1,1 +1,1 @@
-"""PredixAI Dashboard package."""
+"""PredixAI dashboard package."""

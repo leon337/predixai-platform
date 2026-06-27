@@ -36,6 +36,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "Live validation completed: "
                 f"{report.total_captures} captures, status={report.status}"
             )
+        if args.dashboard:
+            from predixai.dashboard.dashboard_server import run_dashboard_server
+
+            run_dashboard_server()
     except Exception as exc:
         print(f"PredixAI command failed: {exc}", file=sys.stderr)
         return 1
@@ -59,6 +63,11 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--live-calibrate",
         action="store_true",
         help="Run an isolated live calibration pass for broker fields.",
+    )
+    parser.add_argument(
+        "--dashboard",
+        action="store_true",
+        help="Run the local PredixAI visual dashboard.",
     )
     return parser.parse_args(argv)
 
