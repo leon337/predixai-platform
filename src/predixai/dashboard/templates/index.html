@@ -16,18 +16,22 @@
     </section>
 
     <section class="grid">
-      <article class="card"><span>Ativo</span><strong>Aguardando leitura</strong></article>
-      <article class="card"><span>Preco</span><strong>Aguardando leitura</strong></article>
-      <article class="card"><span>Payout</span><strong>Aguardando leitura</strong></article>
-      <article class="card"><span>Saldo</span><strong>Aguardando leitura</strong></article>
-      <article class="card"><span>Valor da entrada</span><strong>Aguardando leitura</strong></article>
-      <article class="card"><span>Duracao</span><strong>Aguardando leitura</strong></article>
+      <article class="card"><span>Ativo</span><strong id="asset">Aguardando leitura</strong></article>
+      <article class="card"><span>Preco</span><strong id="price">Aguardando leitura</strong></article>
+      <article class="card"><span>Payout</span><strong id="payout">Aguardando leitura</strong></article>
+      <article class="card"><span>Saldo</span><strong id="balance">Aguardando leitura</strong></article>
+      <article class="card"><span>Valor da entrada</span><strong id="trade_value">Aguardando leitura</strong></article>
+      <article class="card"><span>Duracao</span><strong id="duration">Aguardando leitura</strong></article>
     </section>
 
     <section class="panel">
       <h2>Status da leitura</h2>
-      <p>Dashboard criado. Integracao com o live-once sera feita na proxima PTP.</p>
+      <p id="reading_status">Aguardando ultima leitura do live-once.</p>
+      <p id="reading_timestamp"></p>
+      <p id="reading_unknown_fields"></p>
     </section>
   </main>
+
+  <script src="/static/app.js"></script>
 </body>
 </html>
