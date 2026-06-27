@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import time
+
 import argparse
 import sys
 from collections.abc import Sequence
@@ -37,15 +39,31 @@ def main(argv: Sequence[str] | None = None) -> int:
                 f"{report.total_captures} captures, status={report.status}"
             )
         if args.live_loop:
-            result = app.live_once(
-                captures_per_candle_override=args.loop_count,
-                interval_seconds_override=args.loop_interval,
-            )
-            report = result["report"] if isinstance(result, dict) else result
-            print(
-                "Live loop completed: "
-                f"{report.total_captures} captures, status={report.status}"
-            )
+            loop_count = max(1, int(args.loop_count))
+            loop_interval = max(1, int(args.loop_interval))
+            completed = 0
+
+            try:
+                for index in range(loop_count):
+                    print(f"Live loop reading {index + 1}/{loop_count}...")
+                    result = app.live_once()
+                    report = result["report"] if isinstance(result, dict) else result
+                    completed += 1
+                    print(
+                        "Live loop reading completed: "
+                        f"{completed}/{loop_count}, "
+                        f"captures={report.total_captures}, "
+                        f"status={report.status}"
+                    )
+
+                    if index < loop_count - 1:
+                        time.sleep(loop_interval)
+
+            except KeyboardInterrupt:
+                print(f"Live loop interrupted after {completed}/{loop_count} readings.")
+                return 130
+
+            print(f"Live loop completed: {completed} readings.")
         if args.dashboard:
             from predixai.dashboard.dashboard_server import run_dashboard_server
 
