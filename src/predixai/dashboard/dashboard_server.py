@@ -57,7 +57,7 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def _load_last_reading(self) -> dict[str, object]:
-        reading_path = self.project_root / "captures" / "live_once_fields" / "calibration_result.json"
+        reading_path = self.project_root / "data" / "runtime" / "last_live_reading.json"
 
         if not reading_path.exists():
             return {

@@ -227,3 +227,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+captures/live_once_fields/
+data/runtime/

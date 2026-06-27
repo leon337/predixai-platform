@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import importlib
 from dataclasses import dataclass
 from datetime import datetime
@@ -459,6 +460,34 @@ class PredixAIApp:
             )
             log_live_market_reading(self.logger, reading)
             readings.append(reading)
+
+            runtime_dir = self.config.resolve_path("data") / "runtime"
+            runtime_dir.mkdir(parents=True, exist_ok=True)
+            runtime_path = runtime_dir / "last_live_reading.json"
+            runtime_payload = {
+                "status": "READY",
+                "source": "live_once",
+                "session_id": session.session_id,
+                "timestamp": calibration_result.timestamp,
+                "window_title": broker_state.title,
+                "asset": reading.asset,
+                "price": reading.price,
+                "time": reading.time,
+                "balance": reading.balance,
+                "payout": reading.payout,
+                "trade_value": reading.trade_value,
+                "duration": reading.duration,
+                "timeframe": reading.timeframe,
+                "confidence": reading.confidence,
+                "unknown_fields": reading.metadata.get("unknown_fields", []),
+                "capture_path": str(metadata.file_path),
+                "calibration_output_directory": str(calibration_result.output_directory),
+            }
+            runtime_path.write_text(
+                json.dumps(runtime_payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+
             extraction = self.field_extractor.extract(reading, field_location_map)
             extraction_results.append(extraction)
             log_field_extraction_result(self.logger, extraction)
