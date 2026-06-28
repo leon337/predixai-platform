@@ -494,11 +494,6 @@ class PredixAIApp:
                 "capture_path": str(metadata.file_path),
                 "calibration_output_directory": str(calibration_result.output_directory),
             }
-            runtime_path.write_text(
-                json.dumps(runtime_payload, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
-
             try:
                 price_value = float(str(reading.price).replace(",", "."))
             except ValueError:
@@ -516,29 +511,48 @@ class PredixAIApp:
             if not isinstance(history_payload, list):
                 history_payload = []
 
-            history_payload.append(
-                {
-                    "status": "READY",
-                    "source": "live_once",
-                    "session_id": session.session_id,
-                    "timestamp": calibration_result.timestamp,
-                    "asset": reading.asset,
-                    "price": reading.price,
-                    "price_value": price_value,
-                    "payout": reading.payout,
-                    "balance": reading.balance,
-                    "trade_value": reading.trade_value,
-                    "duration": reading.duration,
-                    "timeframe": reading.timeframe,
-                    "confidence": reading.confidence,
-                    "unknown_fields": reading.metadata.get("unknown_fields", []),
-                }
+            history_entry = {
+                "status": "READY",
+                "source": "live_once",
+                "session_id": session.session_id,
+                "timestamp": calibration_result.timestamp,
+                "asset": reading.asset,
+                "price": reading.price,
+                "price_value": price_value,
+                "payout": reading.payout,
+                "balance": reading.balance,
+                "trade_value": reading.trade_value,
+                "duration": reading.duration,
+                "timeframe": reading.timeframe,
+                "confidence": reading.confidence,
+                "unknown_fields": reading.metadata.get("unknown_fields", []),
+            }
+
+            is_valid_runtime_reading, rejection_reasons = (
+                self._validate_runtime_live_reading(
+                    asset=reading.asset,
+                    payout=reading.payout,
+                    price_value=price_value,
+                )
             )
-            history_payload = history_payload[-3000:]
-            history_path.write_text(
-                json.dumps(history_payload, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
+
+            if is_valid_runtime_reading:
+                runtime_path.write_text(
+                    json.dumps(runtime_payload, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+                history_payload.append(history_entry)
+                history_payload = history_payload[-3000:]
+                history_path.write_text(
+                    json.dumps(history_payload, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+            else:
+                self._append_rejected_runtime_live_reading(
+                    runtime_dir=runtime_dir,
+                    payload=history_entry,
+                    rejection_reasons=rejection_reasons,
+                )
 
             extraction = self.field_extractor.extract(reading, field_location_map)
             extraction_results.append(extraction)
@@ -1511,6 +1525,61 @@ class PredixAIApp:
             market_hypotheses,
             signals,
             signal_scores,
+        )
+
+
+    def _validate_runtime_live_reading(
+        self,
+        *,
+        asset: str,
+        payout: str,
+        price_value: float | None,
+    ) -> tuple[bool, list[str]]:
+        """Validate whether a live reading can enter the runtime price history."""
+        reasons: list[str] = []
+
+        if asset != "LATAM Index":
+            reasons.append("asset_mismatch")
+
+        if payout == "UNKNOWN":
+            reasons.append("payout_unknown")
+
+        if price_value is None:
+            reasons.append("price_value_missing")
+        elif not (900 <= price_value <= 1000):
+            reasons.append("price_value_out_of_expected_range")
+
+        return len(reasons) == 0, reasons
+
+    def _append_rejected_runtime_live_reading(
+        self,
+        *,
+        runtime_dir: Path,
+        payload: dict,
+        rejection_reasons: list[str],
+    ) -> None:
+        """Persist rejected runtime readings for audit without polluting the chart."""
+        rejected_path = runtime_dir / "rejected_live_readings.json"
+        if rejected_path.exists():
+            try:
+                rejected_payload = json.loads(rejected_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                rejected_payload = []
+        else:
+            rejected_payload = []
+
+        if not isinstance(rejected_payload, list):
+            rejected_payload = []
+
+        rejected_entry = dict(payload)
+        rejected_entry["status"] = "REJECTED"
+        rejected_entry["rejection_reasons"] = rejection_reasons
+
+        rejected_payload.append(rejected_entry)
+        rejected_payload = rejected_payload[-3000:]
+        rejected_path.write_text(
+            json.dumps(rejected_payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
         )
 
     def _build_live_validation_report(
