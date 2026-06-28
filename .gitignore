@@ -229,3 +229,5 @@ __marimo__/
 .streamlit/secrets.toml
 captures/live_once_fields/
 data/runtime/
+diagnostics/
+logs/live_collector_*.log
