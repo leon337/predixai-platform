@@ -434,7 +434,11 @@ class PredixAIApp:
             interval_seconds=interval_seconds,
         )
         for tick in ticks:
+            tick_start = perf_counter()
+
+            capture_start = perf_counter()
             metadata = self.capture_snapshot()
+            capture_ms = round((perf_counter() - capture_start) * 1000, 3)
             tick = type(tick)(
                 tick_index=tick.tick_index,
                 captured_at=tick.captured_at,
@@ -447,12 +451,16 @@ class PredixAIApp:
                 },
             )
             log_live_capture_tick(self.logger, tick)
+            calibration_start = perf_counter()
             calibration_result = self.live_calibration_engine.read_snapshot_fields(
                 metadata=metadata,
                 window_title=broker_state.title,
                 output_directory_name="live_once_fields",
                 open_artifacts=False,
             )
+            calibration_ms = round((perf_counter() - calibration_start) * 1000, 3)
+
+            reading_start = perf_counter()
             confidence_values = [
                 result.confidence
                 for result in calibration_result.field_results
@@ -469,9 +477,11 @@ class PredixAIApp:
                 ocr_confidence=ocr_confidence,
                 timeframe=timeframe,
             )
+            reading_ms = round((perf_counter() - reading_start) * 1000, 3)
             log_live_market_reading(self.logger, reading)
             readings.append(reading)
 
+            runtime_persistence_start = perf_counter()
             runtime_dir = self.config.resolve_path("data") / "runtime"
             runtime_dir.mkdir(parents=True, exist_ok=True)
             runtime_path = runtime_dir / "last_live_reading.json"
@@ -554,9 +564,56 @@ class PredixAIApp:
                     rejection_reasons=rejection_reasons,
                 )
 
+            runtime_persistence_ms = round(
+                (perf_counter() - runtime_persistence_start) * 1000,
+                3,
+            )
+
+            field_extraction_start = perf_counter()
             extraction = self.field_extractor.extract(reading, field_location_map)
             extraction_results.append(extraction)
             log_field_extraction_result(self.logger, extraction)
+            field_extraction_ms = round(
+                (perf_counter() - field_extraction_start) * 1000,
+                3,
+            )
+
+            tick_total_ms = round((perf_counter() - tick_start) * 1000, 3)
+            timing_path = runtime_dir / "live_timing_profile.json"
+            if timing_path.exists():
+                try:
+                    timing_payload = json.loads(timing_path.read_text(encoding="utf-8"))
+                except json.JSONDecodeError:
+                    timing_payload = []
+            else:
+                timing_payload = []
+
+            if not isinstance(timing_payload, list):
+                timing_payload = []
+
+            timing_payload.append(
+                {
+                    "session_id": session.session_id,
+                    "timestamp": calibration_result.timestamp,
+                    "tick_index": tick.tick_index,
+                    "asset": reading.asset,
+                    "price": reading.price,
+                    "payout": reading.payout,
+                    "valid_runtime_reading": is_valid_runtime_reading,
+                    "rejection_reasons": rejection_reasons,
+                    "capture_ms": capture_ms,
+                    "calibration_ms": calibration_ms,
+                    "reading_ms": reading_ms,
+                    "runtime_persistence_ms": runtime_persistence_ms,
+                    "field_extraction_ms": field_extraction_ms,
+                    "tick_total_ms": tick_total_ms,
+                }
+            )
+            timing_payload = timing_payload[-3000:]
+            timing_path.write_text(
+                json.dumps(timing_payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
             if tick.tick_index < captures_per_candle:
                 sleep(interval_seconds)
 
