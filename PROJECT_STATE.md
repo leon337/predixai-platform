@@ -1,4 +1,4 @@
-# PredixAI BR — Estado Oficial do Projeto
+﻿# PredixAI BR — Estado Oficial do Projeto
 
 ## Projeto
 
@@ -428,4 +428,14 @@ Regra preservada:
 - Sem alteracao de estrategia.
 
 Proximo foco:
-- PTP-092 - Handoff operacional ChatGPT -> PredixAI Agent -> relatorio local supervisionado.
+- PTP-093 — Runtime Supervisionado PredixAI
+
+## PTP-093 — Runtime Supervisionado PredixAI
+
+- Status: publicado.
+- Criados scripts/predixai_handoff.bat e scripts/predixai_h publicado.
+- Criados scripts/predixai_handoff.bandoff_runner.py.
+- Handoff local ChatGPT/Codex -> OpenClaw -> Ollama validado.
+- Guardrail semantico V3 aplicado para bloquear linguagem de operacao, decisao, corretora, conta real, transacoes, promessa de lucro e API paga obrigatoria.
+- Validacoes: NORMAL_SAFE_TEST_OK, GUARDRAIL_BLOCK_TEST_OK, COMPILEALL_OK, JSON_OK, DIFF_CHECK_OK.
+
