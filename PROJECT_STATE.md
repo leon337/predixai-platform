@@ -1,4 +1,4 @@
-﻿# PredixAI BR — Estado Oficial do Projeto
+# PredixAI BR — Estado Oficial do Projeto
 
 ## Projeto
 
@@ -438,4 +438,3 @@ Proximo foco:
 - Handoff local ChatGPT/Codex -> OpenClaw -> Ollama validado.
 - Guardrail semantico V3 aplicado para bloquear linguagem de operacao, decisao, corretora, conta real, transacoes, promessa de lucro e API paga obrigatoria.
 - Validacoes: NORMAL_SAFE_TEST_OK, GUARDRAIL_BLOCK_TEST_OK, COMPILEALL_OK, JSON_OK, DIFF_CHECK_OK.
-
