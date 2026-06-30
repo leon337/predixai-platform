@@ -231,3 +231,6 @@ captures/live_once_fields/
 data/runtime/
 diagnostics/
 logs/live_collector_*.log
+
+# Local OpenClaw official clone
+openclaw/

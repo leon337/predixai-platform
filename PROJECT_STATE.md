@@ -1,4 +1,4 @@
-﻿# PredixAI BR — Estado Oficial do Projeto
+# PredixAI BR — Estado Oficial do Projeto
 
 ## Projeto
 
@@ -14,7 +14,7 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-087 - OpenClaw Windows Command Wrapper.
+PTP-088 - OpenClaw Official Local Installation.
 
 ## Próximo PTP pendente
 
@@ -78,6 +78,7 @@ Toda mudança relevante deve atualizar:
 - O PTP-085 criou a Live Evidence Package Foundation: `live_once()` grava evidências JSON observadoras em `data/live_evidence/`, e `--live-loop` gera evidências por consequência ao chamar `live_once()`.
 - O PTP-086 criou a fundacao local do OpenClaw em `tools/openclaw/`, com runner seguro por allowlist, relatorios locais ignorados pelo Git e sem commit/push automatico.
 - O PTP-087 criou wrappers Windows em scripts/ para executar o OpenClaw com comandos curtos: openclaw.bat, openclaw_status.bat, openclaw_validate.bat e openclaw_precheck.bat.
+- O PTP-088 instalou e validou o OpenClaw oficial no notebook, criou comando global `openclaw`, validou Ollama com `qwen2.5:1.5b` e protegeu o clone oficial com `openclaw/` no `.gitignore`.
 - A estratégia única da V1 é Rebote Triplo.
 - O mercado inicial é Fixed Time.
 - O Core inicializa configuração, módulos, logs e eventos.
@@ -156,6 +157,39 @@ Toda mudança relevante deve atualizar:
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
 - O guia para Leo executar a validação real está em `docs/setup/Leo_Windows10_Validation.md`.
 - O próximo PTP pendente será definido pelo Leo.
+
+## PTP-088 - OpenClaw Official Local Installation
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- OpenClaw oficial clonado localmente.
+- Dependencias instaladas com pnpm.
+- Build local concluido.
+- Comando global `openclaw` criado em `C:\Users\leo\bin\openclaw.cmd`.
+- `openclaw --help` validado.
+- Ollama instalado localmente.
+- Modelo `qwen2.5:1.5b` baixado e validado.
+- Pasta `openclaw/` adicionada ao `.gitignore` para nao versionar o clone oficial dentro do PredixAI.
+
+Regra preservada:
+- Custo zero.
+- Execucao local.
+- Sem API paga obrigatoria.
+- Sem cliques.
+- Sem ordens.
+- Sem automacao operacional de corretora.
+- Sem decisao operacional.
+- Sem conta real.
+- Sem alteracao de estrategia.
+
+Ponto tecnico pendente para o proximo PTP:
+- OpenClaw ainda esta com modelo default `openai/gpt-5.5` sem autenticacao.
+- Proximo PTP deve configurar OpenClaw para usar Ollama local como provedor/modelo principal.
+
+Proximo foco:
+- PTP-089 - OpenClaw Ollama Provider Binding.
 
 ## PTP-087 - OpenClaw Windows Command Wrapper
 

@@ -1,4 +1,14 @@
-﻿## 2026-06-30 - PTP-087 OpenClaw Windows Command Wrapper
+## 2026-06-30 - PTP-088 OpenClaw Official Local Installation
+
+- Instalado e validado o OpenClaw oficial no notebook.
+- Criado comando global local `openclaw` apontando para o clone oficial.
+- Validado `openclaw --help`.
+- Instalado Ollama local.
+- Baixado e validado o modelo local `qwen2.5:1.5b`.
+- Mantido o escopo gratuito/local, sem API paga, sem clique, sem ordem e sem automacao de corretora.
+- Adicionado `openclaw/` ao `.gitignore` para evitar versionar o clone oficial dentro do repositorio PredixAI.
+
+## 2026-06-30 - PTP-087 OpenClaw Windows Command Wrapper
 
 - Criados wrappers Windows em scripts/ para facilitar o uso local do OpenClaw.
 - Adicionados scripts/openclaw.bat, scripts/openclaw_status.bat, scripts/openclaw_validate.bat e scripts/openclaw_precheck.bat.
