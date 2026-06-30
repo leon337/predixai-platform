@@ -14,7 +14,7 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-086 - OpenClaw Local Handoff Foundation.
+PTP-087 - OpenClaw Windows Command Wrapper.
 
 ## Próximo PTP pendente
 
@@ -77,6 +77,7 @@ Toda mudança relevante deve atualizar:
 - O PTP-084 validou o Live Loop Countdown Control: `--live-loop` usa `countdown_seconds_override=0` e `--live-once` preserva o countdown padrão.
 - O PTP-085 criou a Live Evidence Package Foundation: `live_once()` grava evidências JSON observadoras em `data/live_evidence/`, e `--live-loop` gera evidências por consequência ao chamar `live_once()`.
 - O PTP-086 criou a fundacao local do OpenClaw em `tools/openclaw/`, com runner seguro por allowlist, relatorios locais ignorados pelo Git e sem commit/push automatico.
+- O PTP-087 criou wrappers Windows em scripts/ para executar o OpenClaw com comandos curtos: openclaw.bat, openclaw_status.bat, openclaw_validate.bat e openclaw_precheck.bat.
 - A estratégia única da V1 é Rebote Triplo.
 - O mercado inicial é Fixed Time.
 - O Core inicializa configuração, módulos, logs e eventos.
@@ -155,6 +156,30 @@ Toda mudança relevante deve atualizar:
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
 - O guia para Leo executar a validação real está em `docs/setup/Leo_Windows10_Validation.md`.
 - O próximo PTP pendente será definido pelo Leo.
+
+## PTP-087 - OpenClaw Windows Command Wrapper
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- Wrappers Windows do OpenClaw criados em scripts/.
+- scripts/openclaw.bat permite chamar o runner com argumentos.
+- scripts/openclaw_status.bat executa a task status.
+- scripts/openclaw_validate.bat executa a task validate_base.
+- scripts/openclaw_precheck.bat executa a task ptp086_precheck.
+- Os wrappers foram validados localmente e geraram relatorios em tools/openclaw/reports/.
+
+Regra preservada:
+- OpenClaw continua limitado por allowlist.
+- Sem commit automatico.
+- Sem push automatico.
+- Sem cliques.
+- Sem ordens.
+- Sem automacao operacional de corretora.
+
+Proximo foco:
+- Evoluir handoff local para gerar pacotes completos de leitura e execucao.
 
 ## PTP-086 - OpenClaw Local Handoff Foundation
 
@@ -287,3 +312,4 @@ Regra preservada:
 
 Proximo foco:
 - Milestone 018 ? Fundacao da Inteligencia Observadora.
+

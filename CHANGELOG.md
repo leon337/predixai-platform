@@ -1,3 +1,9 @@
+﻿## 2026-06-30 - PTP-087 OpenClaw Windows Command Wrapper
+
+- Criados wrappers Windows em scripts/ para facilitar o uso local do OpenClaw.
+- Adicionados scripts/openclaw.bat, scripts/openclaw_status.bat, scripts/openclaw_validate.bat e scripts/openclaw_precheck.bat.
+- Mantido o escopo seguro: sem commit automatico, sem push automatico, sem cliques, sem ordens e sem acoes de corretora.
+
 ## 2026-06-30 - PTP-086 OpenClaw Local Handoff Foundation
 
 - Criada a fundacao local do OpenClaw em `tools/openclaw/`.
@@ -357,3 +363,4 @@ Observacao:
 - Definida arquitetura oficial v1.0.
 - Definido checklist completo da V1.
 - Definido escopo congelado da V1.
+
