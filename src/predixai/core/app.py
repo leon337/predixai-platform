@@ -100,6 +100,7 @@ from predixai.live import (
     FieldLocator,
     LiveCandleBenchmarkBuilder,
     LiveCaptureScheduler,
+    LiveEvidencePackageWriter,
     LiveMarketReader,
     LiveSessionController,
     LiveValidationBenchmark,
@@ -283,6 +284,9 @@ class PredixAIApp:
         )
         self.live_validation_benchmark = LiveValidationBenchmark(
             enabled=self._live_validation_benchmark_enabled()
+        )
+        self.live_evidence_package_writer = LiveEvidencePackageWriter(
+            self.config.resolve_path("data") / "live_evidence"
         )
         self.price_region_mapper = PriceRegionMapper()
         self.time_region_mapper = TimeRegionMapper()
@@ -654,6 +658,20 @@ class PredixAIApp:
         log_live_validation_report(self.logger, report)
         benchmark = self.live_validation_benchmark.finish(benchmark_run, report)
         log_live_validation_benchmark(self.logger, benchmark)
+        live_evidence_package = self.live_evidence_package_writer.build(
+            source="live_once",
+            session_id=session.session_id,
+            capture_count=candle_snapshot.capture_count,
+            field_count=len(candle_snapshot.field_names),
+            unknown_fields=tuple(candle_snapshot.unknown_fields),
+            candle_snapshot=candle_snapshot,
+            candle_statistics=candle_statistics,
+            live_candle_benchmark=live_candle_benchmark.benchmark,
+            live_validation_benchmark=benchmark,
+        )
+        live_evidence_path = self.live_evidence_package_writer.write(
+            live_evidence_package
+        )
         self.events.record(
             "live.validation_completed",
             {
@@ -661,6 +679,8 @@ class PredixAIApp:
                 "candle_snapshot": candle_snapshot.to_dict(),
                 "candle_statistics": candle_statistics.to_dict(),
                 "live_candle_benchmark": live_candle_benchmark.benchmark.to_dict(),
+                "live_validation_benchmark": benchmark.to_dict(),
+                "live_evidence_path": str(live_evidence_path),
             },
         )
         return {
@@ -668,6 +688,8 @@ class PredixAIApp:
             "candle_snapshot": candle_snapshot,
             "candle_statistics": candle_statistics,
             "live_candle_benchmark": live_candle_benchmark.benchmark,
+            "live_validation_benchmark": benchmark,
+            "live_evidence_path": live_evidence_path,
         }
 
     def _load_modules(self) -> tuple[ModuleInfo, ...]:

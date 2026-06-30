@@ -18,6 +18,10 @@ from predixai.live.live_candle_benchmark import (
     LiveCandleBenchmarkResult,
     LiveCandleBenchmarkRun,
 )
+from predixai.live.live_evidence_package import (
+    LiveEvidencePackage,
+    LiveEvidencePackageWriter,
+)
 from predixai.live.live_calibration import (
     CalibrationFieldResult,
     CalibrationResult,
@@ -47,6 +51,8 @@ __all__ = [
     "LiveCandleBenchmarkBuilder",
     "LiveCandleBenchmarkResult",
     "LiveCandleBenchmarkRun",
+    "LiveEvidencePackage",
+    "LiveEvidencePackageWriter",
     "CalibrationFieldResult",
     "CalibrationResult",
     "LiveCalibrationEngine",

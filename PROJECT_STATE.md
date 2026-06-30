@@ -14,7 +14,7 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-084 — Live Loop Countdown Control.
+PTP-085 - Live Evidence Package Foundation.
 
 ## Próximo PTP pendente
 
@@ -75,6 +75,7 @@ Toda mudança relevante deve atualizar:
 - O PTP-083 criou `data/project_memory/project_memory_spine.json` como memória operacional inicial do projeto.
 - O Project Memory Spine registra a ligação mínima entre `predixai-platform`, `predixai-knowledge`, Codex, ChatGPT, Leo/Arquiteto e OpenClaw futuro, sem alterar o comportamento do Trader.
 - O PTP-084 validou o Live Loop Countdown Control: `--live-loop` usa `countdown_seconds_override=0` e `--live-once` preserva o countdown padrão.
+- O PTP-085 criou a Live Evidence Package Foundation: `live_once()` grava evidências JSON observadoras em `data/live_evidence/`, e `--live-loop` gera evidências por consequência ao chamar `live_once()`.
 - A estratégia única da V1 é Rebote Triplo.
 - O mercado inicial é Fixed Time.
 - O Core inicializa configuração, módulos, logs e eventos.
@@ -153,6 +154,31 @@ Toda mudança relevante deve atualizar:
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
 - O guia para Leo executar a validação real está em `docs/setup/Leo_Windows10_Validation.md`.
 - O próximo PTP pendente será definido pelo Leo.
+
+## PTP-085 - Live Evidence Package Foundation
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- Live Evidence Package Foundation criada.
+- `src/predixai/live/live_evidence_package.py` criado com `LiveEvidencePackage` e `LiveEvidencePackageWriter`.
+- `live_once()` agora grava uma evidência JSON observadora ao final da validação ao vivo.
+- Evidências salvas em `data/live_evidence/`.
+- `--live-loop` também gera evidências por consequência, pois chama `live_once()`.
+- A evidência reaproveita Candle Snapshot, Candle Statistics, Live Candle Benchmark e Live Validation Benchmark.
+
+Regra preservada:
+- V1 continua em modo Observador.
+- Sem cliques.
+- Sem ordens.
+- Sem automação operacional de corretora.
+- Sem decisão operacional.
+- Sem conta real.
+- Sem alteração de estratégia.
+
+Próximo foco:
+- Próximo PTP a definir pelo Leo.
 
 ## PTP-084 — Live Loop Countdown Control
 

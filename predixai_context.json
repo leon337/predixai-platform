@@ -474,7 +474,7 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-084",
+    "last_approved_ptp": "PTP-085",
     "next_pending_ptp": "A definir pelo Leo",
     "audit_rule": "Nenhum PTP ÃƒÆ’Ã‚Â© aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
@@ -635,5 +635,24 @@
     "id": "018",
     "name": "Observational Intelligence Foundation",
     "goal": "Transformar historico e dashboard em analise observadora estatistica, ainda sem previsao e sem recomendacao de entrada."
+  },
+  "live_evidence_package_foundation": {
+    "validated": true,
+    "ptp": "PTP-085",
+    "status": "published",
+    "runtime_output_path": "data/live_evidence/",
+    "package_file": "src/predixai/live/live_evidence_package.py",
+    "package": "LiveEvidencePackage",
+    "writer": "LiveEvidencePackageWriter",
+    "generated_by": "PredixAIApp.live_once",
+    "also_generated_by_live_loop": true,
+    "source_value": "live_once",
+    "v1_observador_scope_preserved": true,
+    "clicks_enabled": false,
+    "orders_enabled": false,
+    "broker_automation_enabled": false,
+    "decision_making_enabled": false,
+    "real_account_enabled": false,
+    "strategy_changed": false
   }
 }

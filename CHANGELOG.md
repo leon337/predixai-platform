@@ -1,3 +1,9 @@
+## 2026-06-30 - PTP-085 Live Evidence Package Foundation
+
+- Criada a fundacao Live Evidence Package para gerar evidencias JSON observadoras ao final de `live_once()`.
+- As evidencias sao salvas em `data/live_evidence/` e reaproveitam Candle Snapshot, Candle Statistics, Live Candle Benchmark e Live Validation Benchmark.
+- Mantido o escopo V1 Observador, sem cliques, ordens, automacao operacional, decisao operacional, conta real ou alteracao de estrategia.
+
 ## 2026-06-30 - PTP-084 Live Loop Countdown Control
 
 - Validado o controle de countdown do `--live-loop` usando `countdown_seconds_override=0`.
