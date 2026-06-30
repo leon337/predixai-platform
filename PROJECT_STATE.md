@@ -14,7 +14,7 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-088 - OpenClaw Official Local Installation.
+PTP-089 - OpenClaw Ollama Provider Binding.
 
 ## Próximo PTP pendente
 
@@ -79,6 +79,7 @@ Toda mudança relevante deve atualizar:
 - O PTP-086 criou a fundacao local do OpenClaw em `tools/openclaw/`, com runner seguro por allowlist, relatorios locais ignorados pelo Git e sem commit/push automatico.
 - O PTP-087 criou wrappers Windows em scripts/ para executar o OpenClaw com comandos curtos: openclaw.bat, openclaw_status.bat, openclaw_validate.bat e openclaw_precheck.bat.
 - O PTP-088 instalou e validou o OpenClaw oficial no notebook, criou comando global `openclaw`, validou Ollama com `qwen2.5:1.5b` e protegeu o clone oficial com `openclaw/` no `.gitignore`.
+- O PTP-089 configurou o OpenClaw para usar Ollama local como provider principal, com modelo default `ollama/qwen2.5:1.5b`, preservando custo zero e sem API paga obrigat?ria.
 - A estratégia única da V1 é Rebote Triplo.
 - O mercado inicial é Fixed Time.
 - O Core inicializa configuração, módulos, logs e eventos.
@@ -157,6 +158,38 @@ Toda mudança relevante deve atualizar:
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
 - O guia para Leo executar a validação real está em `docs/setup/Leo_Windows10_Validation.md`.
 - O próximo PTP pendente será definido pelo Leo.
+
+## PTP-089 - OpenClaw Ollama Provider Binding
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- OpenClaw configurado para usar Ollama local.
+- Vari?vel de ambiente de usu?rio `OLLAMA_API_KEY=ollama-local` definida.
+- Provider `ollama` configurado com `baseUrl` local `http://127.0.0.1:11434`.
+- Modelo principal definido como `ollama/qwen2.5:1.5b`.
+- `openclaw models status` validado com default local.
+- `openclaw infer model run` validado usando provider `ollama` e modelo `qwen2.5:1.5b`.
+
+Regra preservada:
+- Custo zero.
+- Execu??o local.
+- Sem OpenAI obrigat?rio.
+- Sem API paga obrigat?ria.
+- Sem cliques.
+- Sem ordens.
+- Sem automa??o operacional de corretora.
+- Sem decis?o operacional.
+- Sem conta real.
+- Sem altera??o de estrat?gia.
+
+Ponto t?cnico observado:
+- O modelo `qwen2.5:1.5b` ? leve e adequado para o hardware atual, mas pode n?o obedecer instru??es com precis?o alta.
+- Pr?ximos PTPs devem usar o modelo local para tarefas simples e supervisionadas primeiro.
+
+Pr?ximo foco:
+- PTP-090 - OpenClaw PredixAI Agent Bootstrap.
 
 ## PTP-088 - OpenClaw Official Local Installation
 

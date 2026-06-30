@@ -1,3 +1,13 @@
+## 2026-06-30 - PTP-089 OpenClaw Ollama Provider Binding
+
+- Configurado OpenClaw para usar Ollama local como provider principal.
+- Definido `OLLAMA_API_KEY=ollama-local` no ambiente do usu?rio.
+- Configurado provider `ollama` com `baseUrl` local `http://127.0.0.1:11434`.
+- Definido modelo principal `ollama/qwen2.5:1.5b`.
+- Validado `openclaw models status` mostrando default local.
+- Validado teste `openclaw infer model run` com provider `ollama` e modelo `qwen2.5:1.5b`.
+- Mantido custo zero, execu??o local e aus?ncia de API paga obrigat?ria.
+
 ## 2026-06-30 - PTP-088 OpenClaw Official Local Installation
 
 - Instalado e validado o OpenClaw oficial no notebook.
