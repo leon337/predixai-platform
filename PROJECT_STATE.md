@@ -14,7 +14,7 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-089 - OpenClaw Ollama Provider Binding.
+PTP-090 - OpenClaw PredixAI Agent Bootstrap.
 
 ## Próximo PTP pendente
 
@@ -380,3 +380,27 @@ Regra preservada:
 Proximo foco:
 - Milestone 018 ? Fundacao da Inteligencia Observadora.
 
+## PTP-090 - OpenClaw PredixAI Agent Bootstrap
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- OpenClaw instalado e validado no notebook local.
+- Ollama instalado e vinculado ao OpenClaw.
+- Modelo local ativo: `ollama/qwen2.5:1.5b`.
+- Gateway local validado.
+- Agente local PredixAI respondeu com execucao embedded/local.
+- Workspace do agente mantido em `tools/openclaw/predixai_agent_workspace/` e ignorado pelo Git.
+
+Regra preservada:
+- Sem API paga.
+- Sem cliques.
+- Sem ordens.
+- Sem conta real.
+- Sem automacao operacional de corretora.
+- Sem decisao operacional.
+- Sem alteracao de estrategia.
+
+Proximo foco:
+- PTP-091 - Supervisao local e fluxo de handoff ChatGPT -> OpenClaw -> PredixAI.
