@@ -419,3 +419,13 @@ Observacao:
 - Runtime valida dependências críticas sem chamar o agente local por padrão.
 - Separadas falhas críticas de avisos diagnósticos.
 - Mantido V1 Observador e guardrails ativos.
+
+## 2026-06-30 — PTP-094
+
+- Adicionado protocolo supervisionado de tarefas.
+- Adicionado `scripts/predixai_task_protocol.py`.
+- Adicionado `scripts/predixai_task_protocol.bat`.
+- Implementadas classificações `SAFE_LOCAL`, `NEEDS_APPROVAL` e `BLOCKED`.
+- Implementados testes mínimos para tarefa segura, tarefa com aprovação e tarefa bloqueada.
+- Relatórios do protocolo agora usam timestamp único.
+- Mantidos guardrails do modo V1 Observador.

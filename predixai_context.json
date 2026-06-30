@@ -801,8 +801,8 @@
     "local_model": "ollama/qwen2.5:1.5b",
     "status": "local_supervised_handoff_validated"
   },
-  "last_approved_ptp": "PTP-093 - Runtime Supervisionado PredixAI",
-  "next_pending_ptp": "PTP-094 - Task Protocol Supervisionado",
+  "last_approved_ptp": "PTP-094 - Task Protocol Supervisionado",
+  "next_pending_ptp": "PTP-095 - Handoff Gate Integrado",
   "scope_guardrails": {
     "broker_clicks_enabled": false,
     "orders_enabled": false,
@@ -846,6 +846,45 @@
       "compileall_ok": true,
       "json_ok": true,
       "diff_check_ok": true
+    }
+  },
+  "predixai_task_protocol": {
+    "status": "validated",
+    "ptp": "PTP-094",
+    "script": "scripts/predixai_task_protocol.py",
+    "bat": "scripts/predixai_task_protocol.bat",
+    "classifications": [
+      "SAFE_LOCAL",
+      "NEEDS_APPROVAL",
+      "BLOCKED"
+    ],
+    "can_call_agent_default": false,
+    "safe_local_allows": [
+      "generate_report",
+      "run_fast_status",
+      "run_compileall",
+      "run_json_validation",
+      "run_diff_check"
+    ],
+    "needs_approval_allows": [
+      "generate_plan",
+      "generate_diff",
+      "run_minimal_validation",
+      "wait_for_leo_approval"
+    ],
+    "blocked_allows": [
+      "generate_safe_report",
+      "explain_scope_limit",
+      "request_architect_review"
+    ],
+    "last_validation": {
+      "safe_task_test_ok": true,
+      "approval_task_test_ok": true,
+      "blocked_task_test_ok": true,
+      "compileall_ok": true,
+      "json_ok": true,
+      "diff_check_ok": true,
+      "unique_timestamp_ok": true
     }
   }
 }

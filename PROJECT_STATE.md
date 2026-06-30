@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-091 - PredixAI Supervised Agent Wrapper.
+PTP-094 - Task Protocol Supervisionado.
 
 ## Próximo PTP pendente
 
-Próximo PTP a definir pelo Leo.
+PTP-095 - Handoff Gate Integrado.
 
 ## Status geral
 
@@ -438,3 +438,24 @@ Proximo foco:
 - Handoff local ChatGPT/Codex -> OpenClaw -> Ollama validado.
 - Guardrail semantico V3 aplicado para bloquear linguagem de operacao, decisao, corretora, conta real, transacoes, promessa de lucro e API paga obrigatoria.
 - Validacoes: NORMAL_SAFE_TEST_OK, GUARDRAIL_BLOCK_TEST_OK, COMPILEALL_OK, JSON_OK, DIFF_CHECK_OK.
+
+## PTP-094 — Task Protocol Supervisionado
+
+- Status: publicado.
+- Criado `scripts/predixai_task_protocol.py`.
+- Criado `scripts/predixai_task_protocol.bat`.
+- Implementada classificação local de tarefas antes do handoff para OpenClaw/Ollama.
+- Classificações suportadas:
+  - `SAFE_LOCAL`: tarefa local segura.
+  - `NEEDS_APPROVAL`: tarefa exige aprovação do Leo antes de execução.
+  - `BLOCKED`: tarefa bloqueada pelo escopo V1 Observador.
+- Testes validados:
+  - `SAFE_TASK_TEST_OK`.
+  - `APPROVAL_TASK_TEST_OK`.
+  - `BLOCKED_TASK_TEST_OK`.
+- Corrigida geração de relatórios com timestamp único em microssegundos.
+- Mantido escopo V1 Observador: sem clique, sem ordem, sem conta real, sem automação de corretora, sem promessa de lucro e sem API paga obrigatória.
+
+Decisão operacional:
+- Toda tarefa sensível deve ser classificada antes de chegar ao agente local.
+- O agente local continua sem permissão para decidir, operar, clicar ou publicar sem supervisão.
