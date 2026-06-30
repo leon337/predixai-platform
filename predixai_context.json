@@ -474,10 +474,31 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-072",
-    "next_pending_ptp": "PTP-073",
+    "last_approved_ptp": "PTP-083",
+    "next_pending_ptp": "A definir pelo Leo",
     "audit_rule": "Nenhum PTP ÃƒÆ’Ã‚Â© aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
+  },
+  "project_memory": {
+    "initial_operational_memory_created": true,
+    "memory_id": "PTP-083",
+    "memory_title": "PredixAI Project Memory Spine",
+    "memory_file": "data/project_memory/project_memory_spine.json",
+    "product_runtime_repository": "leon337/predixai-platform",
+    "knowledge_hub_repository": "leon337/predixai-knowledge",
+    "agent_links": {
+      "architect": "Leo / Arquiteto",
+      "chatgpt": "strategic_organizer_ptp_planner_checklist_conceptual_validation_risk_decision",
+      "codex": "controlled_repository_executor_modes_1_2_3",
+      "openclaw": "future_local_executor_not_implemented"
+    },
+    "v1_observador_scope_preserved": true,
+    "runtime_integration_added": false,
+    "clicks_enabled": false,
+    "orders_enabled": false,
+    "broker_automation_enabled": false,
+    "decision_making_enabled": false,
+    "real_account_enabled": false
   },
   "next_task": "Definir o prÃƒÂ³ximo PTP da fase ao vivo, mantendo a V1 sem IA, LLM, Gemini, Strategy real, Dashboard, Broker Adapter, automaÃƒÂ§ÃƒÂ£o, tomada de decisÃƒÂ£o ou interaÃƒÂ§ÃƒÂ£o com corretora atÃƒÂ© autorizaÃƒÂ§ÃƒÂ£o explÃƒÂ­cita.",
   "architecture_status": "V1 congelada, Fase 0 concluÃƒÆ’Ã‚Â­da, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criada, OCR Provider Adapter foundation criada, OCR Pipeline Validation foundation criada, hotfix de logs do pipeline OCR para Windows do Leo aplicado, execuÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o obrigatÃƒÆ’Ã‚Â³ria visÃƒÆ’Ã‚Â­vel do pipeline OCR no --capture aplicada, OCR Region Mapping foundation criada, Milestone-004 Region Mapping Expansion concluÃƒÆ’Ã‚Â­do, Tesseract Provider foundation criado, Milestone-005 OCR Real Foundation concluÃƒÆ’Ã‚Â­da com Tesseract OCR real, validaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o, cache SHA256 e benchmark, Milestone-006 Visual Intelligence Foundation concluÃƒÆ’Ã‚Â­da com OCR Parser, Region Text Mapping, Structured OCR Result, Visual Snapshot e Visual Benchmark, Milestone-007 Visual Understanding Foundation concluÃƒÆ’Ã‚Â­da com Screen Elements, Screen Layout, Screen Object Registry, Visual Scene e Visual Scene Benchmark, Milestone-008 Interface Semantic Foundation concluÃƒÆ’Ã‚Â­da com Semantic Elements, Semantic Label Mapper, Semantic Scene, Semantic Registry e Semantic Benchmark, Milestone-009 Market Interface Foundation concluÃƒÆ’Ã‚Â­da com Market Elements, Price Region Mapper, Time Region Mapper, Market Scene e Market Benchmark, Milestone-010 Market Structure Foundation concluÃƒÆ’Ã‚Â­da com Market Entities, Market Entity Registry, Market Structure, Market Structure Validator e Market Structure Benchmark, Milestone-011 Pattern Recognition Foundation concluÃƒÆ’Ã‚Â­da com Pattern Foundation, Pattern Registry, Pattern Detector, Pattern Scene e Pattern Benchmark, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ou tomada de decisÃƒÆ’Ã‚Â£o, captura manual criada, execuÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governanÃƒÆ’Ã‚Â§a criada, Milestone-012 Pattern Analysis Foundation concluÃƒÆ’Ã‚Â­da com Pattern Analyzer, Pattern Analysis, Pattern Classification, Pattern Context Builder, Pattern Analysis Builder e Pattern Analysis Benchmark, Milestone-013 Intelligence Foundation concluÃƒÆ’Ã‚Â­da com Intelligence Context, Market Hypothesis, Hypothesis Evaluator, Intelligence Snapshot e Intelligence Benchmark, Milestone-014 Strategy Readiness Foundation concluÃƒÆ’Ã‚Â­da com Signal Foundation, Signal Registry, Signal Scoring Foundation, Strategy Readiness Snapshot e Strategy Readiness Benchmark, Milestone-015 Live Market Validation Foundation concluÃƒÂ­da com Live Session Foundation, Broker Window Detection, Live Capture Scheduler, Live Market Reading e Live Validation Report, Milestone-016 Live Candle Analyzer concluÃƒÂ­da com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, Milestone-016 Live Candle Analyzer concluÃƒÂ­da com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, validaÃƒÂ§ÃƒÂ£o ao vivo observadora executada com sucesso no Windows do Leo",

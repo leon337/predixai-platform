@@ -1,0 +1,107 @@
+{
+  "memory_id": "PTP-083",
+  "title": "PredixAI Project Memory Spine",
+  "status": "initial_operational_memory",
+  "created_at": "2026-06-30",
+  "source_files": [
+    "PROJECT_STATE.md",
+    "predixai_context.json"
+  ],
+  "authority": {
+    "phase_source": "PROJECT_STATE.md",
+    "ptp_source": "PROJECT_STATE.md",
+    "context_source": "predixai_context.json",
+    "notes": [
+      "PROJECT_STATE.md is treated as the authoritative PTP state for this memory.",
+      "predixai_context.json contains useful machine-readable context, but its governance PTP fields appear older than PROJECT_STATE.md."
+    ]
+  },
+  "current_state": {
+    "phase": "Fase 3 - Live Candle Analyzer",
+    "last_approved_ptp": "PTP-082 - Live Candle Benchmark",
+    "next_pending_ptp": "PTP-083 - PredixAI Project Memory Spine",
+    "project_mode": "V1 Observador",
+    "first_product": "PredixAI Trader",
+    "v1_execution": "disabled"
+  },
+  "scope_guardrails": {
+    "trader_feature_implemented": false,
+    "broker_clicks_enabled": false,
+    "orders_enabled": false,
+    "broker_automation_enabled": false,
+    "decision_making_enabled": false,
+    "profit_promise_allowed": false,
+    "public_docs_updated": false,
+    "changelog_updated": false
+  },
+  "repository_link": {
+    "platform_repository": "leon337/predixai-platform",
+    "knowledge_repository": "leon337/predixai-knowledge",
+    "observed_local_platform_path": "C:\\Users\\leo\\Documents\\GitHub\\predixai-platform",
+    "observed_local_knowledge_path": "C:\\Users\\leo\\Documents\\GitHub\\predixai-knowledge",
+    "knowledge_role": "Public PredixAI Knowledge Hub and GitHub Pages site, also used as the foundation, prompts, academy, research, docs, and agents repository.",
+    "relationship": "predixai-platform owns product/runtime code and official project state; predixai-knowledge exists as the public Knowledge Hub / GitHub Pages site and read-only adjacent knowledge repository for foundation, prompts, academy, research, docs, tools, and agents material.",
+    "integration_status": "minimal_inventory_only_no_runtime_dependency_added"
+  },
+  "agent_integration": {
+    "architect": {
+      "name": "Leo / Arquiteto",
+      "responsibility": "Approval, scope, PTP, validation, publication, commit, and push."
+    },
+    "chatgpt": {
+      "role": "Strategic organizer, PTP planner, checklist owner, conceptual validator, and risk decision support."
+    },
+    "codex": {
+      "role": "Controlled code executor in the repository.",
+      "operating_modes": [
+        "MODO 1",
+        "MODO 2",
+        "MODO 3"
+      ]
+    },
+    "openclaw": {
+      "role": "Future local executor for commands, logs, doctor, audit, safe automation, and allowlist-based execution.",
+      "status": "future_not_implemented",
+      "implemented_in_this_ptp": false
+    }
+  },
+  "automation_policy": {
+    "current_automation_level": "codex_assisted_only",
+    "openclaw_status": "future_not_implemented",
+    "runtime_integration_added": false,
+    "commands_allowed_now": "manual_codex_execution_only",
+    "destructive_actions_allowed": false,
+    "commit_allowed_now": false,
+    "push_allowed_now": false
+  },
+  "operational_spine": [
+    {
+      "layer": "official_state",
+      "owner": "PROJECT_STATE.md",
+      "purpose": "Human-readable official project state, current phase, approved PTP, pending PTP, environment, and audit rule."
+    },
+    {
+      "layer": "structured_context",
+      "owner": "predixai_context.json",
+      "purpose": "Machine-readable project context, scope guardrails, modules, foundations, milestones, and execution constraints."
+    },
+    {
+      "layer": "project_memory",
+      "owner": "data/project_memory/project_memory_spine.json",
+      "purpose": "Small operational memory spine for PTP-083, designed for handoff and continuity without changing public docs or Trader behavior."
+    }
+  ],
+  "ptp_083_minimal_change": {
+    "change": "Create a single operational memory JSON under data/project_memory.",
+    "reason": "Provide a stable, machine-readable handoff spine that creates the first memory link between the product, the public Knowledge Hub, and execution agents, without adding runtime behavior or changing Trader behavior.",
+    "non_goals": [
+      "No Trader feature",
+      "No broker interaction",
+      "No orders",
+      "No public documentation update",
+      "No CHANGELOG update",
+      "No commit",
+      "No push"
+    ]
+  }
+}

@@ -1,3 +1,9 @@
+## 2026-06-30 - PTP-083 PredixAI Project Memory Spine
+
+- Criada a memoria operacional inicial em `data/project_memory/project_memory_spine.json`.
+- Registrada a ligacao minima entre `predixai-platform`, `predixai-knowledge`, Codex, ChatGPT, Leo/Arquiteto e OpenClaw futuro.
+- Mantido o escopo V1 Observador, sem cliques, ordens, automacao operacional, decisao operacional, conta real ou dependencia runtime com `predixai-knowledge`.
+
 ## 2026-06-27 09:09:21 ? MILESTONE-017
 
 Milestone 017 concluida e publicada.
