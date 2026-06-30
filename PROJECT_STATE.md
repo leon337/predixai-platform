@@ -10,11 +10,11 @@ Primeiro produto: PredixAI Trader.
 
 Fase 3 — Live Candle Analyzer.
 
-A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, execução obrigatória visível do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, Milestone-004 Region Mapping Expansion, Tesseract Provider foundation, Milestone-005 OCR Real Foundation, Milestone-006 Visual Intelligence Foundation, Milestone-007 Visual Understanding Foundation, Milestone-008 Interface Semantic Foundation, Milestone-009 Market Interface Foundation, Milestone-010 Market Structure Foundation, Milestone-011 Pattern Recognition Foundation, Milestone-012 Pattern Analysis Foundation, Milestone-013 Intelligence Foundation, Milestone-014 Strategy Readiness Foundation, primeira execução local validada no Windows 10 do ambiente do Codex, workspace oficial preparado no Windows 10 do Leo, a primeira validação ao vivo observadora com `--live-once` concluída, a camada Live Candle Analyzer validada com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, e o Project Memory Spine criado como memória operacional inicial do projeto.
+A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validação no Windows do Leo, execução obrigatória visível do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, Milestone-004 Region Mapping Expansion, Tesseract Provider foundation, Milestone-005 OCR Real Foundation, Milestone-006 Visual Intelligence Foundation, Milestone-007 Visual Understanding Foundation, Milestone-008 Interface Semantic Foundation, Milestone-009 Market Interface Foundation, Milestone-010 Market Structure Foundation, Milestone-011 Pattern Recognition Foundation, Milestone-012 Pattern Analysis Foundation, Milestone-013 Intelligence Foundation, Milestone-014 Strategy Readiness Foundation, primeira execução local validada no Windows 10 do ambiente do Codex, workspace oficial preparado no Windows 10 do Leo, a primeira validação ao vivo observadora com `--live-once` concluída, a camada Live Candle Analyzer validada com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, o Project Memory Spine criado como memória operacional inicial do projeto, e o Live Loop Countdown Control validado.
 
 ## Último PTP aprovado
 
-PTP-083 — PredixAI Project Memory Spine.
+PTP-084 — Live Loop Countdown Control.
 
 ## Próximo PTP pendente
 
@@ -24,7 +24,7 @@ Próximo PTP a definir pelo Leo.
 
 V1 congelada.
 
-A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega o Screen Profile padrão, vincula a região lógica `FULL_SCREEN`, registra a região no `RegionRegistry`, valida o Region Mapping, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois`, executa OCR real com provider `tesseract`, validação de resultado, cache por SHA256 e benchmark técnico, transforma o texto extraído em blocos estruturados, associa texto à região `FULL_SCREEN`, consolida o Structured OCR Result, cria Visual Snapshot, registra Visual Benchmark, cria Screen Elements, monta Screen Layout, registra Screen Objects, consolida Visual Scene, registra Visual Scene Benchmark, cria Semantic Elements, mapeia Semantic Labels, consolida Semantic Scene, registra Semantic Registry, registra Semantic Benchmark, cria Market Elements, mapeia regiões estruturais de preço e tempo, consolida Market Scene, registra Market Benchmark, consolida Market Structure, Pattern Detector, Pattern Scene e Pattern Benchmark, executa a primeira validação ao vivo observadora com sessão, detecção de janela, captura programada, leitura básica de mercado, relatório e benchmark ao vivo, valida a primeira vela viva com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, e agora possui `data/project_memory/project_memory_spine.json` como memória operacional inicial do PTP-083, com ligação mínima entre `predixai-platform`, `predixai-knowledge`, Codex, ChatGPT, Leo/Arquiteto e OpenClaw futuro, sem dependência runtime entre repositórios.
+A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados técnicos do frame, carrega o Screen Profile padrão, vincula a região lógica `FULL_SCREEN`, registra a região no `RegionRegistry`, valida o Region Mapping, carrega bytes do PNG em memória como metadados de `ImageBuffer`, registra a ROI padrão `FULL_SCREEN`, cria metadados de `ROICrop` após validação matemática da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois`, executa OCR real com provider `tesseract`, validação de resultado, cache por SHA256 e benchmark técnico, transforma o texto extraído em blocos estruturados, associa texto à região `FULL_SCREEN`, consolida o Structured OCR Result, cria Visual Snapshot, registra Visual Benchmark, cria Screen Elements, monta Screen Layout, registra Screen Objects, consolida Visual Scene, registra Visual Scene Benchmark, cria Semantic Elements, mapeia Semantic Labels, consolida Semantic Scene, registra Semantic Registry, registra Semantic Benchmark, cria Market Elements, mapeia regiões estruturais de preço e tempo, consolida Market Scene, registra Market Benchmark, consolida Market Structure, Pattern Detector, Pattern Scene e Pattern Benchmark, executa a primeira validação ao vivo observadora com sessão, detecção de janela, captura programada, leitura básica de mercado, relatório e benchmark ao vivo, valida a primeira vela viva com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, possui `data/project_memory/project_memory_spine.json` como memória operacional inicial do PTP-083, com ligação mínima entre `predixai-platform`, `predixai-knowledge`, Codex, ChatGPT, Leo/Arquiteto e OpenClaw futuro, sem dependência runtime entre repositórios, e agora preserva o countdown padrão do `--live-once` enquanto o `--live-loop` usa `countdown_seconds_override=0` para não repetir o countdown de 10 segundos a cada ciclo.
 
 ## Ambiente principal atual
 
@@ -74,6 +74,7 @@ Toda mudança relevante deve atualizar:
 - A V1 não executa cliques, ordens ou automação.
 - O PTP-083 criou `data/project_memory/project_memory_spine.json` como memória operacional inicial do projeto.
 - O Project Memory Spine registra a ligação mínima entre `predixai-platform`, `predixai-knowledge`, Codex, ChatGPT, Leo/Arquiteto e OpenClaw futuro, sem alterar o comportamento do Trader.
+- O PTP-084 validou o Live Loop Countdown Control: `--live-loop` usa `countdown_seconds_override=0` e `--live-once` preserva o countdown padrão.
 - A estratégia única da V1 é Rebote Triplo.
 - O mercado inicial é Fixed Time.
 - O Core inicializa configuração, módulos, logs e eventos.
@@ -152,6 +153,29 @@ Toda mudança relevante deve atualizar:
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
 - O guia para Leo executar a validação real está em `docs/setup/Leo_Windows10_Validation.md`.
 - O próximo PTP pendente será definido pelo Leo.
+
+## PTP-084 — Live Loop Countdown Control
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- Live Loop Countdown Control validado.
+- `live_once()` continua funcionando sem argumento.
+- `live_once(countdown_seconds_override=0)` foi aceito para uso controlado pelo `--live-loop`.
+- `--live-loop` usa `countdown_seconds_override=0` para evitar repetir o countdown de 10 segundos a cada ciclo.
+- `--live-once` preserva o countdown padrão de 10 segundos.
+
+Regra preservada:
+- V1 continua em modo Observador.
+- Sem cliques.
+- Sem ordens.
+- Sem automação operacional de corretora.
+- Sem decisão operacional.
+- Sem conta real.
+
+Próximo foco:
+- Próximo PTP a definir pelo Leo.
 
 ## PTP-083 — PredixAI Project Memory Spine
 

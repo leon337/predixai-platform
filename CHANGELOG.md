@@ -1,3 +1,9 @@
+## 2026-06-30 - PTP-084 Live Loop Countdown Control
+
+- Validado o controle de countdown do `--live-loop` usando `countdown_seconds_override=0`.
+- Preservado o countdown padrao de 10 segundos no `--live-once`.
+- Mantido o escopo V1 Observador, sem cliques, ordens, automacao operacional, decisao operacional, conta real ou alteracao de estrategia.
+
 ## 2026-06-30 - PTP-083 PredixAI Project Memory Spine
 
 - Criada a memoria operacional inicial em `data/project_memory/project_memory_spine.json`.

@@ -390,6 +390,7 @@ class PredixAIApp:
         *,
         captures_per_candle_override: int | None = None,
         interval_seconds_override: int | None = None,
+        countdown_seconds_override: int | None = None,
     ) -> object:
         """Run one live validation candle without trading actions."""
         live_config = self.config.live if isinstance(self.config.live, dict) else {}
@@ -412,10 +413,15 @@ class PredixAIApp:
         )
         log_live_session(self.logger, session)
 
-        print("Preparando live-once. Coloque a Olymp Trade maximizada em primeiro plano.")
-        for remaining in range(10, 0, -1):
-            print(f"Captura em {remaining}...")
-            sleep(1)
+        countdown_seconds = 10
+        if countdown_seconds_override is not None:
+            countdown_seconds = max(0, int(countdown_seconds_override))
+
+        if countdown_seconds > 0:
+            print("Preparando live-once. Coloque a Olymp Trade maximizada em primeiro plano.")
+            for remaining in range(countdown_seconds, 0, -1):
+                print(f"Captura em {remaining}...")
+                sleep(1)
 
         broker_state = self.broker_window_detector.detect()
         log_broker_window_state(self.logger, broker_state)

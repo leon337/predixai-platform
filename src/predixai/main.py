@@ -46,7 +46,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             try:
                 for index in range(loop_count):
                     print(f"Live loop reading {index + 1}/{loop_count}...")
-                    result = app.live_once()
+                    result = app.live_once(countdown_seconds_override=0)
                     report = result["report"] if isinstance(result, dict) else result
                     completed += 1
                     print(
