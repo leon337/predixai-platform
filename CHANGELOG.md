@@ -410,3 +410,12 @@ Observacao:
 - Adicionado runner scripts/predixai_handoff_runner.py.
 - Aplicado guardrail semantico V3 para respostas do agente local.
 - Mantido V1 Observador: sem clique, sem ordem, sem conta real, sem promessa de lucro, sem API paga obrigatoria.
+
+## 2026-06-30 — PTP-093
+
+- Adicionado runtime supervisionado rápido do PredixAI.
+- Adicionado `scripts/predixai_runtime_status.py`.
+- Adicionado `scripts/predixai_runtime_status.bat`.
+- Runtime valida dependências críticas sem chamar o agente local por padrão.
+- Separadas falhas críticas de avisos diagnósticos.
+- Mantido V1 Observador e guardrails ativos.

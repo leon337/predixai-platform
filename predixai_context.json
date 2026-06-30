@@ -801,8 +801,8 @@
     "local_model": "ollama/qwen2.5:1.5b",
     "status": "local_supervised_handoff_validated"
   },
-  "last_approved_ptp": "PTP-092 - PredixAI Handoff Operacional Supervisionado",
-  "next_pending_ptp": "PTP-093 - Runtime Supervisionado PredixAI",
+  "last_approved_ptp": "PTP-093 - Runtime Supervisionado PredixAI",
+  "next_pending_ptp": "PTP-094 - Task Protocol Supervisionado",
   "scope_guardrails": {
     "broker_clicks_enabled": false,
     "orders_enabled": false,
@@ -811,5 +811,41 @@
     "profit_promise_allowed": false,
     "real_account_enabled": false,
     "paid_api_required": false
+  },
+  "predixai_runtime": {
+    "status": "validated",
+    "ptp": "PTP-093",
+    "fast_status_script": "scripts/predixai_runtime_status.py",
+    "fast_status_bat": "scripts/predixai_runtime_status.bat",
+    "agent_test_default": "skipped",
+    "agent_test_reason": "avoid slow local model calls on low-resource notebook",
+    "critical_checks": [
+      "git_status",
+      "git_head",
+      "python",
+      "node",
+      "ollama_version",
+      "ollama_list",
+      "openclaw_path",
+      "json",
+      "model_found",
+      "required_files",
+      "guardrails"
+    ],
+    "warning_checks": [
+      "npm",
+      "openclaw_models_status"
+    ],
+    "last_validation": {
+      "ok": true,
+      "failed_checks": [],
+      "warnings": [
+        "npm",
+        "openclaw_models_status"
+      ],
+      "compileall_ok": true,
+      "json_ok": true,
+      "diff_check_ok": true
+    }
   }
 }
