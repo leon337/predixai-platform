@@ -1,0 +1,100 @@
+{
+  "version": "0.1",
+  "name": "OpenClaw Local Handoff Foundation",
+  "ptp": "PTP-086",
+  "default_timeout_seconds": 120,
+  "policy": {
+    "repository_root_only": true,
+    "commit_allowed": false,
+    "push_allowed": false,
+    "destructive_commands_allowed": false,
+    "broker_actions_allowed": false,
+    "screen_clicks_allowed": false,
+    "network_actions_allowed": false
+  },
+  "tasks": {
+    "status": {
+      "description": "Show safe Git status and current HEAD.",
+      "commands": [
+        [
+          "git",
+          "status",
+          "--short"
+        ],
+        [
+          "git",
+          "log",
+          "-1",
+          "--oneline"
+        ],
+        [
+          "git",
+          "branch",
+          "--show-current"
+        ]
+      ]
+    },
+    "validate_base": {
+      "description": "Run safe base validations.",
+      "commands": [
+        [
+          "python",
+          "-m",
+          "json.tool",
+          "predixai_context.json"
+        ],
+        [
+          "python",
+          "-m",
+          "compileall",
+          "src/predixai"
+        ],
+        [
+          "git",
+          "diff",
+          "--check"
+        ],
+        [
+          "git",
+          "status",
+          "--short"
+        ]
+      ]
+    },
+    "ptp086_precheck": {
+      "description": "OpenClaw self-check without editing project files.",
+      "commands": [
+        [
+          "git",
+          "status",
+          "--short"
+        ],
+        [
+          "python",
+          "tools/openclaw/openclaw_runner.py",
+          "--list"
+        ],
+        [
+          "python",
+          "tools/openclaw/openclaw_runner.py",
+          "--task",
+          "status"
+        ]
+      ]
+    }
+  },
+  "blocked_patterns": [
+    "git add .",
+    "git reset",
+    "git clean",
+    "git push",
+    "git commit",
+    "Remove-Item",
+    "rm -rf",
+    "del /s",
+    "rmdir /s",
+    "broker",
+    "click",
+    "order"
+  ]
+}

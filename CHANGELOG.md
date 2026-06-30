@@ -1,3 +1,10 @@
+## 2026-06-30 - PTP-086 OpenClaw Local Handoff Foundation
+
+- Criada a fundacao local do OpenClaw em `tools/openclaw/`.
+- Adicionado runner seguro com allowlist para executar apenas tarefas locais autorizadas.
+- Relatorios locais sao gerados em `tools/openclaw/reports/`, com arquivos `.json` ignorados pelo Git.
+- Mantido o escopo seguro: sem commit automatico, sem push automatico, sem comandos destrutivos, sem cliques, sem ordens e sem acoes de corretora.
+
 ## 2026-06-30 - PTP-085 Live Evidence Package Foundation
 
 - Criada a fundacao Live Evidence Package para gerar evidencias JSON observadoras ao final de `live_once()`.

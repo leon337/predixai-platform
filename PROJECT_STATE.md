@@ -14,7 +14,7 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-085 - Live Evidence Package Foundation.
+PTP-086 - OpenClaw Local Handoff Foundation.
 
 ## Próximo PTP pendente
 
@@ -76,6 +76,7 @@ Toda mudança relevante deve atualizar:
 - O Project Memory Spine registra a ligação mínima entre `predixai-platform`, `predixai-knowledge`, Codex, ChatGPT, Leo/Arquiteto e OpenClaw futuro, sem alterar o comportamento do Trader.
 - O PTP-084 validou o Live Loop Countdown Control: `--live-loop` usa `countdown_seconds_override=0` e `--live-once` preserva o countdown padrão.
 - O PTP-085 criou a Live Evidence Package Foundation: `live_once()` grava evidências JSON observadoras em `data/live_evidence/`, e `--live-loop` gera evidências por consequência ao chamar `live_once()`.
+- O PTP-086 criou a fundacao local do OpenClaw em `tools/openclaw/`, com runner seguro por allowlist, relatorios locais ignorados pelo Git e sem commit/push automatico.
 - A estratégia única da V1 é Rebote Triplo.
 - O mercado inicial é Fixed Time.
 - O Core inicializa configuração, módulos, logs e eventos.
@@ -154,6 +155,33 @@ Toda mudança relevante deve atualizar:
 - `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositório e recusam `C:\Windows\System32`.
 - O guia para Leo executar a validação real está em `docs/setup/Leo_Windows10_Validation.md`.
 - O próximo PTP pendente será definido pelo Leo.
+
+## PTP-086 - OpenClaw Local Handoff Foundation
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- Fundacao local do OpenClaw criada em `tools/openclaw/`.
+- `tools/openclaw/allowlist.json` criado com tarefas seguras permitidas.
+- `tools/openclaw/openclaw_runner.py` criado como executor local controlado por allowlist.
+- `tools/openclaw/reports/.gitkeep` e `.gitignore` criados para manter a pasta e ignorar relatorios `.json`.
+- Tarefas iniciais disponiveis: `status`, `validate_base` e `ptp086_precheck`.
+- O bloqueio de comando proibido foi validado com `git push`.
+
+Regra preservada:
+- Sem commit automatico.
+- Sem push automatico.
+- Sem comandos destrutivos.
+- Sem cliques.
+- Sem ordens.
+- Sem automacao operacional de corretora.
+- Sem decisao operacional.
+- Sem conta real.
+- Sem alteracao de estrategia.
+
+Proximo foco:
+- Evoluir o handoff local para reduzir trabalho manual de copiar comando, executar e devolver relatorio.
 
 ## PTP-085 - Live Evidence Package Foundation
 
