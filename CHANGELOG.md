@@ -1,3 +1,13 @@
+## 2026-06-30 - PTP-091 PredixAI Supervised Agent Wrapper
+
+- Criado wrapper supervisionado para executar o agente local PredixAI via OpenClaw.
+- Criado `scripts/predixai_agent_runner.py`.
+- Criado `scripts/predixai_agent.bat`.
+- O wrapper limpa ruido de trace, falsa chamada JSON e saidas internas do OpenClaw.
+- Validado smoke test com `PREDIXAI_AGENT_WRAPPER_OK`.
+- Confirmado COMPILEALL_OK, JSON_OK e DIFF_CHECK_OK.
+- Mantido escopo V1 Observador: sem cliques, sem ordens, sem conta real e sem API paga obrigatoria.
+
 ## 2026-06-30 - PTP-090 OpenClaw PredixAI Agent Bootstrap
 
 - Validado o OpenClaw local com Gateway, Ollama e modelo `qwen2.5:1.5b`.

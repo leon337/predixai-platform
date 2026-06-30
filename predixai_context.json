@@ -474,8 +474,8 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-090",
-    "next_pending_ptp": "PTP-091 - Supervisao local e fluxo de handoff",
+    "last_approved_ptp": "PTP-091",
+    "next_pending_ptp": "PTP-092 - Handoff operacional ChatGPT -> PredixAI Agent",
     "audit_rule": "Nenhum PTP ÃƒÆ’Ã‚Â© aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
   },
@@ -772,6 +772,25 @@
     "real_account_enabled": false,
     "clicks_enabled": false,
     "orders_enabled": false,
+    "broker_automation_enabled": false,
+    "decision_making_enabled": false
+  },
+  "predixai_supervised_agent_wrapper": {
+    "ptp": "PTP-091",
+    "status": "published",
+    "wrapper_bat": "scripts/predixai_agent.bat",
+    "wrapper_runner": "scripts/predixai_agent_runner.py",
+    "openclaw_model": "ollama/qwen2.5:1.5b",
+    "thinking": "off",
+    "execution_mode": "local_supervised",
+    "smoke_test": "PREDIXAI_AGENT_WRAPPER_OK",
+    "json_noise_filtered": true,
+    "trace_noise_filtered": true,
+    "cost_policy": "free_only",
+    "paid_api_required": false,
+    "clicks_enabled": false,
+    "orders_enabled": false,
+    "real_account_enabled": false,
     "broker_automation_enabled": false,
     "decision_making_enabled": false
   }

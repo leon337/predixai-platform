@@ -14,7 +14,7 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-090 - OpenClaw PredixAI Agent Bootstrap.
+PTP-091 - PredixAI Supervised Agent Wrapper.
 
 ## Próximo PTP pendente
 
@@ -404,3 +404,28 @@ Regra preservada:
 
 Proximo foco:
 - PTP-091 - Supervisao local e fluxo de handoff ChatGPT -> OpenClaw -> PredixAI.
+
+## PTP-091 - PredixAI Supervised Agent Wrapper
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- Criado wrapper supervisionado para o agente local PredixAI.
+- O comando oficial de uso local passa a ser `scripts\predixai_agent.bat`.
+- O runner rastreavel fica em `scripts\predixai_agent_runner.py`.
+- O wrapper chama OpenClaw local com Ollama e modelo `ollama/qwen2.5:1.5b`.
+- O wrapper remove ruido operacional, trace interno e falsas chamadas JSON antes de exibir a resposta util.
+- Smoke test validado com `PREDIXAI_AGENT_WRAPPER_OK`.
+
+Regra preservada:
+- Sem cliques.
+- Sem ordens.
+- Sem conta real.
+- Sem automacao operacional de corretora.
+- Sem API paga obrigatoria.
+- Sem promessa de lucro.
+- Sem alteracao de estrategia.
+
+Proximo foco:
+- PTP-092 - Handoff operacional ChatGPT -> PredixAI Agent -> relatorio local supervisionado.
