@@ -20,6 +20,10 @@ from predixai.trader.market_session_recorder import (
     MarketSessionRecorder,
     MarketSessionSummary,
 )
+from predixai.trader.triple_rsi_observer import (
+    TripleRSIObserver,
+    TripleRSIResult,
+)
 
 __all__ = [
     "DEFAULT_DB_PATH",
@@ -34,4 +38,6 @@ __all__ = [
     "LiveEvidenceIngestResult",
     "MarketSessionRecorder",
     "MarketSessionSummary",
+    "TripleRSIObserver",
+    "TripleRSIResult",
 ]

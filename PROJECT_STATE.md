@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-099 - Data Quality Score.
+PTP-100 - Triple RSI Observer.
 
 ## Próximo PTP pendente
 
-PTP-100 - Triple RSI Observer.
+PTP-101 - Support/Resistance Zone Foundation.
 
 ## Status geral
 
@@ -598,4 +598,36 @@ Decisão operacional:
 Decisão operacional:
 - A V1 passa a ter proteção inicial contra aprendizado com dado ruim.
 - Evidências com baixa qualidade podem ser identificadas antes de alimentar memória e análises futuras.
+- A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.
+
+## PTP-100 — Triple RSI Observer
+
+- Status: publicado.
+- Criado `src/predixai/trader/triple_rsi_observer.py`.
+- Atualizado `src/predixai/trader/__init__.py`.
+- Criado `scripts/predixai_triple_rsi_observer.py`.
+- Criado `scripts/predixai_triple_rsi_observer.bat`.
+- O Trader agora calcula 3 RSI observadores a partir dos preços gravados em `market_ticks`.
+- Períodos padrão:
+  - RSI curto: 7.
+  - RSI médio: 14.
+  - RSI longo: 21.
+- O resultado é salvo em `indicator_snapshots`.
+- O CLI permite:
+  - calcular Triple RSI por sessão.
+  - listar snapshots de RSI por sessão.
+- Validações concluídas:
+  - `SESSION_START_TEST_OK`.
+  - `TEST_TICKS_INSERT_OK`.
+  - `TRIPLE_RSI_CALC_TEST_OK`.
+  - `TRIPLE_RSI_LIST_TEST_OK`.
+  - `SESSION_CLOSE_TEST_OK`.
+  - `DB_STATUS_TEST_OK`.
+  - `COMPILEALL_OK`.
+  - `JSON_OK`.
+  - `DIFF_CHECK_OK`.
+
+Decisão operacional:
+- A V1 passa a ter camada observadora dos 3 RSI da estratégia Rebote Triplo.
+- O RSI ainda não gera sinal operacional, clique, ordem ou recomendação de entrada.
 - A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.

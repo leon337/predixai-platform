@@ -474,3 +474,13 @@ Observacao:
 - Labels adicionados: EXCELLENT, GOOD, FAIR e POOR.
 - A ponte Live Evidence DB Bridge passa a gravar `quality_score` calculado pelo scorer.
 - Mantido escopo V1 Observador.
+
+## 2026-06-30 — PTP-100
+
+- Adicionado Triple RSI Observer ao PredixAI Trader.
+- Criado módulo `src/predixai/trader/triple_rsi_observer.py`.
+- Criado CLI `scripts/predixai_triple_rsi_observer.py`.
+- Criado wrapper Windows `scripts/predixai_triple_rsi_observer.bat`.
+- Implementado cálculo observador de RSI 7, RSI 14 e RSI 21.
+- Resultados persistidos em `indicator_snapshots`.
+- Mantido escopo V1 Observador.
