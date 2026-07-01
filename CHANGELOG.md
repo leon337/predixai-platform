@@ -518,3 +518,10 @@ Observacao:
 - Validado Overnight Observer com 30 ciclos sinteticos, Triple RSI, zonas, Triple Rebound e fechamento de sessao.
 - Validado PTP-102 como preservado por smoke test do `Triple Rebound Observer`.
 - Mantido escopo V1 Observador: sem cliques, sem ordens, sem conta real, sem automacao de corretora, sem decisao operacional e sem promessa de lucro.
+
+## PTP-104 — Trader V1 Final Closure
+
+- Encerrada oficialmente a V1 Observador do PredixAI Trader.
+- Registrado fechamento pós PTP-103.
+- Preservada regra de não migração e não criação de novo repositório.
+- Preparada sincronização com Knowledge Hub.

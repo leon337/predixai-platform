@@ -736,3 +736,20 @@ Decisao operacional:
 - O observador registra contexto tecnico e relatorio local, mas nao gera ordem, clique, recomendacao operacional ou promessa de lucro.
 - A V1 continua em modo Observador, sem clique, sem ordem, sem conta real e sem automacao de corretora.
 - Proximo passo recomendado: auditoria final da V1 Trader.
+
+<!-- PTP-104-TRADER-V1-FINAL-CLOSURE:START -->
+## PTP-104 — Trader V1 Final Closure
+
+Status: concluído
+
+A V1 Observador do PredixAI Trader foi fechada como base técnica validada após PTP-103.
+
+Decisão oficial:
+PredixAI Trader V1 Observador está encerrada como versão observadora.
+
+Regras:
+- Não migrar Trader ainda.
+- Não criar predixai-trader ainda.
+- Não iniciar produto novo.
+- Knowledge Hub deve registrar o fechamento.
+<!-- PTP-104-TRADER-V1-FINAL-CLOSURE:END -->
