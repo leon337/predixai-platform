@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-098 - Live Evidence DB Bridge.
+PTP-099 - Data Quality Score.
 
 ## Próximo PTP pendente
 
-PTP-099 - Data Quality Score.
+PTP-100 - Triple RSI Observer.
 
 ## Status geral
 
@@ -557,4 +557,45 @@ Decisão operacional:
 Decisão operacional:
 - Este PTP valida a ponte isolada entre evidência e banco.
 - A conexão automática com `live_once`/`live_loop` ficará para etapa posterior.
+- A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.
+
+## PTP-099 — Data Quality Score
+
+- Status: publicado.
+- Criado `src/predixai/trader/data_quality_score.py`.
+- Atualizado `src/predixai/trader/live_evidence_db_bridge.py`.
+- Atualizado `src/predixai/trader/__init__.py`.
+- Criado `scripts/predixai_data_quality_score.py`.
+- Criado `scripts/predixai_data_quality_score.bat`.
+- O Trader agora classifica a qualidade das evidências observadoras antes de consolidar memória.
+- Labels implementados:
+  - `EXCELLENT`.
+  - `GOOD`.
+  - `FAIR`.
+  - `POOR`.
+- O score considera:
+  - preço detectado.
+  - `candle_snapshot`.
+  - `candle_statistics`.
+  - `field_values`.
+  - `unknown_fields`.
+  - benchmark.
+  - timestamp.
+  - asset.
+  - timeframe.
+- A ponte `Live Evidence DB Bridge` agora usa `DataQualityScorer` para gravar `quality_score`.
+- Validações concluídas:
+  - `GOOD_SCORE_TEST_OK`.
+  - `POOR_SCORE_TEST_OK`.
+  - `BRIDGE_QUALITY_SCORE_TEST_OK`.
+  - `SESSION_GET_AFTER_INGEST_OK`.
+  - `SESSION_CLOSE_TEST_OK`.
+  - `DB_STATUS_TEST_OK`.
+  - `COMPILEALL_OK`.
+  - `JSON_OK`.
+  - `DIFF_CHECK_OK`.
+
+Decisão operacional:
+- A V1 passa a ter proteção inicial contra aprendizado com dado ruim.
+- Evidências com baixa qualidade podem ser identificadas antes de alimentar memória e análises futuras.
 - A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.

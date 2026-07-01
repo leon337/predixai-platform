@@ -1,5 +1,9 @@
 ﻿"""PredixAI Trader package."""
 
+from predixai.trader.data_quality_score import (
+    DataQualityScorer,
+    DataQualityScoreResult,
+)
 from predixai.trader.data_store import (
     DEFAULT_DB_PATH,
     SCHEMA_VERSION,
@@ -20,6 +24,8 @@ from predixai.trader.market_session_recorder import (
 __all__ = [
     "DEFAULT_DB_PATH",
     "SCHEMA_VERSION",
+    "DataQualityScorer",
+    "DataQualityScoreResult",
     "TraderDataStore",
     "TraderDataStoreStatus",
     "default_store_status",

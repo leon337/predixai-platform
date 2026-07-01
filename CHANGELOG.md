@@ -463,3 +463,14 @@ Observacao:
 - Ingestão cria `market_ticks` e `evidence_records`.
 - Adicionado score básico de qualidade da evidência ingerida.
 - Mantido escopo V1 Observador.
+
+## 2026-06-30 — PTP-099
+
+- Adicionado Data Quality Score ao PredixAI Trader.
+- Criado módulo `src/predixai/trader/data_quality_score.py`.
+- Criado CLI `scripts/predixai_data_quality_score.py`.
+- Criado wrapper Windows `scripts/predixai_data_quality_score.bat`.
+- Evidências passam a receber score formal de qualidade.
+- Labels adicionados: EXCELLENT, GOOD, FAIR e POOR.
+- A ponte Live Evidence DB Bridge passa a gravar `quality_score` calculado pelo scorer.
+- Mantido escopo V1 Observador.

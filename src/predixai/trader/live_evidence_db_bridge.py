@@ -7,12 +7,12 @@ No broker clicks, no orders, no real-account execution.
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from predixai.trader.data_quality_score import DataQualityScorer
 from predixai.trader.data_store import TraderDataStore
 from predixai.trader.market_session_recorder import MarketSessionRecorder
 
@@ -49,6 +49,7 @@ class LiveEvidenceDBBridge:
     def __init__(self, db_path: str | Path | None = None) -> None:
         self.store = TraderDataStore() if db_path is None else TraderDataStore(db_path)
         self.recorder = MarketSessionRecorder(db_path)
+        self.quality_scorer = DataQualityScorer()
 
     def ingest_evidence_file(
         self,
@@ -101,9 +102,9 @@ class LiveEvidenceDBBridge:
             _utc_now(),
         )
 
-        price = _extract_price(payload)
+        quality_result = self.quality_scorer.score_evidence(payload)
+        price = self.quality_scorer.extract_price(payload)
         direction = _extract_direction(payload)
-        quality_score = _quality_score(payload, price)
 
         tick_id = self.store.record_tick(
             session_id=int(session_id),
@@ -112,9 +113,9 @@ class LiveEvidenceDBBridge:
             captured_at=captured_at,
             price=price,
             direction=direction,
-            raw_fields=_compact_raw_fields(payload),
+            raw_fields=_compact_raw_fields(payload, quality_result.to_dict()),
             evidence_path=str(clean_path),
-            quality_score=quality_score,
+            quality_score=quality_result.score,
         )
 
         evidence_record_id = self._record_evidence(
@@ -132,7 +133,7 @@ class LiveEvidenceDBBridge:
             asset=effective_asset,
             timeframe=effective_timeframe,
             price=price,
-            quality_score=quality_score,
+            quality_score=quality_result.score,
             status="LIVE_EVIDENCE_DB_INGESTED",
         )
 
@@ -191,35 +192,6 @@ class LiveEvidenceDBBridge:
             return int(cursor.lastrowid)
 
 
-def _extract_price(payload: dict[str, Any]) -> float | None:
-    direct_candidates = (
-        payload.get("price"),
-        _nested_get(payload, ("candle_statistics", "close")),
-        _nested_get(payload, ("candle_statistics", "last")),
-        _nested_get(payload, ("candle_statistics", "average")),
-        _nested_get(payload, ("live_candle_benchmark", "average")),
-    )
-    for candidate in direct_candidates:
-        parsed = _parse_number(candidate)
-        if parsed is not None:
-            return parsed
-
-    field_values = _nested_get(payload, ("candle_snapshot", "field_values"))
-    if isinstance(field_values, list):
-        for item in field_values:
-            if not isinstance(item, dict):
-                continue
-            name = str(item.get("field_name") or item.get("name") or "").lower()
-            if "price" not in name and "preco" not in name and "cotacao" not in name:
-                continue
-            for key in ("value", "raw_value", "text", "normalized_value"):
-                parsed = _parse_number(item.get(key))
-                if parsed is not None:
-                    return parsed
-
-    return None
-
-
 def _extract_direction(payload: dict[str, Any]) -> str | None:
     candidates = (
         payload.get("direction"),
@@ -232,30 +204,10 @@ def _extract_direction(payload: dict[str, Any]) -> str | None:
     return None
 
 
-def _quality_score(payload: dict[str, Any], price: float | None) -> float:
-    score = 25.0
-
-    if price is not None:
-        score += 35.0
-
-    if payload.get("candle_snapshot"):
-        score += 15.0
-
-    if payload.get("candle_statistics"):
-        score += 15.0
-
-    unknown_fields = _nested_get(payload, ("candle_snapshot", "unknown_fields"))
-    if isinstance(unknown_fields, list):
-        score -= min(20.0, float(len(unknown_fields)) * 5.0)
-
-    field_values = _nested_get(payload, ("candle_snapshot", "field_values"))
-    if isinstance(field_values, list) and field_values:
-        score += 10.0
-
-    return max(0.0, min(100.0, round(score, 2)))
-
-
-def _compact_raw_fields(payload: dict[str, Any]) -> dict[str, Any]:
+def _compact_raw_fields(
+    payload: dict[str, Any],
+    data_quality: dict[str, Any],
+) -> dict[str, Any]:
     return {
         "asset": payload.get("asset"),
         "timeframe": payload.get("timeframe"),
@@ -263,6 +215,7 @@ def _compact_raw_fields(payload: dict[str, Any]) -> dict[str, Any]:
         "candle_statistics": payload.get("candle_statistics"),
         "live_candle_benchmark": payload.get("live_candle_benchmark"),
         "live_validation_benchmark": payload.get("live_validation_benchmark"),
+        "data_quality": data_quality,
     }
 
 
@@ -280,27 +233,6 @@ def _first_text(*values: Any) -> str:
         if value is not None and str(value).strip():
             return str(value).strip()
     return "UNKNOWN"
-
-
-def _parse_number(value: Any) -> float | None:
-    if value is None:
-        return None
-    if isinstance(value, int | float):
-        return float(value)
-
-    text = str(value).strip()
-    if not text:
-        return None
-
-    match = re.search(r"[-+]?\d+(?:[.,]\d+)?", text.replace(" ", ""))
-    if not match:
-        return None
-
-    normalized = match.group(0).replace(",", ".")
-    try:
-        return float(normalized)
-    except ValueError:
-        return None
 
 
 def _utc_now() -> str:

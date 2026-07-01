@@ -801,8 +801,8 @@
     "local_model": "ollama/qwen2.5:1.5b",
     "status": "local_supervised_handoff_validated"
   },
-  "last_approved_ptp": "PTP-098 - Live Evidence DB Bridge",
-  "next_pending_ptp": "PTP-099 - Data Quality Score",
+  "last_approved_ptp": "PTP-099 - Data Quality Score",
+  "next_pending_ptp": "PTP-100 - Triple RSI Observer",
   "scope_guardrails": {
     "broker_clicks_enabled": false,
     "orders_enabled": false,
@@ -988,6 +988,45 @@
       "last_validation": {
         "session_start_test_ok": true,
         "live_evidence_ingest_test_ok": true,
+        "session_get_after_ingest_ok": true,
+        "session_close_test_ok": true,
+        "db_status_test_ok": true,
+        "compileall_ok": true,
+        "json_ok": true,
+        "diff_check_ok": true
+      },
+      "uses_data_quality_scorer": true,
+      "quality_score_source": "DataQualityScorer.score_evidence"
+    },
+    "data_quality_score": {
+      "status": "validated",
+      "ptp": "PTP-099",
+      "module": "src/predixai/trader/data_quality_score.py",
+      "script": "scripts/predixai_data_quality_score.py",
+      "bat": "scripts/predixai_data_quality_score.bat",
+      "labels": [
+        "EXCELLENT",
+        "GOOD",
+        "FAIR",
+        "POOR"
+      ],
+      "usable_for_memory_threshold": 60.0,
+      "factors": [
+        "price_detected",
+        "candle_snapshot_present",
+        "candle_statistics_present",
+        "field_values_present",
+        "unknown_fields",
+        "benchmark_present",
+        "timestamp_present",
+        "asset_present",
+        "timeframe_present"
+      ],
+      "bridge_integration": "src/predixai/trader/live_evidence_db_bridge.py",
+      "last_validation": {
+        "good_score_test_ok": true,
+        "poor_score_test_ok": true,
+        "bridge_quality_score_test_ok": true,
         "session_get_after_ingest_ok": true,
         "session_close_test_ok": true,
         "db_status_test_ok": true,
