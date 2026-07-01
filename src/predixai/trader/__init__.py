@@ -20,6 +20,10 @@ from predixai.trader.market_session_recorder import (
     MarketSessionRecorder,
     MarketSessionSummary,
 )
+from predixai.trader.support_resistance_zones import (
+    SupportResistanceZoneDetector,
+    SupportResistanceZoneResult,
+)
 from predixai.trader.triple_rsi_observer import (
     TripleRSIObserver,
     TripleRSIResult,
@@ -38,6 +42,8 @@ __all__ = [
     "LiveEvidenceIngestResult",
     "MarketSessionRecorder",
     "MarketSessionSummary",
+    "SupportResistanceZoneDetector",
+    "SupportResistanceZoneResult",
     "TripleRSIObserver",
     "TripleRSIResult",
 ]

@@ -484,3 +484,13 @@ Observacao:
 - Implementado cálculo observador de RSI 7, RSI 14 e RSI 21.
 - Resultados persistidos em `indicator_snapshots`.
 - Mantido escopo V1 Observador.
+
+## 2026-07-01 — PTP-101
+
+- Adicionado Support/Resistance Zone Foundation ao PredixAI Trader.
+- Criado módulo `src/predixai/trader/support_resistance_zones.py`.
+- Criado CLI `scripts/predixai_support_resistance_zones.py`.
+- Criado wrapper Windows `scripts/predixai_support_resistance_zones.bat`.
+- Implementada detecção observadora de zonas por agrupamento de preços.
+- Zonas persistidas em `support_resistance_zones`.
+- Mantido escopo V1 Observador.

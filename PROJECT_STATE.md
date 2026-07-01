@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-100 - Triple RSI Observer.
+PTP-101 - Support/Resistance Zone Foundation.
 
 ## Próximo PTP pendente
 
-PTP-101 - Support/Resistance Zone Foundation.
+PTP-102 - Triple Rebound Observer.
 
 ## Status geral
 
@@ -630,4 +630,42 @@ Decisão operacional:
 Decisão operacional:
 - A V1 passa a ter camada observadora dos 3 RSI da estratégia Rebote Triplo.
 - O RSI ainda não gera sinal operacional, clique, ordem ou recomendação de entrada.
+- A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.
+
+## PTP-101 — Support/Resistance Zone Foundation
+
+- Status: publicado.
+- Criado `src/predixai/trader/support_resistance_zones.py`.
+- Atualizado `src/predixai/trader/__init__.py`.
+- Criado `scripts/predixai_support_resistance_zones.py`.
+- Criado `scripts/predixai_support_resistance_zones.bat`.
+- O Trader agora detecta zonas observadoras de suporte e resistência a partir dos preços gravados em `market_ticks`.
+- A detecção considera:
+  - agrupamento de preços próximos.
+  - tolerância percentual configurável.
+  - mínimo de toques configurável.
+  - preço inferior da zona.
+  - preço superior da zona.
+  - preço médio da zona.
+  - contagem de toques.
+  - `strength_score`.
+  - classificação `support` ou `resistance`.
+- O resultado é salvo em `support_resistance_zones`.
+- O CLI permite:
+  - detectar zonas por sessão.
+  - listar zonas por sessão.
+- Validações concluídas:
+  - `SESSION_START_TEST_OK`.
+  - `TEST_ZONE_TICKS_INSERT_OK`.
+  - `ZONE_DETECTION_TEST_OK`.
+  - `ZONE_LIST_TEST_OK`.
+  - `SESSION_CLOSE_TEST_OK`.
+  - `DB_STATUS_TEST_OK`.
+  - `COMPILEALL_OK`.
+  - `JSON_OK`.
+  - `DIFF_CHECK_OK`.
+
+Decisão operacional:
+- A V1 passa a ter fundação observadora de suporte e resistência.
+- A combinação com Triple RSI e regra de Rebote Triplo ficará para o PTP-102.
 - A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.
