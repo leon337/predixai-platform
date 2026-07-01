@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-096 - Trader Data Store Foundation.
+PTP-097 - Market Session Recorder.
 
 ## Próximo PTP pendente
 
-PTP-097 - Market Session Recorder.
+PTP-098 - Live Evidence DB Bridge.
 
 ## Status geral
 
@@ -491,4 +491,39 @@ Decisão operacional:
 Decisão operacional:
 - A V1 passa a ter fundação de memória local em SQLite.
 - O banco de dados runtime não será versionado no GitHub.
+- A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.
+
+## PTP-097 — Market Session Recorder
+
+- Status: publicado.
+- Criado `src/predixai/trader/market_session_recorder.py`.
+- Atualizado `src/predixai/trader/__init__.py`.
+- Criado `scripts/predixai_market_session.py`.
+- Criado `scripts/predixai_market_session.bat`.
+- O Trader agora consegue abrir, consultar, listar e encerrar sessões observadoras de mercado.
+- Cada sessão possui:
+  - `asset`.
+  - `timeframe`.
+  - `mode`.
+  - `status`.
+  - `started_at`.
+  - `ended_at`.
+  - `notes`.
+  - contagem de ticks.
+  - contagem de candles.
+  - contagem de evidências.
+- Validações concluídas:
+  - `SESSION_START_TEST_OK`.
+  - `SESSION_GET_TEST_OK`.
+  - `SESSION_LIST_TEST_OK`.
+  - `SESSION_CLOSE_TEST_OK`.
+  - `SESSION_FINAL_GET_TEST_OK`.
+  - `DB_STATUS_TEST_OK`.
+  - `COMPILEALL_OK`.
+  - `JSON_OK`.
+  - `DIFF_CHECK_OK`.
+
+Decisão operacional:
+- A V1 passa a ter controle formal de sessões de coleta por ativo/timeframe.
+- Este PTP ainda não grava `live_once` no banco.
 - A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.

@@ -1,0 +1,5 @@
+@echo off
+setlocal
+cd /d "%~dp0.."
+set "PYTHONPATH=%CD%\src;%PYTHONPATH%"
+python scripts\predixai_market_session.py %*

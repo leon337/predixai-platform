@@ -801,8 +801,8 @@
     "local_model": "ollama/qwen2.5:1.5b",
     "status": "local_supervised_handoff_validated"
   },
-  "last_approved_ptp": "PTP-096 - Trader Data Store Foundation",
-  "next_pending_ptp": "PTP-097 - Market Session Recorder",
+  "last_approved_ptp": "PTP-097 - Market Session Recorder",
+  "next_pending_ptp": "PTP-098 - Live Evidence DB Bridge",
   "scope_guardrails": {
     "broker_clicks_enabled": false,
     "orders_enabled": false,
@@ -922,6 +922,49 @@
         "db_status_test_ok": true,
         "db_schema_sanity_ok": true,
         "db_gitignore_test_ok": true,
+        "compileall_ok": true,
+        "json_ok": true,
+        "diff_check_ok": true
+      }
+    },
+    "market_sessions": {
+      "status": "validated",
+      "ptp": "PTP-097",
+      "module": "src/predixai/trader/market_session_recorder.py",
+      "script": "scripts/predixai_market_session.py",
+      "bat": "scripts/predixai_market_session.bat",
+      "operations": [
+        "start",
+        "list",
+        "get",
+        "close"
+      ],
+      "session_fields": [
+        "id",
+        "asset",
+        "timeframe",
+        "mode",
+        "status",
+        "started_at",
+        "ended_at",
+        "notes",
+        "tick_count",
+        "candle_count",
+        "evidence_count"
+      ],
+      "allowed_statuses": [
+        "running",
+        "completed",
+        "stopped",
+        "failed"
+      ],
+      "last_validation": {
+        "session_start_test_ok": true,
+        "session_get_test_ok": true,
+        "session_list_test_ok": true,
+        "session_close_test_ok": true,
+        "session_final_get_test_ok": true,
+        "db_status_test_ok": true,
         "compileall_ok": true,
         "json_ok": true,
         "diff_check_ok": true

@@ -439,3 +439,16 @@ Observacao:
 - Criado schema inicial para sessões, ticks, candles, evidências, RSI triplo, zonas de suporte/resistência e observações de Rebote Triplo.
 - Banco runtime `data/predixai_trader.sqlite3` ignorado pelo Git.
 - Mantido escopo V1 Observador.
+
+## 2026-06-30 — PTP-097
+
+- Adicionado Market Session Recorder para o PredixAI Trader.
+- Criado CLI `scripts/predixai_market_session.py`.
+- Criado wrapper Windows `scripts/predixai_market_session.bat`.
+- Adicionadas operações de sessão:
+  - start.
+  - list.
+  - get.
+  - close.
+- Sessões passam a registrar ativo, timeframe, modo, status, início, fim e notas.
+- Mantido escopo V1 Observador.
