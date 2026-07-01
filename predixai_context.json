@@ -474,8 +474,8 @@
     "project_state": "PROJECT_STATE.md",
     "decisions": "DECISIONS.md",
     "architect_notes": "ARCHITECT_NOTES.md",
-    "last_approved_ptp": "PTP-091",
-    "next_pending_ptp": "PTP-092 - Handoff operacional ChatGPT -> PredixAI Agent",
+    "last_approved_ptp": "PTP-103 - Overnight Observer",
+    "next_pending_ptp": "Auditoria final da V1 Trader",
     "audit_rule": "Nenhum PTP ÃƒÆ’Ã‚Â© aprovado sem commit, push e auditoria.",
     "source_of_truth": "GitHub origin/main"
   },
@@ -801,8 +801,8 @@
     "local_model": "ollama/qwen2.5:1.5b",
     "status": "local_supervised_handoff_validated"
   },
-  "last_approved_ptp": "PTP-102 - Triple Rebound Observer",
-  "next_pending_ptp": "PTP-103 - Overnight Observer",
+  "last_approved_ptp": "PTP-103 - Overnight Observer",
+  "next_pending_ptp": "Auditoria final da V1 Trader",
   "scope_guardrails": {
     "broker_clicks_enabled": false,
     "orders_enabled": false,
@@ -1154,6 +1154,52 @@
         "diff_check_ok": true
       },
       "execution_scope": "observer_only"
+    },
+    "overnight_observer": {
+      "status": "published",
+      "ptp": "PTP-103",
+      "module": "src/predixai/trader/overnight_observer.py",
+      "script": "scripts/predixai_overnight_observer.py",
+      "bat": "scripts/predixai_overnight_observer.bat",
+      "depends_on": [
+        "PTP-096 - Trader Data Store Foundation",
+        "PTP-097 - Market Session Recorder",
+        "PTP-100 - Triple RSI Observer",
+        "PTP-101 - Support/Resistance Zone Foundation",
+        "PTP-102 - Triple Rebound Observer"
+      ],
+      "capabilities": [
+        "run_supervised_long_session_observer",
+        "start_observer_market_session",
+        "record_synthetic_validation_ticks",
+        "calculate_triple_rsi_per_cycle",
+        "detect_support_resistance_zones_per_cycle",
+        "observe_triple_rebound_context_per_cycle",
+        "write_local_overnight_report",
+        "close_session_with_keyword_only_session_id"
+      ],
+      "default_report_dir": "data/runtime/overnight_observer",
+      "close_session_compatibility": {
+        "market_session_recorder_signature_preserved": true,
+        "uses_keyword_only_session_id": true,
+        "call": "close_session(session_id=session.id, status=\"completed\")"
+      },
+      "ptp102_preserved": true,
+      "last_validation": {
+        "overnight_observer_smoke_ok": true,
+        "market_session_smoke_ok": true,
+        "ptp102_triple_rebound_smoke_ok": true,
+        "compileall_ok": true,
+        "help_ok": true,
+        "diff_check_ok": true,
+        "pytest_available": false
+      },
+      "execution_scope": "observer_only",
+      "clicks_enabled": false,
+      "orders_enabled": false,
+      "broker_automation_enabled": false,
+      "decision_making_enabled": false,
+      "real_account_enabled": false
     }
   }
 }

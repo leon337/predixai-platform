@@ -1,0 +1,182 @@
+TRADER V1 PTP-103 VALIDATION REPORT
+
+Data: 2026-07-01
+Modo: MODO 2 - VALIDACAO
+Repositorio: C:\Users\Leo\Documents\GitHub\predixai-platform
+PTP: PTP-103 - Overnight Observer
+
+1. Escopo validado
+
+- PTP-103 - Overnight Observer.
+- V1 permanece em modo Observador.
+- Sem cliques.
+- Sem ordens.
+- Sem conta real.
+- Sem automacao de corretora.
+- Sem decisao operacional.
+- Sem publicacao de PTP.
+- Sem commit.
+- Sem push.
+
+2. Testes executados
+
+2.1 Status inicial
+
+Comando:
+- git status -sb
+
+Resultado:
+- OK.
+- Estado inicial continha apenas os arquivos esperados do build PTP-103 e o relatorio local anterior:
+  - M src/predixai/trader/__init__.py
+  - ?? TRADER_V1_PENDING_PTFS_BUILD_REPORT.txt
+  - ?? scripts/predixai_overnight_observer.bat
+  - ?? scripts/predixai_overnight_observer.py
+  - ?? src/predixai/trader/overnight_observer.py
+
+2.2 Compilacao
+
+Comando:
+- python -m compileall src scripts
+
+Resultado:
+- OK.
+- src e scripts compilados sem erro.
+
+2.3 Pytest
+
+Comando:
+- pytest
+
+Resultado:
+- NAO EXECUTADO por indisponibilidade do comando no ambiente.
+- Erro do PowerShell:
+  pytest nao e reconhecido como nome de cmdlet, funcao, arquivo de script ou programa operavel.
+
+2.4 Validacao de help do PTP-103
+
+Comandos:
+- python scripts\predixai_overnight_observer.py --help
+- python scripts\predixai_overnight_observer.py run --help
+
+Resultado:
+- OK.
+- O script expoe argparse com subcomando run.
+- O subcomando run aceita:
+  - --asset
+  - --timeframe
+  - --cycles
+  - --sleep-seconds
+  - --synthetic
+  - --close-session
+  - --report-dir
+  - --json
+
+2.5 Smoke test do MarketSessionRecorder
+
+Comando executado com banco temporario fora do repositorio:
+- python scripts\predixai_market_session.py --db-path <TEMP_DB> start --asset PTP103_MARKET_SESSION_TEST --timeframe M1 --mode observer --notes "PTP-103 validation" --json
+- python scripts\predixai_market_session.py --db-path <TEMP_DB> get --id 1 --json
+- python scripts\predixai_market_session.py --db-path <TEMP_DB> list --limit 5 --json
+- python scripts\predixai_market_session.py --db-path <TEMP_DB> close --id 1 --status completed --json
+
+Resultado:
+- MARKET_SESSION_SMOKE_OK.
+- SESSION_ID=1.
+- CLOSED_STATUS=completed.
+- Confirmado que close_session funciona com session_id e status pela CLI existente.
+
+2.6 Smoke test do Overnight Observer
+
+Comando executado com banco e relatorio temporarios fora do repositorio:
+- python scripts\predixai_overnight_observer.py --db-path <TEMP_DB> run --asset PTP103_OVERNIGHT_TEST --timeframe M1 --cycles 30 --sleep-seconds 0 --synthetic --close-session --report-dir <TEMP_REPORT_DIR> --json
+
+Resultado:
+- OVERNIGHT_OBSERVER_SMOKE_OK.
+- STATUS=OVERNIGHT_OBSERVER_COMPLETED.
+- SESSION_ID=1.
+- CYCLE_COUNT=30.
+- LATEST_RSI_STATUS=TRIPLE_RSI_READY.
+- LATEST_REBOUND_STATUS=TRIPLE_REBOUND_CONTEXT_OBSERVED.
+- LATEST_REBOUND_LABEL=SUPPORT_REBOUND_CONTEXT.
+- LATEST_CONFIDENCE_SCORE=90.65.
+- O erro original de close_session nao ocorreu.
+
+2.7 Smoke test do PTP-102 - Triple Rebound Observer
+
+Preparacao:
+- Banco temporario fora do repositorio.
+- Dados sinteticos criados pelo Overnight Observer com 30 ciclos.
+
+Comandos:
+- python scripts\predixai_triple_rebound_observer.py --db-path <TEMP_DB> observe --session-id 1 --json
+- python scripts\predixai_triple_rebound_observer.py --db-path <TEMP_DB> list --session-id 1 --limit 5 --json
+
+Resultado:
+- PTP102_TRIPLE_REBOUND_SMOKE_OK.
+- OBSERVE_STATUS=TRIPLE_REBOUND_CONTEXT_OBSERVED.
+- OBSERVE_LABEL=SUPPORT_REBOUND_CONTEXT.
+- CONFIDENCE_SCORE=90.65.
+- LIST_COUNT=5.
+- PTP-102 permaneceu funcional apos o build do PTP-103.
+
+2.8 Validacao de diff
+
+Comando:
+- git diff --check
+
+Resultado:
+- OK.
+- Observacao: aviso LF/CRLF em src/predixai/trader/__init__.py.
+- Nenhum erro de whitespace foi reportado.
+
+3. Erros encontrados
+
+- Nenhum erro funcional encontrado na validacao pratica.
+- pytest indisponivel no ambiente, portanto a suite automatizada nao foi executada.
+
+4. Correcoes feitas durante esta validacao
+
+- Nenhuma correcao de codigo foi necessaria durante esta validacao.
+- A correcao previamente presente foi validada:
+  self.sessions.close_session(session_id=session.id, status="completed")
+
+5. Arquivos alterados ou novos no workspace
+
+Arquivos ja presentes antes desta validacao:
+- src/predixai/trader/__init__.py
+- src/predixai/trader/overnight_observer.py
+- scripts/predixai_overnight_observer.py
+- scripts/predixai_overnight_observer.bat
+- TRADER_V1_PENDING_PTFS_BUILD_REPORT.txt
+
+Arquivo criado nesta validacao:
+- TRADER_V1_PTP103_VALIDATION_REPORT.txt
+
+6. Verificacoes finais
+
+- PTP-103 conclui sem erro: OK.
+- close_session funciona com session_id e status: OK.
+- Arquivos temporarios ficaram fora do repositorio: OK.
+- Nenhum arquivo estranho apareceu no git status antes da criacao deste relatorio: OK.
+- V1 Observador preservada: OK.
+
+7. Status final do git
+
+Status esperado apos a criacao deste relatorio:
+
+## main...origin/main
+ M src/predixai/trader/__init__.py
+?? TRADER_V1_PENDING_PTFS_BUILD_REPORT.txt
+?? TRADER_V1_PTP103_VALIDATION_REPORT.txt
+?? scripts/predixai_overnight_observer.bat
+?? scripts/predixai_overnight_observer.py
+?? src/predixai/trader/overnight_observer.py
+
+8. Decisao
+
+APTO para publicacao futura, quando autorizada.
+
+Condicao:
+- A publicacao ainda deve ocorrer em modo separado/autorizado, com documentacao oficial, commit, push e auditoria.
+- Nesta missao, PTP-103 nao foi publicado.

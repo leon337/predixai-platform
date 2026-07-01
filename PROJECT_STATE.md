@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-102 - Triple Rebound Observer.
+PTP-103 - Overnight Observer.
 
 ## Próximo PTP pendente
 
-PTP-103 - Overnight Observer.
+Auditoria final da V1 Trader.
 
 ## Status geral
 
@@ -80,6 +80,7 @@ Toda mudança relevante deve atualizar:
 - O PTP-087 criou wrappers Windows em scripts/ para executar o OpenClaw com comandos curtos: openclaw.bat, openclaw_status.bat, openclaw_validate.bat e openclaw_precheck.bat.
 - O PTP-088 instalou e validou o OpenClaw oficial no notebook, criou comando global `openclaw`, validou Ollama com `qwen2.5:1.5b` e protegeu o clone oficial com `openclaw/` no `.gitignore`.
 - O PTP-089 configurou o OpenClaw para usar Ollama local como provider principal, com modelo default `ollama/qwen2.5:1.5b`, preservando custo zero e sem API paga obrigat?ria.
+- O PTP-103 publicou o Overnight Observer do Trader, validado com 30 ciclos sinteticos, fechamento de sessao por `close_session(session_id=..., status=...)`, preservacao do PTP-102 e escopo V1 Observador.
 - A estratégia única da V1 é Rebote Triplo.
 - O mercado inicial é Fixed Time.
 - O Core inicializa configuração, módulos, logs e eventos.
@@ -708,3 +709,30 @@ Decisão operacional:
 - A V1 passa a ter observação integrada de Rebote Triplo.
 - O observador registra contexto técnico, mas não gera ordem, clique, recomendação operacional ou promessa de lucro.
 - A V1 continua em modo Observador, sem clique, sem ordem, sem conta real e sem automação de corretora.
+
+## PTP-103 - Overnight Observer
+
+- Status: publicado.
+- Criado `src/predixai/trader/overnight_observer.py`.
+- Atualizado `src/predixai/trader/__init__.py`.
+- Criado `scripts/predixai_overnight_observer.py`.
+- Criado `scripts/predixai_overnight_observer.bat`.
+- O Trader agora possui observador supervisionado de sessoes longas com ciclos controlados.
+- O Overnight Observer combina sessao de mercado, ticks sinteticos de validacao, Triple RSI, zonas de suporte/resistencia e Triple Rebound Observer.
+- O modo sintetico permite validacao local segura sem corretora, cliques, ordens, conta real ou automacao operacional.
+- O erro de fechamento de sessao foi corrigido preservando a assinatura keyword-only de `MarketSessionRecorder.close_session`:
+  - `close_session(session_id=session.id, status="completed")`.
+- PTP-102 foi validado como preservado por smoke test do `Triple Rebound Observer`.
+- Validacoes concluidas:
+  - `OVERNIGHT_OBSERVER_SMOKE_OK`.
+  - `MARKET_SESSION_SMOKE_OK`.
+  - `PTP102_TRIPLE_REBOUND_SMOKE_OK`.
+  - `COMPILEALL_OK`.
+  - `HELP_OK`.
+  - `DIFF_CHECK_OK`.
+
+Decisao operacional:
+- A V1 passa a ter observacao supervisionada para sessoes longas/overnight.
+- O observador registra contexto tecnico e relatorio local, mas nao gera ordem, clique, recomendacao operacional ou promessa de lucro.
+- A V1 continua em modo Observador, sem clique, sem ordem, sem conta real e sem automacao de corretora.
+- Proximo passo recomendado: auditoria final da V1 Trader.

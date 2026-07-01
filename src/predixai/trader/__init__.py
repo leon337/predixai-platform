@@ -20,6 +20,11 @@ from predixai.trader.market_session_recorder import (
     MarketSessionRecorder,
     MarketSessionSummary,
 )
+from predixai.trader.overnight_observer import (
+    OvernightCycleResult,
+    OvernightObserver,
+    OvernightRunResult,
+)
 from predixai.trader.support_resistance_zones import (
     SupportResistanceZoneDetector,
     SupportResistanceZoneResult,
@@ -46,6 +51,9 @@ __all__ = [
     "LiveEvidenceIngestResult",
     "MarketSessionRecorder",
     "MarketSessionSummary",
+    "OvernightCycleResult",
+    "OvernightObserver",
+    "OvernightRunResult",
     "SupportResistanceZoneDetector",
     "SupportResistanceZoneResult",
     "TripleReboundObservationResult",

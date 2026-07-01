@@ -1,0 +1,125 @@
+TRADER V1 PENDING PTPS BUILD REPORT
+
+Data: 2026-07-01
+Modo: MODO 1 - CONSTRUCAO EM LOTE CONTROLADO
+Repositorio: C:\Users\Leo\Documents\GitHub\predixai-platform
+
+1. PTPs pendentes encontradas
+
+- PTP-103 - Overnight Observer
+  Status documental: pendente / BUILD iniciado e falhou.
+  Fonte: PROJECT_STATE.md e predixai_context.json.
+  Arquivos provaveis:
+  - src/predixai/trader/__init__.py
+  - src/predixai/trader/overnight_observer.py
+  - scripts/predixai_overnight_observer.py
+  - scripts/predixai_overnight_observer.bat
+  Dependencias:
+  - PTP-096 - Trader Data Store Foundation
+  - PTP-097 - Market Session Recorder
+  - PTP-100 - Triple RSI Observer
+  - PTP-101 - Support/Resistance Zone Foundation
+  - PTP-102 - Triple Rebound Observer
+  Ordem de execucao:
+  - Executar apenas PTP-103, pois nenhum outro PTP V1 pendente foi documentado nos arquivos iniciais permitidos.
+
+2. PTPs executadas
+
+- PTP-103 - Overnight Observer
+  Escopo confirmado: observador supervisionado de sessoes longas, sem cliques, sem ordens, sem conta real, sem automacao de corretora e sem decisao operacional.
+
+3. Arquivos alterados
+
+- src/predixai/trader/overnight_observer.py
+  Correcao aplicada na chamada de encerramento de sessao.
+
+- TRADER_V1_PENDING_PTFS_BUILD_REPORT.txt
+  Relatorio local gerado conforme solicitado.
+
+Arquivos da PTP-103 ja presentes no estado local antes desta execucao:
+- src/predixai/trader/__init__.py
+- src/predixai/trader/overnight_observer.py
+- scripts/predixai_overnight_observer.py
+- scripts/predixai_overnight_observer.bat
+
+4. Erros encontrados
+
+- TypeError conhecido reproduzido por inspecao de assinatura/chamada:
+  MarketSessionRecorder.close_session() takes 1 positional argument but 2 positional arguments (and 1 keyword-only argument) were given
+
+Causa:
+- MarketSessionRecorder.close_session possui assinatura keyword-only:
+  close_session(*, session_id: int, status: str = "completed")
+- OvernightObserver chamava:
+  self.sessions.close_session(session.id, status="completed")
+
+5. Correcoes feitas
+
+- A chamada do Overnight Observer foi ajustada para preservar a assinatura keyword-only do recorder:
+  self.sessions.close_session(session_id=session.id, status="completed")
+
+Compatibilidade preservada:
+- A assinatura de MarketSessionRecorder.close_session nao foi alterada.
+- A CLI existente de sessoes continua usando session_id=args.id.
+- Nenhuma regra de execucao da V1 Observador foi alterada.
+
+6. Validacoes executadas
+
+- git status -sb
+  Resultado inicial:
+  ## main...origin/main
+   M src/predixai/trader/__init__.py
+  ?? scripts/predixai_overnight_observer.bat
+  ?? scripts/predixai_overnight_observer.py
+  ?? src/predixai/trader/overnight_observer.py
+
+- git diff > ..\predixai-platform-v1-pending-ptps.patch
+  Resultado: patch de seguranca salvo.
+
+- git status --short > ..\predixai-platform-v1-pending-ptps-status.txt
+  Resultado: status de seguranca salvo.
+
+- python -m compileall src scripts
+  Resultado: OK.
+
+- git diff --check
+  Resultado: OK.
+  Observacao: apareceu apenas aviso LF/CRLF em src/predixai/trader/__init__.py.
+
+- Smoke test especifico da PTP-103:
+  python scripts\predixai_overnight_observer.py --db-path <TEMP_DB> run --asset PTP103_TEST --timeframe M1 --cycles 30 --synthetic --close-session --report-dir <TEMP_REPORT_DIR> --json
+  Resultado: OK.
+  Status retornado: OVERNIGHT_OBSERVER_COMPLETED.
+  Ciclos: 30.
+  Ultimo RSI: TRIPLE_RSI_READY.
+  Zonas detectadas no ultimo ciclo: 2.
+  Rebote observado: TRIPLE_REBOUND_CONTEXT_OBSERVED.
+  Label final: SUPPORT_REBOUND_CONTEXT.
+  Confidence score final: 90.65.
+
+7. Status final do git
+
+Status esperado apos geracao deste relatorio:
+
+## main...origin/main
+ M src/predixai/trader/__init__.py
+?? TRADER_V1_PENDING_PTFS_BUILD_REPORT.txt
+?? scripts/predixai_overnight_observer.bat
+?? scripts/predixai_overnight_observer.py
+?? src/predixai/trader/overnight_observer.py
+
+8. O que ainda falta
+
+- Nao foi feito commit.
+- Nao foi feito push.
+- Nao foi atualizada documentacao oficial.
+- Nao foi publicada PTP.
+- Nao foi migrado Trader.
+- Nao houve alteracao em predixai-knowledge.
+- Nenhum reset foi executado.
+- PTP-103 ainda precisa passar pelo fluxo futuro de publicacao/auditoria quando autorizado.
+
+9. Proximo passo recomendado
+
+- Revisar o diff local da PTP-103.
+- Em modo separado e autorizado, publicar PTP-103 com documentacao, commit, push e auditoria.

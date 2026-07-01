@@ -505,3 +505,16 @@ Observacao:
 - Observações persistidas em `triple_rebound_observations`.
 - Adicionado insert compatível com schema legado da tabela.
 - Mantido escopo V1 Observador.
+
+## 2026-07-01 - PTP-103
+
+- Publicado Overnight Observer do PredixAI Trader.
+- Criado modulo `src/predixai/trader/overnight_observer.py`.
+- Criado CLI `scripts/predixai_overnight_observer.py`.
+- Criado wrapper Windows `scripts/predixai_overnight_observer.bat`.
+- Atualizado pacote `src/predixai/trader` para exportar `OvernightObserver`, `OvernightRunResult` e `OvernightCycleResult`.
+- Implementada execucao observadora de sessoes longas com ciclos controlados, modo sintetico seguro e relatorio local.
+- Corrigida chamada de `MarketSessionRecorder.close_session` para preservar assinatura keyword-only: `close_session(session_id=session.id, status="completed")`.
+- Validado Overnight Observer com 30 ciclos sinteticos, Triple RSI, zonas, Triple Rebound e fechamento de sessao.
+- Validado PTP-102 como preservado por smoke test do `Triple Rebound Observer`.
+- Mantido escopo V1 Observador: sem cliques, sem ordens, sem conta real, sem automacao de corretora, sem decisao operacional e sem promessa de lucro.
