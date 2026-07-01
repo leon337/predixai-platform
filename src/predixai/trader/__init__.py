@@ -8,6 +8,10 @@ from predixai.trader.data_store import (
     default_store_status,
     initialize_default_store,
 )
+from predixai.trader.live_evidence_db_bridge import (
+    LiveEvidenceDBBridge,
+    LiveEvidenceIngestResult,
+)
 from predixai.trader.market_session_recorder import (
     MarketSessionRecorder,
     MarketSessionSummary,
@@ -20,6 +24,8 @@ __all__ = [
     "TraderDataStoreStatus",
     "default_store_status",
     "initialize_default_store",
+    "LiveEvidenceDBBridge",
+    "LiveEvidenceIngestResult",
     "MarketSessionRecorder",
     "MarketSessionSummary",
 ]

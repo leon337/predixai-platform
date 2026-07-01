@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-097 - Market Session Recorder.
+PTP-098 - Live Evidence DB Bridge.
 
 ## Próximo PTP pendente
 
-PTP-098 - Live Evidence DB Bridge.
+PTP-099 - Data Quality Score.
 
 ## Status geral
 
@@ -526,4 +526,35 @@ Decisão operacional:
 Decisão operacional:
 - A V1 passa a ter controle formal de sessões de coleta por ativo/timeframe.
 - Este PTP ainda não grava `live_once` no banco.
+- A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.
+
+## PTP-098 — Live Evidence DB Bridge
+
+- Status: publicado.
+- Criado `src/predixai/trader/live_evidence_db_bridge.py`.
+- Atualizado `src/predixai/trader/__init__.py`.
+- Criado `scripts/predixai_live_evidence_db_bridge.py`.
+- Criado `scripts/predixai_live_evidence_db_bridge.bat`.
+- O Trader agora consegue ingerir evidências JSON do Live Analyzer para o banco SQLite.
+- A ponte consegue:
+  - ler arquivo JSON de evidência.
+  - associar evidência a uma sessão.
+  - criar sessão automaticamente quando necessário.
+  - extrair preço básico quando disponível.
+  - registrar `market_tick`.
+  - registrar `evidence_record`.
+  - calcular `quality_score` básico.
+- Validações concluídas:
+  - `SESSION_START_TEST_OK`.
+  - `LIVE_EVIDENCE_INGEST_TEST_OK`.
+  - `SESSION_GET_AFTER_INGEST_OK`.
+  - `SESSION_CLOSE_TEST_OK`.
+  - `DB_STATUS_TEST_OK`.
+  - `COMPILEALL_OK`.
+  - `JSON_OK`.
+  - `DIFF_CHECK_OK`.
+
+Decisão operacional:
+- Este PTP valida a ponte isolada entre evidência e banco.
+- A conexão automática com `live_once`/`live_loop` ficará para etapa posterior.
 - A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.

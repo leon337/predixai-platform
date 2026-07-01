@@ -452,3 +452,14 @@ Observacao:
   - close.
 - Sessões passam a registrar ativo, timeframe, modo, status, início, fim e notas.
 - Mantido escopo V1 Observador.
+
+## 2026-06-30 — PTP-098
+
+- Adicionada ponte Live Evidence DB Bridge.
+- Criado módulo `src/predixai/trader/live_evidence_db_bridge.py`.
+- Criado CLI `scripts/predixai_live_evidence_db_bridge.py`.
+- Criado wrapper Windows `scripts/predixai_live_evidence_db_bridge.bat`.
+- Evidências JSON podem ser ingeridas no banco SQLite.
+- Ingestão cria `market_ticks` e `evidence_records`.
+- Adicionado score básico de qualidade da evidência ingerida.
+- Mantido escopo V1 Observador.

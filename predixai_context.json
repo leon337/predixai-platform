@@ -801,8 +801,8 @@
     "local_model": "ollama/qwen2.5:1.5b",
     "status": "local_supervised_handoff_validated"
   },
-  "last_approved_ptp": "PTP-097 - Market Session Recorder",
-  "next_pending_ptp": "PTP-098 - Live Evidence DB Bridge",
+  "last_approved_ptp": "PTP-098 - Live Evidence DB Bridge",
+  "next_pending_ptp": "PTP-099 - Data Quality Score",
   "scope_guardrails": {
     "broker_clicks_enabled": false,
     "orders_enabled": false,
@@ -964,6 +964,32 @@
         "session_list_test_ok": true,
         "session_close_test_ok": true,
         "session_final_get_test_ok": true,
+        "db_status_test_ok": true,
+        "compileall_ok": true,
+        "json_ok": true,
+        "diff_check_ok": true
+      }
+    },
+    "live_evidence_db_bridge": {
+      "status": "validated",
+      "ptp": "PTP-098",
+      "module": "src/predixai/trader/live_evidence_db_bridge.py",
+      "script": "scripts/predixai_live_evidence_db_bridge.py",
+      "bat": "scripts/predixai_live_evidence_db_bridge.bat",
+      "capabilities": [
+        "ingest_live_evidence_json",
+        "associate_evidence_to_market_session",
+        "record_market_tick",
+        "record_evidence_record",
+        "extract_basic_price",
+        "calculate_basic_quality_score"
+      ],
+      "automatic_live_once_integration": false,
+      "last_validation": {
+        "session_start_test_ok": true,
+        "live_evidence_ingest_test_ok": true,
+        "session_get_after_ingest_ok": true,
+        "session_close_test_ok": true,
         "db_status_test_ok": true,
         "compileall_ok": true,
         "json_ok": true,
