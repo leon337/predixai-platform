@@ -24,6 +24,10 @@ from predixai.trader.support_resistance_zones import (
     SupportResistanceZoneDetector,
     SupportResistanceZoneResult,
 )
+from predixai.trader.triple_rebound_observer import (
+    TripleReboundObservationResult,
+    TripleReboundObserver,
+)
 from predixai.trader.triple_rsi_observer import (
     TripleRSIObserver,
     TripleRSIResult,
@@ -44,6 +48,8 @@ __all__ = [
     "MarketSessionSummary",
     "SupportResistanceZoneDetector",
     "SupportResistanceZoneResult",
+    "TripleReboundObservationResult",
+    "TripleReboundObserver",
     "TripleRSIObserver",
     "TripleRSIResult",
 ]

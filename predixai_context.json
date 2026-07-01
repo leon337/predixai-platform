@@ -801,8 +801,8 @@
     "local_model": "ollama/qwen2.5:1.5b",
     "status": "local_supervised_handoff_validated"
   },
-  "last_approved_ptp": "PTP-101 - Support/Resistance Zone Foundation",
-  "next_pending_ptp": "PTP-102 - Triple Rebound Observer",
+  "last_approved_ptp": "PTP-102 - Triple Rebound Observer",
+  "next_pending_ptp": "PTP-103 - Overnight Observer",
   "scope_guardrails": {
     "broker_clicks_enabled": false,
     "orders_enabled": false,
@@ -1098,6 +1098,55 @@
         "test_zone_ticks_insert_ok": true,
         "zone_detection_test_ok": true,
         "zone_list_test_ok": true,
+        "session_close_test_ok": true,
+        "db_status_test_ok": true,
+        "compileall_ok": true,
+        "json_ok": true,
+        "diff_check_ok": true
+      },
+      "execution_scope": "observer_only"
+    },
+    "triple_rebound_observer": {
+      "status": "validated",
+      "ptp": "PTP-102",
+      "module": "src/predixai/trader/triple_rebound_observer.py",
+      "script": "scripts/predixai_triple_rebound_observer.py",
+      "bat": "scripts/predixai_triple_rebound_observer.bat",
+      "source_tables": [
+        "market_ticks",
+        "indicator_snapshots",
+        "support_resistance_zones"
+      ],
+      "target_table": "triple_rebound_observations",
+      "capabilities": [
+        "fetch_latest_price",
+        "fetch_latest_triple_rsi",
+        "fetch_nearest_support_resistance_zone",
+        "calculate_distance_to_zone_percent",
+        "calculate_confidence_score",
+        "classify_observation_context",
+        "persist_triple_rebound_observation",
+        "list_observations_by_session"
+      ],
+      "labels": [
+        "SUPPORT_REBOUND_CONTEXT",
+        "RESISTANCE_REJECTION_CONTEXT",
+        "AWAY_FROM_ZONE",
+        "NO_ZONE_CONTEXT",
+        "NEAR_ZONE_WITHOUT_TRIPLE_RSI"
+      ],
+      "schema_compatibility": {
+        "legacy_required_columns_supported": true,
+        "touch_index_fallback": 1
+      },
+      "last_validation": {
+        "schema_compat_fix_applied": true,
+        "session_start_test_ok": true,
+        "test_rebound_ticks_insert_ok": true,
+        "triple_rsi_prep_test_ok": true,
+        "zone_prep_test_ok": true,
+        "triple_rebound_observe_test_ok": true,
+        "triple_rebound_list_test_ok": true,
         "session_close_test_ok": true,
         "db_status_test_ok": true,
         "compileall_ok": true,

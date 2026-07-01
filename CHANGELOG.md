@@ -494,3 +494,14 @@ Observacao:
 - Implementada detecção observadora de zonas por agrupamento de preços.
 - Zonas persistidas em `support_resistance_zones`.
 - Mantido escopo V1 Observador.
+
+## 2026-07-01 — PTP-102
+
+- Adicionado Triple Rebound Observer ao PredixAI Trader.
+- Criado módulo `src/predixai/trader/triple_rebound_observer.py`.
+- Criado CLI `scripts/predixai_triple_rebound_observer.py`.
+- Criado wrapper Windows `scripts/predixai_triple_rebound_observer.bat`.
+- Implementada observação integrada de contexto com preço, zona e Triple RSI.
+- Observações persistidas em `triple_rebound_observations`.
+- Adicionado insert compatível com schema legado da tabela.
+- Mantido escopo V1 Observador.

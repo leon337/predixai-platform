@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-101 - Support/Resistance Zone Foundation.
+PTP-102 - Triple Rebound Observer.
 
 ## Próximo PTP pendente
 
-PTP-102 - Triple Rebound Observer.
+PTP-103 - Overnight Observer.
 
 ## Status geral
 
@@ -669,3 +669,42 @@ Decisão operacional:
 - A V1 passa a ter fundação observadora de suporte e resistência.
 - A combinação com Triple RSI e regra de Rebote Triplo ficará para o PTP-102.
 - A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.
+
+## PTP-102 — Triple Rebound Observer
+
+- Status: publicado.
+- Criado `src/predixai/trader/triple_rebound_observer.py`.
+- Atualizado `src/predixai/trader/__init__.py`.
+- Criado `scripts/predixai_triple_rebound_observer.py`.
+- Criado `scripts/predixai_triple_rebound_observer.bat`.
+- O Trader agora observa contexto técnico de Rebote Triplo combinando:
+  - preço atual.
+  - zona de suporte/resistência.
+  - distância percentual até a zona.
+  - RSI curto.
+  - RSI médio.
+  - RSI longo.
+  - `confidence_score`.
+- O resultado é salvo em `triple_rebound_observations`.
+- O módulo foi ajustado para compatibilidade com o schema legado da tabela `triple_rebound_observations`, incluindo campos obrigatórios como `touch_index`.
+- O CLI permite:
+  - observar contexto de Rebote Triplo por sessão.
+  - listar observações por sessão.
+- Validações concluídas:
+  - `TRIPLE_REBOUND_SCHEMA_COMPAT_FIX_APLICADO`.
+  - `SESSION_START_TEST_OK`.
+  - `TEST_REBOUND_TICKS_INSERT_OK`.
+  - `TRIPLE_RSI_PREP_TEST_OK`.
+  - `ZONE_PREP_TEST_OK`.
+  - `TRIPLE_REBOUND_OBSERVE_TEST_OK`.
+  - `TRIPLE_REBOUND_LIST_TEST_OK`.
+  - `SESSION_CLOSE_TEST_OK`.
+  - `DB_STATUS_TEST_OK`.
+  - `COMPILEALL_OK`.
+  - `JSON_OK`.
+  - `DIFF_CHECK_OK`.
+
+Decisão operacional:
+- A V1 passa a ter observação integrada de Rebote Triplo.
+- O observador registra contexto técnico, mas não gera ordem, clique, recomendação operacional ou promessa de lucro.
+- A V1 continua em modo Observador, sem clique, sem ordem, sem conta real e sem automação de corretora.
