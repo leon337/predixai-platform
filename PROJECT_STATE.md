@@ -14,11 +14,11 @@ A Fase 0 foi concluída, a Fase 1 foi criada e validada, e a base atual já poss
 
 ## Último PTP aprovado
 
-PTP-094 - Task Protocol Supervisionado.
+PTP-096 - Trader Data Store Foundation.
 
 ## Próximo PTP pendente
 
-PTP-095 - Handoff Gate Integrado.
+PTP-097 - Market Session Recorder.
 
 ## Status geral
 
@@ -459,3 +459,36 @@ Proximo foco:
 Decisão operacional:
 - Toda tarefa sensível deve ser classificada antes de chegar ao agente local.
 - O agente local continua sem permissão para decidir, operar, clicar ou publicar sem supervisão.
+
+## PTP-096 — Trader Data Store Foundation
+
+- Status: publicado.
+- Criado `src/predixai/trader/data_store.py`.
+- Atualizado `src/predixai/trader/__init__.py`.
+- Criado `scripts/predixai_trader_db_status.py`.
+- Criado `scripts/predixai_trader_db_status.bat`.
+- Criado banco local runtime `data/predixai_trader.sqlite3`.
+- Banco runtime ignorado pelo Git via `.gitignore`.
+- Schema versionado com `schema_version = 1`.
+- Tabelas criadas:
+  - `schema_metadata`.
+  - `market_sessions`.
+  - `market_ticks`.
+  - `market_candles`.
+  - `evidence_records`.
+  - `indicator_snapshots`.
+  - `support_resistance_zones`.
+  - `triple_rebound_observations`.
+- Validações concluídas:
+  - `DB_INIT_TEST_OK`.
+  - `DB_STATUS_TEST_OK`.
+  - `DB_SCHEMA_SANITY_OK`.
+  - `DB_GITIGNORE_TEST_OK`.
+  - `COMPILEALL_OK`.
+  - `JSON_OK`.
+  - `DIFF_CHECK_OK`.
+
+Decisão operacional:
+- A V1 passa a ter fundação de memória local em SQLite.
+- O banco de dados runtime não será versionado no GitHub.
+- A V1 continua em modo Observador, sem clique, sem ordem, sem conta real, sem automação de corretora e sem promessa de lucro.

@@ -234,3 +234,5 @@ logs/live_collector_*.log
 
 # Local OpenClaw official clone
 openclaw/
+data/predixai_trader.sqlite3
+data/predixai_trader.sqlite3-*

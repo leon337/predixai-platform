@@ -801,8 +801,8 @@
     "local_model": "ollama/qwen2.5:1.5b",
     "status": "local_supervised_handoff_validated"
   },
-  "last_approved_ptp": "PTP-094 - Task Protocol Supervisionado",
-  "next_pending_ptp": "PTP-095 - Handoff Gate Integrado",
+  "last_approved_ptp": "PTP-096 - Trader Data Store Foundation",
+  "next_pending_ptp": "PTP-097 - Market Session Recorder",
   "scope_guardrails": {
     "broker_clicks_enabled": false,
     "orders_enabled": false,
@@ -885,6 +885,47 @@
       "json_ok": true,
       "diff_check_ok": true,
       "unique_timestamp_ok": true
+    }
+  },
+  "predixai_trader": {
+    "data_store": {
+      "status": "validated",
+      "ptp": "PTP-096",
+      "db_path": "data/predixai_trader.sqlite3",
+      "schema_version": 1,
+      "runtime_db_gitignored": true,
+      "script": "scripts/predixai_trader_db_status.py",
+      "bat": "scripts/predixai_trader_db_status.bat",
+      "tables": [
+        "schema_metadata",
+        "market_sessions",
+        "market_ticks",
+        "market_candles",
+        "evidence_records",
+        "indicator_snapshots",
+        "support_resistance_zones",
+        "triple_rebound_observations"
+      ],
+      "v1_capabilities": [
+        "local_sqlite_memory",
+        "schema_metadata",
+        "market_sessions",
+        "market_ticks",
+        "market_candles",
+        "evidence_records",
+        "triple_rsi_storage_ready",
+        "support_resistance_storage_ready",
+        "triple_rebound_storage_ready"
+      ],
+      "last_validation": {
+        "db_init_test_ok": true,
+        "db_status_test_ok": true,
+        "db_schema_sanity_ok": true,
+        "db_gitignore_test_ok": true,
+        "compileall_ok": true,
+        "json_ok": true,
+        "diff_check_ok": true
+      }
     }
   }
 }

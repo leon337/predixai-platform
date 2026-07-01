@@ -429,3 +429,13 @@ Observacao:
 - Implementados testes mínimos para tarefa segura, tarefa com aprovação e tarefa bloqueada.
 - Relatórios do protocolo agora usam timestamp único.
 - Mantidos guardrails do modo V1 Observador.
+
+## 2026-06-30 — PTP-096
+
+- Adicionada fundação SQLite do PredixAI Trader.
+- Adicionado `src/predixai/trader/data_store.py`.
+- Atualizado pacote `src/predixai/trader`.
+- Adicionados scripts de status do banco.
+- Criado schema inicial para sessões, ticks, candles, evidências, RSI triplo, zonas de suporte/resistência e observações de Rebote Triplo.
+- Banco runtime `data/predixai_trader.sqlite3` ignorado pelo Git.
+- Mantido escopo V1 Observador.
