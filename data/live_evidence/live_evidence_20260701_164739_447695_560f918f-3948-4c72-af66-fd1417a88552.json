@@ -1,0 +1,179 @@
+{
+  "evidence_id": "live_evidence_20260701_164739_447695_560f918f-3948-4c72-af66-fd1417a88552",
+  "created_at": "2026-07-01T16:47:39.447695-03:00",
+  "source": "live_once",
+  "session_id": "560f918f-3948-4c72-af66-fd1417a88552",
+  "capture_count": 1,
+  "field_count": 5,
+  "unknown_fields": [],
+  "candle_snapshot": {
+    "session_id": "560f918f-3948-4c72-af66-fd1417a88552",
+    "timeframe": "M1",
+    "capture_count": 1,
+    "readings": [
+      {
+        "asset": "Data",
+        "price": "4176.67",
+        "time": "47:39",
+        "balance": "D 9.037,50",
+        "payout": "85%",
+        "trade_value": "D 450",
+        "duration": "6 min.",
+        "timeframe": "M1",
+        "confidence": 69.121,
+        "source_ocr_text": "Data e hora: 2026-07-01T16:47:39.416568-03:00\nJanela detectada: ▲ 4176.67 Cafeina Index | Plataforma de negociação para traders online – Olymptrade - Google Chrome\nPrice: 4176.67\n\nAsset: Cafeina Index\nPayout: 85%\nAsset_Payout_Raw: | ry Cafeina Index FT « 85%\nBalance: D 9.037,50\nTrade_Value: D 450\nDuration: 6 min.\nRight_Panel: Oy a o = 450 4 - 6 min. + Ordem @) Lucro: +B 382.5 @\n\nCampos encontrados: asset_payout, balance, trade_value, duration, right_panel\nCampos UNKNOWN: \nConfiança do OCR por campo:\n- asset_payout: 66.575 (OCR_COMPLETED)\n- balance: 48.826 (OCR_COMPLETED)\n- trade_value: 73.145 (OCR_COMPLETED)\n- duration: 94.651 (OCR_COMPLETED)\n- right_panel: 62.409 (OCR_COMPLETED)\n\nTempo total da calibração: 1389.186 ms",
+        "metadata": {
+          "unknown_fields": []
+        }
+      }
+    ],
+    "field_values": [
+      {
+        "field_name": "asset",
+        "raw_value": "Data",
+        "normalized_value": "Data",
+        "region_id": "FULL_SCREEN",
+        "confidence": 69.121,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_asset",
+          "patterns": [
+            "\\b[A-Z]{3,6}/[A-Z]{3,6}\\b",
+            "\\b[A-Z]{3,6}\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "price",
+        "raw_value": "4176.67",
+        "normalized_value": "4176.67",
+        "region_id": "FULL_SCREEN",
+        "confidence": 69.121,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_price",
+          "patterns": [
+            "\\b\\d+[.,]\\d+\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "time",
+        "raw_value": "47:39",
+        "normalized_value": "47:39",
+        "region_id": "FULL_SCREEN",
+        "confidence": 69.121,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_time",
+          "patterns": [
+            "\\b\\d{2}:\\d{2}(:\\d{2})?\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "payout",
+        "raw_value": "85%",
+        "normalized_value": "85%",
+        "region_id": "FULL_SCREEN",
+        "confidence": 69.121,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_payout",
+          "patterns": [
+            "payout[:\\s]*\\d+%?",
+            "\\b\\d+%\\s*payout\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "balance",
+        "raw_value": "D 9.037,50",
+        "normalized_value": "D 9.037,50",
+        "region_id": "FULL_SCREEN",
+        "confidence": 69.121,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_balance",
+          "patterns": [
+            "balance[:\\s]*\\$\\s*\\d+[.,]?\\d*",
+            "\\bsaldo\\b"
+          ]
+        }
+      }
+    ],
+    "field_names": [
+      "asset",
+      "price",
+      "time",
+      "payout",
+      "balance"
+    ],
+    "unknown_fields": [],
+    "metadata": {
+      "region_count": 5,
+      "field_extractions": 1
+    }
+  },
+  "candle_statistics": {
+    "session_id": "560f918f-3948-4c72-af66-fd1417a88552",
+    "timeframe": "M1",
+    "average": 4176.67,
+    "maximum": 4176.67,
+    "minimum": 4176.67,
+    "amplitude": 0.0,
+    "volatility": 0.0,
+    "sample_count": 1,
+    "price_points": [
+      4176.67
+    ],
+    "metadata": {
+      "field_count": 5,
+      "unknown_field_count": 0
+    }
+  },
+  "live_candle_benchmark": {
+    "enabled": true,
+    "started_at": "2026-07-01T16:47:39.447695-03:00",
+    "finished_at": "2026-07-01T16:47:39.447695-03:00",
+    "processing_time_ms": 0.019,
+    "capture_count": 1,
+    "field_count": 5,
+    "average": 4176.67,
+    "maximum": 4176.67,
+    "minimum": 4176.67,
+    "volatility": 0.0,
+    "status": "LIVE_CANDLE_COMPLETED",
+    "metadata": {
+      "session_id": "560f918f-3948-4c72-af66-fd1417a88552",
+      "timeframe": "M1",
+      "unknown_fields": [],
+      "sample_count": 1
+    }
+  },
+  "live_validation_benchmark": {
+    "enabled": true,
+    "status": "LIVE_VALIDATION_COMPLETED",
+    "started_at": "2026-07-01T16:47:12.767216-03:00",
+    "finished_at": "2026-07-01T16:47:39.447695-03:00",
+    "processing_time_ms": 26680.09,
+    "peak_memory_kb": 0.0,
+    "current_memory_kb": 0.0,
+    "total_captures": 1,
+    "detected_fields": 6,
+    "unknown_fields": 0
+  },
+  "guardrails": {
+    "clicks_enabled": false,
+    "orders_enabled": false,
+    "broker_automation_enabled": false,
+    "decision_making_enabled": false,
+    "real_account_enabled": false,
+    "strategy_changed": false
+  }
+}

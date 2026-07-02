@@ -1,0 +1,193 @@
+{
+  "evidence_id": "live_evidence_20260701_200741_090918_eee63be0-1000-4f7f-97c9-2cb46e3b8653",
+  "created_at": "2026-07-01T20:07:41.090918-03:00",
+  "source": "live_once",
+  "session_id": "eee63be0-1000-4f7f-97c9-2cb46e3b8653",
+  "capture_count": 1,
+  "field_count": 5,
+  "unknown_fields": [
+    "payout",
+    "balance"
+  ],
+  "candle_snapshot": {
+    "session_id": "eee63be0-1000-4f7f-97c9-2cb46e3b8653",
+    "timeframe": "M1",
+    "capture_count": 1,
+    "readings": [
+      {
+        "asset": "Data",
+        "price": "40.981549",
+        "time": "07:40",
+        "balance": "UNKNOWN",
+        "payout": "UNKNOWN",
+        "trade_value": "UNKNOWN",
+        "duration": "UNKNOWN",
+        "timeframe": "M1",
+        "confidence": 62.835,
+        "source_ocr_text": "Data e hora: 2026-07-01T20:07:40.981549-03:00\nJanela detectada: C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\nPrice: UNKNOWN\n\nAsset: UNKNOWN\nPayout: UNKNOWN\nAsset_Payout_Raw: TA TOR Eg q -07-01 20:07:09,997 | 1xAI Platform 0.1.0-f loop reading 1/9999.\nBalance: UNKNOWN\nTrade_Value: UNKNOWN\nDuration: cre-o7eo aebisesecsl\nRight_Panel: -4F7F-97c9-2cb46e3b865 es': 1, ‘started_at': 09.997573-03:00', ‘upd {'ai': False, ‘Ilm': F I\\v1.O0\\powershell.exe dows \\\\System32\\\\Wwind , top’: O, ‘maximized ected’: True}} eae\": ‘asset’, ‘region_i A-Z]{3,6}/[A-Z]{3,6}\\ ion_name': ‘Full Scree ne\": time', 5 1 1 4 4 3 396 1374 249 45 78.379532 ‘region_i 4 1 1 4 5 0 0 1422 621 42 -1 5 1 1 4 5 1 0 1422 372 42 3.230934 d{2}:\\\\d{2}C: 5 1 1 4 5 2 398 1422 223 42 12.564697 \\d{2})? 4 1 1 4 6 0 0 1470 651 45 -1 5 1 1 4 6 1 0 1470 195 45 80.955185 creen', 5 1 1 4 6 2 246 1470 276 45 65.260101 ‘purpose’: 5 1 1 4 6 3 576 1470 75 36 91.598404 ‘id 4 1 1 4 7 0 6 1518 645 36 -1 5 1 1 4 7 1 6 1518 165 36 41.947372 field name': ‘'‘halance\n\nCampos encontrados: asset_payout, duration, right_panel\nCampos UNKNOWN: balance, trade_value\nConfiança do OCR por campo:\n- asset_payout: 71.204 (OCR_COMPLETED)\n- balance: 0.0 (OCR_EMPTY)\n- trade_value: 0.0 (OCR_EMPTY)\n- duration: 0.0 (OCR_COMPLETED)\n- right_panel: 54.467 (OCR_COMPLETED)\n\nTempo total da calibração: 3740.782 ms",
+        "metadata": {
+          "unknown_fields": [
+            "balance",
+            "payout",
+            "trade_value",
+            "duration"
+          ]
+        }
+      }
+    ],
+    "field_values": [
+      {
+        "field_name": "asset",
+        "raw_value": "Data",
+        "normalized_value": "Data",
+        "region_id": "FULL_SCREEN",
+        "confidence": 62.835,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_asset",
+          "patterns": [
+            "\\b[A-Z]{3,6}/[A-Z]{3,6}\\b",
+            "\\b[A-Z]{3,6}\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "price",
+        "raw_value": "40.981549",
+        "normalized_value": "40.981549",
+        "region_id": "FULL_SCREEN",
+        "confidence": 62.835,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_price",
+          "patterns": [
+            "\\b\\d+[.,]\\d+\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "time",
+        "raw_value": "07:40",
+        "normalized_value": "07:40",
+        "region_id": "FULL_SCREEN",
+        "confidence": 62.835,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_time",
+          "patterns": [
+            "\\b\\d{2}:\\d{2}(:\\d{2})?\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "payout",
+        "raw_value": "UNKNOWN",
+        "normalized_value": "UNKNOWN",
+        "region_id": "FULL_SCREEN",
+        "confidence": 62.835,
+        "status": "UNKNOWN",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_payout",
+          "patterns": [
+            "payout[:\\s]*\\d+%?",
+            "\\b\\d+%\\s*payout\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "balance",
+        "raw_value": "UNKNOWN",
+        "normalized_value": "UNKNOWN",
+        "region_id": "FULL_SCREEN",
+        "confidence": 62.835,
+        "status": "UNKNOWN",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_balance",
+          "patterns": [
+            "balance[:\\s]*\\$\\s*\\d+[.,]?\\d*",
+            "\\bsaldo\\b"
+          ]
+        }
+      }
+    ],
+    "field_names": [
+      "asset",
+      "price",
+      "time",
+      "payout",
+      "balance"
+    ],
+    "unknown_fields": [
+      "payout",
+      "balance"
+    ],
+    "metadata": {
+      "region_count": 5,
+      "field_extractions": 1
+    }
+  },
+  "candle_statistics": {
+    "session_id": "eee63be0-1000-4f7f-97c9-2cb46e3b8653",
+    "timeframe": "M1",
+    "average": 40.981549,
+    "maximum": 40.981549,
+    "minimum": 40.981549,
+    "amplitude": 0.0,
+    "volatility": 0.0,
+    "sample_count": 1,
+    "price_points": [
+      40.981549
+    ],
+    "metadata": {
+      "field_count": 5,
+      "unknown_field_count": 2
+    }
+  },
+  "live_candle_benchmark": {
+    "enabled": true,
+    "started_at": "2026-07-01T20:07:41.075289-03:00",
+    "finished_at": "2026-07-01T20:07:41.075289-03:00",
+    "processing_time_ms": 0.012,
+    "capture_count": 1,
+    "field_count": 5,
+    "average": 40.981549,
+    "maximum": 40.981549,
+    "minimum": 40.981549,
+    "volatility": 0.0,
+    "status": "LIVE_CANDLE_COMPLETED",
+    "metadata": {
+      "session_id": "eee63be0-1000-4f7f-97c9-2cb46e3b8653",
+      "timeframe": "M1",
+      "unknown_fields": [
+        "payout",
+        "balance"
+      ],
+      "sample_count": 1
+    }
+  },
+  "live_validation_benchmark": {
+    "enabled": true,
+    "status": "LIVE_VALIDATION_COMPLETED",
+    "started_at": "2026-07-01T20:07:10.013203-03:00",
+    "finished_at": "2026-07-01T20:07:41.075289-03:00",
+    "processing_time_ms": 31063.32,
+    "peak_memory_kb": 0.0,
+    "current_memory_kb": 0.0,
+    "total_captures": 1,
+    "detected_fields": 4,
+    "unknown_fields": 2
+  },
+  "guardrails": {
+    "clicks_enabled": false,
+    "orders_enabled": false,
+    "broker_automation_enabled": false,
+    "decision_making_enabled": false,
+    "real_account_enabled": false,
+    "strategy_changed": false
+  }
+}

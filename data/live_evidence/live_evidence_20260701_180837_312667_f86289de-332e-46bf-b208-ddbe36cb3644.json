@@ -1,0 +1,193 @@
+{
+  "evidence_id": "live_evidence_20260701_180837_312667_f86289de-332e-46bf-b208-ddbe36cb3644",
+  "created_at": "2026-07-01T18:08:37.312667-03:00",
+  "source": "live_once",
+  "session_id": "f86289de-332e-46bf-b208-ddbe36cb3644",
+  "capture_count": 1,
+  "field_count": 5,
+  "unknown_fields": [
+    "payout",
+    "balance"
+  ],
+  "candle_snapshot": {
+    "session_id": "f86289de-332e-46bf-b208-ddbe36cb3644",
+    "timeframe": "M1",
+    "capture_count": 1,
+    "readings": [
+      {
+        "asset": "Data",
+        "price": "37.264664",
+        "time": "08:37",
+        "balance": "UNKNOWN",
+        "payout": "UNKNOWN",
+        "trade_value": "UNKNOWN",
+        "duration": "UNKNOWN",
+        "timeframe": "M1",
+        "confidence": 42.562,
+        "source_ocr_text": "Data e hora: 2026-07-01T18:08:37.264664-03:00\nJanela detectada: Windows PowerShell\nPrice: UNKNOWN\n\nAsset: UNKNOWN\nPayout: UNKNOWN\nAsset_Payout_Raw: pT a a Pg | 4 7-01 18:08:12,056 | 1 AT Platform 0.1.0-fou pop reading 1/20...\nBalance: UNKNOWN\nTrade_Value: UNKNOWN\nDuration: «208 danesecosodfll\nRight_Panel: r ab f -b208-ddbe36cb364 : 5 1 1 2 2 2 84 510 48 45 91.969505 1, 5 1 1 2 2 3 183 510 366 39 72.017166 ‘started_at': 3 1 1 3 0 0 0 558 588 996 -1 4 1 1 3 1 0 0 558 588 45 -1 5 1 1 3 1 1 0 558 432 45 85.435410 .056858-03:00', 5 1 1 3 1 2 483 558 105 45 94.660904 ‘upd 4 1 1 3 2 0 0 606 588 45 -1 5 1 1 3 2 1 0 606 99 36 84.980835 ai': 5 1 1 3 2 2 144 606 168 45 93.244736 False, 5 1 1 3 2 3 363 606 156 36 10.983719 Ilm': F owerShell', ‘resolut True, ‘detected_at': owerShell', ‘resolut True. ‘detected at':\n\nCampos encontrados: asset_payout, duration, right_panel\nCampos UNKNOWN: balance, trade_value\nConfiança do OCR por campo:\n- asset_payout: 69.211 (OCR_COMPLETED)\n- balance: 0.0 (OCR_EMPTY)\n- trade_value: 0.0 (OCR_EMPTY)\n- duration: 4.198 (OCR_COMPLETED)\n- right_panel: 54.276 (OCR_COMPLETED)\n\nTempo total da calibração: 3355.527 ms",
+        "metadata": {
+          "unknown_fields": [
+            "balance",
+            "payout",
+            "trade_value",
+            "duration"
+          ]
+        }
+      }
+    ],
+    "field_values": [
+      {
+        "field_name": "asset",
+        "raw_value": "Data",
+        "normalized_value": "Data",
+        "region_id": "FULL_SCREEN",
+        "confidence": 42.562,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_asset",
+          "patterns": [
+            "\\b[A-Z]{3,6}/[A-Z]{3,6}\\b",
+            "\\b[A-Z]{3,6}\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "price",
+        "raw_value": "37.264664",
+        "normalized_value": "37.264664",
+        "region_id": "FULL_SCREEN",
+        "confidence": 42.562,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_price",
+          "patterns": [
+            "\\b\\d+[.,]\\d+\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "time",
+        "raw_value": "08:37",
+        "normalized_value": "08:37",
+        "region_id": "FULL_SCREEN",
+        "confidence": 42.562,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_time",
+          "patterns": [
+            "\\b\\d{2}:\\d{2}(:\\d{2})?\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "payout",
+        "raw_value": "UNKNOWN",
+        "normalized_value": "UNKNOWN",
+        "region_id": "FULL_SCREEN",
+        "confidence": 42.562,
+        "status": "UNKNOWN",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_payout",
+          "patterns": [
+            "payout[:\\s]*\\d+%?",
+            "\\b\\d+%\\s*payout\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "balance",
+        "raw_value": "UNKNOWN",
+        "normalized_value": "UNKNOWN",
+        "region_id": "FULL_SCREEN",
+        "confidence": 42.562,
+        "status": "UNKNOWN",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_balance",
+          "patterns": [
+            "balance[:\\s]*\\$\\s*\\d+[.,]?\\d*",
+            "\\bsaldo\\b"
+          ]
+        }
+      }
+    ],
+    "field_names": [
+      "asset",
+      "price",
+      "time",
+      "payout",
+      "balance"
+    ],
+    "unknown_fields": [
+      "payout",
+      "balance"
+    ],
+    "metadata": {
+      "region_count": 5,
+      "field_extractions": 1
+    }
+  },
+  "candle_statistics": {
+    "session_id": "f86289de-332e-46bf-b208-ddbe36cb3644",
+    "timeframe": "M1",
+    "average": 37.264664,
+    "maximum": 37.264664,
+    "minimum": 37.264664,
+    "amplitude": 0.0,
+    "volatility": 0.0,
+    "sample_count": 1,
+    "price_points": [
+      37.264664
+    ],
+    "metadata": {
+      "field_count": 5,
+      "unknown_field_count": 2
+    }
+  },
+  "live_candle_benchmark": {
+    "enabled": true,
+    "started_at": "2026-07-01T18:08:37.301671-03:00",
+    "finished_at": "2026-07-01T18:08:37.301671-03:00",
+    "processing_time_ms": 0.01,
+    "capture_count": 1,
+    "field_count": 5,
+    "average": 37.264664,
+    "maximum": 37.264664,
+    "minimum": 37.264664,
+    "volatility": 0.0,
+    "status": "LIVE_CANDLE_COMPLETED",
+    "metadata": {
+      "session_id": "f86289de-332e-46bf-b208-ddbe36cb3644",
+      "timeframe": "M1",
+      "unknown_fields": [
+        "payout",
+        "balance"
+      ],
+      "sample_count": 1
+    }
+  },
+  "live_validation_benchmark": {
+    "enabled": true,
+    "status": "LIVE_VALIDATION_COMPLETED",
+    "started_at": "2026-07-01T18:08:12.073296-03:00",
+    "finished_at": "2026-07-01T18:08:37.305665-03:00",
+    "processing_time_ms": 25232.722,
+    "peak_memory_kb": 0.0,
+    "current_memory_kb": 0.0,
+    "total_captures": 1,
+    "detected_fields": 4,
+    "unknown_fields": 2
+  },
+  "guardrails": {
+    "clicks_enabled": false,
+    "orders_enabled": false,
+    "broker_automation_enabled": false,
+    "decision_making_enabled": false,
+    "real_account_enabled": false,
+    "strategy_changed": false
+  }
+}

@@ -1,0 +1,358 @@
+﻿from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+import threading
+import webbrowser
+from pathlib import Path
+from statistics import mean
+import tkinter as tk
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+RUNTIME = ROOT / "data" / "runtime"
+LAST = RUNTIME / "last_live_reading.json"
+HISTORY = RUNTIME / "live_price_history.json"
+
+BG = "#050b14"
+PANEL = "#0b1d30"
+PANEL2 = "#102a43"
+TEXT = "#eaf7ff"
+MUTED = "#88a5bb"
+CYAN = "#19d7ff"
+GREEN = "#22e089"
+RED = "#ff4f63"
+AMBER = "#ffc247"
+BLUE = "#6aa9ff"
+
+
+def read_json(path: Path, default):
+    try:
+        if not path.exists():
+            return default
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def to_float(value):
+    if value in (None, "", "UNKNOWN"):
+        return None
+    text = str(value).replace("R$", "").replace("D", "").replace("%", "").strip()
+    text = text.replace(" ", "")
+    if "," in text and "." in text:
+        text = text.replace(".", "").replace(",", ".")
+    else:
+        text = text.replace(",", ".")
+    try:
+        return float(text)
+    except Exception:
+        return None
+
+
+def fmt(value):
+    if value in (None, "", "UNKNOWN"):
+        return "—"
+    return str(value)
+
+
+def fmt_num(value):
+    if value is None:
+        return "—"
+    return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def extract_prices(history):
+    prices = []
+    if not isinstance(history, list):
+        return prices
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+        price = to_float(item.get("price_value"))
+        if price is None:
+            price = to_float(item.get("price"))
+        if price and price > 0:
+            prices.append(price)
+    return prices[-80:]
+
+
+def analyze(prices):
+    if len(prices) < 4:
+        return {
+            "direction": "AGUARDANDO",
+            "support": None,
+            "resistance": None,
+            "average": None,
+            "amplitude": None,
+            "signal": "AGUARDAR",
+            "confidence": 20,
+            "reason": "Histórico pequeno. Aguardando mais leituras.",
+            "entry": None,
+            "expiration": "Aguardar",
+        }
+
+    current = prices[-1]
+    support = min(prices[-20:])
+    resistance = max(prices[-20:])
+    avg = mean(prices[-20:])
+    amplitude = resistance - support
+
+    early = mean(prices[-8:-4]) if len(prices) >= 8 else mean(prices[:2])
+    late = mean(prices[-4:])
+    delta = late - early
+    threshold = max(amplitude * 0.12, current * 0.00010)
+
+    if delta > threshold:
+        direction = "SUBINDO"
+    elif delta < -threshold:
+        direction = "CAINDO"
+    else:
+        direction = "LATERAL"
+
+    position = 0.5 if amplitude <= 0 else (current - support) / amplitude
+    near_support = position <= 0.22
+    near_resistance = position >= 0.78
+
+    signal = "AGUARDAR"
+    confidence = 35
+    reason = "Preço fora de zona clara."
+
+    if near_support and direction in ("SUBINDO", "LATERAL"):
+        signal = "COMPRA SIMULADA"
+        confidence = 72 if direction == "SUBINDO" else 58
+        reason = "Preço próximo do suporte com possível reação."
+    elif near_resistance and direction in ("CAINDO", "LATERAL"):
+        signal = "VENDA SIMULADA"
+        confidence = 72 if direction == "CAINDO" else 58
+        reason = "Preço próximo da resistência com possível rejeição."
+    elif amplitude < current * 0.00020:
+        confidence = 28
+        reason = "Amplitude pequena. Mercado travado."
+
+    if signal == "COMPRA SIMULADA":
+        entry = support + amplitude * 0.15
+        expiration = "1 min / próxima vela"
+    elif signal == "VENDA SIMULADA":
+        entry = resistance - amplitude * 0.15
+        expiration = "1 min / próxima vela"
+    else:
+        entry = None
+        expiration = "Aguardar suporte/resistência"
+
+    return {
+        "direction": direction,
+        "support": support,
+        "resistance": resistance,
+        "average": avg,
+        "amplitude": amplitude,
+        "signal": signal,
+        "confidence": confidence,
+        "reason": reason,
+        "entry": entry,
+        "expiration": expiration,
+    }
+
+
+class App:
+    def __init__(self):
+        self.process = None
+        self.running = False
+        self.logs = []
+
+        self.root = tk.Tk()
+        self.root.title("PredixAI Trader Smart App")
+        self.root.geometry("620x780+40+30")
+        self.root.configure(bg=BG)
+        self.root.protocol("WM_DELETE_WINDOW", self.close)
+
+        self.values = {}
+        self.build()
+        self.refresh()
+
+    def build(self):
+        tk.Label(self.root, text="PREDIXAI TRADER", fg=CYAN, bg=BG, font=("Segoe UI", 22, "bold")).pack(anchor="w", padx=16, pady=(14, 0))
+        tk.Label(self.root, text="Central inteligente · V1 Observador · sinal 100% simulado", fg=MUTED, bg=BG, font=("Segoe UI", 10)).pack(anchor="w", padx=16)
+
+        self.status = tk.Label(self.root, text="PARADO", fg=AMBER, bg=PANEL2, font=("Segoe UI", 13, "bold"), pady=10)
+        self.status.pack(fill="x", padx=16, pady=12)
+
+        buttons = tk.Frame(self.root, bg=BG)
+        buttons.pack(fill="x", padx=16)
+
+        self.button(buttons, "Abrir corretora", self.open_broker, 0, 0)
+        self.button(buttons, "Iniciar 3s", lambda: self.start(3), 0, 1)
+        self.button(buttons, "Iniciar 5s", lambda: self.start(5), 0, 2)
+        self.button(buttons, "Parar", self.stop, 1, 0)
+        self.button(buttons, "Dashboard", self.open_dashboard, 1, 1)
+        self.button(buttons, "Limpar", self.clear, 1, 2)
+
+        grid = tk.Frame(self.root, bg=BG)
+        grid.pack(fill="x", padx=16, pady=10)
+
+        cards = [
+            ("Ativo", "asset"), ("Preço", "price"), ("Payout", "payout"),
+            ("Saldo OCR", "balance"), ("Leituras", "count"), ("Direção", "direction"),
+            ("Suporte", "support"), ("Resistência", "resistance"), ("Amplitude", "amplitude"),
+            ("Entrada ideal", "entry"), ("Expiração", "expiration"), ("Confiança", "confidence"),
+        ]
+
+        for i, (title, key) in enumerate(cards):
+            self.card(grid, title, key, i // 3, i % 3)
+
+        box = tk.Frame(self.root, bg=PANEL, highlightbackground=CYAN, highlightthickness=1)
+        box.pack(fill="x", padx=16, pady=8)
+
+        tk.Label(box, text="SINAL SIMULADO", fg=MUTED, bg=PANEL, font=("Segoe UI", 9, "bold")).pack(anchor="w", padx=12, pady=(10, 0))
+        self.signal = tk.Label(box, text="AGUARDAR", fg=AMBER, bg=PANEL, font=("Segoe UI", 24, "bold"))
+        self.signal.pack(anchor="w", padx=12)
+
+        self.reason = tk.Label(box, text="Motivo: aguardando leituras.", fg=TEXT, bg=PANEL, font=("Segoe UI", 10), wraplength=560, justify="left")
+        self.reason.pack(anchor="w", padx=12, pady=(0, 12))
+
+        self.chart = tk.Canvas(self.root, height=130, bg="#071522", highlightbackground="#1c405f", highlightthickness=1)
+        self.chart.pack(fill="x", padx=16, pady=8)
+
+        self.log = tk.Label(self.root, text="Pronto.", fg=MUTED, bg=BG, font=("Consolas", 9), justify="left", wraplength=570)
+        self.log.pack(fill="x", padx=16, pady=8)
+
+    def button(self, parent, text, command, row, col):
+        b = tk.Button(parent, text=text, command=command, fg=TEXT, bg="#102a43", activebackground="#17405f", activeforeground=TEXT, font=("Segoe UI", 10, "bold"), relief="flat", pady=8)
+        b.grid(row=row, column=col, sticky="ew", padx=4, pady=4)
+        parent.grid_columnconfigure(col, weight=1)
+
+    def card(self, parent, title, key, row, col):
+        f = tk.Frame(parent, bg=PANEL, highlightbackground="#193955", highlightthickness=1)
+        f.grid(row=row, column=col, sticky="nsew", padx=4, pady=4)
+        parent.grid_columnconfigure(col, weight=1)
+        tk.Label(f, text=title, fg=MUTED, bg=PANEL, font=("Segoe UI", 8, "bold")).pack(anchor="w", padx=8, pady=(7, 0))
+        v = tk.Label(f, text="—", fg=TEXT, bg=PANEL, font=("Segoe UI", 12, "bold"))
+        v.pack(anchor="w", padx=8, pady=(0, 8))
+        self.values[key] = v
+
+    def open_broker(self):
+        webbrowser.open("https://olymptrade.com/platform")
+        self.logs.append("Corretora aberta.")
+
+    def open_dashboard(self):
+        webbrowser.open("http://127.0.0.1:8765")
+        self.logs.append("Dashboard aberto.")
+
+    def clear(self):
+        RUNTIME.mkdir(parents=True, exist_ok=True)
+        for p in RUNTIME.glob("*.json"):
+            try:
+                p.unlink()
+            except Exception:
+                pass
+        self.logs.append("Runtime limpo.")
+
+    def start(self, interval):
+        if self.process and self.process.poll() is None:
+            self.logs.append("Já está rodando.")
+            return
+
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(SRC) + os.pathsep + env.get("PYTHONPATH", "")
+
+        cmd = [
+            sys.executable, "-m", "predixai.main",
+            "--live-loop", "--loop-count", "9999",
+            "--loop-interval", str(interval),
+        ]
+
+        flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
+        self.status.config(text=f"RODANDO · {interval}s", fg=GREEN)
+        self.logs.append("Iniciando. Vou minimizar para não atrapalhar a tela.")
+
+        def launch():
+            self.process = subprocess.Popen(cmd, cwd=str(ROOT), env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, creationflags=flags)
+            threading.Thread(target=self.read_logs, daemon=True).start()
+
+        self.root.after(700, self.root.iconify)
+        self.root.after(1500, launch)
+
+    def read_logs(self):
+        if not self.process or not self.process.stdout:
+            return
+        for line in self.process.stdout:
+            line = line.strip()
+            if line:
+                self.logs.append(line[-160:])
+                self.logs = self.logs[-6:]
+
+    def stop(self):
+        if self.process and self.process.poll() is None:
+            self.process.terminate()
+        self.running = False
+        self.status.config(text="PARADO", fg=AMBER)
+        self.logs.append("Leitura parada.")
+
+    def draw_chart(self, prices):
+        self.chart.delete("all")
+        w = max(self.chart.winfo_width(), 560)
+        h = 130
+        pad = 12
+
+        if len(prices) < 2:
+            self.chart.create_text(w / 2, h / 2, text="Aguardando histórico...", fill=MUTED)
+            return
+
+        mn, mx = min(prices), max(prices)
+        span = mx - mn if mx != mn else 1
+        points = []
+
+        for i, p in enumerate(prices[-60:]):
+            x = pad + i * ((w - pad * 2) / max(1, len(prices[-60:]) - 1))
+            y = h - pad - ((p - mn) / span) * (h - pad * 2)
+            points.append((x, y))
+
+        for i in range(1, len(points)):
+            self.chart.create_line(points[i - 1], points[i], fill=CYAN, width=2)
+
+    def refresh(self):
+        last = read_json(LAST, {})
+        history = read_json(HISTORY, [])
+        prices = extract_prices(history)
+        smart = analyze(prices)
+
+        self.values["asset"].config(text=fmt(last.get("asset")))
+        self.values["price"].config(text=fmt(last.get("price")))
+        self.values["payout"].config(text=fmt(last.get("payout")))
+        self.values["balance"].config(text=fmt(last.get("balance")))
+        self.values["count"].config(text=str(len(prices)))
+        self.values["direction"].config(text=smart["direction"])
+        self.values["support"].config(text=fmt_num(smart["support"]))
+        self.values["resistance"].config(text=fmt_num(smart["resistance"]))
+        self.values["amplitude"].config(text=fmt_num(smart["amplitude"]))
+        self.values["entry"].config(text=fmt_num(smart["entry"]))
+        self.values["expiration"].config(text=smart["expiration"])
+        self.values["confidence"].config(text=f'{smart["confidence"]}%')
+
+        color = AMBER
+        if smart["signal"] == "COMPRA SIMULADA":
+            color = GREEN
+        elif smart["signal"] == "VENDA SIMULADA":
+            color = RED
+
+        self.signal.config(text=smart["signal"], fg=color)
+        self.reason.config(text=f"Motivo: {smart['reason']}")
+        self.draw_chart(prices)
+
+        if self.process and self.process.poll() is not None and self.status.cget("text").startswith("RODANDO"):
+            self.status.config(text="FINALIZADO", fg=AMBER)
+
+        self.log.config(text="\n".join(self.logs[-6:]) or "Pronto.")
+        self.root.after(1000, self.refresh)
+
+    def close(self):
+        self.stop()
+        self.root.destroy()
+
+
+if __name__ == "__main__":
+    App().root.mainloop()

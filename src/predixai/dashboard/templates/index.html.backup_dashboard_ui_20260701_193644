@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PredixAI Trader</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">PredixAI BR</p>
+        <h1>PredixAI Trader</h1>
+        <p class="subtitle">V1 Observador - leitura visual, memoria de mercado e dashboard local.</p>
+      </div>
+      <div class="status-card">
+        <span class="status-dot"></span>
+        <div>
+          <strong id="reading_status">Aguardando leitura</strong>
+          <small id="reading_timestamp">Sem timestamp</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="cards">
+      <article class="card"><span>Ativo</span><strong id="asset">--</strong></article>
+      <article class="card"><span>Preco</span><strong id="price">--</strong></article>
+      <article class="card"><span>Payout</span><strong id="payout">--</strong></article>
+      <article class="card"><span>Saldo</span><strong id="balance">--</strong></article>
+      <article class="card"><span>Valor entrada</span><strong id="trade_value">--</strong></article>
+      <article class="card"><span>Duracao</span><strong id="duration">--</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <p class="eyebrow">Historico de preco</p>
+          <h2>Sessao observada</h2>
+        </div>
+        <div class="pill" id="history_status">0 leituras</div>
+      </div>
+
+      <div class="session-grid">
+        <article><span>Inicio</span><strong id="session_start">--</strong></article>
+        <article><span>Fim</span><strong id="session_end">--</strong></article>
+        <article><span>Primeiro preco</span><strong id="first_price">--</strong></article>
+        <article><span>Ultimo preco</span><strong id="last_price">--</strong></article>
+        <article><span>Variacao</span><strong id="period_variation">--</strong></article>
+        <article><span>Direcao</span><strong id="period_direction">--</strong></article>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="price_chart" width="1200" height="420"></canvas>
+      </div>
+
+      <div class="stats-grid">
+        <article><span>Minima</span><strong id="minimum">--</strong></article>
+        <article><span>Maxima</span><strong id="maximum">--</strong></article>
+        <article><span>Media</span><strong id="average">--</strong></article>
+        <article><span>Amplitude</span><strong id="amplitude">--</strong></article>
+        <article><span>Leituras validas</span><strong id="history_count">--</strong></article>
+        <article><span>Limite salvo</span><strong id="history_limit">--</strong></article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

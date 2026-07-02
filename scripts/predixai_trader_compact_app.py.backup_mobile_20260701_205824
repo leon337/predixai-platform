@@ -1,0 +1,870 @@
+# -*- coding: utf-8 -*-
+"""
+PredixAI Trader Compact App
+Modo: OBSERVADOR / SIMULADO / SEM ORDEM REAL
+
+Este app não captura tela, não usa OCR e não clica na corretora.
+Ele apenas inicia o leitor externo e lê JSONs de data/runtime.
+"""
+
+from __future__ import annotations
+
+import ctypes
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import webbrowser
+from pathlib import Path
+from typing import Any
+
+import tkinter as tk
+
+
+REPO = Path(__file__).resolve().parents[1]
+RUNTIME = REPO / "data" / "runtime"
+LAST_FILE = RUNTIME / "last_live_reading.json"
+HISTORY_FILE = RUNTIME / "live_price_history.json"
+REJECTED_FILE = RUNTIME / "rejected_live_readings.json"
+
+REFRESH_MS = 500
+CHART_POINTS = 60
+
+BG = "#071018"
+PANEL = "#101b28"
+PANEL2 = "#0c1723"
+LINE = "#00e5ff"
+TEXT = "#f5f7fb"
+MUTED = "#a8b5c6"
+YELLOW = "#ffbf00"
+RED = "#ff4d6d"
+GREEN = "#38d66b"
+
+
+class CompactApp:
+    def __init__(self) -> None:
+        self.root = tk.Tk()
+        self.root.title("PredixAI Compact")
+        self.root.geometry("292x552")
+        self.root.minsize(260, 500)
+        self.root.maxsize(300, 560)
+        self.root.resizable(False, False)
+        self.root.configure(bg=BG)
+        self.root.attributes("-topmost", False)
+
+        self.reader_proc: subprocess.Popen | None = None
+        self.last_error = "-"
+        self.last_status = "Parado"
+        self.last_interval = 1
+
+        self._build_ui()
+        self._refresh()
+        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
+
+    def _build_ui(self) -> None:
+        top = tk.Frame(self.root, bg=BG)
+        top.pack(fill="x", padx=8, pady=(7, 2))
+
+        tk.Label(
+            top,
+            text="PredixAI",
+            bg=BG,
+            fg=LINE,
+            font=("Consolas", 14, "bold"),
+            anchor="w",
+        ).pack(side="left", fill="x", expand=True)
+
+        self.badge = tk.Label(
+            top,
+            text="PARADO",
+            bg="#152b3a",
+            fg=MUTED,
+            font=("Consolas", 8, "bold"),
+            padx=7,
+            pady=3,
+        )
+        self.badge.pack(side="right")
+
+        tk.Label(
+            self.root,
+            text="V1 OBSERVADOR / SIMULADO",
+            bg=BG,
+            fg=MUTED,
+            font=("Consolas", 7),
+            anchor="w",
+        ).pack(fill="x", padx=9)
+
+        market = tk.Frame(self.root, bg=PANEL, highlightbackground="#24364a", highlightthickness=1)
+        market.pack(fill="x", padx=8, pady=(6, 5))
+
+        self.asset_label = self._row_label(market, "Ativo", "-", 0, 11)
+        self.price_label = self._row_label(market, "Preço", "-", 1, 22)
+        self.signal_label = self._row_label(market, "Sinal", "AGUARDAR", 2, 15)
+
+        metrics = tk.Frame(self.root, bg=BG)
+        metrics.pack(fill="x", padx=8)
+        self.confidence_label = self._metric(metrics, "Conf.", "-", 0, 0)
+        self.readings_label = self._metric(metrics, "Leituras", "0", 0, 1)
+        self.age_label = self._metric(metrics, "Última", "-", 0, 2)
+
+        status = tk.Frame(self.root, bg=PANEL2, highlightbackground="#223247", highlightthickness=1)
+        status.pack(fill="x", padx=8, pady=(5, 5))
+
+        self.status_label = tk.Label(
+            status,
+            text="Status: aguardando",
+            bg=PANEL2,
+            fg=YELLOW,
+            font=("Arial", 8, "bold"),
+            anchor="w",
+        )
+        self.status_label.pack(fill="x", padx=7, pady=(5, 1))
+
+        self.reader_label = tk.Label(
+            status,
+            text="Leitor: parado | intervalo: 1s",
+            bg=PANEL2,
+            fg=MUTED,
+            font=("Consolas", 7),
+            anchor="w",
+        )
+        self.reader_label.pack(fill="x", padx=7, pady=(0, 4))
+
+        self.chart = tk.Canvas(
+            self.root,
+            width=270,
+            height=112,
+            bg=PANEL,
+            highlightthickness=1,
+            highlightbackground="#24364a",
+        )
+        self.chart.pack(fill="x", padx=8, pady=(0, 5))
+
+        self.message_label = tk.Label(
+            self.root,
+            text="Clique na corretora para iniciar leitura.",
+            bg=PANEL,
+            fg=TEXT,
+            font=("Arial", 8, "bold"),
+            wraplength=260,
+            justify="center",
+            padx=6,
+            pady=6,
+        )
+        self.message_label.pack(fill="x", padx=8, pady=(0, 5))
+
+        buttons = tk.Frame(self.root, bg=BG)
+        buttons.pack(fill="x", padx=8)
+        self._button(buttons, "1s", lambda: self.start_reader(1), 0, 0)
+        self._button(buttons, "2s", lambda: self.start_reader(2), 0, 1)
+        self._button(buttons, "3s", lambda: self.start_reader(3), 0, 2)
+        self._button(buttons, "Parar", self.stop_reader, 0, 3)
+        self._button(buttons, "Focar", self.focus_broker, 1, 0)
+        self._button(buttons, "Limpar", self.clear_runtime, 1, 1)
+        self._button(buttons, "Dash", self.open_dashboard, 1, 2, columnspan=2)
+
+        self.log_label = tk.Label(
+            self.root,
+            text="Log: -",
+            bg=BG,
+            fg=MUTED,
+            font=("Consolas", 7),
+            wraplength=270,
+            justify="left",
+            anchor="w",
+        )
+        self.log_label.pack(fill="x", padx=9, pady=(4, 0))
+
+        tk.Label(
+            self.root,
+            text="SEM CLIQUE / SEM ORDEM / SEM CONTA REAL",
+            bg=BG,
+            fg=MUTED,
+            font=("Consolas", 7),
+        ).pack(side="bottom", pady=(2, 5))
+
+    def _row_label(
+        self,
+        parent: tk.Frame,
+        name: str,
+        value: str,
+        row: int,
+        size: int,
+    ) -> tk.Label:
+        frame = tk.Frame(parent, bg=PANEL)
+        frame.pack(fill="x", padx=7, pady=(5 if row == 0 else 1, 5 if row == 2 else 1))
+        tk.Label(
+            frame,
+            text=name,
+            bg=PANEL,
+            fg=MUTED,
+            font=("Consolas", 7),
+            width=8,
+            anchor="w",
+        ).pack(side="left")
+        label = tk.Label(
+            frame,
+            text=value,
+            bg=PANEL,
+            fg=TEXT,
+            font=("Arial", size, "bold"),
+            anchor="w",
+        )
+        label.pack(side="left", fill="x", expand=True)
+        return label
+
+    def _metric(self, parent: tk.Frame, name: str, value: str, row: int, col: int) -> tk.Label:
+        box = tk.Frame(parent, bg=PANEL2, highlightbackground="#23364a", highlightthickness=1)
+        box.grid(row=row, column=col, sticky="nsew", padx=2)
+        parent.grid_columnconfigure(col, weight=1)
+
+        tk.Label(
+            box,
+            text=name,
+            bg=PANEL2,
+            fg=MUTED,
+            font=("Consolas", 7),
+        ).pack(fill="x", padx=5, pady=(4, 0))
+
+        label = tk.Label(
+            box,
+            text=value,
+            bg=PANEL2,
+            fg=TEXT,
+            font=("Arial", 9, "bold"),
+        )
+        label.pack(fill="x", padx=5, pady=(0, 4))
+        return label
+
+    def _button(
+        self,
+        parent: tk.Frame,
+        text: str,
+        command,
+        row: int,
+        col: int,
+        columnspan: int = 1,
+    ) -> None:
+        btn = tk.Button(
+            parent,
+            text=text,
+            command=command,
+            bg="#13263a",
+            fg=TEXT,
+            activebackground="#1d3a58",
+            activeforeground=TEXT,
+            relief="flat",
+            font=("Arial", 8, "bold"),
+            height=1,
+        )
+        btn.grid(row=row, column=col, columnspan=columnspan, sticky="nsew", padx=2, pady=2)
+        for index in range(4):
+            parent.grid_columnconfigure(index, weight=1)
+
+    def run(self) -> None:
+        self.root.mainloop()
+
+    def start_reader(self, interval: int) -> None:
+        if self.reader_proc and self.reader_proc.poll() is None:
+            if self.last_interval == interval:
+                self.last_error = "Leitor já está rodando nesse intervalo."
+                return
+            self.stop_reader(silent=True)
+
+        self.last_interval = interval
+        python_exe = REPO / ".venv" / "Scripts" / "python.exe"
+        if not python_exe.exists():
+            python_exe = Path(sys.executable)
+
+        ps_command = (
+            f"Set-Location -LiteralPath '{REPO}'; "
+            "$Host.UI.RawUI.WindowTitle = 'PredixAI Live Reader'; "
+            "try { mode con: cols=86 lines=18 } catch {}; "
+            "Write-Host 'PredixAI Live Loop - OBSERVADOR / SEM ORDEM REAL' -ForegroundColor Cyan; "
+            "Write-Host 'Clique na corretora para iniciar leitura.' -ForegroundColor Yellow; "
+            f"& '{python_exe}' -m predixai.main --live-loop --loop-count 9999 --loop-interval {interval}"
+        )
+
+        try:
+            flags = subprocess.CREATE_NEW_CONSOLE if os.name == "nt" else 0
+            self.reader_proc = subprocess.Popen(
+                [
+                    "powershell.exe",
+                    "-NoExit",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command",
+                    ps_command,
+                ],
+                cwd=str(REPO),
+                creationflags=flags,
+            )
+            self.last_status = "Rodando"
+            self.last_error = "PowerShell aberto. Clique na corretora."
+            if os.name == "nt":
+                self.root.after(800, self._position_reader_window)
+        except Exception as exc:
+            self.last_status = "Erro"
+            self.last_error = str(exc)
+
+    def stop_reader(self, silent: bool = False) -> None:
+        if not self.reader_proc or self.reader_proc.poll() is not None:
+            self.last_status = "Parado"
+            if not silent:
+                self.last_error = "Nenhum leitor ativo."
+            return
+
+        try:
+            if os.name == "nt":
+                subprocess.run(
+                    ["taskkill", "/PID", str(self.reader_proc.pid), "/T", "/F"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=False,
+                )
+            else:
+                self.reader_proc.terminate()
+
+            self.last_status = "Parado"
+            if not silent:
+                self.last_error = "Leitor encerrado."
+        except Exception as exc:
+            self.last_error = str(exc)
+
+    def _position_reader_window(self) -> None:
+        if os.name != "nt" or not self.reader_proc:
+            return
+
+        try:
+            user32 = ctypes.windll.user32
+            pid = int(self.reader_proc.pid)
+            target = {"hwnd": 0}
+
+            def callback(hwnd, _):
+                process_id = ctypes.c_ulong()
+                user32.GetWindowThreadProcessId(hwnd, ctypes.byref(process_id))
+                if int(process_id.value) == pid and user32.IsWindowVisible(hwnd):
+                    target["hwnd"] = hwnd
+                    return False
+                return True
+
+            user32.EnumWindows(
+                ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(callback),
+                0,
+            )
+            if not target["hwnd"]:
+                return
+
+            width = 620
+            height = 310
+            screen_w = user32.GetSystemMetrics(0)
+            screen_h = user32.GetSystemMetrics(1)
+            x = max(0, screen_w - width - 12)
+            y = max(0, screen_h - height - 48)
+            user32.ShowWindow(target["hwnd"], 1)
+            user32.MoveWindow(target["hwnd"], x, y, width, height, True)
+        except Exception:
+            return
+
+    def clear_runtime(self) -> None:
+        RUNTIME.mkdir(parents=True, exist_ok=True)
+        removed = 0
+        for path in (LAST_FILE, HISTORY_FILE, REJECTED_FILE):
+            try:
+                if path.exists():
+                    path.unlink()
+                    removed += 1
+            except Exception as exc:
+                self.last_error = f"Falha ao limpar {path.name}: {exc}"
+                return
+        self.last_error = f"Runtime limpo: {removed} arquivo(s)."
+
+    def open_dashboard(self) -> None:
+        webbrowser.open("http://127.0.0.1:8765")
+        self.last_error = "Dashboard aberto no navegador padrão."
+
+    def focus_broker(self) -> None:
+        if os.name != "nt":
+            self.last_error = "Focar corretora automático só está disponível no Windows."
+            return
+
+        try:
+            user32 = ctypes.windll.user32
+            target = {"hwnd": 0, "title": ""}
+
+            def callback(hwnd, _):
+                if not user32.IsWindowVisible(hwnd):
+                    return True
+
+                length = user32.GetWindowTextLengthW(hwnd)
+                if length <= 0:
+                    return True
+
+                buff = ctypes.create_unicode_buffer(length + 1)
+                user32.GetWindowTextW(hwnd, buff, length + 1)
+                title = buff.value
+                if self._title_has_broker_evidence(title):
+                    target["hwnd"] = hwnd
+                    target["title"] = title
+                    return False
+                return True
+
+            user32.EnumWindows(
+                ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(callback),
+                0,
+            )
+            if not target["hwnd"]:
+                self.last_error = "Janela da corretora não encontrada."
+                return
+
+            user32.ShowWindow(target["hwnd"], 9)
+            user32.SetForegroundWindow(target["hwnd"])
+            self.last_error = f"Corretora focada: {target['title'][:46]}"
+        except Exception as exc:
+            self.last_error = f"Falha ao focar: {exc}"
+
+    def _refresh(self) -> None:
+        state = self._read_state()
+        self._paint_state(state)
+        self._draw_chart(state["prices"])
+        self.root.after(REFRESH_MS, self._refresh)
+
+    def _read_json(self, path: Path) -> tuple[Any | None, str | None]:
+        try:
+            if not path.exists():
+                return None, None
+            raw = path.read_text(encoding="utf-8").strip()
+            if not raw:
+                return None, f"{path.name} vazio"
+            return json.loads(raw), None
+        except Exception as exc:
+            return None, f"{path.name}: {exc}"
+
+    def _read_state(self) -> dict[str, Any]:
+        last, last_err = self._read_json(LAST_FILE)
+        history, history_err = self._read_json(HISTORY_FILE)
+        if last_err:
+            self.last_error = last_err
+        elif history_err:
+            self.last_error = history_err
+
+        history_prices = self._collect_valid_prices(history)
+        last_status = self._as_text(self._deep_get(last, {"status"})).upper()
+        ignored_window = last_status == "IGNORED_WINDOW" or bool(
+            self._deep_get(last, {"capture_skipped"})
+        )
+
+        asset = self._as_text(self._deep_get(last, {"asset", "symbol", "active", "instrument"}))
+        if not asset or asset.upper() in {"UNKNOWN", "DATA", "NONE", "N/A"}:
+            asset = self._asset_from_text(last)
+
+        title_price = self._extract_title_price(last)
+        json_price = self._to_float(
+            self._deep_get(last, {"price", "price_value", "current_price", "live_price", "last_price"})
+        )
+
+        price = None
+        if not ignored_window:
+            if self._is_valid_price(title_price, asset):
+                price = title_price
+            elif self._is_valid_price(json_price, asset):
+                price = json_price
+            elif history_prices:
+                price = history_prices[-1]
+
+        valid_count = len(history_prices)
+        valid_age = self._file_age_seconds(HISTORY_FILE) if valid_count else None
+        last_age = self._file_age_seconds(LAST_FILE)
+        display_age = valid_age if valid_age is not None else last_age
+
+        computed = self._compute_observer_signal(history_prices)
+        signal = self._as_text(
+            self._deep_get(last, {"signal", "instruction", "robot_instruction", "decision", "action"})
+        )
+        direction = self._as_text(self._deep_get(last, {"direction", "trend", "market_direction"}))
+        confidence = self._to_float(self._deep_get(last, {"confidence", "confidence_pct", "score"}))
+        reason = self._as_text(self._deep_get(last, {"reason", "message", "analysis_reason", "explanation"}))
+
+        if not signal:
+            signal = computed["signal"]
+        if not direction:
+            direction = computed["direction"]
+        if confidence is None:
+            confidence = computed["confidence"]
+        if not reason:
+            reason = computed["reason"]
+
+        running = self.reader_proc is not None and self.reader_proc.poll() is None
+        stale_seconds = max(4, self.last_interval * 3)
+        stale = running and (valid_age is None or valid_age > stale_seconds)
+
+        if ignored_window:
+            status_text = "Janela errada"
+            status_color = RED
+            message = reason or "Janela errada detectada. Clique na corretora."
+            signal = "AGUARDAR"
+            confidence = 0
+        elif stale and valid_count > 0:
+            status_text = "Sem nova leitura"
+            status_color = YELLOW
+            message = "Leitor rodando, mas sem nova leitura válida."
+        elif running and valid_count == 0:
+            status_text = "Coletando"
+            status_color = YELLOW
+            message = "Clique na corretora. Aguardando histórico."
+        elif running:
+            status_text = "Rodando"
+            status_color = GREEN
+            message = "Leitura válida em modo observador."
+        else:
+            status_text = "Parado"
+            status_color = MUTED
+            message = "Leitor parado. Use 1s, 2s ou 3s."
+
+        if price is None:
+            signal = "AGUARDAR"
+
+        return {
+            "asset": asset or "-",
+            "price": price,
+            "prices": history_prices[-CHART_POINTS:],
+            "readings": valid_count,
+            "age": display_age,
+            "signal": self._normalize_signal(signal),
+            "direction": direction or computed["direction"],
+            "confidence": confidence,
+            "reason": reason or "-",
+            "running": running,
+            "status_text": status_text,
+            "status_color": status_color,
+            "message": message,
+        }
+
+    def _paint_state(self, state: dict[str, Any]) -> None:
+        running = state["running"]
+        self.badge.config(
+            text="RODANDO" if running else "PARADO",
+            fg=GREEN if running else MUTED,
+        )
+
+        signal = state["signal"]
+        signal_color = YELLOW
+        if "ALTA" in signal or "CIMA" in signal:
+            signal_color = GREEN
+        elif "BAIXA" in signal or "BAIXO" in signal:
+            signal_color = RED
+
+        self.asset_label.config(text=state["asset"])
+        self.price_label.config(text=self._format_price(state["price"]))
+        self.signal_label.config(text=signal, fg=signal_color)
+        self.confidence_label.config(text=self._format_confidence(state["confidence"]))
+        self.readings_label.config(text=str(state["readings"]))
+        self.age_label.config(text=self._format_age(state["age"]))
+        self.status_label.config(
+            text=f"Status: {state['status_text']}",
+            fg=state["status_color"],
+        )
+        self.reader_label.config(
+            text=f"Leitor: {'rodando' if running else 'parado'} | intervalo: {self.last_interval}s"
+        )
+        self.message_label.config(text=state["message"])
+        self.log_label.config(text=f"Log: {self.last_error}")
+
+    def _draw_chart(self, prices: list[float]) -> None:
+        self.chart.delete("all")
+        width = int(self.chart.winfo_width() or 270)
+        height = int(self.chart.winfo_height() or 112)
+        pad_x = 9
+        pad_y = 13
+
+        for y_ratio in (0.25, 0.5, 0.75):
+            y = pad_y + (height - pad_y * 2) * y_ratio
+            self.chart.create_line(pad_x, y, width - pad_x, y, fill="#1d2f40")
+
+        if len(prices) < 2:
+            self.chart.create_text(
+                width / 2,
+                height / 2,
+                text="Coletando dados para gráfico...",
+                fill=MUTED,
+                font=("Arial", 8, "bold"),
+            )
+            return
+
+        low = min(prices)
+        high = max(prices)
+        span = high - low
+        if span <= 0:
+            span = 1.0
+
+        usable_w = width - pad_x * 2
+        usable_h = height - pad_y * 2 - 10
+        step = usable_w / max(1, len(prices) - 1)
+        points: list[float] = []
+        for index, price in enumerate(prices):
+            x = pad_x + index * step
+            y = pad_y + (high - price) / span * usable_h
+            points.extend([x, y])
+
+        color = GREEN if prices[-1] >= prices[0] else RED
+        self.chart.create_line(*points, fill=color, width=2, smooth=True)
+        self.chart.create_oval(
+            points[-2] - 3,
+            points[-1] - 3,
+            points[-2] + 3,
+            points[-1] + 3,
+            outline=color,
+            fill=color,
+        )
+        self.chart.create_text(
+            width - pad_x,
+            height - 8,
+            text=self._format_price(prices[-1]),
+            fill=TEXT,
+            font=("Consolas", 8, "bold"),
+            anchor="e",
+        )
+        trend = "alta" if prices[-1] > prices[0] else "baixa" if prices[-1] < prices[0] else "lateral"
+        self.chart.create_text(
+            pad_x,
+            height - 8,
+            text=f"{len(prices)} pts / {trend}",
+            fill=MUTED,
+            font=("Consolas", 7),
+            anchor="w",
+        )
+
+    def _compute_observer_signal(self, prices: list[float]) -> dict[str, Any]:
+        if len(prices) < 6:
+            return {
+                "signal": "AGUARDAR",
+                "direction": "COLETANDO",
+                "confidence": 20,
+                "reason": "Histórico ainda pequeno.",
+            }
+
+        delta = prices[-1] - prices[-6]
+        short_delta = prices[-1] - prices[-2]
+        if abs(delta) < 0.35:
+            return {
+                "signal": "AGUARDAR",
+                "direction": "LATERAL",
+                "confidence": 35,
+                "reason": "Movimento fraco no histórico recente.",
+            }
+        if delta > 0:
+            return {
+                "signal": "OBSERVAR ALTA",
+                "direction": "ALTA",
+                "confidence": 55 if short_delta >= 0 else 45,
+                "reason": "Preço recente acima da base anterior.",
+            }
+        return {
+            "signal": "OBSERVAR BAIXA",
+            "direction": "BAIXA",
+            "confidence": 55 if short_delta <= 0 else 45,
+            "reason": "Preço recente abaixo da base anterior.",
+        }
+
+    def _collect_valid_prices(self, data: Any) -> list[float]:
+        prices: list[float] = []
+
+        def walk(node: Any) -> None:
+            if isinstance(node, dict):
+                asset = self._as_text(
+                    self._deep_get(node, {"asset", "symbol", "active", "instrument"}, shallow=True)
+                )
+                direct = self._deep_get(
+                    node,
+                    {"price_value", "price", "current_price", "live_price", "last_price"},
+                    shallow=True,
+                )
+                value = self._to_float(direct)
+                if self._is_valid_price(value, asset):
+                    prices.append(float(value))
+                for child in node.values():
+                    walk(child)
+            elif isinstance(node, list):
+                for item in node:
+                    walk(item)
+
+        walk(data)
+        return prices
+
+    def _extract_title_price(self, data: Any) -> float | None:
+        for text in self._collect_texts(data):
+            lowered = text.lower()
+            if not self._title_has_broker_evidence(text):
+                continue
+
+            patterns = (
+                r"(\d{3,6}(?:[.,]\d{1,6})?)\s+cafe[ií]na\s+index",
+                r"(\d{3,6}(?:[.,]\d{1,6})?)\s+asia\s+composite\s+index",
+                r"(?:cafe[ií]na|asia\s+composite)\s+index\s+(\d{3,6}(?:[.,]\d{1,6})?)",
+            )
+            for pattern in patterns:
+                match = re.search(pattern, text, flags=re.IGNORECASE)
+                if match:
+                    value = self._to_float(match.group(1))
+                    if self._is_valid_price(value, self._asset_from_text(text)):
+                        return value
+
+            if "cafe" in lowered or "asia composite" in lowered or "olymp" in lowered:
+                for number in re.findall(r"\b\d{3,6}(?:[.,]\d{1,6})?\b", text):
+                    value = self._to_float(number)
+                    if self._is_valid_price(value, self._asset_from_text(text)):
+                        return value
+        return None
+
+    def _title_has_broker_evidence(self, title: str) -> bool:
+        return bool(
+            re.search(
+                r"olymp\s*trade|olymptrade|cafe[ií]na\s+index|asia\s+composite\s+index",
+                title or "",
+                flags=re.IGNORECASE,
+            )
+        )
+
+    def _asset_from_text(self, data: Any) -> str:
+        texts = self._collect_texts(data)
+        text = " ".join(texts)
+        if re.search(r"cafe[ií]na\s+index", text, flags=re.IGNORECASE):
+            return "Cafeina Index"
+        if re.search(r"asia\s+composite\s+index", text, flags=re.IGNORECASE):
+            return "Asia Composite Index"
+        if re.search(r"latam\s+index", text, flags=re.IGNORECASE):
+            return "LATAM Index"
+        return ""
+
+    def _collect_texts(self, data: Any) -> list[str]:
+        texts: list[str] = []
+
+        def walk(node: Any) -> None:
+            if isinstance(node, dict):
+                for value in node.values():
+                    walk(value)
+            elif isinstance(node, list):
+                for item in node:
+                    walk(item)
+            elif isinstance(node, str):
+                texts.append(node)
+
+        walk(data)
+        return texts
+
+    def _deep_get(self, data: Any, keys: set[str], shallow: bool = False) -> Any:
+        if not isinstance(data, (dict, list)):
+            return None
+
+        if isinstance(data, dict):
+            normalized = {key.lower() for key in keys}
+            for key, value in data.items():
+                if str(key).lower() in normalized:
+                    return value
+            if shallow:
+                return None
+            for value in data.values():
+                found = self._deep_get(value, keys)
+                if found is not None:
+                    return found
+
+        if isinstance(data, list) and not shallow:
+            for item in reversed(data):
+                found = self._deep_get(item, keys)
+                if found is not None:
+                    return found
+        return None
+
+    def _is_valid_price(self, value: float | None, asset: str | None = None) -> bool:
+        if value is None or value <= 0:
+            return False
+        rounded = int(round(value))
+        if rounded in {1, 3, 24, 25, 52, 85, 2026}:
+            return False
+        if value < 1000:
+            return False
+        asset_text = (asset or "").lower()
+        if ("cafe" in asset_text or "asia composite" in asset_text) and 1900 <= value <= 2100:
+            return False
+        return True
+
+    def _to_float(self, value: Any) -> float | None:
+        if value is None:
+            return None
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        text = str(value).strip()
+        if not text or text.upper() in {"UNKNOWN", "NONE", "N/A", "-"}:
+            return None
+
+        match = re.search(r"-?\d+(?:[.,]\d+)?", text)
+        if not match:
+            return None
+
+        number = match.group(0)
+        if "," in number and "." in number:
+            if number.rfind(",") > number.rfind("."):
+                number = number.replace(".", "").replace(",", ".")
+            else:
+                number = number.replace(",", "")
+        elif "," in number:
+            number = number.replace(",", ".")
+
+        try:
+            return float(number)
+        except ValueError:
+            return None
+
+    def _as_text(self, value: Any) -> str:
+        if value is None:
+            return ""
+        return str(value).strip()
+
+    def _normalize_signal(self, signal: str) -> str:
+        text = (signal or "AGUARDAR").strip().upper()
+        replacements = {
+            "WAIT": "AGUARDAR",
+            "HOLD": "AGUARDAR",
+            "CALL": "OBSERVAR ALTA",
+            "PUT": "OBSERVAR BAIXA",
+            "BUY": "OBSERVAR ALTA",
+            "SELL": "OBSERVAR BAIXA",
+            "UP": "OBSERVAR ALTA",
+            "DOWN": "OBSERVAR BAIXA",
+        }
+        return replacements.get(text, text)
+
+    def _file_age_seconds(self, path: Path) -> int | None:
+        if not path.exists():
+            return None
+        return int(max(0, time.time() - path.stat().st_mtime))
+
+    def _format_price(self, value: float | None) -> str:
+        if value is None:
+            return "-"
+        return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+    def _format_confidence(self, value: float | None) -> str:
+        if value is None:
+            return "-"
+        if value <= 1:
+            value *= 100
+        return f"{int(round(value))}%"
+
+    def _format_age(self, value: int | None) -> str:
+        if value is None:
+            return "-"
+        if value < 60:
+            return f"{value}s"
+        return f"{value // 60}min"
+
+    def _on_close(self) -> None:
+        self.root.destroy()
+
+
+if __name__ == "__main__":
+    RUNTIME.mkdir(parents=True, exist_ok=True)
+    CompactApp().run()

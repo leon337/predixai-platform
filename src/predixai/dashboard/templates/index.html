@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
@@ -7,60 +7,159 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <main class="page">
-    <section class="hero">
-      <div>
-        <p class="eyebrow">PredixAI BR</p>
-        <h1>PredixAI Trader</h1>
-        <p class="subtitle">V1 Observador - leitura visual, memoria de mercado e dashboard local.</p>
+  <header class="topbar">
+    <div class="brand">
+      <strong>PredixAI Trader</strong>
+      <span>V1 Observador · Sinal simulado · Sem ordem real</span>
+    </div>
+
+    <div class="status-pill">
+      <i></i>
+      <span id="reading_status">ANALISANDO</span>
+    </div>
+
+    <nav class="nav-tabs">
+      <button>Dashboard</button>
+      <button>Relatórios</button>
+    </nav>
+
+    <button class="primary-btn" id="open_broker">↗ Abrir corretora</button>
+  </header>
+
+  <aside class="sidebar">
+    <a class="active">⌁ Operação</a>
+    <a>↺ Histórico</a>
+    <a>⌁ Estatísticas</a>
+    <a>▣ IA Modelos</a>
+    <a>□ Suporte</a>
+    <a class="exit">↪ Sair</a>
+  </aside>
+
+  <main class="dashboard">
+    <section class="control-bar glass">
+      <div class="control-buttons">
+        <button id="start_3">INICIAR LEITURA 3S</button>
+        <button id="start_5">INICIAR LEITURA 5S</button>
+        <button id="stop_reader" class="danger">□ PARAR</button>
       </div>
-      <div class="status-card">
-        <span class="status-dot"></span>
-        <div>
-          <strong id="reading_status">Aguardando leitura</strong>
-          <small id="reading_timestamp">Sem timestamp</small>
-        </div>
+      <div class="control-meta">
+        <span id="market_label">OBSERVANDO MERCADO: --</span>
+        <button id="clear_data">⌫ LIMPAR DADOS</button>
       </div>
     </section>
 
-    <section class="cards">
-      <article class="card"><span>Ativo</span><strong id="asset">--</strong></article>
-      <article class="card"><span>Preco</span><strong id="price">--</strong></article>
-      <article class="card"><span>Payout</span><strong id="payout">--</strong></article>
-      <article class="card"><span>Saldo</span><strong id="balance">--</strong></article>
-      <article class="card"><span>Valor entrada</span><strong id="trade_value">--</strong></article>
-      <article class="card"><span>Duracao</span><strong id="duration">--</strong></article>
+    <section class="layout-grid">
+      <section class="live-column">
+        <article class="metric glass"><span>ATIVO</span><strong id="asset">--</strong></article>
+        <article class="metric glass"><span>PREÇO ATUAL</span><strong id="price">--</strong></article>
+        <article class="metric glass"><span>PAYOUT</span><strong id="payout">--</strong></article>
+        <article class="metric glass"><span>SALDO OCR</span><strong id="balance">--</strong></article>
+        <article class="metric glass"><span>ENTRADA DETECTADA</span><strong id="trade_value">--</strong></article>
+        <article class="metric glass"><span>DURAÇÃO</span><strong id="duration">--</strong></article>
+        <article class="metric glass"><span>TEMPO RESTANTE</span><strong id="remaining_time">--</strong></article>
+        <article class="metric glass"><span>LEITURAS VÁLIDAS</span><strong id="history_count">--</strong></article>
+        <article class="metric glass"><span>ÚLTIMA LEITURA</span><strong id="last_seen">--</strong></article>
+        <p class="ocr-note">Saldo e entrada são OCR estimado por visão computacional.</p>
+      </section>
+
+      <section class="intel-column">
+        <article class="analysis-card glass">
+          <div class="analysis-top">
+            <div>
+              <span>DIREÇÃO PREDITIVA</span>
+              <strong id="direction_label">--</strong>
+            </div>
+            <div>
+              <span>CONFIANÇA</span>
+              <strong id="confidence">--</strong>
+            </div>
+          </div>
+
+          <div class="chart-box">
+            <canvas id="mini_chart" width="420" height="220"></canvas>
+            <span class="res-line" id="resistance_label">RESISTÊNCIA: --</span>
+            <span class="sup-line" id="support_label">SUPORTE: --</span>
+          </div>
+
+          <div class="analysis-grid">
+            <p><span>SUPORTE</span><strong id="support_strength">--</strong></p>
+            <p><span>VOLATILIDADE</span><strong id="volatility">--</strong></p>
+            <p><span>RESISTÊNCIA</span><strong id="resistance_strength">--</strong></p>
+            <p><span>AMPLITUDE</span><strong id="amplitude">--</strong></p>
+            <p><span>MÉDIA</span><strong id="average">--</strong></p>
+            <p><span>QUALIDADE</span><strong id="quality">--</strong></p>
+          </div>
+
+          <div class="zone-box">
+            <span>ZONA ATUAL</span>
+            <strong id="zone">--</strong>
+          </div>
+        </article>
+
+        <article class="log-card glass">
+          <h3>▣ PROCESSAMENTO IA</h3>
+          <div id="robot_log">
+            <p>Aguardando leituras...</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="instruction-column">
+        <article class="instruction-card glass">
+          <header>
+            <h2>INSTRUÇÃO DE OPERAÇÃO</h2>
+            <span>MODO OBSERVADOR ATIVO</span>
+          </header>
+
+          <div class="signal-box" id="signal_box">
+            <span>SINAL SIMULADO</span>
+            <strong id="signal">AGUARDAR</strong>
+          </div>
+
+          <p class="state-line">ESTADO: <strong id="state">AGUARDAR CONFIRMAÇÃO</strong></p>
+
+          <div class="instruction-metrics">
+            <article>
+              <span>PREÇO IDEAL DE ENTRADA</span>
+              <strong id="entry_price">--</strong>
+            </article>
+            <article>
+              <span>TEMPO / EXPIRAÇÃO</span>
+              <strong id="expiration">--</strong>
+            </article>
+          </div>
+
+          <div class="reason-box">
+            <span>☼ MOTIVO TÉCNICO</span>
+            <p id="reason">Aguardando histórico suficiente para gerar instrução.</p>
+          </div>
+
+          <div class="block-box">
+            <span>⊘ BLOQUEIO (NÃO ENTRAR)</span>
+            <p id="block_reason">Não simular entrada sem zona clara.</p>
+          </div>
+        </article>
+
+        <article class="disclaimer glass">
+          “Este sinal é baseado em processamento visual e estatístico. Nenhuma ordem é enviada para a corretora automaticamente.”
+        </article>
+      </section>
     </section>
 
-    <section class="panel">
-      <div class="panel-header">
+    <section class="learning-panel glass">
+      <div class="learning-title">
+        <div class="book-icon">▤</div>
         <div>
-          <p class="eyebrow">Historico de preco</p>
-          <h2>Sessao observada</h2>
+          <h2>Aprendizado da Sessão</h2>
+          <span>PERFORMANCE EM TEMPO REAL</span>
         </div>
-        <div class="pill" id="history_status">0 leituras</div>
       </div>
 
-      <div class="session-grid">
-        <article><span>Inicio</span><strong id="session_start">--</strong></article>
-        <article><span>Fim</span><strong id="session_end">--</strong></article>
-        <article><span>Primeiro preco</span><strong id="first_price">--</strong></article>
-        <article><span>Ultimo preco</span><strong id="last_price">--</strong></article>
-        <article><span>Variacao</span><strong id="period_variation">--</strong></article>
-        <article><span>Direcao</span><strong id="period_direction">--</strong></article>
-      </div>
-
-      <div class="chart-wrap">
-        <canvas id="price_chart" width="1200" height="420"></canvas>
-      </div>
-
-      <div class="stats-grid">
-        <article><span>Minima</span><strong id="minimum">--</strong></article>
-        <article><span>Maxima</span><strong id="maximum">--</strong></article>
-        <article><span>Media</span><strong id="average">--</strong></article>
-        <article><span>Amplitude</span><strong id="amplitude">--</strong></article>
-        <article><span>Leituras validas</span><strong id="history_count">--</strong></article>
-        <article><span>Limite salvo</span><strong id="history_limit">--</strong></article>
+      <div class="learning-stats">
+        <article><span>ÚLTIMA ENTRADA</span><strong id="last_entry">--</strong></article>
+        <article><span>VALOR / RESULTADO</span><strong id="last_result">--</strong></article>
+        <article><span>TAXA DE ACERTO</span><strong id="win_rate">--</strong></article>
+        <article class="adjustment"><span>AJUSTE SUGERIDO</span><strong id="adjustment">Aguardando dados.</strong></article>
       </div>
     </section>
   </main>

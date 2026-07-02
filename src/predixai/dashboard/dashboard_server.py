@@ -1,12 +1,15 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
+import os
+import subprocess
+import sys
 import threading
 import webbrowser
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
@@ -14,6 +17,8 @@ RUNTIME_DIR = ROOT_DIR / "data" / "runtime"
 LAST_READING_PATH = RUNTIME_DIR / "last_live_reading.json"
 PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
 HISTORY_LIMIT = 3000
+
+_reader_process: subprocess.Popen | None = None
 
 
 def _read_json(path: Path, default: Any) -> Any:
@@ -26,7 +31,7 @@ def _read_json(path: Path, default: Any) -> Any:
 
 
 def _as_float(value: Any) -> float | None:
-    if isinstance(value, int | float):
+    if isinstance(value, (int, float)):
         return float(value)
 
     if value is None:
@@ -36,7 +41,7 @@ def _as_float(value: Any) -> float | None:
     if not text:
         return None
 
-    text = text.replace("D", "").replace("R$", "").replace("$", "").strip()
+    text = text.replace("D", "").replace("R$", "").replace("$", "").replace("%", "").strip()
     text = text.replace(" ", "")
 
     if "," in text and "." in text:
@@ -71,6 +76,8 @@ def _normalize_point(point: dict[str, Any], index: int) -> dict[str, Any]:
         "balance": point.get("balance"),
         "trade_value": point.get("trade_value"),
         "duration": point.get("duration"),
+        "remaining_time": point.get("remaining_time"),
+        "expiration_suggestion": point.get("expiration_suggestion"),
         "timeframe": point.get("timeframe"),
         "confidence": point.get("confidence"),
         "status": point.get("status"),
@@ -92,7 +99,7 @@ def _build_history_response() -> dict[str, Any]:
     valid_prices = [
         point["price_value"]
         for point in points
-        if isinstance(point.get("price_value"), int | float)
+        if isinstance(point.get("price_value"), (int, float))
     ]
 
     stats: dict[str, Any] = {
@@ -146,6 +153,55 @@ def _build_history_response() -> dict[str, Any]:
     return {"points": points, "stats": stats}
 
 
+def _reader_running() -> bool:
+    return _reader_process is not None and _reader_process.poll() is None
+
+
+def _start_reader(interval: int) -> dict[str, Any]:
+    global _reader_process
+
+    if _reader_running():
+        return {"status": "ALREADY_RUNNING", "interval": interval}
+
+    env = os.environ.copy()
+    src_path = str(ROOT_DIR / "src")
+    env["PYTHONPATH"] = src_path + os.pathsep + env.get("PYTHONPATH", "")
+
+    cmd = [
+        sys.executable,
+        "-m",
+        "predixai.main",
+        "--live-loop",
+        "--loop-count",
+        "9999",
+        "--loop-interval",
+        str(max(1, int(interval))),
+    ]
+
+    flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
+    _reader_process = subprocess.Popen(
+        cmd,
+        cwd=str(ROOT_DIR),
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        creationflags=flags,
+    )
+
+    return {"status": "STARTED", "interval": interval, "pid": _reader_process.pid}
+
+
+def _stop_reader() -> dict[str, Any]:
+    global _reader_process
+
+    if _reader_running():
+        _reader_process.terminate()
+        return {"status": "STOPPED"}
+
+    return {"status": "NOT_RUNNING"}
+
+
 def create_dashboard_app() -> Flask:
     app = Flask(
         __name__,
@@ -172,6 +228,32 @@ def create_dashboard_app() -> Flask:
     @app.route("/api/price-history")
     def price_history():  # type: ignore[no-untyped-def]
         return jsonify(_build_history_response())
+
+    @app.route("/api/control/status")
+    def control_status():  # type: ignore[no-untyped-def]
+        return jsonify({"running": _reader_running()})
+
+    @app.route("/api/control/start", methods=["POST"])
+    def control_start():  # type: ignore[no-untyped-def]
+        payload = request.get_json(silent=True) or {}
+        interval = int(payload.get("interval", 3))
+        return jsonify(_start_reader(interval))
+
+    @app.route("/api/control/stop", methods=["POST"])
+    def control_stop():  # type: ignore[no-untyped-def]
+        return jsonify(_stop_reader())
+
+    @app.route("/api/runtime/clear", methods=["POST"])
+    def clear_runtime():  # type: ignore[no-untyped-def]
+        RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+        removed = []
+        for path in RUNTIME_DIR.glob("*.json"):
+            try:
+                path.unlink()
+                removed.append(path.name)
+            except OSError:
+                pass
+        return jsonify({"status": "CLEARED", "removed": removed})
 
     return app
 

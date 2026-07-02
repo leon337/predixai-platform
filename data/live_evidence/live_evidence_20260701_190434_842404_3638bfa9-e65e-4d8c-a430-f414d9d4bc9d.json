@@ -1,0 +1,179 @@
+{
+  "evidence_id": "live_evidence_20260701_190434_842404_3638bfa9-e65e-4d8c-a430-f414d9d4bc9d",
+  "created_at": "2026-07-01T19:04:34.842404-03:00",
+  "source": "live_once",
+  "session_id": "3638bfa9-e65e-4d8c-a430-f414d9d4bc9d",
+  "capture_count": 1,
+  "field_count": 5,
+  "unknown_fields": [],
+  "candle_snapshot": {
+    "session_id": "3638bfa9-e65e-4d8c-a430-f414d9d4bc9d",
+    "timeframe": "M1",
+    "capture_count": 1,
+    "readings": [
+      {
+        "asset": "Data",
+        "price": "34.812406",
+        "time": "04:34",
+        "balance": "D 2",
+        "payout": "85%",
+        "trade_value": "D 2",
+        "duration": "1 min",
+        "timeframe": "M1",
+        "confidence": 60.05,
+        "source_ocr_text": "Data e hora: 2026-07-01T19:04:34.812406-03:00\nJanela detectada: PredixAI Trader Smart App\nPrice: UNKNOWN\n\nAsset: Cafeina Index\nPayout: 85%\nAsset_Payout_Raw: Cafeina Index + eo FT: 85%\nBalance: 5.97675 Conta demo +\nTrade_Value: D 2\nDuration: - -\nRight_Panel: 8,75 2® emo w e Valor, 8 25 - + Curacao 1 min. > , Habilitarordens (©) Lucro: +) 21,25 @\n\nCampos encontrados: asset_payout, balance, trade_value, duration, right_panel\nCampos UNKNOWN: \nConfiança do OCR por campo:\n- asset_payout: 72.161 (OCR_COMPLETED)\n- balance: 65.054 (OCR_COMPLETED)\n- trade_value: 46.859 (OCR_COMPLETED)\n- duration: 0.0 (OCR_COMPLETED)\n- right_panel: 56.125 (OCR_COMPLETED)\n\nTempo total da calibração: 1322.342 ms",
+        "metadata": {
+          "unknown_fields": []
+        }
+      }
+    ],
+    "field_values": [
+      {
+        "field_name": "asset",
+        "raw_value": "Data",
+        "normalized_value": "Data",
+        "region_id": "FULL_SCREEN",
+        "confidence": 60.05,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_asset",
+          "patterns": [
+            "\\b[A-Z]{3,6}/[A-Z]{3,6}\\b",
+            "\\b[A-Z]{3,6}\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "price",
+        "raw_value": "34.812406",
+        "normalized_value": "34.812406",
+        "region_id": "FULL_SCREEN",
+        "confidence": 60.05,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_price",
+          "patterns": [
+            "\\b\\d+[.,]\\d+\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "time",
+        "raw_value": "04:34",
+        "normalized_value": "04:34",
+        "region_id": "FULL_SCREEN",
+        "confidence": 60.05,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_time",
+          "patterns": [
+            "\\b\\d{2}:\\d{2}(:\\d{2})?\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "payout",
+        "raw_value": "85%",
+        "normalized_value": "85%",
+        "region_id": "FULL_SCREEN",
+        "confidence": 60.05,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_payout",
+          "patterns": [
+            "payout[:\\s]*\\d+%?",
+            "\\b\\d+%\\s*payout\\b"
+          ]
+        }
+      },
+      {
+        "field_name": "balance",
+        "raw_value": "D 2",
+        "normalized_value": "D 2",
+        "region_id": "FULL_SCREEN",
+        "confidence": 60.05,
+        "status": "FOUND",
+        "metadata": {
+          "region_name": "Full Screen",
+          "purpose": "identified_balance",
+          "patterns": [
+            "balance[:\\s]*\\$\\s*\\d+[.,]?\\d*",
+            "\\bsaldo\\b"
+          ]
+        }
+      }
+    ],
+    "field_names": [
+      "asset",
+      "price",
+      "time",
+      "payout",
+      "balance"
+    ],
+    "unknown_fields": [],
+    "metadata": {
+      "region_count": 5,
+      "field_extractions": 1
+    }
+  },
+  "candle_statistics": {
+    "session_id": "3638bfa9-e65e-4d8c-a430-f414d9d4bc9d",
+    "timeframe": "M1",
+    "average": 34.812406,
+    "maximum": 34.812406,
+    "minimum": 34.812406,
+    "amplitude": 0.0,
+    "volatility": 0.0,
+    "sample_count": 1,
+    "price_points": [
+      34.812406
+    ],
+    "metadata": {
+      "field_count": 5,
+      "unknown_field_count": 0
+    }
+  },
+  "live_candle_benchmark": {
+    "enabled": true,
+    "started_at": "2026-07-01T19:04:34.839407-03:00",
+    "finished_at": "2026-07-01T19:04:34.839407-03:00",
+    "processing_time_ms": 0.009,
+    "capture_count": 1,
+    "field_count": 5,
+    "average": 34.812406,
+    "maximum": 34.812406,
+    "minimum": 34.812406,
+    "volatility": 0.0,
+    "status": "LIVE_CANDLE_COMPLETED",
+    "metadata": {
+      "session_id": "3638bfa9-e65e-4d8c-a430-f414d9d4bc9d",
+      "timeframe": "M1",
+      "unknown_fields": [],
+      "sample_count": 1
+    }
+  },
+  "live_validation_benchmark": {
+    "enabled": true,
+    "status": "LIVE_VALIDATION_COMPLETED",
+    "started_at": "2026-07-01T19:04:20.803101-03:00",
+    "finished_at": "2026-07-01T19:04:34.841405-03:00",
+    "processing_time_ms": 14038.883,
+    "peak_memory_kb": 0.0,
+    "current_memory_kb": 0.0,
+    "total_captures": 1,
+    "detected_fields": 6,
+    "unknown_fields": 0
+  },
+  "guardrails": {
+    "clicks_enabled": false,
+    "orders_enabled": false,
+    "broker_automation_enabled": false,
+    "decision_making_enabled": false,
+    "real_account_enabled": false,
+    "strategy_changed": false
+  }
+}

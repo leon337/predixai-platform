@@ -1,8 +1,9 @@
-"""Application bootstrap for the PredixAI foundation."""
+﻿"""Application bootstrap for the PredixAI foundation."""
 
 from __future__ import annotations
 
 import json
+import re
 import importlib
 from dataclasses import dataclass
 from datetime import datetime
@@ -431,6 +432,14 @@ class PredixAIApp:
         log_broker_window_state(self.logger, broker_state)
 
         live_start = perf_counter()
+        if not self._is_valid_broker_window(broker_state):
+            return self._handle_ignored_broker_window(
+                session=session,
+                broker_state=broker_state,
+                timeframe=timeframe,
+                live_start=live_start,
+            )
+
         benchmark_run = self.live_validation_benchmark.start()
         readings: list[object] = []
         field_location_map = self.field_locator.locate(
@@ -491,6 +500,30 @@ class PredixAIApp:
             log_live_market_reading(self.logger, reading)
             readings.append(reading)
 
+            calibration_text = calibration_result.to_text()
+            normalized_asset = self._normalize_runtime_asset(
+                reading.asset,
+                broker_state.title,
+                calibration_text,
+            )
+            normalized_balance = self._normalize_runtime_balance(
+                reading.balance,
+                reading.trade_value,
+                calibration_text,
+            )
+            normalized_price = self._normalize_runtime_price(
+                broker_state.title,
+                reading.price,
+                calibration_text,
+                normalized_asset,
+            )
+            remaining_time = self._extract_remaining_time(calibration_text)
+            expiration_suggestion = self._build_expiration_suggestion(
+                remaining_time,
+                reading.duration,
+                timeframe,
+            )
+
             runtime_persistence_start = perf_counter()
             runtime_dir = self.config.resolve_path("data") / "runtime"
             runtime_dir.mkdir(parents=True, exist_ok=True)
@@ -502,7 +535,7 @@ class PredixAIApp:
                 "timestamp": calibration_result.timestamp,
                 "window_title": broker_state.title,
                 "asset": reading.asset,
-                "price": reading.price,
+                "price": normalized_price,
                 "time": reading.time,
                 "balance": reading.balance,
                 "payout": reading.payout,
@@ -510,14 +543,12 @@ class PredixAIApp:
                 "duration": reading.duration,
                 "timeframe": reading.timeframe,
                 "confidence": reading.confidence,
+                "source_ocr_text": reading.source_ocr_text,
                 "unknown_fields": reading.metadata.get("unknown_fields", []),
                 "capture_path": str(metadata.file_path),
                 "calibration_output_directory": str(calibration_result.output_directory),
             }
-            try:
-                price_value = float(str(reading.price).replace(",", "."))
-            except ValueError:
-                price_value = None
+            price_value = self._parse_runtime_number(normalized_price)
 
             history_path = runtime_dir / "live_price_history.json"
             if history_path.exists():
@@ -537,7 +568,7 @@ class PredixAIApp:
                 "session_id": session.session_id,
                 "timestamp": calibration_result.timestamp,
                 "asset": reading.asset,
-                "price": reading.price,
+                "price": normalized_price,
                 "price_value": price_value,
                 "payout": reading.payout,
                 "balance": reading.balance,
@@ -545,12 +576,27 @@ class PredixAIApp:
                 "duration": reading.duration,
                 "timeframe": reading.timeframe,
                 "confidence": reading.confidence,
+                "source_ocr_text": reading.source_ocr_text,
                 "unknown_fields": reading.metadata.get("unknown_fields", []),
             }
 
+            runtime_payload["asset"] = normalized_asset
+            runtime_payload["balance"] = normalized_balance
+            runtime_payload["balance_raw_ocr"] = reading.balance
+            runtime_payload["remaining_time"] = remaining_time
+            runtime_payload["expiration_suggestion"] = expiration_suggestion
+            runtime_payload["balance_quality"] = "OCR_ESTIMATED"
+
+            history_entry["asset"] = normalized_asset
+            history_entry["balance"] = normalized_balance
+            history_entry["balance_raw_ocr"] = reading.balance
+            history_entry["remaining_time"] = remaining_time
+            history_entry["expiration_suggestion"] = expiration_suggestion
+            history_entry["balance_quality"] = "OCR_ESTIMATED"
+
             is_valid_runtime_reading, rejection_reasons = (
                 self._validate_runtime_live_reading(
-                    asset=reading.asset,
+                    asset=normalized_asset,
                     payout=reading.payout,
                     price_value=price_value,
                 )
@@ -607,7 +653,7 @@ class PredixAIApp:
                     "timestamp": calibration_result.timestamp,
                     "tick_index": tick.tick_index,
                     "asset": reading.asset,
-                    "price": reading.price,
+                    "price": normalized_price,
                     "payout": reading.payout,
                     "valid_runtime_reading": is_valid_runtime_reading,
                     "rejection_reasons": rejection_reasons,
@@ -1613,6 +1659,292 @@ class PredixAIApp:
         )
 
 
+    def _is_valid_broker_window(self, broker_state: object) -> bool:
+        metadata = getattr(broker_state, "metadata", {}) or {}
+        return bool(metadata.get("broker_window_valid"))
+
+    def _handle_ignored_broker_window(
+        self,
+        *,
+        session: object,
+        broker_state: object,
+        timeframe: str,
+        live_start: float,
+    ) -> dict[str, object]:
+        """Skip capture when the active window is not a broker surface."""
+        metadata = getattr(broker_state, "metadata", {}) or {}
+        reason = str(
+            metadata.get("ignore_reason")
+            or "Janela ignorada: janela ativa não é corretora"
+        )
+        self.logger.warning(reason)
+
+        runtime_dir = self.config.resolve_path("data") / "runtime"
+        runtime_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().astimezone().isoformat()
+        payload = {
+            "status": "IGNORED_WINDOW",
+            "source": "live_once",
+            "session_id": session.session_id,
+            "timestamp": timestamp,
+            "window_title": getattr(broker_state, "title", "UNKNOWN"),
+            "asset": "UNKNOWN",
+            "price": "UNKNOWN",
+            "price_value": None,
+            "time": "UNKNOWN",
+            "balance": "UNKNOWN",
+            "payout": "UNKNOWN",
+            "trade_value": "UNKNOWN",
+            "duration": "UNKNOWN",
+            "timeframe": timeframe,
+            "confidence": 0.0,
+            "unknown_fields": ["window", "asset", "price"],
+            "message": reason,
+            "reason": reason,
+            "capture_skipped": True,
+            "broker_window": broker_state.to_dict(),
+        }
+
+        runtime_path = runtime_dir / "last_live_reading.json"
+        runtime_path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        self._append_rejected_runtime_live_reading(
+            runtime_dir=runtime_dir,
+            payload=payload,
+            rejection_reasons=["invalid_broker_window"],
+        )
+
+        report = LiveValidationReport(
+            session_id=session.session_id,
+            total_captures=0,
+            fields_detected=(),
+            unknown_fields=("window", "asset", "price"),
+            ocr_confidence=0.0,
+            total_time_ms=round((perf_counter() - live_start) * 1000, 3),
+            status="BROKER_WINDOW_IGNORED",
+            readings=(),
+            metadata={
+                "window_title": getattr(broker_state, "title", "UNKNOWN"),
+                "reason": reason,
+                "capture_skipped": True,
+                "observer_only": True,
+            },
+        )
+        log_live_validation_report(self.logger, report)
+        return {
+            "report": report,
+            "broker_state": broker_state,
+            "runtime_payload": payload,
+        }
+
+    def _normalize_runtime_asset(
+        self,
+        asset: str,
+        window_title: str,
+        calibration_text: str = "",
+    ) -> str:
+        """Normalize runtime asset using OCR plus browser title."""
+        text = f"{asset or ''} {window_title or ''} {calibration_text or ''}"
+
+        known_assets = (
+            ("Cafeina Index", r"Cafe[ií]na\s+Index"),
+            ("Asia Composite Index", r"Asia\s+Composite\s+Index"),
+            ("LATAM Index", r"LATAM\s+Index"),
+        )
+
+        for normalized, pattern in known_assets:
+            if re.search(pattern, text, flags=re.IGNORECASE):
+                return normalized
+
+        raw = str(asset or "").strip()
+        if raw.upper() in ("", "UNKNOWN", "DATA", "NONE", "N/A", "-"):
+            match = re.search(
+                r"\b([A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+){0,3}\s+Index)\b",
+                text,
+                flags=re.IGNORECASE,
+            )
+            if match:
+                return " ".join(match.group(1).split())
+
+        return raw or "UNKNOWN"
+
+    def _normalize_runtime_balance(
+        self,
+        balance: str,
+        trade_value: str,
+        calibration_text: str = "",
+    ) -> str:
+        """Keep OCR balance separated from trade value. Balance is still estimated."""
+        raw = str(balance or "").strip()
+        trade = str(trade_value or "").strip()
+
+        if raw.upper() in ("", "UNKNOWN", "NONE", "N/A", "-"):
+            return "UNKNOWN"
+
+        if trade and trade != "UNKNOWN" and raw == trade:
+            return "UNKNOWN"
+
+        raw = raw.replace("RS", "R$")
+        return raw
+
+    def _extract_remaining_time(self, calibration_text: str) -> str:
+        """Extract visible remaining time when OCR captures it."""
+        text = calibration_text or ""
+
+        match = re.search(r"\b\d{1,2}:\d{2}\b", text)
+        if match:
+            return match.group(0)
+
+        match = re.search(r"\b\d+\s*seg\.?\b", text, flags=re.IGNORECASE)
+        if match:
+            return match.group(0).replace("seg", "seg.")
+
+        return "UNKNOWN"
+
+    def _build_expiration_suggestion(
+        self,
+        remaining_time: str,
+        duration: str,
+        timeframe: str,
+    ) -> str:
+        """Build simulated expiration guidance without trading execution."""
+        if remaining_time and remaining_time != "UNKNOWN":
+            return f"Aguardar confirma??o; tempo restante vis?vel: {remaining_time}"
+
+        if duration and duration != "UNKNOWN":
+            return f"Usar dura??o observada: {duration}"
+
+        return f"Usar timeframe observado: {timeframe or 'M1'}"
+
+
+    def _normalize_runtime_price(
+        self,
+        window_title: str,
+        reading_price: str,
+        calibration_text: str = "",
+        asset: str = "",
+    ) -> str:
+        """Prefer broker-title price and reject noisy OCR numbers."""
+        for value in (
+            self._extract_runtime_price_from_title(window_title, asset),
+            self._extract_runtime_price_from_labeled_text(calibration_text, asset),
+            self._parse_runtime_number(reading_price),
+        ):
+            if self._is_runtime_price_allowed(value, asset):
+                return self._format_runtime_price_value(value)
+
+        return "UNKNOWN"
+
+    def _extract_runtime_price_from_title(
+        self,
+        window_title: str,
+        asset: str = "",
+    ) -> float | None:
+        title = window_title or ""
+        patterns = (
+            r"([0-9]{3,6}(?:[.,][0-9]{1,6})?)\s+(?:Cafe[ií]na|Asia\s+Composite|LATAM)\s+Index",
+            r"(?:Cafe[ií]na|Asia\s+Composite|LATAM)\s+Index\s+([0-9]{3,6}(?:[.,][0-9]{1,6})?)",
+            r"([0-9]{3,6}(?:[.,][0-9]{1,6})?)\s+[A-Za-zÀ-ÿ ]{2,40}\s+Index",
+        )
+        for pattern in patterns:
+            match = re.search(pattern, title, flags=re.IGNORECASE)
+            if not match:
+                continue
+            value = self._parse_runtime_number(match.group(1))
+            if self._is_runtime_price_allowed(value, asset):
+                return value
+
+        has_broker_or_asset = re.search(
+            r"olymp\s*trade|olymptrade|cafe[ií]na\s+index|asia\s+composite\s+index",
+            title,
+            flags=re.IGNORECASE,
+        )
+        if not has_broker_or_asset:
+            return None
+
+        for number in re.findall(r"\b[0-9]{3,6}(?:[.,][0-9]{1,6})?\b", title):
+            value = self._parse_runtime_number(number)
+            if self._is_runtime_price_allowed(value, asset):
+                return value
+
+        return None
+
+    def _extract_runtime_price_from_labeled_text(
+        self,
+        calibration_text: str,
+        asset: str = "",
+    ) -> float | None:
+        for line in (calibration_text or "").splitlines():
+            if not re.search(r"\b(price|preço|preco)\b", line, flags=re.IGNORECASE):
+                continue
+            value = self._parse_runtime_number(line)
+            if self._is_runtime_price_allowed(value, asset):
+                return value
+        return None
+
+    def _parse_runtime_number(self, value: object) -> float | None:
+        if value is None:
+            return None
+
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        text = str(value).strip()
+        if not text or text.upper() in ("UNKNOWN", "NONE", "N/A", "-"):
+            return None
+
+        match = re.search(r"-?\d+(?:[.,]\d+)?", text)
+        if not match:
+            return None
+
+        number = match.group(0)
+        if "," in number and "." in number:
+            if number.rfind(",") > number.rfind("."):
+                number = number.replace(".", "").replace(",", ".")
+            else:
+                number = number.replace(",", "")
+        elif "," in number:
+            number = number.replace(",", ".")
+
+        try:
+            return float(number)
+        except ValueError:
+            return None
+
+    def _is_runtime_price_allowed(self, value: float | None, asset: str = "") -> bool:
+        if value is None or value <= 0:
+            return False
+
+        rounded = int(round(value))
+        if rounded in {1, 3, 24, 25, 52, 85, 2026}:
+            return False
+
+        if value < 1000:
+            return False
+
+        asset_text = (asset or "").lower()
+        known_index = (
+            "cafe" in asset_text
+            or "asia composite" in asset_text
+            or "latam" in asset_text
+            or "index" in asset_text
+        )
+        if known_index and value < 1000:
+            return False
+
+        if ("cafe" in asset_text or "asia composite" in asset_text) and 1900 <= value <= 2100:
+            return False
+
+        return True
+
+    def _format_runtime_price_value(self, value: float | None) -> str:
+        if value is None:
+            return "UNKNOWN"
+        return f"{value:.6f}".rstrip("0").rstrip(".")
+
+
     def _validate_runtime_live_reading(
         self,
         *,
@@ -1620,20 +1952,19 @@ class PredixAIApp:
         payout: str,
         price_value: float | None,
     ) -> tuple[bool, list[str]]:
-        """Validate whether a live reading can enter the runtime price history."""
+        """Validate whether a live reading can enter runtime history."""
         reasons: list[str] = []
 
-        if asset != "LATAM Index":
-            reasons.append("asset_mismatch")
-
-        if payout == "UNKNOWN":
-            reasons.append("payout_unknown")
+        asset_text = str(asset or "").strip()
+        if asset_text.upper() in ("", "UNKNOWN", "DATA", "NONE", "N/A", "-"):
+            reasons.append("asset_unknown")
 
         if price_value is None:
             reasons.append("price_value_missing")
-        elif not (900 <= price_value <= 1000):
-            reasons.append("price_value_out_of_expected_range")
+        elif not self._is_runtime_price_allowed(price_value, asset):
+            reasons.append("price_value_suspicious")
 
+        # Payout ausente vira aviso indireto, mas n?o bloqueia pre?o + ativo v?lidos.
         return len(reasons) == 0, reasons
 
     def _append_rejected_runtime_live_reading(

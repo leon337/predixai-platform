@@ -1,0 +1,478 @@
+﻿from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import sys
+import threading
+import webbrowser
+from pathlib import Path
+from statistics import mean
+import tkinter as tk
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+RUNTIME = ROOT / "data" / "runtime"
+LAST = RUNTIME / "last_live_reading.json"
+HISTORY = RUNTIME / "live_price_history.json"
+
+BG = "#050b14"
+CARD = "#0c1824"
+CARD2 = "#111f2e"
+TEXT = "#eaf7ff"
+MUTED = "#7f909d"
+CYAN = "#19e6ff"
+GREEN = "#21f58b"
+RED = "#ff5b6b"
+AMBER = "#ffbf36"
+
+
+def read_json(path: Path, default):
+    try:
+        if not path.exists():
+            return default
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def to_float(value):
+    if value in (None, "", "UNKNOWN", "—"):
+        return None
+
+    text = str(value)
+    text = text.replace("R$", "").replace("D", "").replace("%", "")
+    text = text.replace(" ", "").strip()
+
+    if "," in text and "." in text:
+        text = text.replace(".", "").replace(",", ".")
+    else:
+        text = text.replace(",", ".")
+
+    try:
+        return float(text)
+    except Exception:
+        return None
+
+
+def fmt(value):
+    if value in (None, "", "UNKNOWN"):
+        return "—"
+    return str(value)
+
+
+def fmt_num(value):
+    if value is None:
+        return "—"
+    return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def extract_prices(history):
+    prices = []
+
+    if not isinstance(history, list):
+        return prices
+
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+
+        price = to_float(item.get("price_value"))
+        if price is None:
+            price = to_float(item.get("price"))
+
+        # Filtro contra OCR ruim: ignora 13, 52, 629 etc.
+        if price and price > 1000:
+            prices.append(price)
+
+    return prices[-80:]
+
+
+def detect_result(text):
+    raw = str(text or "")
+
+    if re.search(r"\+\s*(?:D|R\$)?\s*\d", raw):
+        return "WIN"
+    if re.search(r"-\s*(?:D|R\$)?\s*\d", raw):
+        return "LOSS"
+
+    return "—"
+
+
+def analyze(prices):
+    if len(prices) < 5:
+        return {
+            "signal": "AGUARDAR",
+            "color": AMBER,
+            "direction": "COLETANDO",
+            "confidence": 20,
+            "support": None,
+            "resistance": None,
+            "entry": None,
+            "expiration": "Aguardar",
+            "instruction": "Aguardar mais leituras válidas.",
+            "reason": "Histórico ainda pequeno.",
+            "block": "Não considerar entrada.",
+        }
+
+    current = prices[-1]
+    window = prices[-20:]
+    support = min(window)
+    resistance = max(window)
+    amplitude = resistance - support
+
+    early = mean(prices[-8:-4]) if len(prices) >= 8 else mean(prices[:2])
+    late = mean(prices[-4:])
+    delta = late - early
+    threshold = max(amplitude * 0.12, current * 0.00008)
+
+    if delta > threshold:
+        direction = "SUBINDO"
+    elif delta < -threshold:
+        direction = "CAINDO"
+    else:
+        direction = "LATERAL"
+
+    position = 0.5 if amplitude <= 0 else (current - support) / amplitude
+
+    near_support = position <= 0.22
+    near_resistance = position >= 0.78
+
+    signal = "AGUARDAR"
+    color = AMBER
+    confidence = 35
+    entry = None
+    expiration = "Aguardar"
+    instruction = "Aguardar preço tocar suporte ou resistência."
+    reason = "Preço fora de zona clara."
+    block = "Não entrar no meio do caminho."
+
+    if near_support and direction in ("SUBINDO", "LATERAL"):
+        signal = "COMPRA"
+        color = GREEN
+        confidence = 72 if direction == "SUBINDO" else 58
+        entry = support + amplitude * 0.15
+        expiration = "1 min"
+        instruction = f"Observar compra perto de {fmt_num(entry)}."
+        reason = "Preço próximo do suporte com possível reação."
+        block = f"Não entrar se romper abaixo de {fmt_num(support)}."
+
+    elif near_resistance and direction in ("CAINDO", "LATERAL"):
+        signal = "VENDA"
+        color = RED
+        confidence = 72 if direction == "CAINDO" else 58
+        entry = resistance - amplitude * 0.15
+        expiration = "1 min"
+        instruction = f"Observar venda perto de {fmt_num(entry)}."
+        reason = "Preço próximo da resistência com possível rejeição."
+        block = f"Não entrar se romper acima de {fmt_num(resistance)}."
+
+    return {
+        "signal": signal,
+        "color": color,
+        "direction": direction,
+        "confidence": confidence,
+        "support": support,
+        "resistance": resistance,
+        "entry": entry,
+        "expiration": expiration,
+        "instruction": instruction,
+        "reason": reason,
+        "block": block,
+    }
+
+
+class CompactApp:
+    def __init__(self):
+        self.reader = None
+        self.logs = []
+
+        self.root = tk.Tk()
+        self.root.title("PredixAI Trader Compact")
+        self.root.geometry("430x690+40+20")
+        self.root.configure(bg=BG)
+        self.root.protocol("WM_DELETE_WINDOW", self.close)
+
+        self.values = {}
+        self.build()
+        self.refresh()
+
+    def build(self):
+        header = tk.Frame(self.root, bg=BG)
+        header.pack(fill="x", padx=14, pady=(12, 8))
+
+        tk.Label(
+            header,
+            text="PREDIXAI\nTRADER",
+            fg=CYAN,
+            bg=BG,
+            font=("Segoe UI", 23, "bold"),
+            justify="left",
+        ).pack(side="left")
+
+        self.status = tk.Label(
+            header,
+            text="● PARADO",
+            fg=AMBER,
+            bg="#082633",
+            font=("Consolas", 11, "bold"),
+            padx=14,
+            pady=9,
+        )
+        self.status.pack(side="right", padx=(8, 0))
+
+        tk.Label(
+            self.root,
+            text="V1 OBSERVADOR · SEM ORDEM REAL",
+            fg=MUTED,
+            bg=BG,
+            font=("Consolas", 9, "bold"),
+        ).pack(anchor="w", padx=15)
+
+        buttons = tk.Frame(self.root, bg=BG)
+        buttons.pack(fill="x", padx=14, pady=10)
+
+        self.btn(buttons, "▶ 3s", lambda: self.start(3), 0, 0)
+        self.btn(buttons, "⏱ 5s", lambda: self.start(5), 0, 1)
+        self.btn(buttons, "■ Parar", self.stop, 0, 2)
+        self.btn(buttons, "▦ Dash", self.open_dashboard, 0, 3)
+
+        self.section("LEITURA AO VIVO")
+
+        grid = tk.Frame(self.root, bg=BG)
+        grid.pack(fill="x", padx=14)
+
+        self.card(grid, "ATIVO", "asset", 0, 0)
+        self.card(grid, "PREÇO", "price", 0, 1)
+        self.card(grid, "PAYOUT", "payout", 1, 0)
+        self.card(grid, "TEMPO", "duration", 1, 1)
+        self.wide_card("LEITURAS VÁLIDAS", "count")
+
+        self.section("INSTRUÇÃO DO ROBÔ")
+
+        self.signal_box = tk.Frame(
+            self.root,
+            bg="#16202b",
+            highlightbackground=AMBER,
+            highlightthickness=2,
+        )
+        self.signal_box.pack(fill="x", padx=14, pady=(6, 8))
+
+        tk.Label(
+            self.signal_box,
+            text="SINAL",
+            fg=CYAN,
+            bg="#16202b",
+            font=("Consolas", 10, "bold"),
+        ).pack(pady=(12, 0))
+
+        self.signal = tk.Label(
+            self.signal_box,
+            text="AGUARDAR",
+            fg=AMBER,
+            bg="#16202b",
+            font=("Segoe UI", 30, "bold"),
+        )
+        self.signal.pack(pady=(0, 8))
+
+        self.card_single("PREÇO IDEAL", "entry")
+        self.card_single("EXPIRAÇÃO", "expiration")
+        self.card_single("DIREÇÃO / CONFIANÇA", "direction_confidence")
+
+        self.instruction = tk.Label(
+            self.root,
+            text="Aguardando leituras.",
+            fg=TEXT,
+            bg=CARD,
+            font=("Segoe UI", 10, "bold"),
+            wraplength=380,
+            justify="left",
+            padx=12,
+            pady=10,
+        )
+        self.instruction.pack(fill="x", padx=14, pady=4)
+
+        self.reason = tk.Label(
+            self.root,
+            text="Motivo: —",
+            fg=MUTED,
+            bg=BG,
+            font=("Segoe UI", 9),
+            wraplength=390,
+            justify="left",
+        )
+        self.reason.pack(fill="x", padx=14, pady=(4, 0))
+
+        self.block = tk.Label(
+            self.root,
+            text="Bloqueio: —",
+            fg=RED,
+            bg=BG,
+            font=("Segoe UI", 9, "bold"),
+            wraplength=390,
+            justify="left",
+        )
+        self.block.pack(fill="x", padx=14, pady=(4, 8))
+
+        self.section("APRENDIZADO RÁPIDO")
+
+        bottom = tk.Frame(self.root, bg=BG)
+        bottom.pack(fill="x", padx=14)
+
+        self.card(bottom, "ÚLTIMO RESULTADO", "result", 0, 0)
+        self.card(bottom, "SALDO OCR", "balance", 0, 1)
+
+        tk.Label(
+            self.root,
+            text="👁 MODO OBSERVADOR · SEM ORDEM REAL",
+            fg=MUTED,
+            bg=BG,
+            font=("Consolas", 9, "bold"),
+        ).pack(side="bottom", pady=10)
+
+    def section(self, text):
+        tk.Label(
+            self.root,
+            text=f"⌁ {text}",
+            fg=CYAN,
+            bg=BG,
+            font=("Consolas", 11, "bold"),
+        ).pack(anchor="w", padx=14, pady=(10, 5))
+
+    def btn(self, parent, text, command, row, col):
+        b = tk.Button(
+            parent,
+            text=text,
+            command=command,
+            fg=TEXT,
+            bg=CARD2,
+            activebackground="#17394a",
+            activeforeground=TEXT,
+            font=("Segoe UI", 9, "bold"),
+            relief="flat",
+            pady=9,
+        )
+        b.grid(row=row, column=col, sticky="ew", padx=4)
+        parent.grid_columnconfigure(col, weight=1)
+
+    def card(self, parent, title, key, row, col):
+        frame = tk.Frame(parent, bg=CARD, highlightbackground="#1d3448", highlightthickness=1)
+        frame.grid(row=row, column=col, sticky="nsew", padx=4, pady=4)
+        parent.grid_columnconfigure(col, weight=1)
+
+        tk.Label(frame, text=title, fg=MUTED, bg=CARD, font=("Consolas", 8, "bold")).pack(anchor="w", padx=9, pady=(8, 0))
+        value = tk.Label(frame, text="—", fg=TEXT, bg=CARD, font=("Consolas", 14, "bold"))
+        value.pack(anchor="w", padx=9, pady=(2, 9))
+
+        self.values[key] = value
+
+    def wide_card(self, title, key):
+        frame = tk.Frame(self.root, bg=CARD, highlightbackground="#1d3448", highlightthickness=1)
+        frame.pack(fill="x", padx=18, pady=4)
+
+        tk.Label(frame, text=title, fg=MUTED, bg=CARD, font=("Consolas", 9, "bold")).pack(side="left", padx=10, pady=10)
+        value = tk.Label(frame, text="—", fg=CYAN, bg=CARD, font=("Consolas", 15, "bold"))
+        value.pack(side="right", padx=10, pady=10)
+
+        self.values[key] = value
+
+    def card_single(self, title, key):
+        frame = tk.Frame(self.root, bg=CARD, highlightbackground="#1d3448", highlightthickness=1)
+        frame.pack(fill="x", padx=14, pady=3)
+
+        tk.Label(frame, text=title, fg=MUTED, bg=CARD, font=("Consolas", 8, "bold")).pack(side="left", padx=10, pady=9)
+        value = tk.Label(frame, text="—", fg=TEXT, bg=CARD, font=("Consolas", 13, "bold"))
+        value.pack(side="right", padx=10, pady=9)
+
+        self.values[key] = value
+
+    def start(self, interval):
+        if self.reader and self.reader.poll() is None:
+            self.logs.append("Leitura já está rodando.")
+            return
+
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(SRC) + os.pathsep + env.get("PYTHONPATH", "")
+
+        flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
+        cmd = [
+            sys.executable,
+            "-m",
+            "predixai.main",
+            "--live-loop",
+            "--loop-count",
+            "9999",
+            "--loop-interval",
+            str(interval),
+        ]
+
+        self.reader = subprocess.Popen(
+            cmd,
+            cwd=str(ROOT),
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            creationflags=flags,
+        )
+
+        threading.Thread(target=self.read_logs, daemon=True).start()
+        self.status.config(text=f"● ANALISANDO {interval}s", fg=CYAN)
+
+    def read_logs(self):
+        if not self.reader or not self.reader.stdout:
+            return
+
+        for line in self.reader.stdout:
+            if line.strip():
+                self.logs.append(line.strip()[-120:])
+                self.logs = self.logs[-4:]
+
+    def stop(self):
+        if self.reader and self.reader.poll() is None:
+            self.reader.terminate()
+
+        self.status.config(text="● PARADO", fg=AMBER)
+
+    def open_dashboard(self):
+        webbrowser.open("http://127.0.0.1:8765")
+
+    def refresh(self):
+        last = read_json(LAST, {})
+        history = read_json(HISTORY, [])
+        prices = extract_prices(history)
+        smart = analyze(prices)
+
+        self.values["asset"].config(text=fmt(last.get("asset")))
+        self.values["price"].config(text=fmt(last.get("price")))
+        self.values["payout"].config(text=fmt(last.get("payout")))
+        self.values["duration"].config(text=fmt(last.get("duration") or last.get("remaining_time")))
+        self.values["count"].config(text=str(len(prices)))
+        self.values["entry"].config(text=fmt_num(smart["entry"]))
+        self.values["expiration"].config(text=smart["expiration"])
+        self.values["direction_confidence"].config(text=f"{smart['direction']} · {smart['confidence']}%")
+        self.values["result"].config(text=detect_result(last.get("source_ocr_text")))
+        self.values["balance"].config(text=fmt(last.get("balance")))
+
+        self.signal.config(text=smart["signal"], fg=smart["color"])
+        self.signal_box.config(highlightbackground=smart["color"])
+
+        self.instruction.config(text=smart["instruction"])
+        self.reason.config(text=f"Motivo: {smart['reason']}")
+        self.block.config(text=f"Bloqueio: {smart['block']}")
+
+        if self.reader and self.reader.poll() is not None and "ANALISANDO" in self.status.cget("text"):
+            self.status.config(text="● FINALIZADO", fg=AMBER)
+
+        self.root.after(1000, self.refresh)
+
+    def close(self):
+        self.stop()
+        self.root.destroy()
+
+
+if __name__ == "__main__":
+    CompactApp().root.mainloop()

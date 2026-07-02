@@ -1,0 +1,206 @@
+from __future__ import annotations
+
+import json
+import threading
+import webbrowser
+from pathlib import Path
+from typing import Any
+
+from flask import Flask, jsonify, render_template
+
+
+ROOT_DIR = Path(__file__).resolve().parents[3]
+RUNTIME_DIR = ROOT_DIR / "data" / "runtime"
+LAST_READING_PATH = RUNTIME_DIR / "last_live_reading.json"
+PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
+HISTORY_LIMIT = 3000
+
+
+def _read_json(path: Path, default: Any) -> Any:
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return default
+
+
+def _as_float(value: Any) -> float | None:
+    if isinstance(value, int | float):
+        return float(value)
+
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    text = text.replace("D", "").replace("R$", "").replace("$", "").strip()
+    text = text.replace(" ", "")
+
+    if "," in text and "." in text:
+        text = text.replace(".", "").replace(",", ".")
+    else:
+        text = text.replace(",", ".")
+
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def _format_number(value: float | None) -> float | None:
+    if value is None:
+        return None
+    return round(float(value), 5)
+
+
+def _normalize_point(point: dict[str, Any], index: int) -> dict[str, Any]:
+    price_value = _as_float(point.get("price_value"))
+    if price_value is None:
+        price_value = _as_float(point.get("price"))
+
+    return {
+        "index": index,
+        "timestamp": point.get("timestamp"),
+        "asset": point.get("asset"),
+        "price": point.get("price"),
+        "price_value": _format_number(price_value),
+        "payout": point.get("payout"),
+        "balance": point.get("balance"),
+        "trade_value": point.get("trade_value"),
+        "duration": point.get("duration"),
+        "timeframe": point.get("timeframe"),
+        "confidence": point.get("confidence"),
+        "status": point.get("status"),
+    }
+
+
+def _build_history_response() -> dict[str, Any]:
+    raw_history = _read_json(PRICE_HISTORY_PATH, [])
+    if not isinstance(raw_history, list):
+        raw_history = []
+
+    raw_history = raw_history[-HISTORY_LIMIT:]
+    points = [
+        _normalize_point(point, index)
+        for index, point in enumerate(raw_history, start=1)
+        if isinstance(point, dict)
+    ]
+
+    valid_prices = [
+        point["price_value"]
+        for point in points
+        if isinstance(point.get("price_value"), int | float)
+    ]
+
+    stats: dict[str, Any] = {
+        "count": len(valid_prices),
+        "total_points": len(points),
+        "minimum": None,
+        "maximum": None,
+        "average": None,
+        "amplitude": None,
+        "first": None,
+        "last": None,
+        "variation": None,
+        "variation_percent": None,
+        "direction": "NO_DATA",
+        "start_timestamp": points[0]["timestamp"] if points else None,
+        "end_timestamp": points[-1]["timestamp"] if points else None,
+        "asset": points[-1]["asset"] if points else None,
+        "history_limit": HISTORY_LIMIT,
+    }
+
+    if valid_prices:
+        first = valid_prices[0]
+        last = valid_prices[-1]
+        minimum = min(valid_prices)
+        maximum = max(valid_prices)
+        average = sum(valid_prices) / len(valid_prices)
+        variation = last - first
+        variation_percent = (variation / first * 100) if first else None
+
+        if abs(variation) < 0.00001:
+            direction = "LATERAL"
+        elif variation > 0:
+            direction = "UP"
+        else:
+            direction = "DOWN"
+
+        stats.update(
+            {
+                "minimum": _format_number(minimum),
+                "maximum": _format_number(maximum),
+                "average": _format_number(average),
+                "amplitude": _format_number(maximum - minimum),
+                "first": _format_number(first),
+                "last": _format_number(last),
+                "variation": _format_number(variation),
+                "variation_percent": _format_number(variation_percent),
+                "direction": direction,
+            }
+        )
+
+    return {"points": points, "stats": stats}
+
+
+def create_dashboard_app() -> Flask:
+    app = Flask(
+        __name__,
+        template_folder="templates",
+        static_folder="static",
+    )
+
+    @app.after_request
+    def add_no_cache_headers(response):  # type: ignore[no-untyped-def]
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        return response
+
+    @app.route("/")
+    def index():  # type: ignore[no-untyped-def]
+        return render_template("index.html")
+
+    @app.route("/api/last-reading")
+    def last_reading():  # type: ignore[no-untyped-def]
+        payload = _read_json(LAST_READING_PATH, {})
+        if not isinstance(payload, dict) or not payload:
+            return jsonify({"status": "NO_DATA"})
+        return jsonify(payload)
+
+    @app.route("/api/price-history")
+    def price_history():  # type: ignore[no-untyped-def]
+        return jsonify(_build_history_response())
+
+    return app
+
+
+def run_dashboard(
+    host: str = "127.0.0.1",
+    port: int = 8765,
+    open_browser: bool = True,
+) -> None:
+    app = create_dashboard_app()
+    url = f"http://{host}:{port}"
+
+    if open_browser:
+        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+
+    print(f"PredixAI dashboard running at {url}")
+    app.run(host=host, port=port, debug=False, use_reloader=False)
+
+
+def run_dashboard_server() -> None:
+    run_dashboard()
+
+
+def launch_dashboard() -> None:
+    run_dashboard()
+
+
+def start_dashboard() -> None:
+    run_dashboard()
+
+
+run = run_dashboard

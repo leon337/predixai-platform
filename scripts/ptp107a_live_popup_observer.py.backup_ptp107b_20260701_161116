@@ -1,0 +1,368 @@
+﻿from __future__ import annotations
+
+import argparse
+import json
+import sys
+import threading
+import time
+import traceback
+from pathlib import Path
+import tkinter as tk
+from tkinter import ttk
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SRC_PATH = REPO_ROOT / "src"
+
+if str(SRC_PATH) not in sys.path:
+    sys.path.insert(0, str(SRC_PATH))
+
+RUNTIME_DIR = REPO_ROOT / "data" / "runtime"
+LAST_READING_PATH = RUNTIME_DIR / "last_live_reading.json"
+PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
+
+
+def read_json(path: Path, default):
+    if not path.exists():
+        return default
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def as_float(value):
+    if value is None:
+        return None
+    if isinstance(value, int | float):
+        return float(value)
+
+    text = str(value).strip()
+    text = text.replace("D", "").replace("R$", "").replace("$", "").strip()
+    text = text.replace(" ", "")
+
+    if "," in text and "." in text:
+        text = text.replace(".", "").replace(",", ".")
+    else:
+        text = text.replace(",", ".")
+
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def correct_asset(raw_asset: str, window_title: str) -> str:
+    title = window_title or ""
+
+    known_assets = [
+        "Cafeina Index",
+        "Cafeína Index",
+        "LATAM Index",
+    ]
+
+    for asset in known_assets:
+        if asset.lower() in title.lower():
+            return asset
+
+    if raw_asset and raw_asset not in {"Data", "UNKNOWN"}:
+        return raw_asset
+
+    return "ATIVO_NAO_CONFIRMADO"
+
+
+def get_price_points(history):
+    if not isinstance(history, list):
+        return []
+
+    points = []
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+
+        value = as_float(item.get("price_value"))
+        if value is None:
+            value = as_float(item.get("price"))
+
+        if value is not None:
+            points.append(value)
+
+    return points[-60:]
+
+
+def build_signal(last_reading: dict, history: list) -> dict:
+    raw_asset = str(last_reading.get("asset", "UNKNOWN"))
+    window_title = str(last_reading.get("window_title", ""))
+    asset = correct_asset(raw_asset, window_title)
+
+    price = as_float(last_reading.get("price_value"))
+    if price is None:
+        price = as_float(last_reading.get("price"))
+
+    points = get_price_points(history)
+
+    signal = {
+        "asset": asset,
+        "price": price,
+        "readings": len(points),
+        "support": None,
+        "resistance": None,
+        "trigger_price": None,
+        "state": "COLETANDO",
+        "direction": "NEUTRO",
+        "duration": "--",
+        "confidence": 0,
+        "reason": "Aguardando histórico suficiente",
+    }
+
+    if price is None:
+        signal["state"] = "SEM_PRECO"
+        signal["reason"] = "Preço não identificado"
+        return signal
+
+    if len(points) < 8:
+        signal["reason"] = "Poucas leituras para avaliar zona"
+        return signal
+
+    support = min(points)
+    resistance = max(points)
+    amplitude = max(resistance - support, 0.00001)
+    previous = points[-2]
+    current = points[-1]
+
+    near_zone = amplitude * 0.22
+    near_support = current <= support + near_zone
+    near_resistance = current >= resistance - near_zone
+
+    bounced_from_support = near_support and current > previous
+    rejected_from_resistance = near_resistance and current < previous
+
+    signal["support"] = round(support, 5)
+    signal["resistance"] = round(resistance, 5)
+
+    if bounced_from_support:
+        signal["state"] = "POSSIVEL_COMPRA_SIMULADA"
+        signal["direction"] = "ALTA"
+        signal["trigger_price"] = round(support, 5)
+        signal["duration"] = "1m"
+        signal["confidence"] = 68
+        signal["reason"] = "Preço tocou suporte recente e começou rejeição para cima"
+    elif rejected_from_resistance:
+        signal["state"] = "POSSIVEL_VENDA_SIMULADA"
+        signal["direction"] = "BAIXA"
+        signal["trigger_price"] = round(resistance, 5)
+        signal["duration"] = "1m"
+        signal["confidence"] = 68
+        signal["reason"] = "Preço tocou resistência recente e começou rejeição para baixo"
+    elif near_support:
+        signal["state"] = "AGUARDAR_REJEICAO_SUPORTE"
+        signal["direction"] = "ALTA_PENDENTE"
+        signal["trigger_price"] = round(support, 5)
+        signal["duration"] = "1m-2m"
+        signal["confidence"] = 45
+        signal["reason"] = "Preço perto do suporte, mas ainda sem rejeição confirmada"
+    elif near_resistance:
+        signal["state"] = "AGUARDAR_REJEICAO_RESISTENCIA"
+        signal["direction"] = "BAIXA_PENDENTE"
+        signal["trigger_price"] = round(resistance, 5)
+        signal["duration"] = "1m-2m"
+        signal["confidence"] = 45
+        signal["reason"] = "Preço perto da resistência, mas ainda sem rejeição confirmada"
+    else:
+        mid = (support + resistance) / 2
+        nearest = support if abs(current - support) < abs(current - resistance) else resistance
+        signal["state"] = "AGUARDAR"
+        signal["direction"] = "NEUTRO"
+        signal["trigger_price"] = round(nearest, 5)
+        signal["duration"] = "2m-3m"
+        signal["confidence"] = 25
+        signal["reason"] = "Preço no meio do canal; sem gatilho forte"
+
+        if current > mid:
+            signal["reason"] += " | mais próximo da resistência"
+        else:
+            signal["reason"] += " | mais próximo do suporte"
+
+    return signal
+
+
+class PopupApp:
+    def __init__(self, root: tk.Tk, cycles: int, interval: int):
+        self.root = root
+        self.cycles = cycles
+        self.interval = interval
+        self.stop_event = threading.Event()
+        self.worker = None
+
+        self.root.title("PredixAI - Sinal Inteligente Simulado")
+        self.root.geometry("430x620+20+80")
+        self.root.attributes("-topmost", True)
+
+        self.status_var = tk.StringVar(value="READY")
+        self.values = {}
+
+        self.build_ui()
+        self.refresh_ui()
+
+        self.root.after(1500, self.start_robot)
+
+    def build_ui(self):
+        frame = ttk.Frame(self.root, padding=10)
+        frame.pack(fill="both", expand=True)
+
+        title = ttk.Label(frame, text="PredixAI Popup Observer", font=("Segoe UI", 14, "bold"))
+        title.pack(anchor="w")
+
+        subtitle = ttk.Label(frame, text="SIMULADOR OBSERVADOR - sem clique, sem ordem real")
+        subtitle.pack(anchor="w", pady=(0, 8))
+
+        self.status_label = ttk.Label(frame, textvariable=self.status_var, font=("Segoe UI", 11, "bold"))
+        self.status_label.pack(anchor="w", pady=(0, 8))
+
+        grid = ttk.Frame(frame)
+        grid.pack(fill="x")
+
+        fields = [
+            "Ativo",
+            "Preço",
+            "Payout",
+            "Saldo",
+            "Entrada",
+            "Leituras",
+            "Suporte",
+            "Resistência",
+            "Gatilho",
+            "Sinal",
+            "Direção",
+            "Duração",
+            "Confiança",
+        ]
+
+        for row, name in enumerate(fields):
+            ttk.Label(grid, text=f"{name}:").grid(row=row, column=0, sticky="w", pady=2)
+            var = tk.StringVar(value="--")
+            self.values[name] = var
+            ttk.Label(grid, textvariable=var, font=("Segoe UI", 9, "bold")).grid(
+                row=row, column=1, sticky="w", padx=8, pady=2
+            )
+
+        ttk.Label(frame, text="Motivo:").pack(anchor="w", pady=(8, 0))
+        self.reason_text = tk.Text(frame, height=4, wrap="word")
+        self.reason_text.pack(fill="x")
+
+        ttk.Label(frame, text="Mini gráfico:").pack(anchor="w", pady=(8, 0))
+        self.canvas = tk.Canvas(frame, height=150, bg="#0b1020")
+        self.canvas.pack(fill="x")
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(8, 0))
+
+        ttk.Button(buttons, text="Parar", command=self.stop_robot).pack(side="left")
+        ttk.Button(buttons, text="Reiniciar", command=self.restart_robot).pack(side="left", padx=6)
+
+    def start_robot(self):
+        if self.worker and self.worker.is_alive():
+            return
+
+        self.stop_event.clear()
+        self.worker = threading.Thread(target=self.robot_loop, daemon=True)
+        self.worker.start()
+
+    def restart_robot(self):
+        self.stop_robot()
+        self.root.after(1000, self.start_robot)
+
+    def stop_robot(self):
+        self.stop_event.set()
+        self.status_var.set("PARANDO...")
+
+    def robot_loop(self):
+        try:
+            from predixai.init import create_application
+
+            self.status_var.set("Clique na corretora. Iniciando em 5s...")
+            time.sleep(5)
+
+            app = create_application()
+            app.bootstrap()
+
+            for index in range(1, self.cycles + 1):
+                if self.stop_event.is_set():
+                    break
+
+                self.status_var.set(f"COLETANDO {index}/{self.cycles}")
+                app.live_once(countdown_seconds_override=0)
+
+                for _ in range(self.interval):
+                    if self.stop_event.is_set():
+                        break
+                    time.sleep(1)
+
+            self.status_var.set("FINALIZADO")
+        except Exception:
+            error = traceback.format_exc()
+            self.status_var.set("ERRO NO OBSERVADOR")
+            print(error)
+
+    def refresh_ui(self):
+        last = read_json(LAST_READING_PATH, {})
+        history = read_json(PRICE_HISTORY_PATH, [])
+        signal = build_signal(last if isinstance(last, dict) else {}, history)
+
+        self.values["Ativo"].set(signal["asset"])
+        self.values["Preço"].set(str(last.get("price", "--")) if isinstance(last, dict) else "--")
+        self.values["Payout"].set(str(last.get("payout", "--")) if isinstance(last, dict) else "--")
+        self.values["Saldo"].set(str(last.get("balance", "--")) if isinstance(last, dict) else "--")
+        self.values["Entrada"].set(str(last.get("trade_value", "--")) if isinstance(last, dict) else "--")
+        self.values["Leituras"].set(str(signal["readings"]))
+        self.values["Suporte"].set(str(signal["support"]))
+        self.values["Resistência"].set(str(signal["resistance"]))
+        self.values["Gatilho"].set(str(signal["trigger_price"]))
+        self.values["Sinal"].set(signal["state"])
+        self.values["Direção"].set(signal["direction"])
+        self.values["Duração"].set(signal["duration"])
+        self.values["Confiança"].set(f"{signal['confidence']}%")
+
+        self.reason_text.delete("1.0", tk.END)
+        self.reason_text.insert(tk.END, signal["reason"])
+
+        self.draw_chart(get_price_points(history))
+        self.root.after(1000, self.refresh_ui)
+
+    def draw_chart(self, points):
+        self.canvas.delete("all")
+
+        width = max(self.canvas.winfo_width(), 300)
+        height = 150
+
+        if len(points) < 2:
+            self.canvas.create_text(12, 70, anchor="w", fill="white", text="Aguardando leituras...")
+            return
+
+        min_price = min(points)
+        max_price = max(points)
+        spread = max(max_price - min_price, 0.00001)
+
+        coords = []
+        for index, price in enumerate(points):
+            x = 10 + (index / (len(points) - 1)) * (width - 20)
+            y = height - 15 - ((price - min_price) / spread) * (height - 30)
+            coords.extend([x, y])
+
+        self.canvas.create_line(*coords, fill="white", width=2)
+        self.canvas.create_text(10, 10, anchor="w", fill="white", text=f"Min {min_price:.2f} | Max {max_price:.2f}")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cycles", type=int, default=60)
+    parser.add_argument("--interval", type=int, default=5)
+    args = parser.parse_args()
+
+    root = tk.Tk()
+    PopupApp(root, cycles=args.cycles, interval=args.interval)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
