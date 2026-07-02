@@ -164,6 +164,8 @@ secrets.local.json
 # PredixAI runtime captures
 captures/*.png
 captures/rois/*.png
+data/live_evidence/
+*.backup*
 
 # PredixAI runtime OCR cache
 data/ocr_cache/*.json
