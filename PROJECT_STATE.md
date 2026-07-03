@@ -774,3 +774,97 @@ Validacao pratica:
 
 Pendencia:
 - Calibrar a logica dos sinais com amostra limpa por ativo e confirmar pelo menos 2 sinais novos fechados em sessao atual.
+
+---
+
+## 2026-07-03 — Linux Mint Robot Runtime Recovery
+
+Status: PUBLICADO
+
+Resumo:
+- Ambiente principal migrado para Linux Mint + VS Code.
+- Dependências reais do robô instaladas no ambiente virtual `.venv`.
+- `requirements.txt` atualizado para refletir dependências reais.
+- Banco SQLite base inicializado em `data/predixai_trader.sqlite3`.
+- Schema do banco validado como versão 1.
+- Correção aplicada em `src/predixai/live/broker_window_detector.py` para impedir quebra no Linux por `ctypes.windll`.
+- `python -m predixai.main --help` voltou a funcionar no Linux Mint.
+- `compileall` passou em `src` e `scripts`.
+
+Problema encontrado:
+- O projeto ainda carregava importação direta de `ctypes.windll`, recurso disponível apenas no Windows.
+- Isso impedia o carregamento do módulo principal no Linux Mint.
+
+Solução aplicada:
+- O detector de janela passou a tratar Linux como ambiente sem detecção automática via `windll`.
+- No Linux, o sistema retorna estado seguro informando que a detecção automática de janela Windows não está disponível.
+- A lógica Windows foi preservada.
+
+Pendência:
+- Testar dashboard/robô em modo observador.
+- Ajustar detecção de janela para Linux usando alternativa compatível, se necessário.
+- Evoluir posteriormente para tela inicial multi-corretora com OlympTrade, IQ Option e Avalon.
+
+---
+
+## PTP-108 — Linux Mint Robot Runtime Recovery
+
+Data: 2026-07-03
+Status: publicado
+
+Objetivo:
+Recuperar o ambiente operacional do PredixAI Trader no Linux Mint.
+
+Alterações realizadas:
+- Dependências reais instaladas no ambiente virtual.
+- requirements.txt atualizado.
+- Banco SQLite inicializado em data/predixai_trader.sqlite3.
+- Schema SQLite versão 1 validado.
+- Compatibilidade Linux corrigida em src/predixai/live/broker_window_detector.py.
+- python -m predixai.main --help voltou a funcionar no Linux Mint.
+- Documentação técnica criada em docs/trader/LINUX_MINT_ROBOT_RECOVERY.md.
+
+Pendências:
+- Validar dashboard local.
+- Validar modo observador.
+- PTP-108 publicada no GitHub.
+
+
+---
+
+## 2026-07-03 — PTP-108 detector pre-commit fix
+
+Status: CORREÇÃO APLICADA ANTES DO COMMIT
+
+Resumo:
+- Auditoria pré-commit encontrou risco no método `detect()` do detector de janela.
+- A correção Linux precisava preservar o fluxo Windows.
+- O detector foi ajustado para retornar estado seguro no Linux e manter a detecção via `ctypes.windll` no Windows.
+
+Validação exigida:
+- Executar `compileall`.
+- Executar `python -m predixai.main --help`.
+- Conferir `git diff --check`.
+- Gerar relatório TXT antes do commit.
+
+
+---
+
+## 2026-07-03 — PTP-108 publicação
+
+Status: PUBLICADO
+
+Resumo:
+- PTP-108 publicada após validação local.
+- Ambiente Linux Mint recuperado para execução do PredixAI Trader.
+- Dependências reais documentadas.
+- Banco SQLite inicializado localmente.
+- Compatibilidade Linux corrigida no detector de janela.
+- GitHub atualizado como memória viva do projeto.
+
+Publicado em: 2026-07-03T12:49:17-03:00
+
+Próxima etapa:
+- Validar dashboard local.
+- Validar robô em modo observador.
+- Depois iniciar PTP-109 — Multi-Broker Startup and Auto Login.

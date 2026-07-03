@@ -3,7 +3,13 @@
 from __future__ import annotations
 
 import re
-from ctypes import Structure, byref, c_int, create_unicode_buffer, windll
+import sys
+from ctypes import Structure, byref, c_int, create_unicode_buffer
+
+if sys.platform.startswith("win"):
+    from ctypes import windll
+else:
+    windll = None
 from datetime import datetime
 
 from predixai.live.broker_window_state import BrokerWindowState
@@ -20,6 +26,28 @@ class _RECT(Structure):
 
 class BrokerWindowDetector:
     def detect(self) -> BrokerWindowState:
+        detected_at = datetime.now().astimezone().isoformat()
+
+        if windll is None:
+            return BrokerWindowState(
+                title="LINUX_WINDOW_DETECTION_UNAVAILABLE",
+                resolution_width=0,
+                resolution_height=0,
+                left=0,
+                top=0,
+                maximized=False,
+                foreground=False,
+                detected_at=detected_at,
+                metadata={
+                    "detected": False,
+                    "broker_window_valid": False,
+                    "ignored": True,
+                    "ignore_reason": "Detecção automática de janela via ctypes.windll disponível apenas no Windows.",
+                    "window_kind": "linux_unsupported",
+                    "platform": sys.platform,
+                },
+            )
+
         user32 = windll.user32
         hwnd = user32.GetForegroundWindow()
         title = self._window_text(user32, hwnd)
@@ -30,6 +58,7 @@ class BrokerWindowDetector:
         width = int(rect.right - rect.left)
         height = int(rect.bottom - rect.top)
         validation = self._classify_title(title)
+
         return BrokerWindowState(
             title=title or "UNKNOWN",
             resolution_width=width,
@@ -38,7 +67,7 @@ class BrokerWindowDetector:
             top=int(rect.top),
             maximized=maximized,
             foreground=foreground,
-            detected_at=datetime.now().astimezone().isoformat(),
+            detected_at=detected_at,
             metadata={
                 "detected": True,
                 "broker_window_valid": validation["valid"],

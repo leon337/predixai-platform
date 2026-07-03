@@ -1,1 +1,11 @@
-# PTP-003 foundation uses only the Python standard library.
+# PredixAI Platform runtime dependencies
+# PTP-108 — Linux Mint Robot Runtime Recovery
+# Updated on 2026-07-03.
+# SQLite is provided by the Python standard library.
+
+flask
+selenium
+pandas
+numpy
+opencv-python
+pillow

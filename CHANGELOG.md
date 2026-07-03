@@ -534,3 +534,72 @@ Observacao:
 - Confirmado leitor mobile com lock e `active_reader_count=1` via `POST /api/mobile/start?interval=3`.
 - Mantido escopo observador/simulado: sem cliques, sem ordens e sem automacao operacional de corretora.
 - Pendente: validar 2 sinais novos fechados quando a janela da corretora estiver ativa e calibrar a logica dos sinais.
+
+---
+
+## 2026-07-03 — Linux Mint Robot Runtime Recovery
+
+### Added
+- Registro técnico da recuperação operacional do robô no Linux Mint.
+- Dependências reais adicionadas ao `requirements.txt`.
+- Documento `docs/trader/LINUX_MINT_ROBOT_RECOVERY.md`.
+
+### Fixed
+- Corrigida quebra de importação causada por `ctypes.windll` no Linux.
+- `python -m predixai.main --help` voltou a executar no Linux Mint.
+
+### Validated
+- `.venv` ativo com Python 3.12.3.
+- Flask, Selenium, Pandas, Numpy, OpenCV, Pillow e SQLite importando corretamente.
+- Banco `data/predixai_trader.sqlite3` inicializado.
+- Schema SQLite versão 1 validado.
+- `compileall` executado com sucesso em `src` e `scripts`.
+
+### Notes
+- O banco SQLite é memória operacional local e não deve ser tratado como código-fonte.
+- Login automático multi-corretora foi aprovado como direção futura, mas ainda não será implementado nesta etapa.
+
+---
+
+## PTP-108 — Linux Mint Robot Runtime Recovery
+
+### Added
+- Documento docs/trader/LINUX_MINT_ROBOT_RECOVERY.md.
+- Registro da recuperação operacional do robô no Linux Mint.
+
+### Changed
+- requirements.txt atualizado com dependências reais do robô.
+
+### Fixed
+- Corrigida quebra no Linux causada por ctypes.windll em broker_window_detector.py.
+
+### Validated
+- Dependências principais importando corretamente.
+- Banco data/predixai_trader.sqlite3 inicializado.
+- Schema SQLite versão 1 validado.
+- python -m predixai.main --help funcionando no Linux Mint.
+
+
+---
+
+## PTP-108 — Detector pre-commit fix
+
+### Fixed
+- Preservado o fluxo Windows do `BrokerWindowDetector.detect()`.
+- Mantido fallback seguro no Linux quando `ctypes.windll` não está disponível.
+
+### Notes
+- Correção aplicada antes do commit da PTP-108.
+
+
+---
+
+## PTP-108 — Publication
+
+### Published
+- PTP-108 publicada no GitHub.
+- Ambiente operacional Linux Mint recuperado.
+- Detector de janela corrigido com fallback seguro para Linux e preservação do fluxo Windows.
+
+### Date
+- 2026-07-03T12:49:17-03:00
