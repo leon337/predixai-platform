@@ -1,10 +1,11 @@
-﻿"""Application bootstrap for the PredixAI foundation."""
+"""Application bootstrap for the PredixAI foundation."""
 
 from __future__ import annotations
 
 import json
 import re
 import importlib
+import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -567,6 +568,7 @@ class PredixAIApp:
                 "source": "live_once",
                 "session_id": session.session_id,
                 "timestamp": calibration_result.timestamp,
+                "window_title": broker_state.title,
                 "asset": reading.asset,
                 "price": normalized_price,
                 "price_value": price_value,
@@ -599,10 +601,30 @@ class PredixAIApp:
                     asset=normalized_asset,
                     payout=reading.payout,
                     price_value=price_value,
+                    window_title=broker_state.title,
                 )
             )
 
             if is_valid_runtime_reading:
+                price_tick_id = self._persist_runtime_price_tick_sqlite(
+                    runtime_dir=runtime_dir,
+                    created_at=calibration_result.timestamp,
+                    asset=normalized_asset,
+                    price=price_value,
+                    source="live_once",
+                    metadata={
+                        "window_title": broker_state.title,
+                        "session_id": session.session_id,
+                        "timeframe": reading.timeframe,
+                        "capture_path": str(metadata.file_path),
+                        "price_source_priority": (
+                            "window_title_then_labeled_text_then_reader"
+                        ),
+                    },
+                )
+                if price_tick_id is not None:
+                    runtime_payload["price_tick_id"] = price_tick_id
+                    history_entry["price_tick_id"] = price_tick_id
                 runtime_path.write_text(
                     json.dumps(runtime_payload, ensure_ascii=False, indent=2),
                     encoding="utf-8",
@@ -737,6 +759,326 @@ class PredixAIApp:
             "live_validation_benchmark": benchmark,
             "live_evidence_path": live_evidence_path,
         }
+
+    def live_price_tick(self) -> dict[str, object]:
+        """Persist one lightweight observer price tick without full-screen OCR."""
+        live_config = self.config.live if isinstance(self.config.live, dict) else {}
+        timeframe = str(live_config.get("timeframe", "M1"))
+        runtime_dir = self.config.resolve_path("data") / "runtime"
+        runtime_dir.mkdir(parents=True, exist_ok=True)
+
+        started_at = perf_counter()
+        timestamp = datetime.now().astimezone().isoformat()
+        tick_session_id = f"price_tick:{timestamp}"
+        mobile_session = self._read_runtime_mobile_session(runtime_dir)
+        observer_session_id = str(mobile_session.get("session_id") or tick_session_id)
+        broker_state = self.broker_window_detector.detect()
+        log_broker_window_state(self.logger, broker_state)
+
+        if not self._is_valid_broker_window(broker_state):
+            metadata = getattr(broker_state, "metadata", {}) or {}
+            reason = str(
+                metadata.get("ignore_reason")
+                or "Janela ignorada: janela ativa nao e corretora"
+            )
+            payload = {
+                "status": "IGNORED_WINDOW",
+                "source": "live_price_tick",
+                "session_id": observer_session_id,
+                "tick_session_id": tick_session_id,
+                "timestamp": timestamp,
+                "window_title": getattr(broker_state, "title", "UNKNOWN"),
+                "asset": "UNKNOWN",
+                "price": "UNKNOWN",
+                "price_value": None,
+                "time": "UNKNOWN",
+                "balance": "UNKNOWN",
+                "payout": "UNKNOWN",
+                "trade_value": "UNKNOWN",
+                "duration": "UNKNOWN",
+                "timeframe": timeframe,
+                "confidence": 0.0,
+                "unknown_fields": ["window", "asset", "price"],
+                "message": reason,
+                "reason": reason,
+                "capture_skipped": True,
+                "broker_window": broker_state.to_dict(),
+                "mobile_session": mobile_session,
+            }
+            runtime_path = runtime_dir / "last_live_reading.json"
+            runtime_path.write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            self._append_rejected_runtime_live_reading(
+                runtime_dir=runtime_dir,
+                payload=payload,
+                rejection_reasons=["invalid_broker_window"],
+            )
+            return {
+                "status": "IGNORED_WINDOW",
+                "source": "live_price_tick",
+                "reason": reason,
+                "total_time_ms": round((perf_counter() - started_at) * 1000, 3),
+            }
+
+        title = getattr(broker_state, "title", "") or ""
+        asset = self._normalize_runtime_asset("UNKNOWN", title, "")
+        price_value = self._extract_runtime_price_from_title(title, asset)
+        price_source = "window_title"
+        if not self._is_runtime_price_allowed(price_value, asset):
+            detected_price = self._read_recent_runtime_price(runtime_dir, asset)
+            if detected_price is not None:
+                price_value, detected_asset = detected_price
+                asset = detected_asset or asset
+                price_source = "last_detected_price_field"
+
+        if not self._is_runtime_price_allowed(price_value, asset):
+            reason = "Preco nao encontrado no titulo da janela"
+            payload = {
+                "status": "PRICE_NOT_FOUND",
+                "source": "live_price_tick",
+                "session_id": observer_session_id,
+                "tick_session_id": tick_session_id,
+                "timestamp": timestamp,
+                "window_title": title or "UNKNOWN",
+                "asset": asset,
+                "price": "UNKNOWN",
+                "price_value": None,
+                "time": "UNKNOWN",
+                "balance": "UNKNOWN",
+                "payout": "UNKNOWN",
+                "trade_value": "UNKNOWN",
+                "duration": "UNKNOWN",
+                "timeframe": timeframe,
+                "confidence": 0.0,
+                "unknown_fields": ["price"],
+                "message": reason,
+                "reason": reason,
+                "capture_skipped": True,
+                "broker_window": broker_state.to_dict(),
+                "mobile_session": mobile_session,
+            }
+            runtime_path = runtime_dir / "last_live_reading.json"
+            runtime_path.write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            self._append_rejected_runtime_live_reading(
+                runtime_dir=runtime_dir,
+                payload=payload,
+                rejection_reasons=["price_not_found_in_window_title"],
+            )
+            return {
+                "status": "PRICE_NOT_FOUND",
+                "source": "live_price_tick",
+                "reason": reason,
+                "asset": asset,
+                "total_time_ms": round((perf_counter() - started_at) * 1000, 3),
+            }
+
+        price_text = self._format_runtime_price_value(price_value)
+        payload = {
+            "status": "READY",
+            "source": "live_price_tick",
+            "session_id": observer_session_id,
+            "tick_session_id": tick_session_id,
+            "timestamp": timestamp,
+            "asset": asset,
+            "price": price_text,
+            "price_value": price_value,
+            "window_title": title,
+            "time": "UNKNOWN",
+            "balance": "UNKNOWN",
+            "payout": "UNKNOWN",
+            "trade_value": "UNKNOWN",
+            "duration": "UNKNOWN",
+            "timeframe": timeframe,
+            "confidence": 100.0,
+            "source_ocr_text": (
+                f"Janela detectada: {title}\n"
+                f"Price: {price_text}\n"
+                f"Asset: {asset}\n"
+            ),
+            "unknown_fields": [],
+            "price_source": price_source,
+            "capture_skipped": True,
+            "broker_window": broker_state.to_dict(),
+            "balance_quality": "NOT_READ",
+            "mobile_session": mobile_session,
+        }
+        tick_id = self._persist_runtime_price_tick_sqlite(
+            runtime_dir=runtime_dir,
+            created_at=timestamp,
+            asset=asset,
+            price=price_value,
+            source=price_source,
+            metadata={
+                "window_title": title,
+                "timeframe": timeframe,
+                "reader": "live_price_tick",
+                "session_id": observer_session_id,
+                "tick_session_id": tick_session_id,
+                "capture_skipped": True,
+                "broker_window": broker_state.to_dict(),
+                "mobile_session": mobile_session,
+            },
+        )
+        if tick_id is not None:
+            payload["price_tick_id"] = tick_id
+
+        runtime_path = runtime_dir / "last_live_reading.json"
+        runtime_path.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        self._append_runtime_price_history(runtime_dir, payload)
+        return {
+            "status": "READY",
+            "source": price_source,
+            "asset": asset,
+            "price": price_value,
+            "session_id": observer_session_id,
+            "price_tick_id": tick_id,
+            "total_time_ms": round((perf_counter() - started_at) * 1000, 3),
+        }
+
+    def _read_runtime_mobile_session(self, runtime_dir: Path) -> dict[str, object]:
+        session_path = runtime_dir / "mobile_current_session.json"
+        if not session_path.exists():
+            return {}
+        try:
+            payload = json.loads(session_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return {}
+        return payload if isinstance(payload, dict) else {}
+
+    def _read_recent_runtime_price(
+        self,
+        runtime_dir: Path,
+        fallback_asset: str,
+        *,
+        max_age_seconds: int = 2,
+    ) -> tuple[float, str] | None:
+        runtime_path = runtime_dir / "last_live_reading.json"
+        if not runtime_path.exists():
+            return None
+
+        age_seconds = max(0.0, datetime.now().timestamp() - runtime_path.stat().st_mtime)
+        if age_seconds > max_age_seconds:
+            return None
+
+        try:
+            payload = json.loads(runtime_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+        if not isinstance(payload, dict):
+            return None
+
+        asset = self._normalize_runtime_asset(
+            str(payload.get("asset") or fallback_asset or "UNKNOWN"),
+            str(payload.get("window_title") or ""),
+            str(payload.get("source_ocr_text") or ""),
+        )
+        price = self._parse_runtime_number(
+            payload.get("price_value")
+            if payload.get("price_value") is not None
+            else payload.get("price")
+        )
+        if not self._is_runtime_price_allowed(price, asset):
+            return None
+        return float(price), asset
+
+    def _append_runtime_price_history(
+        self,
+        runtime_dir: Path,
+        payload: dict[str, object],
+    ) -> None:
+        history_path = runtime_dir / "live_price_history.json"
+        if history_path.exists():
+            try:
+                history_payload = json.loads(history_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                history_payload = []
+        else:
+            history_payload = []
+
+        if not isinstance(history_payload, list):
+            history_payload = []
+
+        history_entry = dict(payload)
+        price_value = self._parse_runtime_number(
+            history_entry.get("price_value")
+            if history_entry.get("price_value") is not None
+            else history_entry.get("price")
+        )
+        is_valid, _ = self._validate_runtime_live_reading(
+            asset=str(history_entry.get("asset") or "UNKNOWN"),
+            payout=str(history_entry.get("payout") or "UNKNOWN"),
+            price_value=price_value,
+            window_title=str(history_entry.get("window_title") or ""),
+        )
+        if not is_valid:
+            return
+        history_payload.append(history_entry)
+        history_payload = history_payload[-3000:]
+        history_path.write_text(
+            json.dumps(history_payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+    def _persist_runtime_price_tick_sqlite(
+        self,
+        *,
+        runtime_dir: Path,
+        created_at: str,
+        asset: str,
+        price: float | None,
+        source: str,
+        metadata: dict[str, object],
+    ) -> int | None:
+        if price is None:
+            return None
+        is_valid, _ = self._validate_runtime_live_reading(
+            asset=asset,
+            payout=str(metadata.get("payout") or "UNKNOWN"),
+            price_value=price,
+            window_title=str(metadata.get("window_title") or ""),
+        )
+        if not is_valid:
+            return None
+
+        db_path = runtime_dir / "predixai_trader_signals.db"
+        with sqlite3.connect(db_path) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS price_ticks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    created_at TEXT NOT NULL,
+                    asset TEXT,
+                    price REAL NOT NULL,
+                    source TEXT,
+                    metadata_json TEXT
+                )
+                """
+            )
+            cursor = conn.execute(
+                """
+                INSERT INTO price_ticks (
+                    created_at, asset, price, source, metadata_json
+                )
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    created_at,
+                    asset,
+                    price,
+                    source,
+                    json.dumps(metadata, ensure_ascii=False),
+                ),
+            )
+            conn.commit()
+            return int(cursor.lastrowid)
 
     def _load_modules(self) -> tuple[ModuleInfo, ...]:
         loaded_modules: list[ModuleInfo] = []
@@ -1661,7 +2003,16 @@ class PredixAIApp:
 
     def _is_valid_broker_window(self, broker_state: object) -> bool:
         metadata = getattr(broker_state, "metadata", {}) or {}
-        return bool(metadata.get("broker_window_valid"))
+        if bool(metadata.get("broker_window_valid")):
+            return True
+
+        title = str(getattr(broker_state, "title", "") or "")
+        if not title or self._is_runtime_window_blocked(title):
+            return False
+
+        asset = self._normalize_runtime_asset("UNKNOWN", title, "")
+        price = self._extract_runtime_price_from_title(title, asset)
+        return self._is_runtime_asset_allowed(asset) and self._is_runtime_price_allowed(price, asset)
 
     def _handle_ignored_broker_window(
         self,
@@ -1811,10 +2162,10 @@ class PredixAIApp:
     ) -> str:
         """Build simulated expiration guidance without trading execution."""
         if remaining_time and remaining_time != "UNKNOWN":
-            return f"Aguardar confirma??o; tempo restante vis?vel: {remaining_time}"
+            return f"Aguardar confirmação; tempo restante visível: {remaining_time}"
 
         if duration and duration != "UNKNOWN":
-            return f"Usar dura??o observada: {duration}"
+            return f"Usar duração observada: {duration}"
 
         return f"Usar timeframe observado: {timeframe or 'M1'}"
 
@@ -1843,6 +2194,8 @@ class PredixAIApp:
         asset: str = "",
     ) -> float | None:
         title = window_title or ""
+        title_asset = self._normalize_runtime_asset(asset or "UNKNOWN", title, "")
+        effective_asset = title_asset if self._is_runtime_asset_allowed(title_asset) else asset
         patterns = (
             r"([0-9]{3,6}(?:[.,][0-9]{1,6})?)\s+(?:Cafe[ií]na|Asia\s+Composite|LATAM)\s+Index",
             r"(?:Cafe[ií]na|Asia\s+Composite|LATAM)\s+Index\s+([0-9]{3,6}(?:[.,][0-9]{1,6})?)",
@@ -1853,11 +2206,11 @@ class PredixAIApp:
             if not match:
                 continue
             value = self._parse_runtime_number(match.group(1))
-            if self._is_runtime_price_allowed(value, asset):
+            if self._is_runtime_price_allowed(value, effective_asset):
                 return value
 
         has_broker_or_asset = re.search(
-            r"olymp\s*trade|olymptrade|cafe[ií]na\s+index|asia\s+composite\s+index",
+            r"olymp\s*trade|olymptrade|cafe[ií]na\s+index|asia\s+composite\s+index|latam\s+index",
             title,
             flags=re.IGNORECASE,
         )
@@ -1866,7 +2219,7 @@ class PredixAIApp:
 
         for number in re.findall(r"\b[0-9]{3,6}(?:[.,][0-9]{1,6})?\b", title):
             value = self._parse_runtime_number(number)
-            if self._is_runtime_price_allowed(value, asset):
+            if self._is_runtime_price_allowed(value, effective_asset):
                 return value
 
         return None
@@ -1917,27 +2270,63 @@ class PredixAIApp:
         if value is None or value <= 0:
             return False
 
+        if asset and not self._is_runtime_asset_allowed(asset):
+            return False
+
         rounded = int(round(value))
         if rounded in {1, 3, 24, 25, 52, 85, 2026}:
             return False
 
-        if value < 1000:
+        asset_text = (asset or "").lower()
+        min_price = 100.0 if "latam" in asset_text else 1000.0
+        if value < min_price:
             return False
 
-        asset_text = (asset or "").lower()
         known_index = (
             "cafe" in asset_text
             or "asia composite" in asset_text
             or "latam" in asset_text
             or "index" in asset_text
         )
-        if known_index and value < 1000:
+        if known_index and value < min_price:
             return False
 
         if ("cafe" in asset_text or "asia composite" in asset_text) and 1900 <= value <= 2100:
             return False
 
         return True
+
+    def _is_runtime_asset_allowed(self, asset: str) -> bool:
+        text = str(asset or "").strip()
+        if text.upper() in ("", "UNKNOWN", "DATA", "NONE", "N/A", "-"):
+            return False
+
+        lowered = text.lower()
+        if any(token in lowered for token in ("core/", "core\\", "codex", "powershell", "visual studio code")):
+            return False
+        return "index" in lowered
+
+    def _is_runtime_window_blocked(self, window_title: str) -> bool:
+        lowered = str(window_title or "").lower()
+        if not lowered:
+            return False
+        blocked_markers = (
+            "codex",
+            "powershell",
+            "pwsh",
+            "visual studio code",
+            "cmd.exe",
+            "command prompt",
+            "terminal",
+            "predixai compact",
+            "predixai trader mobile",
+            "localhost:8766",
+            "127.0.0.1:8766",
+            "localhost:8765",
+            "127.0.0.1:8765",
+            "dashboard",
+        )
+        return any(marker in lowered for marker in blocked_markers)
 
     def _format_runtime_price_value(self, value: float | None) -> str:
         if value is None:
@@ -1951,6 +2340,7 @@ class PredixAIApp:
         asset: str,
         payout: str,
         price_value: float | None,
+        window_title: str = "",
     ) -> tuple[bool, list[str]]:
         """Validate whether a live reading can enter runtime history."""
         reasons: list[str] = []
@@ -1958,13 +2348,18 @@ class PredixAIApp:
         asset_text = str(asset or "").strip()
         if asset_text.upper() in ("", "UNKNOWN", "DATA", "NONE", "N/A", "-"):
             reasons.append("asset_unknown")
+        elif not self._is_runtime_asset_allowed(asset_text):
+            reasons.append("asset_invalid")
+
+        if self._is_runtime_window_blocked(window_title):
+            reasons.append("invalid_window")
 
         if price_value is None:
             reasons.append("price_value_missing")
         elif not self._is_runtime_price_allowed(price_value, asset):
             reasons.append("price_value_suspicious")
 
-        # Payout ausente vira aviso indireto, mas n?o bloqueia pre?o + ativo v?lidos.
+        # Payout ausente vira aviso indireto, mas não bloqueia preço + ativo válidos.
         return len(reasons) == 0, reasons
 
     def _append_rejected_runtime_live_reading(

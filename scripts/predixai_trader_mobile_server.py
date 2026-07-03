@@ -12,11 +12,15 @@ import argparse
 import json
 import os
 import re
+import shutil
 import socket
 import sqlite3
 import subprocess
 import sys
+import tempfile
+import threading
 import time
+import uuid
 from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -40,19 +44,32 @@ LAST_READING_PATH = RUNTIME_DIR / "last_live_reading.json"
 PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
 REJECTED_READINGS_PATH = RUNTIME_DIR / "rejected_live_readings.json"
 SIGNALS_DB_PATH = RUNTIME_DIR / "predixai_trader_signals.db"
+MOBILE_SESSION_PATH = RUNTIME_DIR / "mobile_current_session.json"
+MOBILE_BACKUPS_DIR = RUNTIME_DIR / "backups"
 
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_PORT = 8766
 HISTORY_LIMIT = 60
+SESSION_HISTORY_LIMIT = 100
 SIGNALS_LIMIT = 20
-SIGNAL_COOLDOWN_SECONDS = 60
-DEFAULT_EXPIRATION_SECONDS = 60
+SIGNAL_COOLDOWN_SECONDS = 3
+DEFAULT_EXPIRATION_SECONDS = 30
+DEFAULT_READER_INTERVAL_SECONDS = 3
+SIGNAL_ANALYSIS_INTERVAL_SECONDS = 3
+ALLOWED_EXPIRATION_SECONDS = {30}
+RESULT_PRICE_TOLERANCE_SECONDS = 10
+UNKNOWN_AFTER_EXPIRATION_SECONDS = 45
+WAITING_RESULT_STATUS = "WAITING_RESULT"
+UNKNOWN_NO_HISTORY_REASON = "Sem preÃ§o vÃ¡lido entre 30s e 40s apÃ³s o sinal"
 
-OBSERVATION_NOTICE = "Modo observador. Não é recomendação financeira."
-SIMULATION_NOTICE = "Modo observador/simulado. Não executa ordens."
+OBSERVATION_NOTICE = "Modo observador. NÃ£o Ã© recomendaÃ§Ã£o financeira."
+SIMULATION_NOTICE = "Modo observador/simulado. NÃ£o executa ordens."
 
 _reader_process: subprocess.Popen | None = None
 _reader_interval: int | None = None
+_reader_process_cache_at: float = 0.0
+_reader_process_cache: list[dict[str, Any]] = []
+_reader_start_lock = threading.Lock()
 
 
 MOBILE_HTML = r"""<!doctype html>
@@ -161,6 +178,12 @@ MOBILE_HTML = r"""<!doctype html>
       gap: 8px;
       margin-top: 10px;
     }
+    .expiration-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      margin-bottom: 8px;
+    }
     button, a.button {
       appearance: none;
       border: 1px solid var(--border);
@@ -175,6 +198,57 @@ MOBILE_HTML = r"""<!doctype html>
       text-decoration: none;
     }
     button:active, a.button:active { background: #1d3a58; }
+    .admin-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .admin-actions button {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 12px;
+    }
+    .admin-message {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .expiration-controls button {
+      min-height: 40px;
+      padding: 8px;
+      font-size: 14px;
+    }
+    .expiration-controls button.active {
+      border-color: var(--line);
+      color: var(--line);
+      background: #0b2636;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+    .metric {
+      min-width: 0;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 6px;
+      text-align: center;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font: 700 10px Consolas, monospace;
+      margin-bottom: 3px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
     .signals {
       display: grid;
       gap: 7px;
@@ -199,7 +273,7 @@ MOBILE_HTML = r"""<!doctype html>
     }
     .result.WIN { color: var(--green); }
     .result.LOSS { color: var(--red); }
-    .result.DRAW, .result.PENDING, .result.UNKNOWN { color: var(--yellow); }
+    .result.DRAW, .result.PENDING, .result.WAITING_RESULT, .result.UNKNOWN { color: var(--yellow); }
     .muted {
       color: var(--muted);
       font-size: 12px;
@@ -211,6 +285,12 @@ MOBILE_HTML = r"""<!doctype html>
       font: 700 11px Consolas, monospace;
       text-align: center;
     }
+    .chart-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
   </style>
 </head>
 <body>
@@ -220,8 +300,8 @@ MOBILE_HTML = r"""<!doctype html>
   </header>
 
   <div class="notice">
-    <div>Modo observador. Não é recomendação financeira.</div>
-    <div>Modo observador/simulado. Não executa ordens.</div>
+    <div>Modo observador. NÃ£o Ã© recomendaÃ§Ã£o financeira.</div>
+    <div>Modo observador/simulado. NÃ£o executa ordens.</div>
   </div>
 
   <main class="grid">
@@ -231,8 +311,18 @@ MOBILE_HTML = r"""<!doctype html>
     </section>
 
     <section class="card wide">
-      <div class="label">Último preço válido</div>
+      <div class="label">Ãšltimo preÃ§o vÃ¡lido</div>
       <div id="price" class="value big">-</div>
+    </section>
+
+    <section class="card">
+      <div class="label">Suporte</div>
+      <div id="support" class="value">-</div>
+    </section>
+
+    <section class="card">
+      <div class="label">ResistÃªncia</div>
+      <div id="resistance" class="value">-</div>
     </section>
 
     <section class="card wide">
@@ -240,13 +330,20 @@ MOBILE_HTML = r"""<!doctype html>
       <div id="signal" class="value signal">AGUARDAR</div>
     </section>
 
+    <section class="card wide">
+      <div class="label">ExpiraÃ§Ã£o simulada</div>
+      <div id="readInterval" class="muted">Leitura de preÃ§o: 3s</div>
+      <div id="signalInterval" class="muted">AnÃ¡lise de sinal: 3s</div>
+      <div id="expirationCurrent" class="muted">ExpiraÃ§Ã£o: 30s</div>
+    </section>
+
     <section class="card">
-      <div class="label">Confiança</div>
+      <div class="label">ConfianÃ§a</div>
       <div id="confidence" class="value">-</div>
     </section>
 
     <section class="card">
-      <div class="label">Última leitura</div>
+      <div class="label">Ãšltima leitura</div>
       <div id="age" class="value">-</div>
     </section>
 
@@ -256,12 +353,47 @@ MOBILE_HTML = r"""<!doctype html>
       <div id="message" class="muted">Aguardando estado local.</div>
     </section>
 
-    <section class="wide">
-      <canvas id="chart" width="680" height="260"></canvas>
+    <section class="card wide">
+      <div class="label">DiagnÃ³stico do preÃ§o</div>
+      <div class="metrics">
+        <div class="metric"><span>Idade</span><strong id="diagPriceAge">-</strong></div>
+        <div class="metric"><span>HistÃ³rico</span><strong id="diagHistoryCount">0</strong></div>
+        <div class="metric"><span>MÃ©dia</span><strong id="diagAvgInterval">-</strong></div>
+        <div class="metric"><span>Aguardando</span><strong id="diagWaiting">0</strong></div>
+      </div>
+      <div id="diagLastTimestamp" class="muted">Ãšltimo timestamp: -</div>
+      <div id="diagFinalSearch" class="muted">Busca do preÃ§o final: -</div>
+      <div id="diagTickCount" class="muted">price_ticks SQLite: -</div>
+      <div class="admin-actions">
+        <button type="button" onclick="resetSession()">Limpar sessÃ£o</button>
+        <span id="resetMessage" class="admin-message"></span>
+      </div>
     </section>
 
     <section class="card wide">
-      <div class="label">Últimos sinais simulados</div>
+      <div class="label">Auditoria simulada</div>
+      <div class="metrics">
+        <div class="metric"><span>Total</span><strong id="statsTotal">0</strong></div>
+        <div class="metric"><span>Fechados</span><strong id="statsClosed">0</strong></div>
+        <div class="metric"><span>Pendentes</span><strong id="statsPending">0</strong></div>
+        <div class="metric"><span>WIN</span><strong id="statsWin">0</strong></div>
+        <div class="metric"><span>LOSS</span><strong id="statsLoss">0</strong></div>
+        <div class="metric"><span>DRAW</span><strong id="statsDraw">0</strong></div>
+        <div class="metric"><span>UNKNOWN</span><strong id="statsUnknown">0</strong></div>
+        <div class="metric"><span>Taxa</span><strong id="statsHitRate">0%</strong></div>
+      </div>
+      <div id="latestSignal" class="muted">Ãšltimo sinal: -</div>
+      <div id="latestRemaining" class="muted">Tempo restante: -</div>
+      <div id="latestResult" class="muted">Resultado: -</div>
+    </section>
+
+    <section class="wide">
+      <canvas id="chart" width="680" height="260"></canvas>
+      <div id="chartLegend" class="chart-note">Suporte: - / ResistÃªncia: - / Ãšltimo sinal: -</div>
+    </section>
+
+    <section class="card wide">
+      <div class="label">Ãšltimos sinais simulados</div>
       <div id="signals" class="signals">
         <div class="muted">Sem sinais simulados registrados.</div>
       </div>
@@ -270,7 +402,7 @@ MOBILE_HTML = r"""<!doctype html>
 
   <section class="controls">
     <button type="button" onclick="refreshState()">Atualizar</button>
-    <button type="button" onclick="startReader(1)">Iniciar 1s</button>
+    <button type="button" onclick="startReader(3)">Iniciar 3s</button>
     <button type="button" onclick="stopReader()">Parar leitor</button>
     <a id="dashboardLink" class="button" href="/mobile">Dashboard</a>
   </section>
@@ -281,6 +413,8 @@ MOBILE_HTML = r"""<!doctype html>
     const nf = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const chart = document.getElementById("chart");
     const ctx = chart.getContext("2d");
+    let expirationSeconds = 30;
+    let expirationLabel = "30s";
 
     function fmtPrice(value) {
       if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
@@ -301,7 +435,41 @@ MOBILE_HTML = r"""<!doctype html>
       return `${Math.round(number)}%`;
     }
 
-    function drawChart(points) {
+    function fmtRemaining(seconds) {
+      if (seconds === null || seconds === undefined) return "-";
+      const value = Math.max(0, Number(seconds) || 0);
+      if (value < 60) return `${Math.ceil(value)}s`;
+      return `${Math.floor(value / 60)}min ${Math.ceil(value % 60)}s`;
+    }
+
+    function fmtHitRate(value) {
+      const number = Number(value || 0);
+      return `${number.toFixed(1)}%`;
+    }
+
+    function fmtDateTime(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "-";
+      return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+
+    function updateExpirationControls() {
+      document.querySelectorAll("[data-expiration-label]").forEach(button => {
+        const active = button.dataset.expirationLabel === expirationLabel;
+        button.classList.toggle("active", active);
+      });
+      document.getElementById("expirationCurrent").textContent = "ExpiraÃ§Ã£o: 30s";
+    }
+
+    function setExpiration(seconds, label) {
+      expirationSeconds = 30;
+      expirationLabel = "30s";
+      updateExpirationControls();
+      refreshState();
+    }
+
+    function drawChart(points, support, resistance, signals) {
       const w = chart.width;
       const h = chart.height;
       ctx.clearRect(0, 0, w, h);
@@ -320,30 +488,99 @@ MOBILE_HTML = r"""<!doctype html>
         ctx.fillStyle = "#a8b5c6";
         ctx.font = "700 22px Arial";
         ctx.textAlign = "center";
-        ctx.fillText("Coletando dados para gráfico...", w / 2, h / 2);
+        ctx.fillText("Coletando dados para grÃ¡fico...", w / 2, h / 2);
         return;
       }
       const values = points.map(p => Number(p.price_value)).filter(v => !Number.isNaN(v));
+      const signalValues = (signals || []).map(s => Number(s.entry_price ?? s.price)).filter(v => !Number.isNaN(v));
+      const supportValue = Number(support);
+      const resistanceValue = Number(resistance);
+      if (!Number.isNaN(supportValue)) values.push(supportValue);
+      if (!Number.isNaN(resistanceValue)) values.push(resistanceValue);
+      values.push(...signalValues);
       const min = Math.min(...values);
       const max = Math.max(...values);
-      const span = Math.max(1, max - min);
+      const span = Math.max(0.000001, max - min);
       const pad = 18;
-      const step = (w - pad * 2) / Math.max(1, values.length - 1);
-      const up = values[values.length - 1] >= values[0];
+      const priceValues = points.map(p => Number(p.price_value)).filter(v => !Number.isNaN(v));
+      const times = points
+        .map(p => Date.parse(p.timestamp || p.created_at || ""))
+        .filter(v => !Number.isNaN(v));
+      const minTime = times.length ? Math.min(...times) : null;
+      const maxTime = times.length ? Math.max(...times) : null;
+      const timeSpan = minTime !== null && maxTime !== null ? Math.max(1, maxTime - minTime) : 1;
+      function yFor(value) {
+        return pad + ((max - value) / span) * (h - pad * 2 - 24);
+      }
+      function xForPoint(index, timestamp) {
+        const parsed = Date.parse(timestamp || "");
+        if (minTime !== null && maxTime !== null && !Number.isNaN(parsed)) {
+          return pad + ((parsed - minTime) / timeSpan) * (w - pad * 2);
+        }
+        return pad + index * ((w - pad * 2) / Math.max(1, points.length - 1));
+      }
+      function xForSignal(signal, fallbackIndex) {
+        const parsed = Date.parse(signal.emitted_at || signal.created_at || "");
+        if (minTime !== null && maxTime !== null && !Number.isNaN(parsed)) {
+          const clamped = Math.min(maxTime, Math.max(minTime, parsed));
+          return pad + ((clamped - minTime) / timeSpan) * (w - pad * 2);
+        }
+        return w - pad - fallbackIndex * 12;
+      }
+      function drawLevel(value, color, label) {
+        if (Number.isNaN(value)) return;
+        const y = yFor(value);
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([7, 5]);
+        ctx.beginPath();
+        ctx.moveTo(pad, y);
+        ctx.lineTo(w - pad, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = color;
+        ctx.font = "700 12px Consolas";
+        ctx.textAlign = "left";
+        ctx.fillText(`${label} ${fmtPrice(value)}`, pad + 4, Math.max(14, y - 4));
+        ctx.restore();
+      }
+      const up = priceValues[priceValues.length - 1] >= priceValues[0];
       ctx.strokeStyle = up ? "#38d66b" : "#ff4d6d";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      values.forEach((value, index) => {
-        const x = pad + index * step;
-        const y = pad + ((max - value) / span) * (h - pad * 2 - 24);
+      priceValues.forEach((value, index) => {
+        const x = xForPoint(index, points[index]?.timestamp);
+        const y = yFor(value);
         if (index === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
       ctx.stroke();
+      drawLevel(supportValue, "#ffbf00", "S");
+      drawLevel(resistanceValue, "#00e5ff", "R");
+      (signals || []).slice(0, 8).forEach((signal, index) => {
+        const entry = Number(signal.entry_price ?? signal.price);
+        if (Number.isNaN(entry)) return;
+        const x = xForSignal(signal, index);
+        const y = yFor(entry);
+        const isUp = String(signal.direction || "").includes("ALTA");
+        const result = signal.result || signal.status || "WAITING_RESULT";
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = isUp ? "#38d66b" : "#ff4d6d";
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = result === "WIN" ? "#38d66b" : result === "LOSS" ? "#ff4d6d" : "#ffbf00";
+        ctx.stroke();
+        ctx.fillStyle = "#f5f7fb";
+        ctx.font = "700 10px Consolas";
+        ctx.textAlign = "center";
+        ctx.fillText(["PENDING", "WAITING_RESULT"].includes(result) ? "..." : result, x, Math.max(12, y - 9));
+      });
       ctx.fillStyle = "#f5f7fb";
       ctx.font = "700 20px Consolas";
       ctx.textAlign = "right";
-      ctx.fillText(fmtPrice(values[values.length - 1]), w - pad, h - 12);
+      ctx.fillText(fmtPrice(priceValues[priceValues.length - 1]), w - pad, h - 12);
     }
 
     function paintSignals(signals) {
@@ -354,25 +591,81 @@ MOBILE_HTML = r"""<!doctype html>
       }
       box.innerHTML = signals.map(item => {
         const result = item.result || item.status || "UNKNOWN";
-        const price = fmtPrice(item.price);
+        const price = fmtPrice(item.entry_price ?? item.price);
+        const resultPrice = fmtPrice(item.result_price);
         const delta = item.delta === null || item.delta === undefined ? "-" : Number(item.delta).toFixed(5);
+        const waiting = ["PENDING", "WAITING_RESULT"].includes(item.status || result);
+        const remaining = waiting ? `restante: ${fmtRemaining(item.remaining_seconds)}` : `resultado: ${result}`;
+        const expiration = item.expiration_seconds || 30;
+        const unknownReason = result === "UNKNOWN" ? (item.result_reason || item.unknown_reason || "Sem preÃ§o vÃ¡lido entre 30s e 40s apÃ³s o sinal") : "";
         return `<div class="signal-row">
           <div>
-            <strong>${item.signal || "-"}</strong>
+            <strong>${item.signal || "-"} ${item.direction ? `(${item.direction})` : ""}</strong>
             <div class="muted">${item.asset || "-"} / ${price} / conf. ${fmtConfidence(item.confidence)}</div>
+            <div class="muted">emitido: ${fmtDateTime(item.emitted_at || item.created_at)} / confirmado: ${fmtDateTime(item.result_checked_at)}</div>
+            <div class="muted">preÃ§o final: ${resultPrice}</div>
+            <div class="muted">exp. ${expiration}s / ${remaining}</div>
             <div class="muted">delta: ${delta}</div>
+            ${unknownReason ? `<div class="muted">${unknownReason}</div>` : ""}
           </div>
           <div class="result ${result}">${result}</div>
         </div>`;
       }).join("");
     }
 
+    function paintStats(stats) {
+      stats = stats || {};
+      const latest = stats.latest_signal || null;
+      document.getElementById("statsTotal").textContent = stats.total || 0;
+      document.getElementById("statsClosed").textContent = stats.closed || 0;
+      document.getElementById("statsPending").textContent = stats.pending || 0;
+      document.getElementById("statsWin").textContent = stats.win || 0;
+      document.getElementById("statsLoss").textContent = stats.loss || 0;
+      document.getElementById("statsDraw").textContent = stats.draw || 0;
+      document.getElementById("statsUnknown").textContent = stats.unknown || 0;
+      document.getElementById("statsHitRate").textContent = fmtHitRate(stats.hit_rate_percent);
+      if (!latest) {
+        document.getElementById("latestSignal").textContent = "Ãšltimo sinal: -";
+        document.getElementById("latestRemaining").textContent = "Tempo restante: -";
+        document.getElementById("latestResult").textContent = "Resultado: -";
+        return;
+      }
+      document.getElementById("latestSignal").textContent = `Ãšltimo sinal: ${latest.direction || "-"} / emitido ${fmtDateTime(latest.emitted_at || latest.created_at)} / entrada ${fmtPrice(latest.entry_price ?? latest.price)}`;
+      document.getElementById("latestRemaining").textContent = ["PENDING", "WAITING_RESULT"].includes(latest.status)
+        ? `Tempo restante: ${fmtRemaining(latest.remaining_seconds)}`
+        : `Confirmado: ${fmtDateTime(latest.result_checked_at)} / preÃ§o final ${fmtPrice(latest.result_price)}`;
+      const latestReason = (latest.result || latest.status) === "UNKNOWN" ? ` / ${latest.result_reason || latest.unknown_reason || "Sem preÃ§o vÃ¡lido entre 30s e 40s apÃ³s o sinal"}` : "";
+      document.getElementById("latestResult").textContent = `Resultado: ${latest.result || latest.status || "-"}${latestReason}`;
+    }
+
+    function paintDiagnostics(diagnostics) {
+      diagnostics = diagnostics || {};
+      document.getElementById("diagPriceAge").textContent = fmtAge(diagnostics.last_price_age_seconds);
+      document.getElementById("diagHistoryCount").textContent = diagnostics.history_count || 0;
+      document.getElementById("diagAvgInterval").textContent =
+        diagnostics.average_interval_seconds === null || diagnostics.average_interval_seconds === undefined
+          ? "-"
+          : `${Number(diagnostics.average_interval_seconds).toFixed(1)}s`;
+      document.getElementById("diagWaiting").textContent = diagnostics.waiting_result_count || 0;
+      document.getElementById("diagLastTimestamp").textContent = `Ãšltimo timestamp: ${fmtDateTime(diagnostics.last_history_timestamp)}`;
+      document.getElementById("diagFinalSearch").textContent = `Busca do preÃ§o final: ${diagnostics.final_price_search_status || "-"}`;
+      document.getElementById("diagTickCount").textContent = `price_ticks SQLite: ${diagnostics.price_ticks_count ?? 0}`;
+    }
+
     function paint(data) {
       const state = data.state || {};
       const status = state.status || "Parado";
       const signal = state.signal || "AGUARDAR";
+      if ([30, 60].includes(Number(data.expiration_seconds))) {
+        expirationSeconds = Number(data.expiration_seconds);
+      }
+      updateExpirationControls();
       document.getElementById("asset").textContent = state.asset || "-";
       document.getElementById("price").textContent = fmtPrice(state.price);
+      document.getElementById("support").textContent = fmtPrice(data.support);
+      document.getElementById("resistance").textContent = fmtPrice(data.resistance);
+      document.getElementById("readInterval").textContent = `Leitura de preÃ§o: ${data.reader_interval || 3}s`;
+      document.getElementById("signalInterval").textContent = `AnÃ¡lise de sinal: ${data.signal_analysis_interval || 3}s`;
       document.getElementById("confidence").textContent = fmtConfidence(state.confidence);
       document.getElementById("age").textContent = fmtAge(state.last_reading_age_seconds);
       document.getElementById("status").textContent = status;
@@ -384,20 +677,26 @@ MOBILE_HTML = r"""<!doctype html>
       if (signal.includes("BAIXA")) signalEl.classList.add("down");
       const statusEl = document.getElementById("status");
       statusEl.className = "value";
-      if (status === "Rodando") statusEl.classList.add("status-good");
+      if (status.startsWith("Rodando")) statusEl.classList.add("status-good");
       else if (status === "Janela errada" || status === "Bloqueado") statusEl.classList.add("status-bad");
       else statusEl.classList.add("status-warn");
       const badge = document.getElementById("readerBadge");
       badge.textContent = data.reader_running ? "RODANDO" : "PARADO";
       badge.style.color = data.reader_running ? "#38d66b" : "#a8b5c6";
-      drawChart(data.history || []);
+      const signals = data.signals || [];
+      drawChart(data.price_history || data.history || [], data.support, data.resistance, signals);
       paintSignals(data.signals || []);
+      paintStats(data.signal_stats || {});
+      paintDiagnostics(data.price_diagnostics || {});
+      const latest = (data.signal_stats || {}).latest_signal || signals[0] || null;
+      document.getElementById("chartLegend").textContent =
+        `Suporte: ${fmtPrice(data.support)} / ResistÃªncia: ${fmtPrice(data.resistance)} / preÃ§o: ${fmtPrice(state.price)} / hora: ${fmtDateTime((data.price_history || data.history || []).slice(-1)[0]?.timestamp)} / Ãºltimo sinal: ${latest ? `${latest.direction || "-"} ${latest.result || latest.status || "-"}` : "-"}`;
       document.getElementById("localUrl").textContent = data.mobile_url || window.location.href;
       document.getElementById("dashboardLink").href = `${window.location.protocol}//${window.location.hostname}:8765/`;
     }
 
     async function refreshState() {
-      const response = await fetch("/api/mobile/state", { cache: "no-store" });
+      const response = await fetch(`/api/mobile/state?expiration=${expirationSeconds}`, { cache: "no-store" });
       paint(await response.json());
     }
 
@@ -411,6 +710,22 @@ MOBILE_HTML = r"""<!doctype html>
       await refreshState();
     }
 
+    async function resetSession() {
+      const confirmed = window.confirm("Isso farÃ¡ backup e limparÃ¡ apenas os dados da sessÃ£o/testes. Deseja continuar?");
+      if (!confirmed) return;
+      const message = document.getElementById("resetMessage");
+      message.textContent = "Criando backup e limpando sessÃ£o...";
+      const response = await fetch("/api/mobile/reset-session", { method: "POST" });
+      const payload = await response.json();
+      if (!response.ok || payload.status !== "RESET_OK") {
+        message.textContent = payload.message || "Falha ao limpar sessÃ£o.";
+        return;
+      }
+      message.textContent = "SessÃ£o limpa criada com backup.";
+      await refreshState();
+    }
+
+    updateExpirationControls();
     refreshState();
     setInterval(refreshState, 1000);
   </script>
@@ -422,13 +737,248 @@ MOBILE_HTML = r"""<!doctype html>
 def _read_json(path: Path, default: Any) -> Any:
     if not path.exists():
         return default
-    try:
-        raw = path.read_text(encoding="utf-8").strip()
-        if not raw:
+    for attempt in range(3):
+        try:
+            raw = path.read_text(encoding="utf-8").strip()
+            if not raw:
+                return default
+            return json.loads(raw)
+        except OSError:
             return default
-        return json.loads(raw)
-    except (OSError, json.JSONDecodeError):
-        return default
+        except json.JSONDecodeError:
+            if attempt == 2:
+                return default
+            time.sleep(0.05)
+    return default
+
+
+def _write_json(path: Path, payload: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+def _new_mobile_session() -> dict[str, Any]:
+    now = datetime.now().astimezone()
+    return {
+        "session_id": f"mobile_{now.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}",
+        "started_at": now.isoformat(),
+        "asset": "UNKNOWN",
+        "mode": "observer_simulated",
+        "orders_enabled": False,
+        "created_by": "mobile_reset_session",
+    }
+
+
+def _read_mobile_session() -> dict[str, Any]:
+    session = _read_json(MOBILE_SESSION_PATH, {})
+    return session if isinstance(session, dict) else {}
+
+
+def _session_id(session: dict[str, Any] | None = None) -> str:
+    data = session if session is not None else _read_mobile_session()
+    return _as_text(data.get("session_id")) if isinstance(data, dict) else ""
+
+
+def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None:
+    data = session if session is not None else _read_mobile_session()
+    if not isinstance(data, dict):
+        return None
+    return _parse_dt(data.get("started_at"))
+
+
+def _write_mobile_session(session: dict[str, Any]) -> None:
+    _write_json(MOBILE_SESSION_PATH, session)
+
+
+def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+    if not session or not _is_valid_asset(asset):
+        return
+    if session.get("asset") == asset:
+        return
+    updated = {**session, "asset": asset, "updated_at": datetime.now().astimezone().isoformat()}
+    _write_mobile_session(updated)
+
+
+def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+    started_at = _session_started_at(session)
+    if started_at is None:
+        return True
+    event_dt = _event_dt(data)
+    if event_dt is None:
+        return False
+    return _dt_timestamp(event_dt) >= _dt_timestamp(started_at)
+
+
+def _metadata_session_id(value: Any) -> str:
+    metadata = _metadata_from_json(value)
+    return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+
+
+def _point_session_id(point: dict[str, Any]) -> str:
+    return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+
+
+def _point_matches_session(
+    point: dict[str, Any],
+    session: dict[str, Any],
+    *,
+    expected_asset: Any = None,
+) -> bool:
+    session_id = _session_id(session)
+    point_session_id = _point_session_id(point)
+    if session_id and point_session_id and point_session_id != session_id:
+        return False
+
+    started_at = _session_started_at(session)
+    if started_at is not None:
+        point_dt = _parse_dt(point.get("timestamp") or point.get("created_at"))
+        if point_dt is None or _dt_timestamp(point_dt) < _dt_timestamp(started_at):
+            return False
+
+    expected_asset_text = _as_text(expected_asset)
+    if _is_valid_asset(expected_asset_text):
+        point_asset = _as_text(point.get("asset"))
+        if not _is_valid_asset(point_asset) or point_asset.lower() != expected_asset_text.lower():
+            return False
+
+    return True
+
+
+def _filter_history_scope(
+    history: list[dict[str, Any]],
+    session: dict[str, Any],
+    *,
+    asset: Any = None,
+) -> list[dict[str, Any]]:
+    return [
+        point
+        for point in history
+        if _point_matches_session(point, session, expected_asset=asset)
+    ]
+
+
+def _runtime_backup_sources() -> list[Path]:
+    if not RUNTIME_DIR.exists():
+        return []
+    sources: list[Path] = []
+    for path in RUNTIME_DIR.rglob("*"):
+        if not path.is_file():
+            continue
+        try:
+            path.relative_to(MOBILE_BACKUPS_DIR)
+            continue
+        except ValueError:
+            pass
+        sources.append(path)
+    return sorted(sources)
+
+
+def _create_runtime_backup(sources: list[Path]) -> Path:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_dir = MOBILE_BACKUPS_DIR / f"mobile_reset_{timestamp}"
+    suffix = 1
+    while backup_dir.exists():
+        backup_dir = MOBILE_BACKUPS_DIR / f"mobile_reset_{timestamp}_{suffix}"
+        suffix += 1
+    backup_dir.mkdir(parents=True, exist_ok=False)
+    for source in sources:
+        try:
+            relative = source.relative_to(RUNTIME_DIR)
+        except ValueError:
+            relative = Path(source.name)
+        destination = backup_dir / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+    return backup_dir
+
+
+def _sqlite_tables(path: Path) -> set[str]:
+    if not path.exists():
+        return set()
+    with sqlite3.connect(path) as conn:
+        rows = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table'"
+        ).fetchall()
+    return {str(row[0]) for row in rows}
+
+
+def _reset_sqlite_operational_tables() -> list[str]:
+    _ensure_signal_db()
+    tables = _sqlite_tables(SIGNALS_DB_PATH)
+    reset_tables: list[str] = []
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        for table in ("signals", "price_ticks"):
+            if table in tables:
+                conn.execute(f"DELETE FROM {table}")
+                reset_tables.append(table)
+        if reset_tables and "sqlite_sequence" in tables:
+            placeholders = ",".join("?" for _ in reset_tables)
+            conn.execute(
+                f"DELETE FROM sqlite_sequence WHERE name IN ({placeholders})",
+                reset_tables,
+            )
+        conn.commit()
+    return reset_tables
+
+
+def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    sources = _runtime_backup_sources()
+    planned_files = [
+        str(path)
+        for path in (PRICE_HISTORY_PATH, LAST_READING_PATH, REJECTED_READINGS_PATH, MOBILE_SESSION_PATH)
+        if path.exists() or path in {PRICE_HISTORY_PATH, LAST_READING_PATH, REJECTED_READINGS_PATH, MOBILE_SESSION_PATH}
+    ]
+    planned_tables = sorted(_sqlite_tables(SIGNALS_DB_PATH) & {"signals", "price_ticks"})
+
+    if dry_run:
+        return {
+            "status": "DRY_RUN",
+            "backup_path": None,
+            "session_id": None,
+            "files_to_backup": [str(path) for path in sources],
+            "files_to_clear": planned_files,
+            "tables_to_clear": planned_tables,
+            "message": "Rota registrada; nenhum dado real foi limpo.",
+            "observer_only": True,
+        }
+
+    backup_dir = _create_runtime_backup(sources)
+    session = _new_mobile_session()
+    _write_mobile_session(session)
+    _write_json(PRICE_HISTORY_PATH, [])
+    _write_json(REJECTED_READINGS_PATH, [])
+    _write_json(
+        LAST_READING_PATH,
+        {
+            "status": "SESSION_RESET",
+            "source": "mobile_reset_session",
+            "session_id": session["session_id"],
+            "timestamp": session["started_at"],
+            "asset": "UNKNOWN",
+            "price": "UNKNOWN",
+            "price_value": None,
+            "confidence": 0.0,
+            "unknown_fields": [],
+            "message": "SessÃ£o limpa criada com backup; aguardando nova leitura.",
+            "observer_only": True,
+            "orders_enabled": False,
+        },
+    )
+    reset_tables = _reset_sqlite_operational_tables()
+    return {
+        "status": "RESET_OK",
+        "backup_path": str(backup_dir),
+        "session_id": session["session_id"],
+        "files_backed_up": [str(path) for path in sources],
+        "files_cleared": planned_files,
+        "tables_cleared": reset_tables,
+        "message": "SessÃ£o limpa criada com backup.",
+        "observer_only": True,
+    }
 
 
 def _parse_float(value: Any) -> float | None:
@@ -463,20 +1013,52 @@ def _parse_float(value: Any) -> float | None:
 def _is_valid_price(value: float | None, asset: str | None = None) -> bool:
     if value is None or value <= 0:
         return False
-    if value < 1000:
+    if asset is not None and not _is_valid_asset(asset):
         return False
     if int(round(value)) in {1, 3, 24, 25, 52, 85, 2026}:
         return False
     asset_text = (asset or "").lower()
+    min_price = 100.0 if "latam" in asset_text else 1000.0
+    if value < min_price:
+        return False
     if ("cafe" in asset_text or "asia composite" in asset_text) and 1900 <= value <= 2100:
         return False
     return True
+
+
+def _is_valid_asset(asset: Any) -> bool:
+    text = str(asset or "").strip()
+    if text.upper() in {"", "UNKNOWN", "DATA", "NONE", "N/A", "-"}:
+        return False
+
+    lowered = text.lower()
+    if any(token in lowered for token in ("core/", "core\\", "codex", "powershell", "visual studio code")):
+        return False
+    return "index" in lowered
 
 
 def _format_price_value(value: float | None) -> float | None:
     if value is None:
         return None
     return round(float(value), 6)
+
+
+def _normalize_expiration_seconds(value: Any = None) -> int:
+    try:
+        seconds = int(str(value if value is not None else DEFAULT_EXPIRATION_SECONDS).strip())
+    except (TypeError, ValueError):
+        return DEFAULT_EXPIRATION_SECONDS
+    if seconds in ALLOWED_EXPIRATION_SECONDS:
+        return seconds
+    return DEFAULT_EXPIRATION_SECONDS
+
+
+def _stored_expiration_seconds(value: Any = None) -> int:
+    try:
+        seconds = int(str(value if value is not None else DEFAULT_EXPIRATION_SECONDS).strip())
+    except (TypeError, ValueError):
+        return DEFAULT_EXPIRATION_SECONDS
+    return seconds if seconds > 0 else DEFAULT_EXPIRATION_SECONDS
 
 
 def _parse_dt(value: Any) -> datetime | None:
@@ -491,6 +1073,12 @@ def _parse_dt(value: Any) -> datetime | None:
         return None
 
 
+def _dt_timestamp(value: datetime) -> float:
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=_now().tzinfo)
+    return value.timestamp()
+
+
 def _now() -> datetime:
     return datetime.now().astimezone()
 
@@ -503,6 +1091,12 @@ def _file_age_seconds(path: Path) -> int | None:
     if not path.exists():
         return None
     return int(max(0, time.time() - path.stat().st_mtime))
+
+
+def _path_mtime(path: Path) -> float | None:
+    if not path.exists():
+        return None
+    return path.stat().st_mtime
 
 
 def _as_text(value: Any) -> str:
@@ -530,7 +1124,7 @@ def _collect_texts(data: Any) -> list[str]:
 
 def _asset_from_text(data: Any) -> str:
     text = " ".join(_collect_texts(data))
-    if re.search(r"cafe[ií]na\s+index", text, flags=re.IGNORECASE):
+    if re.search(r"cafe[iÃ­]na\s+index", text, flags=re.IGNORECASE):
         return "Cafeina Index"
     if re.search(r"asia\s+composite\s+index", text, flags=re.IGNORECASE):
         return "Asia Composite Index"
@@ -557,13 +1151,39 @@ def _extract_value(data: Any, keys: set[str]) -> Any:
     return None
 
 
-def _collect_history() -> list[dict[str, Any]]:
+def _event_dt(data: Any) -> datetime | None:
+    return _parse_dt(_extract_value(data, {"timestamp", "created_at", "captured_at", "updated_at", "time"}))
+
+
+def _latest_rejection(rejected: list[Any]) -> dict[str, Any] | None:
+    for item in reversed(rejected):
+        if isinstance(item, dict):
+            return item
+    return None
+
+
+def _latest_event_is_rejection(last: dict[str, Any], latest_rejection: dict[str, Any] | None) -> bool:
+    if latest_rejection is None:
+        return False
+
+    rejection_dt = _event_dt(latest_rejection)
+    last_dt = _event_dt(last)
+    if rejection_dt is not None and last_dt is not None:
+        return rejection_dt >= last_dt
+
+    rejection_mtime = _path_mtime(REJECTED_READINGS_PATH)
+    last_mtime = _path_mtime(LAST_READING_PATH)
+    return rejection_mtime is not None and (last_mtime is None or rejection_mtime >= last_mtime)
+
+
+def _collect_price_history(limit: int | None = HISTORY_LIMIT) -> list[dict[str, Any]]:
     raw_history = _read_json(PRICE_HISTORY_PATH, [])
     if not isinstance(raw_history, list):
         raw_history = []
 
     points: list[dict[str, Any]] = []
-    for index, item in enumerate(raw_history[-3000:], start=1):
+    source_history = raw_history if limit is None else raw_history[-3000:]
+    for index, item in enumerate(source_history, start=1):
         if not isinstance(item, dict):
             continue
         asset = _as_text(item.get("asset")) or _asset_from_text(item)
@@ -572,18 +1192,39 @@ def _collect_history() -> list[dict[str, Any]]:
             price = _parse_float(item.get("price"))
         if not _is_valid_price(price, asset):
             continue
-        points.append(
-            {
-                "index": index,
-                "timestamp": item.get("timestamp"),
-                "asset": asset or "UNKNOWN",
-                "price": _format_price_value(price),
-                "price_value": _format_price_value(price),
-                "confidence": _parse_float(item.get("confidence")),
-                "status": item.get("status"),
-            }
-        )
-    return points[-HISTORY_LIMIT:]
+        point = {
+            "index": index,
+            "timestamp": item.get("timestamp"),
+            "session_id": item.get("session_id"),
+            "asset": asset or "UNKNOWN",
+            "price": _format_price_value(price),
+            "price_value": _format_price_value(price),
+            "confidence": _parse_float(item.get("confidence")),
+            "status": item.get("status"),
+            "source": item.get("source"),
+            "window_title": item.get("window_title"),
+            "source_ocr_text": item.get("source_ocr_text"),
+            "metadata_json": item.get("metadata_json"),
+        }
+        if _valid_price_point(point) is None:
+            continue
+        points.append(point)
+    return points[-limit:] if limit is not None else points
+
+
+def _collect_history() -> list[dict[str, Any]]:
+    return _collect_price_history(HISTORY_LIMIT)
+
+
+def _support_resistance(history: list[dict[str, Any]]) -> tuple[float | None, float | None]:
+    prices = [
+        float(point["price_value"])
+        for point in history
+        if isinstance(point.get("price_value"), (int, float))
+    ]
+    if not prices:
+        return None, None
+    return _format_price_value(min(prices)), _format_price_value(max(prices))
 
 
 def _compute_signal(history: list[dict[str, Any]]) -> dict[str, Any]:
@@ -597,7 +1238,7 @@ def _compute_signal(history: list[dict[str, Any]]) -> dict[str, Any]:
             "signal": "AGUARDAR",
             "direction": "COLETANDO",
             "confidence": 20,
-            "reason": "Histórico ainda pequeno.",
+            "reason": "HistÃ³rico ainda pequeno.",
         }
 
     delta = prices[-1] - prices[-6]
@@ -607,20 +1248,20 @@ def _compute_signal(history: list[dict[str, Any]]) -> dict[str, Any]:
             "signal": "AGUARDAR",
             "direction": "LATERAL",
             "confidence": 35,
-            "reason": "Movimento fraco no histórico recente.",
+            "reason": "Movimento fraco no histÃ³rico recente.",
         }
     if delta > 0:
         return {
             "signal": "OBSERVAR ALTA",
             "direction": "ALTA",
             "confidence": 55 if short_delta >= 0 else 45,
-            "reason": "Preço recente acima da base anterior.",
+            "reason": "PreÃ§o recente acima da base anterior.",
         }
     return {
         "signal": "OBSERVAR BAIXA",
         "direction": "BAIXA",
         "confidence": 55 if short_delta <= 0 else 45,
-        "reason": "Preço recente abaixo da base anterior.",
+        "reason": "PreÃ§o recente abaixo da base anterior.",
     }
 
 
@@ -660,24 +1301,308 @@ def _ensure_signal_db() -> None:
                 result_price REAL,
                 result TEXT,
                 delta REAL,
+                result_reason TEXT,
+                session_id TEXT,
                 metadata_json TEXT
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS price_ticks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at TEXT NOT NULL,
+                asset TEXT,
+                price REAL NOT NULL,
+                source TEXT,
+                metadata_json TEXT
+            )
+            """
+        )
+        columns = {
+            str(row[1])
+            for row in conn.execute("PRAGMA table_info(signals)").fetchall()
+        }
+        for column_name, column_type in {
+            "entry_price": "REAL",
+            "support": "REAL",
+            "resistance": "REAL",
+            "result_reason": "TEXT",
+            "session_id": "TEXT",
+        }.items():
+            if column_name not in columns:
+                conn.execute(f"ALTER TABLE signals ADD COLUMN {column_name} {column_type}")
         conn.commit()
 
 
-def _history_price_after(
+def _metadata_from_json(value: Any) -> dict[str, Any]:
+    if not value:
+        return {}
+    try:
+        parsed = json.loads(str(value))
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
+
+
+def _invalid_window_text(value: Any) -> bool:
+    text = str(value or "").lower()
+    if not text:
+        return False
+    invalid_markers = (
+        "codex",
+        "powershell",
+        "pwsh",
+        "visual studio code",
+        "cmd.exe",
+        "command prompt",
+        "terminal",
+        "predixai compact",
+        "predixai trader mobile",
+        "localhost:8766",
+        "127.0.0.1:8766",
+        "localhost:8765",
+        "127.0.0.1:8765",
+        "dashboard",
+    )
+    return any(marker in text for marker in invalid_markers)
+
+
+def _point_metadata(point: dict[str, Any]) -> dict[str, Any]:
+    metadata = _metadata_from_json(point.get("metadata_json"))
+    broker_window = metadata.get("broker_window")
+    if isinstance(broker_window, dict):
+        broker_metadata = broker_window.get("metadata")
+        if isinstance(broker_metadata, dict):
+            metadata["broker_window_valid"] = broker_metadata.get("broker_window_valid")
+    return metadata
+
+
+def _point_window_text(point: dict[str, Any]) -> str:
+    metadata = _point_metadata(point)
+    parts = [
+        point.get("window_title"),
+        point.get("source_ocr_text"),
+        metadata.get("window_title"),
+    ]
+    broker_window = metadata.get("broker_window")
+    if isinstance(broker_window, dict):
+        parts.append(broker_window.get("title"))
+    return " ".join(str(part or "") for part in parts).strip()
+
+
+def _valid_price_point(
+    point: dict[str, Any],
+    *,
+    expected_asset: Any = None,
+) -> tuple[datetime, float] | None:
+    point_dt = _parse_dt(point.get("timestamp") or point.get("created_at"))
+    if point_dt is None:
+        return None
+
+    asset = _as_text(point.get("asset"))
+    expected_asset_text = _as_text(expected_asset)
+    validation_asset = asset or expected_asset_text
+    price = _parse_float(point.get("price_value"))
+    if price is None:
+        price = _parse_float(point.get("price"))
+    if not _is_valid_price(price, validation_asset):
+        return None
+
+    if expected_asset_text and _is_valid_asset(expected_asset_text):
+        if asset and _is_valid_asset(asset) and asset.lower() != expected_asset_text.lower():
+            return None
+
+    metadata = _point_metadata(point)
+    if metadata.get("broker_window_valid") is False:
+        return None
+    if _invalid_window_text(_point_window_text(point)):
+        return None
+
+    source = str(point.get("source") or "").lower()
+    if any(marker in source for marker in ("codex", "powershell", "vscode", "dashboard", "compact")):
+        return None
+
+    return point_dt, float(price)
+
+
+def _no_result_price_metadata(target_dt: datetime) -> dict[str, Any]:
+    return {
+        "result_reason": UNKNOWN_NO_HISTORY_REASON,
+        "target_time": target_dt.isoformat(),
+        "search_window_end": (
+            target_dt + timedelta(seconds=RESULT_PRICE_TOLERANCE_SECONDS)
+        ).isoformat(),
+        "tolerance_seconds": RESULT_PRICE_TOLERANCE_SECONDS,
+        "result_price_search_status": "WAITING_RESULT",
+        "result_price_source": "none",
+    }
+
+
+def _price_from_points_near_target(
+    points: list[dict[str, Any]],
+    target_dt: datetime,
+    *,
+    source_name: str,
+    expected_asset: Any = None,
+) -> tuple[float | None, dict[str, Any]]:
+    target_ts = _dt_timestamp(target_dt)
+    future_matches: list[tuple[float, float, dict[str, Any]]] = []
+    nearest_matches: list[tuple[float, float, dict[str, Any]]] = []
+
+    for point in points:
+        parsed = _valid_price_point(point, expected_asset=expected_asset)
+        if parsed is None:
+            continue
+        point_dt, price = parsed
+        diff_seconds = _dt_timestamp(point_dt) - target_ts
+        abs_diff = abs(diff_seconds)
+        if abs_diff > RESULT_PRICE_TOLERANCE_SECONDS:
+            continue
+        candidate = (abs_diff, diff_seconds, {**point, "price_value": price})
+        nearest_matches.append(candidate)
+        if diff_seconds >= 0:
+            future_matches.append(candidate)
+
+    matches = future_matches or nearest_matches
+    if not matches:
+        return None, _no_result_price_metadata(target_dt)
+
+    _, diff_seconds, point = sorted(matches, key=lambda item: (item[0], abs(item[1])))[0]
+    price = _parse_float(point.get("price_value"))
+    return price, {
+        "result_reason": "",
+        "target_time": target_dt.isoformat(),
+        "search_window_end": (
+            target_dt + timedelta(seconds=RESULT_PRICE_TOLERANCE_SECONDS)
+        ).isoformat(),
+        "result_price_timestamp": point.get("timestamp") or point.get("created_at"),
+        "result_price_delta_seconds": round(diff_seconds, 3),
+        "result_price_match": (
+            "first_at_or_after_target" if diff_seconds >= 0 else "nearest_within_tolerance"
+        ),
+        "result_price_search_status": "FOUND",
+        "result_price_source": source_name,
+    }
+
+
+def _insert_price_tick(
+    *,
+    created_at: str,
+    asset: str,
+    price: float,
+    source: str,
+    metadata: dict[str, Any] | None = None,
+) -> int:
+    _ensure_signal_db()
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        cursor = conn.execute(
+            """
+            INSERT INTO price_ticks (
+                created_at, asset, price, source, metadata_json
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                created_at,
+                asset,
+                price,
+                source,
+                json.dumps(metadata or {}, ensure_ascii=False),
+            ),
+        )
+        conn.commit()
+        return int(cursor.lastrowid)
+
+
+def _history_price_near_target(
     history: list[dict[str, Any]],
     target_dt: datetime,
-) -> float | None:
-    for point in history:
-        point_dt = _parse_dt(point.get("timestamp"))
-        if point_dt is None:
-            continue
-        if point_dt >= target_dt:
-            return _parse_float(point.get("price_value"))
-    return None
+    expected_asset: Any = None,
+) -> tuple[float | None, dict[str, Any]]:
+    return _price_from_points_near_target(
+        history,
+        target_dt,
+        source_name="json",
+        expected_asset=expected_asset,
+    )
+
+
+def _sqlite_price_tick_near_target(
+    target_dt: datetime,
+    expected_asset: Any = None,
+) -> tuple[float | None, dict[str, Any]]:
+    _ensure_signal_db()
+    points: list[dict[str, Any]] = []
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT created_at, asset, price, source, metadata_json
+            FROM price_ticks
+            ORDER BY id ASC
+            """
+        ).fetchall()
+    for row in rows:
+        points.append(
+            {
+                "timestamp": row["created_at"],
+                "created_at": row["created_at"],
+                "asset": row["asset"],
+                "price": row["price"],
+                "price_value": row["price"],
+                "source": row["source"],
+                "metadata_json": row["metadata_json"],
+            }
+        )
+    return _price_from_points_near_target(
+        points,
+        target_dt,
+        source_name="sqlite_price_ticks",
+        expected_asset=expected_asset,
+    )
+
+
+def _result_price_near_target(
+    history: list[dict[str, Any]],
+    target_dt: datetime,
+    expected_asset: Any = None,
+) -> tuple[float | None, dict[str, Any]]:
+    price, metadata = _history_price_near_target(
+        history,
+        target_dt,
+        expected_asset=expected_asset,
+    )
+    if price is not None:
+        return price, metadata
+
+    sqlite_price, sqlite_metadata = _sqlite_price_tick_near_target(
+        target_dt,
+        expected_asset=expected_asset,
+    )
+    if sqlite_price is not None:
+        return sqlite_price, sqlite_metadata
+    return None, metadata
+
+
+def _evaluate_signal_result(
+    direction: Any,
+    entry_price: float | None,
+    result_price: float | None,
+) -> tuple[str, float | None]:
+    if entry_price is None or result_price is None:
+        return "UNKNOWN", None
+
+    delta = result_price - entry_price
+    if abs(delta) < 0.000001:
+        return "DRAW", delta
+
+    direction_text = str(direction or "").upper()
+    if direction_text == "ALTA":
+        return ("WIN" if delta > 0 else "LOSS"), delta
+    if direction_text == "BAIXA":
+        return ("WIN" if delta < 0 else "LOSS"), delta
+    return "UNKNOWN", delta
 
 
 def _check_pending_signals(history: list[dict[str, Any]]) -> None:
@@ -686,32 +1611,65 @@ def _check_pending_signals(history: list[dict[str, Any]]) -> None:
     with sqlite3.connect(SIGNALS_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
         rows = conn.execute(
-            "SELECT * FROM signals WHERE status = 'PENDING' ORDER BY id ASC"
+            """
+            SELECT *
+            FROM signals
+            WHERE status IN ('WAITING_RESULT', 'PENDING')
+            ORDER BY id ASC
+            """
         ).fetchall()
         for row in rows:
             created_at = _parse_dt(row["created_at"])
             if created_at is None:
                 continue
-            expiration_seconds = int(row["expiration_seconds"] or DEFAULT_EXPIRATION_SECONDS)
+            expiration_seconds = _stored_expiration_seconds(row["expiration_seconds"])
             target_dt = created_at + timedelta(seconds=expiration_seconds)
-            if now < target_dt:
+            if _dt_timestamp(now) < _dt_timestamp(target_dt):
+                if row["status"] != WAITING_RESULT_STATUS:
+                    conn.execute(
+                        "UPDATE signals SET status = ?, result = ? WHERE id = ?",
+                        (WAITING_RESULT_STATUS, WAITING_RESULT_STATUS, row["id"]),
+                    )
                 continue
 
-            entry_price = _parse_float(row["price"])
-            result_price = _history_price_after(history, target_dt)
-            if result_price is None or entry_price is None:
-                result = "UNKNOWN"
-                delta = None
-            else:
-                delta = result_price - entry_price
-                if abs(delta) < 0.000001:
-                    result = "DRAW"
-                elif row["direction"] == "ALTA":
-                    result = "WIN" if delta > 0 else "LOSS"
-                elif row["direction"] == "BAIXA":
-                    result = "WIN" if delta < 0 else "LOSS"
-                else:
-                    result = "UNKNOWN"
+            entry_price = _parse_float(row["entry_price"])
+            if entry_price is None:
+                entry_price = _parse_float(row["price"])
+            result_price, match_metadata = _result_price_near_target(
+                history,
+                target_dt,
+                expected_asset=row["asset"],
+            )
+            metadata = _metadata_from_json(row["metadata_json"])
+            metadata.update(match_metadata)
+
+            unknown_deadline = target_dt + timedelta(seconds=UNKNOWN_AFTER_EXPIRATION_SECONDS)
+            if result_price is None and _dt_timestamp(now) < _dt_timestamp(unknown_deadline):
+                metadata["result_price_search_status"] = WAITING_RESULT_STATUS
+                metadata["unknown_after"] = unknown_deadline.isoformat()
+                conn.execute(
+                    """
+                    UPDATE signals
+                    SET status = ?,
+                        result = ?,
+                        metadata_json = ?
+                    WHERE id = ?
+                    """,
+                    (
+                        WAITING_RESULT_STATUS,
+                        WAITING_RESULT_STATUS,
+                        json.dumps(metadata, ensure_ascii=False),
+                        row["id"],
+                    ),
+                )
+                continue
+
+            result, delta = _evaluate_signal_result(row["direction"], entry_price, result_price)
+            result_reason = UNKNOWN_NO_HISTORY_REASON if result == "UNKNOWN" else ""
+            metadata["result_reason"] = result_reason
+            metadata["unknown_after"] = unknown_deadline.isoformat()
+            if result == "UNKNOWN":
+                metadata["result_price_search_status"] = "UNKNOWN_AFTER_MARGIN"
 
             conn.execute(
                 """
@@ -720,7 +1678,9 @@ def _check_pending_signals(history: list[dict[str, Any]]) -> None:
                     result = ?,
                     result_checked_at = ?,
                     result_price = ?,
-                    delta = ?
+                    delta = ?,
+                    result_reason = ?,
+                    metadata_json = ?
                 WHERE id = ?
                 """,
                 (
@@ -729,13 +1689,133 @@ def _check_pending_signals(history: list[dict[str, Any]]) -> None:
                     _now_iso(),
                     result_price,
                     delta,
+                    result_reason,
+                    json.dumps(metadata, ensure_ascii=False),
                     row["id"],
                 ),
             )
         conn.commit()
 
 
-def _register_signal_if_needed(state: dict[str, Any]) -> None:
+def _backfill_unknown_signals(history: list[dict[str, Any]]) -> int:
+    _ensure_signal_db()
+    updated = 0
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT *
+            FROM signals
+            WHERE (status = 'UNKNOWN' OR result = 'UNKNOWN')
+              AND result_price IS NULL
+            ORDER BY id ASC
+            """
+        ).fetchall()
+        for row in rows:
+            created_at = _parse_dt(row["created_at"])
+            entry_price = _parse_float(row["entry_price"])
+            if entry_price is None:
+                entry_price = _parse_float(row["price"])
+            expiration_seconds = _stored_expiration_seconds(row["expiration_seconds"])
+            if created_at is None or entry_price is None or not expiration_seconds:
+                continue
+
+            target_dt = created_at + timedelta(seconds=expiration_seconds)
+            result_price, match_metadata = _result_price_near_target(
+                history,
+                target_dt,
+                expected_asset=row["asset"],
+            )
+            if result_price is None:
+                continue
+
+            result, delta = _evaluate_signal_result(row["direction"], entry_price, result_price)
+            metadata = _metadata_from_json(row["metadata_json"])
+            metadata.update(match_metadata)
+            metadata["backfilled_unknown"] = True
+            metadata["result_reason"] = ""
+            conn.execute(
+                """
+                UPDATE signals
+                SET status = ?,
+                    result = ?,
+                    result_checked_at = ?,
+                    result_price = ?,
+                    delta = ?,
+                    result_reason = ?,
+                    metadata_json = ?
+                WHERE id = ?
+                """,
+                (
+                    result,
+                    result,
+                    _now_iso(),
+                    result_price,
+                    delta,
+                    "",
+                    json.dumps(metadata, ensure_ascii=False),
+                    row["id"],
+                ),
+            )
+            updated += 1
+        conn.commit()
+    return updated
+
+
+def _normalize_signal_result_consistency() -> int:
+    _ensure_signal_db()
+    updated = 0
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """
+            SELECT id, status, result, result_price, direction, entry_price, price
+            FROM signals
+            WHERE result IN ('WIN', 'LOSS', 'DRAW')
+               OR ((status = 'UNKNOWN' OR result = 'UNKNOWN') AND result_price IS NOT NULL)
+            ORDER BY id ASC
+            """
+        ).fetchall()
+        for row in rows:
+            result = str(row["result"] or "").upper()
+            if result not in {"WIN", "LOSS", "DRAW"}:
+                entry_price = _parse_float(row["entry_price"])
+                if entry_price is None:
+                    entry_price = _parse_float(row["price"])
+                result_price = _parse_float(row["result_price"])
+                result, delta = _evaluate_signal_result(row["direction"], entry_price, result_price)
+                if result not in {"WIN", "LOSS", "DRAW"}:
+                    continue
+                conn.execute(
+                    """
+                    UPDATE signals
+                    SET status = ?,
+                        result = ?,
+                        delta = ?,
+                        result_reason = ''
+                    WHERE id = ?
+                    """,
+                    (result, result, delta, row["id"]),
+                )
+            elif str(row["status"] or "").upper() != result:
+                conn.execute(
+                    """
+                    UPDATE signals
+                    SET status = ?,
+                        result = ?,
+                        result_reason = ''
+                    WHERE id = ?
+                    """,
+                    (result, result, row["id"]),
+                )
+            else:
+                continue
+            updated += 1
+        conn.commit()
+    return updated
+
+
+def _register_signal_if_needed(state: dict[str, Any], expiration_seconds: int) -> None:
     signal = str(state.get("signal") or "")
     if signal not in {"OBSERVAR ALTA", "OBSERVAR BAIXA"}:
         return
@@ -746,24 +1826,67 @@ def _register_signal_if_needed(state: dict[str, Any]) -> None:
     if not _is_valid_price(price, asset):
         return
 
+    expiration_seconds = _normalize_expiration_seconds(expiration_seconds)
+    support = _parse_float(state.get("support"))
+    resistance = _parse_float(state.get("resistance"))
     _ensure_signal_db()
     now = _now()
+    session = _read_mobile_session()
+    session_id = _session_id(session)
     with sqlite3.connect(SIGNALS_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
-        row = conn.execute(
-            """
-            SELECT created_at
-            FROM signals
-            WHERE asset = ? AND direction = ?
-            ORDER BY id DESC
-            LIMIT 1
-            """,
-            (asset, direction),
-        ).fetchone()
+        if session_id:
+            pending = conn.execute(
+                """
+                SELECT id
+                FROM signals
+                WHERE asset = ?
+                  AND direction = ?
+                  AND session_id = ?
+                  AND status IN ('WAITING_RESULT', 'PENDING')
+                LIMIT 1
+                """,
+                (asset, direction, session_id),
+            ).fetchone()
+        else:
+            pending = conn.execute(
+                """
+                SELECT id
+                FROM signals
+                WHERE asset = ?
+                  AND direction = ?
+                  AND status IN ('WAITING_RESULT', 'PENDING')
+                LIMIT 1
+                """,
+                (asset, direction),
+            ).fetchone()
+        if pending:
+            return
+
+        if session_id:
+            row = conn.execute(
+                """
+                SELECT created_at
+                FROM signals
+                WHERE session_id = ?
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (session_id,),
+            ).fetchone()
+        else:
+            row = conn.execute(
+                """
+                SELECT created_at
+                FROM signals
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+            ).fetchone()
         if row:
             last_created = _parse_dt(row["created_at"])
             if last_created is not None:
-                elapsed = (now - last_created).total_seconds()
+                elapsed = _dt_timestamp(now) - _dt_timestamp(last_created)
                 if elapsed < SIGNAL_COOLDOWN_SECONDS:
                     return
 
@@ -772,63 +1895,427 @@ def _register_signal_if_needed(state: dict[str, Any]) -> None:
             "financial_advice": False,
             "orders_enabled": False,
             "history_count": state.get("valid_readings", 0),
+            "expiration_seconds": expiration_seconds,
+            "support": support,
+            "resistance": resistance,
+            "session_id": session_id,
+            "session_started_at": session.get("started_at"),
         }
+        created_at = _now_iso()
         conn.execute(
             """
             INSERT INTO signals (
                 created_at, asset, price, signal, direction, confidence,
                 expiration_seconds, reason, source, status, result,
-                metadata_json
+                session_id, metadata_json, entry_price, support, resistance
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', 'PENDING', ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                _now_iso(),
+                created_at,
                 asset,
                 price,
                 signal,
                 direction,
                 _parse_float(state.get("confidence")),
-                DEFAULT_EXPIRATION_SECONDS,
+                expiration_seconds,
                 state.get("reason"),
                 "mobile_server",
+                WAITING_RESULT_STATUS,
+                WAITING_RESULT_STATUS,
+                session_id or None,
                 json.dumps(metadata, ensure_ascii=False),
+                price,
+                support,
+                resistance,
             ),
         )
         conn.commit()
 
 
-def _list_signals() -> list[dict[str, Any]]:
+def _decorate_signal(row: Any) -> dict[str, Any]:
+    item = dict(row)
+    metadata = _metadata_from_json(item.get("metadata_json"))
+    expiration_seconds = _stored_expiration_seconds(item.get("expiration_seconds"))
+    item["expiration_seconds"] = expiration_seconds
+    item["emitted_at"] = item.get("created_at")
+    item["entry_price"] = _format_price_value(
+        _parse_float(item.get("entry_price")) or _parse_float(item.get("price"))
+    )
+    item["price"] = item["entry_price"]
+    item["support"] = _format_price_value(_parse_float(item.get("support")))
+    item["resistance"] = _format_price_value(_parse_float(item.get("resistance")))
+    item["result_price"] = _format_price_value(_parse_float(item.get("result_price")))
+    item["delta"] = _format_price_value(_parse_float(item.get("delta")))
+    item["result_price_timestamp"] = metadata.get("result_price_timestamp")
+    item["result_price_delta_seconds"] = metadata.get("result_price_delta_seconds")
+    item["result_price_source"] = metadata.get("result_price_source")
+    item["session_id"] = item.get("session_id") or metadata.get("session_id")
+    item["target_time"] = metadata.get("target_time")
+    item["search_window_end"] = metadata.get("search_window_end")
+    item["unknown_after"] = metadata.get("unknown_after")
+    item["result_price_search_status"] = metadata.get("result_price_search_status")
+    item["result_reason"] = item.get("result_reason") or metadata.get("result_reason") or ""
+    if (item.get("result") == "UNKNOWN" or item.get("status") == "UNKNOWN") and not item["result_reason"]:
+        item["result_reason"] = UNKNOWN_NO_HISTORY_REASON
+    item["unknown_reason"] = item["result_reason"] if item.get("result") == "UNKNOWN" else ""
+
+    created_at = _parse_dt(item.get("created_at"))
+    if created_at is None:
+        item["expires_at"] = None
+        item["remaining_seconds"] = None
+        return item
+
+    expires_at = created_at + timedelta(seconds=expiration_seconds)
+    item["expires_at"] = expires_at.isoformat()
+    if item.get("status") in {"PENDING", WAITING_RESULT_STATUS}:
+        remaining = _dt_timestamp(expires_at) - _dt_timestamp(_now())
+        item["remaining_seconds"] = int(max(0, remaining + 0.999))
+    else:
+        item["remaining_seconds"] = 0
+    return item
+
+
+def _signal_scope_where(
+    session: dict[str, Any] | None = None,
+    asset: Any = None,
+) -> tuple[str, list[Any]]:
+    clauses: list[str] = []
+    params: list[Any] = []
+    session = session or {}
+    session_id = _session_id(session)
+    if session_id:
+        clauses.append("session_id = ?")
+        params.append(session_id)
+    else:
+        started_at = _session_started_at(session)
+        if started_at is not None:
+            clauses.append("created_at >= ?")
+            params.append(started_at.isoformat())
+
+    asset_text = _as_text(asset)
+    if _is_valid_asset(asset_text):
+        clauses.append("asset = ?")
+        params.append(asset_text)
+
+    return (" WHERE " + " AND ".join(clauses), params) if clauses else ("", params)
+
+
+def _list_signals(
+    session: dict[str, Any] | None = None,
+    asset: Any = None,
+) -> list[dict[str, Any]]:
     _ensure_signal_db()
+    where_sql, params = _signal_scope_where(session, asset)
     with sqlite3.connect(SIGNALS_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
         rows = conn.execute(
-            """
+            f"""
             SELECT id, created_at, asset, price, signal, direction, confidence,
                    expiration_seconds, reason, status, result_checked_at,
-                   result_price, result, delta
+                   result_price, result, delta, entry_price, support, resistance,
+                   result_reason, session_id, metadata_json
             FROM signals
+            {where_sql}
             ORDER BY id DESC
             LIMIT ?
             """,
-            (SIGNALS_LIMIT,),
+            (*params, SIGNALS_LIMIT),
         ).fetchall()
-        return [dict(row) for row in rows]
+        return [_decorate_signal(row) for row in rows]
+
+
+def _hit_rate_percent(win: int, loss: int, draw: int) -> float:
+    valid = win + loss + draw
+    return round((win / valid) * 100, 1) if valid else 0.0
+
+
+def _signal_stats(
+    session: dict[str, Any] | None = None,
+    asset: Any = None,
+) -> dict[str, Any]:
+    _ensure_signal_db()
+    where_sql, params = _signal_scope_where(session, asset)
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            f"""
+            SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN result = 'WIN' THEN 1 ELSE 0 END) AS win,
+                SUM(CASE WHEN result = 'LOSS' THEN 1 ELSE 0 END) AS loss,
+                SUM(CASE WHEN result = 'DRAW' THEN 1 ELSE 0 END) AS draw,
+                SUM(CASE WHEN result = 'UNKNOWN' THEN 1 ELSE 0 END) AS unknown,
+                SUM(CASE WHEN status IN ('WAITING_RESULT', 'PENDING') THEN 1 ELSE 0 END) AS pending
+            FROM signals
+            {where_sql}
+            """,
+            params,
+        ).fetchone()
+        latest = conn.execute(
+            f"""
+            SELECT id, created_at, asset, price, signal, direction, confidence,
+                   expiration_seconds, reason, status, result_checked_at,
+                   result_price, result, delta, entry_price, support, resistance,
+                   result_reason, session_id, metadata_json
+            FROM signals
+            {where_sql}
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            params,
+        ).fetchone()
+
+    total = int(row["total"] or 0)
+    win = int(row["win"] or 0)
+    loss = int(row["loss"] or 0)
+    draw = int(row["draw"] or 0)
+    unknown = int(row["unknown"] or 0)
+    pending = int(row["pending"] or 0)
+    closed = win + loss + draw + unknown
+    hit_rate = _hit_rate_percent(win, loss, draw)
+    return {
+        "total": total,
+        "closed": closed,
+        "win": win,
+        "loss": loss,
+        "draw": draw,
+        "unknown": unknown,
+        "pending": pending,
+        "hit_rate_percent": hit_rate,
+        "latest_signal": _decorate_signal(latest) if latest is not None else None,
+    }
+
+
+def _price_ticks_count(
+    session: dict[str, Any] | None = None,
+    asset: Any = None,
+) -> int:
+    _ensure_signal_db()
+    session = session or {}
+    started_at = _session_started_at(session)
+    session_id = _session_id(session)
+    asset_text = _as_text(asset)
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT created_at, asset, metadata_json FROM price_ticks"
+        ).fetchall()
+
+    count = 0
+    for row in rows:
+        if session_id:
+            metadata_session_id = _metadata_session_id(row["metadata_json"])
+            if metadata_session_id and metadata_session_id != session_id:
+                continue
+        if started_at is not None:
+            row_dt = _parse_dt(row["created_at"])
+            if row_dt is None or _dt_timestamp(row_dt) < _dt_timestamp(started_at):
+                continue
+        if _is_valid_asset(asset_text) and _as_text(row["asset"]).lower() != asset_text.lower():
+            continue
+        count += 1
+    return count
+
+
+def _average_history_interval_seconds(history: list[dict[str, Any]]) -> float | None:
+    timestamps = [
+        _dt_timestamp(parsed)
+        for parsed in (_parse_dt(point.get("timestamp")) for point in history)
+        if parsed is not None
+    ]
+    if len(timestamps) < 2:
+        return None
+    intervals = [
+        max(0.0, timestamps[index] - timestamps[index - 1])
+        for index in range(1, len(timestamps))
+    ]
+    return round(sum(intervals) / len(intervals), 3) if intervals else None
+
+
+def _final_price_search_status(latest_signal: dict[str, Any] | None) -> str:
+    if not latest_signal:
+        return "NO_SIGNAL"
+
+    status = str(latest_signal.get("status") or latest_signal.get("result") or "")
+    if status in {"PENDING", WAITING_RESULT_STATUS}:
+        remaining = latest_signal.get("remaining_seconds")
+        if isinstance(remaining, (int, float)) and remaining > 0:
+            return "WAITING_TARGET_TIME"
+        return str(
+            latest_signal.get("result_price_search_status")
+            or WAITING_RESULT_STATUS
+        )
+    return str(
+        latest_signal.get("result_price_search_status")
+        or latest_signal.get("result")
+        or status
+        or "UNKNOWN"
+    )
+
+
+def _price_diagnostics(
+    history: list[dict[str, Any]],
+    signal_stats: dict[str, Any],
+    *,
+    session: dict[str, Any] | None = None,
+    asset: Any = None,
+) -> dict[str, Any]:
+    latest = history[-1] if history else {}
+    latest_dt = _parse_dt(latest.get("timestamp"))
+    age = None
+    if latest_dt is not None:
+        age = int(max(0, _dt_timestamp(_now()) - _dt_timestamp(latest_dt)))
+
+    latest_signal = signal_stats.get("latest_signal")
+    return {
+        "last_price_age_seconds": age,
+        "history_count": len(history),
+        "average_interval_seconds": _average_history_interval_seconds(history),
+        "last_history_timestamp": latest.get("timestamp"),
+        "price_ticks_count": _price_ticks_count(session=session, asset=asset),
+        "final_price_search_status": _final_price_search_status(latest_signal),
+        "waiting_result_count": int(signal_stats.get("pending") or 0),
+    }
 
 
 def _reader_running() -> bool:
     return _reader_process is not None and _reader_process.poll() is None
 
 
-def _start_reader(interval: int) -> dict[str, Any]:
+def _clear_reader_process_cache() -> None:
+    global _reader_process_cache_at, _reader_process_cache
+    _reader_process_cache_at = 0.0
+    _reader_process_cache = []
+
+
+def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+    for process in processes:
+        match = re.search(r"--loop-interval\s+(\d+)", str(process.get("command_line") or ""))
+        if match:
+            return max(1, int(match.group(1)))
+    return DEFAULT_READER_INTERVAL_SECONDS
+
+
+def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+    global _reader_process_cache_at, _reader_process_cache
+
+    now = time.time()
+    if not force_refresh and now - _reader_process_cache_at < 2:
+        return _reader_process_cache
+
+    if os.name != "nt":
+        _reader_process_cache_at = now
+        _reader_process_cache = []
+        return []
+
+    script = (
+        "Get-CimInstance Win32_Process | "
+        "Where-Object { ($_.Name -like 'python*' -or $_.Name -like 'py*') -and "
+        "$_.CommandLine -like '*predixai.main*' -and "
+        "$_.CommandLine -like '*--live-loop*' -and "
+        "$_.CommandLine -like '*--price-only*' } | "
+        "ForEach-Object { \"$($_.ProcessId)|$($_.ParentProcessId)|$($_.ExecutablePath)|$($_.CommandLine)\" }"
+    )
+    try:
+        completed = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", script],
+            cwd=str(ROOT_DIR),
+            capture_output=True,
+            text=True,
+            timeout=2,
+            check=False,
+        )
+    except Exception:
+        _reader_process_cache_at = now
+        _reader_process_cache = []
+        return []
+
+    processes: list[dict[str, Any]] = []
+    for line in completed.stdout.splitlines():
+        if "|" not in line:
+            continue
+        parts = line.split("|", 3)
+        if len(parts) == 2:
+            pid_text, command_line = parts
+            parent_pid_text = ""
+            executable = ""
+        elif len(parts) == 3:
+            pid_text, parent_pid_text, command_line = parts
+            executable = ""
+        elif len(parts) == 4:
+            pid_text, parent_pid_text, executable, command_line = parts
+        else:
+            continue
+        try:
+            pid = int(pid_text.strip())
+        except ValueError:
+            continue
+        try:
+            parent_pid = int(parent_pid_text.strip()) if parent_pid_text.strip() else None
+        except ValueError:
+            parent_pid = None
+        processes.append(
+            {
+                "pid": pid,
+                "parent_pid": parent_pid,
+                "executable": executable.strip(),
+                "command_line": command_line.strip(),
+            }
+        )
+
+    matching_pids = {int(process["pid"]) for process in processes if process.get("pid")}
+    processes = [
+        process
+        for process in processes
+        if process.get("parent_pid") not in matching_pids
+    ]
+
+    _reader_process_cache_at = now
+    _reader_process_cache = processes
+    return processes
+
+
+def _reader_warning(processes: list[dict[str, Any]]) -> str:
+    if len(processes) <= 1:
+        return ""
+    return f"Aviso: {len(processes)} leitores live-loop ativos detectados."
+
+
+def _start_reader(interval: Any) -> dict[str, Any]:
+    with _reader_start_lock:
+        return _start_reader_locked(interval)
+
+
+def _start_reader_locked(interval: Any) -> dict[str, Any]:
     global _reader_interval, _reader_process
 
-    interval = max(1, min(10, int(interval)))
+    try:
+        interval = max(1, int(interval))
+    except (TypeError, ValueError):
+        interval = DEFAULT_READER_INTERVAL_SECONDS
+
     if _reader_running():
+        active_readers = _active_reader_processes(force_refresh=True)
         return {
             "status": "ALREADY_RUNNING",
             "interval": _reader_interval,
             "pid": _reader_process.pid if _reader_process else None,
+            "observer_only": True,
+            "active_reader_count": max(1, len(active_readers)),
+            "active_readers": active_readers,
+        }
+
+    active_readers = _active_reader_processes(force_refresh=True)
+    if active_readers:
+        _reader_interval = _reader_interval_from_processes(active_readers)
+        return {
+            "status": "ALREADY_RUNNING",
+            "interval": _reader_interval,
+            "observer_only": True,
+            "warning": _reader_warning(active_readers) or "Leitor live-loop ja esta ativo.",
+            "active_reader_count": len(active_readers),
+            "active_readers": active_readers,
         }
 
     env = os.environ.copy()
@@ -838,38 +2325,72 @@ def _start_reader(interval: int) -> dict[str, Any]:
         "-m",
         "predixai.main",
         "--live-loop",
+        "--price-only",
         "--loop-count",
         "9999",
         "--loop-interval",
         str(interval),
     ]
     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
-    _reader_process = subprocess.Popen(
-        cmd,
-        cwd=str(ROOT_DIR),
-        env=env,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        creationflags=flags,
-    )
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    reader_log_path = RUNTIME_DIR / "mobile_reader.log"
+    reader_log = None
+    try:
+        reader_log = reader_log_path.open("ab")
+        _reader_process = subprocess.Popen(
+            cmd,
+            cwd=str(ROOT_DIR),
+            env=env,
+            stdout=reader_log,
+            stderr=subprocess.STDOUT,
+            creationflags=flags,
+        )
+    except Exception as exc:
+        _reader_process = None
+        _reader_interval = None
+        _clear_reader_process_cache()
+        return {
+            "status": "START_FAILED",
+            "message": "Falha ao iniciar leitor live-loop.",
+            "error": str(exc),
+            "interval": interval,
+            "observer_only": True,
+            "active_reader_count": 0,
+            "log_path": str(reader_log_path),
+        }
+    finally:
+        if reader_log is not None and not reader_log.closed:
+            reader_log.close()
+
+    time.sleep(0.25)
+    if _reader_process.poll() is not None:
+        returncode = _reader_process.returncode
+        _reader_process = None
+        _reader_interval = None
+        _clear_reader_process_cache()
+        return {
+            "status": "START_FAILED",
+            "message": "Leitor live-loop encerrou logo apos iniciar.",
+            "returncode": returncode,
+            "interval": interval,
+            "observer_only": True,
+            "active_reader_count": 0,
+            "log_path": str(reader_log_path),
+        }
+
     _reader_interval = interval
+    _clear_reader_process_cache()
     return {
         "status": "STARTED",
         "interval": interval,
         "pid": _reader_process.pid,
         "observer_only": True,
+        "active_reader_count": 1,
+        "log_path": str(reader_log_path),
     }
 
 
-def _stop_reader() -> dict[str, Any]:
-    global _reader_interval, _reader_process
-
-    if not _reader_running():
-        _reader_process = None
-        _reader_interval = None
-        return {"status": "NOT_RUNNING"}
-
-    pid = _reader_process.pid
+def _stop_process_tree(pid: int) -> None:
     if os.name == "nt":
         subprocess.run(
             ["taskkill", "/PID", str(pid), "/T", "/F"],
@@ -878,10 +2399,39 @@ def _stop_reader() -> dict[str, Any]:
             check=False,
         )
     else:
-        _reader_process.terminate()
+        subprocess.run(
+            ["kill", str(pid)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+
+
+def _stop_reader() -> dict[str, Any]:
+    global _reader_interval, _reader_process
+
+    active_readers = _active_reader_processes(force_refresh=True)
+    pids = {int(process["pid"]) for process in active_readers if process.get("pid")}
+    if _reader_running() and _reader_process is not None:
+        pids.add(int(_reader_process.pid))
+
+    if not pids:
+        _reader_process = None
+        _reader_interval = None
+        _clear_reader_process_cache()
+        return {"status": "NOT_RUNNING", "observer_only": True}
+
+    for pid in sorted(pids):
+        _stop_process_tree(pid)
     _reader_process = None
     _reader_interval = None
-    return {"status": "STOPPED", "pid": pid}
+    _clear_reader_process_cache()
+    return {
+        "status": "STOPPED",
+        "pids": sorted(pids),
+        "stopped_count": len(pids),
+        "observer_only": True,
+    }
 
 
 def _local_ip() -> str:
@@ -902,77 +2452,139 @@ def _local_ip() -> str:
 def _build_state(
     host_for_url: str | None = None,
     port: int = DEFAULT_PORT,
+    expiration_seconds: int = DEFAULT_EXPIRATION_SECONDS,
 ) -> dict[str, Any]:
+    expiration_seconds = _normalize_expiration_seconds(expiration_seconds)
     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
     last = _read_json(LAST_READING_PATH, {})
     if not isinstance(last, dict):
         last = {}
-    history = _collect_history()
+    mobile_session = _read_mobile_session()
+    scoped_last = last if _event_in_session(last, mobile_session) else {}
+    raw_history = _collect_price_history(limit=None)
+    session_history = _filter_history_scope(raw_history, mobile_session)
     rejected = _read_json(REJECTED_READINGS_PATH, [])
     if not isinstance(rejected, list):
         rejected = []
+    rejected = [
+        item
+        for item in rejected
+        if isinstance(item, dict) and _event_in_session(item, mobile_session)
+    ]
 
-    _check_pending_signals(history)
+    reader_processes = _active_reader_processes()
+    running = _reader_running() or bool(reader_processes)
+    effective_reader_interval = _reader_interval or _reader_interval_from_processes(reader_processes)
+    duplicate_reader_warning = _reader_warning(reader_processes)
 
-    latest_history = history[-1] if history else {}
-    asset = (
-        _as_text(_extract_value(last, {"asset", "symbol", "active", "instrument"}))
-        or _as_text(latest_history.get("asset"))
-        or _asset_from_text(last)
-        or "UNKNOWN"
+    latest_session_history = session_history[-1] if session_history else {}
+    last_asset = _as_text(_extract_value(scoped_last, {"asset", "symbol", "active", "instrument"}))
+    history_asset = _as_text(latest_session_history.get("asset"))
+    session_asset = _as_text(mobile_session.get("asset"))
+    text_asset = _asset_from_text(scoped_last)
+    asset = next(
+        (
+            candidate
+            for candidate in (last_asset, session_asset, history_asset, text_asset)
+            if _is_valid_asset(candidate)
+        ),
+        "UNKNOWN",
     )
-    price = _parse_float(_extract_value(last, {"price_value", "price", "current_price", "last_price"}))
-    if not _is_valid_price(price, asset):
-        price = _parse_float(latest_history.get("price_value"))
-    if not _is_valid_price(price, asset):
-        price = None
+    if _is_valid_asset(asset):
+        _update_mobile_session_asset(mobile_session, asset)
+        full_history = _filter_history_scope(raw_history, mobile_session, asset=asset)
+    else:
+        full_history = session_history
+    history = full_history[-SESSION_HISTORY_LIMIT:]
+    latest_history = history[-1] if history else latest_session_history
+
+    _check_pending_signals(full_history)
+    support, resistance = _support_resistance(history)
+
+    price = None
+    last_price = _parse_float(_extract_value(scoped_last, {"price_value", "price", "current_price", "last_price"}))
+    if _is_valid_price(last_price, last_asset):
+        price = last_price
+        asset = last_asset
+    else:
+        history_price = _parse_float(latest_history.get("price_value"))
+        if _is_valid_price(history_price, history_asset):
+            price = history_price
+            asset = history_asset
 
     computed = _compute_signal(history)
     raw_signal = _extract_value(
-        last,
+        scoped_last,
         {"signal", "instruction", "robot_instruction", "decision", "action"},
     )
     signal = _normalize_signal(raw_signal) if raw_signal else computed["signal"]
     if signal not in {"AGUARDAR", "OBSERVAR ALTA", "OBSERVAR BAIXA"}:
         signal = computed["signal"]
 
-    direction = _as_text(_extract_value(last, {"direction", "trend", "market_direction"}))
+    direction = _as_text(_extract_value(scoped_last, {"direction", "trend", "market_direction"}))
     if not direction:
         direction = computed["direction"]
 
-    confidence = _parse_float(_extract_value(last, {"confidence", "confidence_pct", "score"}))
+    confidence = _parse_float(_extract_value(scoped_last, {"confidence", "confidence_pct", "score"}))
     if confidence is None:
         confidence = _parse_float(computed["confidence"])
 
     reason = (
-        _as_text(_extract_value(last, {"reason", "message", "analysis_reason", "explanation"}))
+        _as_text(_extract_value(scoped_last, {"reason", "message", "analysis_reason", "explanation"}))
         or computed["reason"]
     )
 
-    last_status = _as_text(last.get("status")).upper()
-    ignored_window = last_status == "IGNORED_WINDOW" or bool(last.get("capture_skipped"))
+    last_status = _as_text(scoped_last.get("status")).upper()
+    latest_rejected = _latest_rejection(rejected)
+    rejection_reason = _as_text(_extract_value(latest_rejected, {"reason", "message", "status_reason"}))
+    latest_rejection_status = _as_text(
+        _extract_value(latest_rejected, {"status"})
+    ).upper()
+    latest_rejection_is_price_not_found = (
+        latest_rejection_status == "PRICE_NOT_FOUND"
+        or "price_not_found" in rejection_reason.lower()
+        or "preco nao encontrado" in rejection_reason.lower()
+        or "preÃ§o nÃ£o encontrado" in rejection_reason.lower()
+    )
+    ignored_window = (
+        last_status == "IGNORED_WINDOW"
+        or (
+            bool(last.get("capture_skipped"))
+            and last_status == "IGNORED_WINDOW"
+        )
+        or (
+            _latest_event_is_rejection(scoped_last, latest_rejected)
+            and last_status != "PRICE_NOT_FOUND"
+            and not latest_rejection_is_price_not_found
+        )
+    )
     valid_age = _file_age_seconds(PRICE_HISTORY_PATH) if history else None
-    event_age = _file_age_seconds(LAST_READING_PATH)
+    event_age = _file_age_seconds(LAST_READING_PATH) if scoped_last else None
     age = valid_age if valid_age is not None else event_age
 
-    running = _reader_running()
-    if ignored_window:
-        status = "Janela errada"
-        message = reason or "Janela errada detectada. Clique na corretora no PC."
+    if ignored_window and running:
+        status = "Rodando â€” aguardando preÃ§o"
+        message = rejection_reason or reason or "Leitor ativo; aguardando a janela da corretora."
         signal = "AGUARDAR"
         confidence = 0
-    elif running and (valid_age is None or valid_age > max(4, (_reader_interval or 1) * 3)):
-        status = "Sem nova leitura"
-        message = "Leitor rodando, mas sem nova leitura válida."
+    elif running and price is None:
+        status = "Rodando â€” aguardando preÃ§o"
+        message = "Leitor ativo; aguardando primeiro preÃ§o vÃ¡lido."
+    elif running and (valid_age is None or valid_age > max(4, effective_reader_interval * 3)):
+        status = "Rodando â€” aguardando preÃ§o"
+        message = "Leitor ativo; aguardando nova leitura de preÃ§o."
     elif running:
         status = "Rodando"
         message = "Leitor ativo. Acompanhe apenas em modo simulado."
-    elif valid_age is not None and valid_age <= 3:
-        status = "Rodando"
-        message = "Leitura recente detectada no runtime local."
     else:
         status = "Parado"
-        message = "Inicie o leitor e mantenha a corretora visível no PC."
+        if ignored_window:
+            message = "Leitor parado. Ãšltima tentativa encontrou janela errada; dados abaixo usam o histÃ³rico vÃ¡lido."
+        else:
+            message = "Leitor parado. Sinais abaixo sÃ£o histÃ³ricos."
+
+    if duplicate_reader_warning:
+        message = f"{message} {duplicate_reader_warning}"
 
     if price is None:
         signal = "AGUARDAR"
@@ -989,24 +2601,56 @@ def _build_state(
         "valid_readings": len(history),
         "last_reading_age_seconds": age,
         "last_runtime_status": last_status or "NO_DATA",
-        "last_window_title": last.get("window_title") or (last.get("broker_window") or {}).get("title"),
+        "last_window_title": scoped_last.get("window_title") or (scoped_last.get("broker_window") or {}).get("title"),
+        "expiration_seconds": expiration_seconds,
+        "session_id": _session_id(mobile_session),
+        "support": support,
+        "resistance": resistance,
+        "reader_warning": duplicate_reader_warning,
     }
 
-    _register_signal_if_needed(state)
-    signals = _list_signals()
+    if status == "Rodando":
+        _register_signal_if_needed(state, expiration_seconds=expiration_seconds)
+    signals = _list_signals(session=mobile_session, asset=asset)
+    signal_stats = _signal_stats(session=mobile_session, asset=asset)
+    price_history = [
+        {
+            "timestamp": point.get("timestamp"),
+            "asset": point.get("asset"),
+            "price": point.get("price_value"),
+            "price_value": point.get("price_value"),
+        }
+        for point in history
+    ]
 
     host = host_for_url or _local_ip()
     return {
         "notice": OBSERVATION_NOTICE,
         "simulation_notice": SIMULATION_NOTICE,
         "reader_running": running,
-        "reader_interval": _reader_interval,
+        "reader_interval": effective_reader_interval,
+        "active_reader_count": max(1, len(reader_processes)) if running else 0,
+        "active_readers": reader_processes,
+        "reader_warning": duplicate_reader_warning,
+        "signal_analysis_interval": SIGNAL_ANALYSIS_INTERVAL_SECONDS,
+        "expiration_seconds": expiration_seconds,
+        "support": support,
+        "resistance": resistance,
         "mobile_url": f"http://{host}:{port}/mobile",
         "state": state,
         "history": history,
+        "price_history": price_history,
         "signals": signals,
+        "signal_stats": signal_stats,
+        "price_diagnostics": _price_diagnostics(
+            full_history,
+            signal_stats,
+            session=mobile_session,
+            asset=asset,
+        ),
         "recent_rejections": rejected[-10:],
         "db_path": str(SIGNALS_DB_PATH),
+        "mobile_session": mobile_session,
         "runtime": {
             "last_live_reading": str(LAST_READING_PATH),
             "live_price_history": str(PRICE_HISTORY_PATH),
@@ -1035,14 +2679,20 @@ def _json_bytes(payload: dict[str, Any]) -> bytes:
     return json.dumps(payload, ensure_ascii=False).encode("utf-8")
 
 
-def _handle_get(path: str, host_header: str | None = None) -> tuple[int, str, bytes]:
+def _handle_get(
+    path: str,
+    host_header: str | None = None,
+    query: dict[str, list[str]] | None = None,
+) -> tuple[int, str, bytes]:
+    query = query or {}
     if path in {"/", "/mobile"}:
         return 200, "text/html; charset=utf-8", MOBILE_HTML.encode("utf-8")
     if path == "/api/mobile/state":
         host = _host_from_header(host_header)
         port = _port_from_header(host_header)
+        expiration_seconds = _normalize_expiration_seconds((query.get("expiration") or [DEFAULT_EXPIRATION_SECONDS])[0])
         return 200, "application/json; charset=utf-8", _json_bytes(
-            _build_state(host_for_url=host, port=port)
+            _build_state(host_for_url=host, port=port, expiration_seconds=expiration_seconds)
         )
     return 404, "application/json; charset=utf-8", _json_bytes({"status": "NOT_FOUND"})
 
@@ -1053,10 +2703,26 @@ def _handle_post(
 ) -> tuple[int, str, bytes]:
     query = query or {}
     if path == "/api/mobile/start":
-        interval = int((query.get("interval") or ["1"])[0])
-        return 200, "application/json; charset=utf-8", _json_bytes(_start_reader(interval))
+        interval = (query.get("interval") or [str(DEFAULT_READER_INTERVAL_SECONDS)])[0]
+        result = _start_reader(interval)
+        status_code = 500 if result.get("status") == "START_FAILED" else 200
+        return status_code, "application/json; charset=utf-8", _json_bytes(result)
     if path == "/api/mobile/stop":
         return 200, "application/json; charset=utf-8", _json_bytes(_stop_reader())
+    if path == "/api/mobile/reset-session":
+        dry_run = str((query.get("dry_run") or ["0"])[0]).lower() in {"1", "true", "yes"}
+        try:
+            result = _reset_mobile_session(dry_run=dry_run)
+            return 200, "application/json; charset=utf-8", _json_bytes(result)
+        except Exception as exc:
+            return 500, "application/json; charset=utf-8", _json_bytes(
+                {
+                    "status": "RESET_FAILED",
+                    "message": "Falha ao criar backup/limpar sessÃ£o.",
+                    "error": str(exc),
+                    "observer_only": True,
+                }
+            )
     return 404, "application/json; charset=utf-8", _json_bytes({"status": "NOT_FOUND"})
 
 
@@ -1066,6 +2732,7 @@ class MobileRequestHandler(BaseHTTPRequestHandler):
         status, content_type, body = _handle_get(
             parsed.path,
             host_header=self.headers.get("Host"),
+            query=parse_qs(parsed.query),
         )
         self._send(status, content_type, body)
 
@@ -1112,18 +2779,326 @@ def create_mobile_app() -> Flask:
     def mobile_state():  # type: ignore[no-untyped-def]
         host = _host_from_header(request.host)
         port = _port_from_header(request.host)
-        return jsonify(_build_state(host_for_url=host, port=port))
+        expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+        return jsonify(
+            _build_state(
+                host_for_url=host,
+                port=port,
+                expiration_seconds=expiration_seconds,
+            )
+        )
 
     @app.route("/api/mobile/start", methods=["POST"])
     def mobile_start():  # type: ignore[no-untyped-def]
-        interval = request.args.get("interval", "1")
-        return jsonify(_start_reader(int(interval)))
+        interval = request.args.get("interval", str(DEFAULT_READER_INTERVAL_SECONDS))
+        result = _start_reader(interval)
+        status_code = 500 if result.get("status") == "START_FAILED" else 200
+        return jsonify(result), status_code
 
     @app.route("/api/mobile/stop", methods=["POST"])
     def mobile_stop():  # type: ignore[no-untyped-def]
         return jsonify(_stop_reader())
 
+    @app.route("/api/mobile/reset-session", methods=["POST"])
+    def mobile_reset_session():  # type: ignore[no-untyped-def]
+        dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+        try:
+            return jsonify(_reset_mobile_session(dry_run=dry_run))
+        except Exception as exc:
+            return jsonify(
+                {
+                    "status": "RESET_FAILED",
+                    "message": "Falha ao criar backup/limpar sessÃ£o.",
+                    "error": str(exc),
+                    "observer_only": True,
+                }
+            ), 500
+
     return app
+
+
+def _run_audit_logic_smoke_test() -> bool:
+    def insert_signal(
+        *,
+        created_at: datetime,
+        direction: str = "ALTA",
+        entry_price: float = 4182.00,
+        expiration_seconds: int = DEFAULT_EXPIRATION_SECONDS,
+        status: str = WAITING_RESULT_STATUS,
+    ) -> int:
+        _ensure_signal_db()
+        with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+            cursor = conn.execute(
+                """
+                INSERT INTO signals (
+                    created_at, asset, price, signal, direction, confidence,
+                    expiration_seconds, reason, source, status, result,
+                    metadata_json, entry_price
+                )
+                VALUES (?, 'Cafeina Index', ?, ?, ?, 55, ?, 'smoke', 'smoke',
+                        ?, ?, '{}', ?)
+                """,
+                (
+                    created_at.isoformat(),
+                    entry_price,
+                    "OBSERVAR ALTA" if direction == "ALTA" else "OBSERVAR BAIXA",
+                    direction,
+                    expiration_seconds,
+                    status,
+                    status,
+                    entry_price,
+                ),
+            )
+            conn.commit()
+            return int(cursor.lastrowid)
+
+    def get_signal(signal_id: int) -> dict[str, Any]:
+        with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT * FROM signals WHERE id = ?",
+                (signal_id,),
+            ).fetchone()
+        return dict(row) if row is not None else {}
+
+    def clear_audit_tables() -> None:
+        _ensure_signal_db()
+        with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+            conn.execute("DELETE FROM signals")
+            conn.execute("DELETE FROM price_ticks")
+            conn.commit()
+
+    cases = [
+        ("BAIXA", 4182.00, 4181.90, "WIN"),
+        ("BAIXA", 4182.00, 4182.10, "LOSS"),
+        ("ALTA", 4182.00, 4182.10, "WIN"),
+        ("ALTA", 4182.00, 4181.90, "LOSS"),
+        ("ALTA", 4182.00, 4182.00, "DRAW"),
+    ]
+    for direction, entry_price, result_price, expected in cases:
+        result, _ = _evaluate_signal_result(direction, entry_price, result_price)
+        if result != expected:
+            raise AssertionError(
+                f"Audit logic failed: {direction} {entry_price} -> {result_price} expected {expected}, got {result}"
+            )
+
+    if DEFAULT_READER_INTERVAL_SECONDS != 3:
+        raise AssertionError("Reader interval must default to 3s")
+    if SIGNAL_ANALYSIS_INTERVAL_SECONDS != 3 or SIGNAL_COOLDOWN_SECONDS != 3:
+        raise AssertionError("Signal analysis/cooldown must be 3s")
+
+    now = _now()
+    clear_audit_tables()
+    _insert_price_tick(
+        created_at=now.isoformat(),
+        asset="Cafeina Index",
+        price=4182.10,
+        source="smoke",
+        metadata={"reader_interval_seconds": DEFAULT_READER_INTERVAL_SECONDS},
+    )
+    if _price_ticks_count() < 1:
+        raise AssertionError("price_ticks insert/count failed")
+
+    state = {
+        "signal": "OBSERVAR ALTA",
+        "asset": "Cafeina Index",
+        "price": 4182.10,
+        "confidence": 55,
+        "valid_readings": 10,
+    }
+    _register_signal_if_needed(state, DEFAULT_EXPIRATION_SECONDS)
+    state["signal"] = "OBSERVAR BAIXA"
+    _register_signal_if_needed(state, DEFAULT_EXPIRATION_SECONDS)
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        signal_count = conn.execute("SELECT COUNT(*) FROM signals").fetchone()[0]
+    if signal_count != 1:
+        raise AssertionError("Signal cooldown 3s failed")
+
+    clear_audit_tables()
+
+    emitted_at = now - timedelta(seconds=41)
+    target_dt = emitted_at + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+    exact_history = [
+        {
+            "timestamp": target_dt.isoformat(),
+            "asset": "Cafeina Index",
+            "price_value": 4182.10,
+            "source": "smoke",
+        }
+    ]
+    exact_price, exact_metadata = _history_price_near_target(
+        exact_history,
+        target_dt,
+        expected_asset="Cafeina Index",
+    )
+    result, _ = _evaluate_signal_result("ALTA", 4182.00, exact_price)
+    if result != "WIN":
+        raise AssertionError("Audit history target_time test failed")
+    if exact_metadata.get("result_price_source") != "json":
+        raise AssertionError("Audit history source metadata failed")
+
+    late_history = [
+        {
+            "timestamp": (target_dt + timedelta(seconds=10)).isoformat(),
+            "asset": "Cafeina Index",
+            "price_value": 4181.90,
+            "source": "smoke",
+        }
+    ]
+    late_price, _ = _history_price_near_target(late_history, target_dt, expected_asset="Cafeina Index")
+    result, _ = _evaluate_signal_result("BAIXA", 4182.00, late_price)
+    if result != "WIN":
+        raise AssertionError("Audit history +10s WIN test failed")
+    result, _ = _evaluate_signal_result("ALTA", 4182.00, late_price)
+    if result != "LOSS":
+        raise AssertionError("Audit history +10s LOSS test failed")
+
+    before_history = [
+        {
+            "timestamp": (target_dt - timedelta(seconds=1)).isoformat(),
+            "asset": "Cafeina Index",
+            "price_value": 4182.10,
+            "source": "smoke",
+        }
+    ]
+    before_price, before_metadata = _history_price_near_target(
+        before_history,
+        target_dt,
+        expected_asset="Cafeina Index",
+    )
+    if before_price != 4182.10 or before_metadata.get("result_price_match") != "nearest_within_tolerance":
+        raise AssertionError("Audit nearest pre-expiration tolerance test failed")
+
+    stale_history = [
+        {
+            "timestamp": (target_dt + timedelta(seconds=11)).isoformat(),
+            "asset": "Cafeina Index",
+            "price_value": 4182.10,
+            "source": "smoke",
+        }
+    ]
+    stale_price, stale_metadata = _history_price_near_target(stale_history, target_dt, expected_asset="Cafeina Index")
+    result, _ = _evaluate_signal_result("ALTA", 4182.00, stale_price)
+    if result != "UNKNOWN" or stale_metadata.get("result_reason") != UNKNOWN_NO_HISTORY_REASON:
+        raise AssertionError("Audit history post-margin UNKNOWN test failed")
+
+    clear_audit_tables()
+
+    waiting_id = insert_signal(created_at=now - timedelta(seconds=31))
+    _check_pending_signals([])
+    waiting_row = get_signal(waiting_id)
+    if waiting_row.get("status") != WAITING_RESULT_STATUS:
+        raise AssertionError("WAITING_RESULT before UNKNOWN failed")
+
+    unknown_id = insert_signal(created_at=now - timedelta(seconds=76))
+    _check_pending_signals([])
+    unknown_row = get_signal(unknown_id)
+    if unknown_row.get("status") != "UNKNOWN" or unknown_row.get("result") != "UNKNOWN":
+        raise AssertionError("UNKNOWN after final margin failed")
+
+    clear_audit_tables()
+
+    win_created = now - timedelta(seconds=36)
+    win_target = win_created + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+    win_id = insert_signal(created_at=win_created, direction="BAIXA", entry_price=4182.00)
+    _check_pending_signals(
+        [
+            {
+                "timestamp": (win_target + timedelta(seconds=5)).isoformat(),
+                "asset": "Cafeina Index",
+                "price_value": 4181.90,
+                "source": "smoke",
+            }
+        ]
+    )
+    win_row = get_signal(win_id)
+    if win_row.get("result") != "WIN":
+        raise AssertionError("JSON result price between 30s and 40s failed")
+
+    clear_audit_tables()
+
+    sqlite_win_created = now - timedelta(seconds=36)
+    sqlite_win_target = sqlite_win_created + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+    sqlite_baixa_id = insert_signal(
+        created_at=sqlite_win_created,
+        direction="BAIXA",
+        entry_price=4182.00,
+    )
+    _insert_price_tick(
+        created_at=(sqlite_win_target + timedelta(seconds=5)).isoformat(),
+        asset="Cafeina Index",
+        price=4181.90,
+        source="smoke",
+        metadata={"window_title": "4181.90 Cafeina Index - OlympTrade"},
+    )
+    _check_pending_signals([])
+    sqlite_baixa_row = get_signal(sqlite_baixa_id)
+    if sqlite_baixa_row.get("result") != "WIN":
+        raise AssertionError("SQLite fallback BAIXA WIN test failed")
+    sqlite_baixa_metadata = _metadata_from_json(sqlite_baixa_row.get("metadata_json"))
+    if sqlite_baixa_metadata.get("result_price_source") != "sqlite_price_ticks":
+        raise AssertionError("SQLite fallback source metadata failed")
+
+    clear_audit_tables()
+
+    sqlite_alta_created = now - timedelta(seconds=36)
+    sqlite_alta_target = sqlite_alta_created + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+    sqlite_alta_id = insert_signal(
+        created_at=sqlite_alta_created,
+        direction="ALTA",
+        entry_price=4182.00,
+    )
+    _insert_price_tick(
+        created_at=(sqlite_alta_target + timedelta(seconds=5)).isoformat(),
+        asset="Cafeina Index",
+        price=4182.20,
+        source="smoke",
+        metadata={"window_title": "4182.20 Cafeina Index - OlympTrade"},
+    )
+    _check_pending_signals([])
+    sqlite_alta_row = get_signal(sqlite_alta_id)
+    if sqlite_alta_row.get("result") != "WIN":
+        raise AssertionError("SQLite fallback ALTA WIN test failed")
+
+    clear_audit_tables()
+
+    missing_id = insert_signal(created_at=now - timedelta(seconds=76), direction="ALTA", entry_price=4182.00)
+    _check_pending_signals([])
+    missing_row = get_signal(missing_id)
+    if missing_row.get("result") != "UNKNOWN" or missing_row.get("result_price") is not None:
+        raise AssertionError("Missing JSON and SQLite UNKNOWN test failed")
+
+    if _hit_rate_percent(win=1, loss=1, draw=1) != 33.3:
+        raise AssertionError("Audit hit-rate UNKNOWN/PENDING ignore test failed")
+    if _hit_rate_percent(win=0, loss=0, draw=0) != 0.0:
+        raise AssertionError("UNKNOWN-only hit-rate test failed")
+
+    clear_audit_tables()
+
+    old_created = now - timedelta(seconds=110)
+    old_target = old_created + timedelta(seconds=60)
+    old_id = insert_signal(
+        created_at=old_created,
+        direction="BAIXA",
+        entry_price=4182.00,
+        expiration_seconds=60,
+        status="UNKNOWN",
+    )
+    _insert_price_tick(
+        created_at=(old_target + timedelta(seconds=5)).isoformat(),
+        asset="Cafeina Index",
+        price=4181.80,
+        source="smoke",
+        metadata={"window_title": "4181.80 Cafeina Index - OlympTrade"},
+    )
+    _backfill_unknown_signals([])
+    old_row = get_signal(old_id)
+    old_metadata = _metadata_from_json(old_row.get("metadata_json"))
+    if old_row.get("result") != "WIN" or int(old_row.get("expiration_seconds")) != 60:
+        raise AssertionError("60s legacy signal backfill failed")
+    if old_metadata.get("target_time") != old_target.isoformat():
+        raise AssertionError("60s legacy signal target_time was not preserved")
+    return True
 
 
 def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
@@ -1134,9 +3109,12 @@ def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
     print(SIMULATION_NOTICE)
     print(f"Local PC: http://127.0.0.1:{port}/mobile")
     print(f"Celular na mesma Wi-Fi: http://{local_ip}:{port}/mobile")
-    print("Endpoints: GET /api/mobile/state | POST /api/mobile/start?interval=1 | POST /api/mobile/stop")
+    print("Endpoints: GET /api/mobile/state | POST /api/mobile/start?interval=3 | POST /api/mobile/stop")
+    reader_warning = _reader_warning(_active_reader_processes())
+    if reader_warning:
+        print(reader_warning)
     if HAS_FLASK:
-        create_mobile_app().run(host=host, port=port, debug=False, use_reloader=False)
+        create_mobile_app().run(host=host, port=port, debug=False, use_reloader=False, threaded=True)
         return
 
     print("Flask nao encontrado; usando http.server local da biblioteca padrao.")
@@ -1150,30 +3128,90 @@ def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
 
 
 def smoke_test(port: int = DEFAULT_PORT) -> int:
-    _ensure_signal_db()
-    if HAS_FLASK:
-        app = create_mobile_app()
-        with app.test_client() as client:
-            mobile_response = client.get("/mobile")
-            state_response = client.get("/api/mobile/state")
-            print(f"SMOKE_MOBILE_STATUS={mobile_response.status_code}")
-            print(f"SMOKE_STATE_STATUS={state_response.status_code}")
-            payload = state_response.get_json(silent=True) or {}
-            print(f"SMOKE_HAS_STATE={'state' in payload}")
-            print(f"SMOKE_MOBILE_URL=http://{_local_ip()}:{port}/mobile")
-        return 0 if mobile_response.status_code == 200 and state_response.status_code == 200 else 1
+    global RUNTIME_DIR, LAST_READING_PATH, PRICE_HISTORY_PATH
+    global REJECTED_READINGS_PATH, SIGNALS_DB_PATH
 
-    mobile_status, _, _ = _handle_get("/mobile")
-    state_status, _, state_body = _handle_get(
-        "/api/mobile/state",
-        host_header=f"127.0.0.1:{port}",
+    original_paths = (
+        RUNTIME_DIR,
+        LAST_READING_PATH,
+        PRICE_HISTORY_PATH,
+        REJECTED_READINGS_PATH,
+        SIGNALS_DB_PATH,
     )
-    payload = json.loads(state_body.decode("utf-8"))
-    print(f"SMOKE_MOBILE_STATUS={mobile_status}")
-    print(f"SMOKE_STATE_STATUS={state_status}")
-    print(f"SMOKE_HAS_STATE={'state' in payload}")
-    print(f"SMOKE_MOBILE_URL=http://{_local_ip()}:{port}/mobile")
-    return 0 if mobile_status == 200 and state_status == 200 else 1
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp_dir:
+        RUNTIME_DIR = Path(tmp_dir)
+        LAST_READING_PATH = RUNTIME_DIR / "last_live_reading.json"
+        PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
+        REJECTED_READINGS_PATH = RUNTIME_DIR / "rejected_live_readings.json"
+        SIGNALS_DB_PATH = RUNTIME_DIR / "predixai_trader_signals.db"
+
+        RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+        now = _now()
+        sample_tick = {
+            "status": "READY",
+            "source": "smoke",
+            "timestamp": now.isoformat(),
+            "asset": "Cafeina Index",
+            "price": "4182.10",
+            "price_value": 4182.10,
+            "confidence": 100.0,
+        }
+        LAST_READING_PATH.write_text(
+            json.dumps(sample_tick, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        PRICE_HISTORY_PATH.write_text(
+            json.dumps([sample_tick], ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        REJECTED_READINGS_PATH.write_text("[]", encoding="utf-8")
+
+        try:
+            _ensure_signal_db()
+            audit_logic_ok = _run_audit_logic_smoke_test()
+            if HAS_FLASK:
+                app = create_mobile_app()
+                with app.test_client() as client:
+                    mobile_response = client.get("/mobile")
+                    state_response = client.get("/api/mobile/state")
+                    payload = state_response.get_json(silent=True) or {}
+                    mobile_status = mobile_response.status_code
+                    state_status = state_response.status_code
+            else:
+                mobile_status, _, _ = _handle_get("/mobile")
+                state_status, _, state_body = _handle_get(
+                    "/api/mobile/state",
+                    host_header=f"127.0.0.1:{port}",
+                )
+                payload = json.loads(state_body.decode("utf-8"))
+
+            diagnostics = payload.get("price_diagnostics", {})
+            smoke_ok = (
+                mobile_status == 200
+                and state_status == 200
+                and "state" in payload
+                and audit_logic_ok
+                and diagnostics.get("price_ticks_count", 0) >= 1
+            )
+            print(f"SMOKE_MOBILE_STATUS={mobile_status}")
+            print(f"SMOKE_STATE_STATUS={state_status}")
+            print(f"SMOKE_HAS_STATE={'state' in payload}")
+            print(f"SMOKE_PRICE_READER_3S={DEFAULT_READER_INTERVAL_SECONDS == 3 and diagnostics.get('price_ticks_count', 0) >= 1}")
+            print(f"SMOKE_SIGNAL_INTERVAL_3S={SIGNAL_ANALYSIS_INTERVAL_SECONDS == 3 and SIGNAL_COOLDOWN_SECONDS == 3}")
+            print(f"SMOKE_RESULT_WINDOW_30_40={audit_logic_ok}")
+            print(f"SMOKE_WAITING_BEFORE_UNKNOWN={audit_logic_ok}")
+            print(f"SMOKE_UNKNOWN_AFTER_FINAL_MARGIN={audit_logic_ok}")
+            print(f"SMOKE_AUDIT_LOGIC={audit_logic_ok}")
+            print(f"SMOKE_MOBILE_URL=http://{_local_ip()}:{port}/mobile")
+            return 0 if smoke_ok else 1
+        finally:
+            (
+                RUNTIME_DIR,
+                LAST_READING_PATH,
+                PRICE_HISTORY_PATH,
+                REJECTED_READINGS_PATH,
+                SIGNALS_DB_PATH,
+            ) = original_paths
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:

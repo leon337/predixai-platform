@@ -476,7 +476,7 @@
                        "architect_notes":  "ARCHITECT_NOTES.md",
                        "last_approved_ptp":  "PTP-103 - Overnight Observer",
                        "next_pending_ptp":  "Auditoria final da V1 Trader",
-                       "audit_rule":  "Nenhum PTP ÃƒÆ’Ã‚Â© aprovado sem commit, push e auditoria.",
+                       "audit_rule":  "Nenhum PTP ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© aprovado sem commit, push e auditoria.",
                        "source_of_truth":  "GitHub origin/main"
                    },
     "project_memory":  {
@@ -514,13 +514,13 @@
                                         "real_account_enabled":  false,
                                         "strategy_changed":  false
                                     },
-    "next_task":  "Definir o prÃƒÂ³ximo PTP da fase ao vivo, mantendo a V1 sem IA, LLM, Gemini, Strategy real, Dashboard, Broker Adapter, automaÃƒÂ§ÃƒÂ£o, tomada de decisÃƒÂ£o ou interaÃƒÂ§ÃƒÂ£o com corretora atÃƒÂ© autorizaÃƒÂ§ÃƒÂ£o explÃƒÂ­cita.",
-    "architecture_status":  "V1 congelada, Fase 0 concluÃƒÆ’Ã‚Â­da, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criada, OCR Provider Adapter foundation criada, OCR Pipeline Validation foundation criada, hotfix de logs do pipeline OCR para Windows do Leo aplicado, execuÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o obrigatÃƒÆ’Ã‚Â³ria visÃƒÆ’Ã‚Â­vel do pipeline OCR no --capture aplicada, OCR Region Mapping foundation criada, Milestone-004 Region Mapping Expansion concluÃƒÆ’Ã‚Â­do, Tesseract Provider foundation criado, Milestone-005 OCR Real Foundation concluÃƒÆ’Ã‚Â­da com Tesseract OCR real, validaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o, cache SHA256 e benchmark, Milestone-006 Visual Intelligence Foundation concluÃƒÆ’Ã‚Â­da com OCR Parser, Region Text Mapping, Structured OCR Result, Visual Snapshot e Visual Benchmark, Milestone-007 Visual Understanding Foundation concluÃƒÆ’Ã‚Â­da com Screen Elements, Screen Layout, Screen Object Registry, Visual Scene e Visual Scene Benchmark, Milestone-008 Interface Semantic Foundation concluÃƒÆ’Ã‚Â­da com Semantic Elements, Semantic Label Mapper, Semantic Scene, Semantic Registry e Semantic Benchmark, Milestone-009 Market Interface Foundation concluÃƒÆ’Ã‚Â­da com Market Elements, Price Region Mapper, Time Region Mapper, Market Scene e Market Benchmark, Milestone-010 Market Structure Foundation concluÃƒÆ’Ã‚Â­da com Market Entities, Market Entity Registry, Market Structure, Market Structure Validator e Market Structure Benchmark, Milestone-011 Pattern Recognition Foundation concluÃƒÆ’Ã‚Â­da com Pattern Foundation, Pattern Registry, Pattern Detector, Pattern Scene e Pattern Benchmark, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ou tomada de decisÃƒÆ’Ã‚Â£o, captura manual criada, execuÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governanÃƒÆ’Ã‚Â§a criada, Milestone-012 Pattern Analysis Foundation concluÃƒÆ’Ã‚Â­da com Pattern Analyzer, Pattern Analysis, Pattern Classification, Pattern Context Builder, Pattern Analysis Builder e Pattern Analysis Benchmark, Milestone-013 Intelligence Foundation concluÃƒÆ’Ã‚Â­da com Intelligence Context, Market Hypothesis, Hypothesis Evaluator, Intelligence Snapshot e Intelligence Benchmark, Milestone-014 Strategy Readiness Foundation concluÃƒÆ’Ã‚Â­da com Signal Foundation, Signal Registry, Signal Scoring Foundation, Strategy Readiness Snapshot e Strategy Readiness Benchmark, Milestone-015 Live Market Validation Foundation concluÃƒÂ­da com Live Session Foundation, Broker Window Detection, Live Capture Scheduler, Live Market Reading e Live Validation Report, Milestone-016 Live Candle Analyzer concluÃƒÂ­da com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, Milestone-016 Live Candle Analyzer concluÃƒÂ­da com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, validaÃƒÂ§ÃƒÂ£o ao vivo observadora executada com sucesso no Windows do Leo",
+    "next_task":  "Definir o prÃƒÆ’Ã‚Â³ximo PTP da fase ao vivo, mantendo a V1 sem IA, LLM, Gemini, Strategy real, Dashboard, Broker Adapter, automaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o, tomada de decisÃƒÆ’Ã‚Â£o ou interaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o com corretora atÃƒÆ’Ã‚Â© autorizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o explÃƒÆ’Ã‚Â­cita.",
+    "architecture_status":  "V1 congelada, Fase 0 concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da, Fase 1 criada, Perception Engine foundation criada, Capture Engine foundation criada, Vision Engine foundation criada, ROI foundation criada, Image Loader foundation criada, ROI Crop foundation criada, ROI Crop Image Export criado, OCR foundation criada, OCR Provider Adapter foundation criada, OCR Pipeline Validation foundation criada, hotfix de logs do pipeline OCR para Windows do Leo aplicado, execuÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o obrigatÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ria visÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­vel do pipeline OCR no --capture aplicada, OCR Region Mapping foundation criada, Milestone-004 Region Mapping Expansion concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­do, Tesseract Provider foundation criado, Milestone-005 OCR Real Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Tesseract OCR real, validaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o, cache SHA256 e benchmark, Milestone-006 Visual Intelligence Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com OCR Parser, Region Text Mapping, Structured OCR Result, Visual Snapshot e Visual Benchmark, Milestone-007 Visual Understanding Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Screen Elements, Screen Layout, Screen Object Registry, Visual Scene e Visual Scene Benchmark, Milestone-008 Interface Semantic Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Semantic Elements, Semantic Label Mapper, Semantic Scene, Semantic Registry e Semantic Benchmark, Milestone-009 Market Interface Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Market Elements, Price Region Mapper, Time Region Mapper, Market Scene e Market Benchmark, Milestone-010 Market Structure Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Market Entities, Market Entity Registry, Market Structure, Market Structure Validator e Market Structure Benchmark, Milestone-011 Pattern Recognition Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Pattern Foundation, Pattern Registry, Pattern Detector, Pattern Scene e Pattern Benchmark, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o ou tomada de decisÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o, captura manual criada, execuÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o local Windows 10 no ambiente Codex validada, workspace oficial Windows 10 do Leo preparado e governanÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§a criada, Milestone-012 Pattern Analysis Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Pattern Analyzer, Pattern Analysis, Pattern Classification, Pattern Context Builder, Pattern Analysis Builder e Pattern Analysis Benchmark, Milestone-013 Intelligence Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Intelligence Context, Market Hypothesis, Hypothesis Evaluator, Intelligence Snapshot e Intelligence Benchmark, Milestone-014 Strategy Readiness Foundation concluÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­da com Signal Foundation, Signal Registry, Signal Scoring Foundation, Strategy Readiness Snapshot e Strategy Readiness Benchmark, Milestone-015 Live Market Validation Foundation concluÃƒÆ’Ã‚Â­da com Live Session Foundation, Broker Window Detection, Live Capture Scheduler, Live Market Reading e Live Validation Report, Milestone-016 Live Candle Analyzer concluÃƒÆ’Ã‚Â­da com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, Milestone-016 Live Candle Analyzer concluÃƒÆ’Ã‚Â­da com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, validaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ao vivo observadora executada com sucesso no Windows do Leo",
     "rules":  [
-                  "Codex nÃƒÆ’Ã‚Â£o decide arquitetura sem aprovaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o.",
+                  "Codex nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o decide arquitetura sem aprovaÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o.",
                   "Nenhuma ordem financeira na V1.",
-                  "IA ÃƒÆ’Ã‚Â© analista, nÃƒÆ’Ã‚Â£o operadora.",
-                  "Toda mudanÃƒÆ’Ã‚Â§a relevante atualiza este arquivo."
+                  "IA ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â© analista, nÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o operadora.",
+                  "Toda mudanÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â§a relevante atualiza este arquivo."
               ],
     "pattern_analysis_foundation":  {
                                         "enabled":  true,
@@ -1204,6 +1204,53 @@
                                                        "real_account_enabled":  false
                                                    }
                         },
+    "trader_mobile_observer":  {
+                                   "status":  "partial_validation",
+                                   "validated_at":  "2026-07-02",
+                                   "mode":  "observer_simulated",
+                                   "orders_enabled":  false,
+                                   "clicks_enabled":  false,
+                                   "broker_automation_enabled":  false,
+                                   "mobile_urls":  [
+                                                       "http://127.0.0.1:8766/mobile",
+                                                       "http://192.168.10.103:8766/mobile"
+                                                   ],
+                                   "price_reader":  {
+                                                        "primary_source":  "window_title",
+                                                        "fallback_source":  "last_detected_price_field",
+                                                        "interval_seconds":  3,
+                                                        "duplicate_reader_lock":  true
+                                                    },
+                                   "session_reset":  {
+                                                         "route":  "POST /api/mobile/reset-session",
+                                                         "backup_directory_pattern":  "data/runtime/backups/mobile_reset_YYYYMMDD_HHMMSS/",
+                                                         "clears_runtime_files":  [
+                                                                                     "live_price_history.json",
+                                                                                     "last_live_reading.json",
+                                                                                     "rejected_live_readings.json",
+                                                                                     "mobile_current_session.json"
+                                                                                 ],
+                                                         "clears_sqlite_tables":  [
+                                                                                     "signals",
+                                                                                     "price_ticks"
+                                                                                 ],
+                                                         "creates_new_session_id":  true
+                                                     },
+                                   "panel_filters":  {
+                                                         "session_id":  true,
+                                                         "asset":  true
+                                                     },
+                                   "signal_logic_audit":  "docs/trader/MOBILE_SIGNAL_LOGIC_AUDIT.md",
+                                   "last_local_validation":  {
+                                                                 "reset_session_real_ok":  true,
+                                                                 "reader_lock_ok":  true,
+                                                                 "active_reader_count":  1,
+                                                                 "clean_panel_after_reset_ok":  true,
+                                                                 "two_new_closed_signals_ok":  false,
+                                                                 "two_new_closed_signals_note":  "Pending until broker window is active during validation.",
+                                                                 "pending_calibration":  "Calibrate signal thresholds and support/resistance logic with clean per-asset sessions."
+                                                             }
+                               },
     "last_ptp":  "PTP-104",
     "trader_v1_final_closure":  {
                                     "ptp":  "PTP-104",

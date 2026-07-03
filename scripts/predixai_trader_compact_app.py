@@ -78,7 +78,7 @@ class CompactLauncher:
 
         tk.Label(
             self.root,
-            text="Modo observador. Não é recomendação financeira.",
+            text="Modo observador. NÃ£o Ã© recomendaÃ§Ã£o financeira.",
             bg=BG,
             fg=YELLOW,
             font=("Arial", 8, "bold"),
@@ -89,7 +89,7 @@ class CompactLauncher:
 
         tk.Label(
             self.root,
-            text="Modo observador/simulado. Não executa ordens.",
+            text="Modo observador/simulado. NÃ£o executa ordens.",
             bg=BG,
             fg=MUTED,
             font=("Arial", 8, "bold"),
@@ -127,7 +127,7 @@ class CompactLauncher:
 
         self._button(buttons, "Servidor mobile", self.start_mobile_server, 0, 0)
         self._button(buttons, "Abrir painel", self.open_mobile, 0, 1)
-        self._button(buttons, "Leitor 1s", self.start_reader_1s, 1, 0)
+        self._button(buttons, "Leitor 3s", self.start_reader_1s, 1, 0)
         self._button(buttons, "Parar leitor", self.stop_reader, 1, 1)
         self._button(buttons, "Focar corretora", self.focus_broker, 2, 0)
         self._button(buttons, "Dashboard local", self.open_dashboard, 2, 1)
@@ -173,7 +173,7 @@ class CompactLauncher:
 
     def start_mobile_server(self) -> None:
         if self.server_proc and self.server_proc.poll() is None:
-            self._status("Servidor mobile já está rodando.", GREEN)
+            self._status("Servidor mobile jÃ¡ estÃ¡ rodando.", GREEN)
             return
 
         script = REPO / "scripts" / "predixai_trader_mobile_server.py"
@@ -195,12 +195,12 @@ class CompactLauncher:
         self._status("Painel mobile aberto no navegador local.", GREEN)
 
     def start_reader_1s(self) -> None:
-        if self._post_mobile("/api/mobile/start?interval=1"):
-            self._status("Leitor 1s iniciado pelo servidor mobile.", GREEN)
+        if self._post_mobile("/api/mobile/start?interval=3"):
+            self._status("Leitor 3s iniciado pelo servidor mobile.", GREEN)
             return
 
         if self.reader_proc and self.reader_proc.poll() is None:
-            self._status("Leitor já está rodando.", GREEN)
+            self._status("Leitor jÃ¡ estÃ¡ rodando.", GREEN)
             return
 
         python_exe = REPO / ".venv" / "Scripts" / "python.exe"
@@ -216,10 +216,11 @@ class CompactLauncher:
                     "-m",
                     "predixai.main",
                     "--live-loop",
+                    "--price-only",
                     "--loop-count",
                     "9999",
                     "--loop-interval",
-                    "1",
+                    "3",
                 ],
                 cwd=str(REPO),
                 env=env,
@@ -227,7 +228,7 @@ class CompactLauncher:
                 stderr=subprocess.DEVNULL,
                 creationflags=flags,
             )
-            self._status("Leitor 1s iniciado localmente.", GREEN)
+            self._status("Leitor 3s iniciado localmente em modo price-only.", GREEN)
         except Exception as exc:
             self._status(f"Falha ao iniciar leitor: {exc}", RED)
 
@@ -249,7 +250,7 @@ class CompactLauncher:
 
     def focus_broker(self) -> None:
         if os.name != "nt":
-            self._status("Focar corretora automático só está disponível no Windows.", YELLOW)
+            self._status("Focar corretora automÃ¡tico sÃ³ estÃ¡ disponÃ­vel no Windows.", YELLOW)
             return
 
         try:
@@ -281,7 +282,7 @@ class CompactLauncher:
                 0,
             )
             if not target["hwnd"]:
-                self._status("Janela da corretora não encontrada.", YELLOW)
+                self._status("Janela da corretora nÃ£o encontrada.", YELLOW)
                 return
             user32.ShowWindow(target["hwnd"], 9)
             user32.SetForegroundWindow(target["hwnd"])

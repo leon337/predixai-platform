@@ -38,6 +38,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "Live validation completed: "
                 f"{report.total_captures} captures, status={report.status}"
             )
+        if args.live_price_tick:
+            result = app.live_price_tick()
+            print(
+                "Live price tick completed: "
+                f"status={result.get('status')}, "
+                f"source={result.get('source')}, "
+                f"price={result.get('price')}"
+            )
         if args.live_loop:
             loop_count = max(1, int(args.loop_count))
             loop_interval = max(1, int(args.loop_interval))
@@ -46,15 +54,27 @@ def main(argv: Sequence[str] | None = None) -> int:
             try:
                 for index in range(loop_count):
                     print(f"Live loop reading {index + 1}/{loop_count}...")
-                    result = app.live_once(countdown_seconds_override=0)
-                    report = result["report"] if isinstance(result, dict) else result
+                    if args.price_only:
+                        result = app.live_price_tick()
+                        report = None
+                    else:
+                        result = app.live_once(countdown_seconds_override=0)
+                        report = result["report"] if isinstance(result, dict) else result
                     completed += 1
-                    print(
-                        "Live loop reading completed: "
-                        f"{completed}/{loop_count}, "
-                        f"captures={report.total_captures}, "
-                        f"status={report.status}"
-                    )
+                    if report is None:
+                        print(
+                            "Live loop price tick completed: "
+                            f"{completed}/{loop_count}, "
+                            f"status={result.get('status')}, "
+                            f"source={result.get('source')}"
+                        )
+                    else:
+                        print(
+                            "Live loop reading completed: "
+                            f"{completed}/{loop_count}, "
+                            f"captures={report.total_captures}, "
+                            f"status={report.status}"
+                        )
 
                     if index < loop_count - 1:
                         time.sleep(loop_interval)
@@ -101,6 +121,16 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         "--live-loop",
         action="store_true",
         help="Run multiple live readings in observer mode.",
+    )
+    parser.add_argument(
+        "--live-price-tick",
+        action="store_true",
+        help="Read and persist one lightweight price tick in observer mode.",
+    )
+    parser.add_argument(
+        "--price-only",
+        action="store_true",
+        help="Use the lightweight price reader with --live-loop.",
     )
     parser.add_argument(
         "--loop-count",
