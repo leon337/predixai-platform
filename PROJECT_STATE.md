@@ -868,3 +868,26 @@ Próxima etapa:
 - Validar dashboard local.
 - Validar robô em modo observador.
 - Depois iniciar PTP-109 — Multi-Broker Startup and Auto Login.
+
+## PTP-108B — Linux Mint Dashboard and Observer Runtime Test
+
+Status: PUBLICADA
+
+Resumo:
+- Detector Linux via wmctrl/xprop validado.
+- Fluxo Windows com ctypes.windll preservado.
+- Leitura observadora em Linux Mint validada.
+- Mobile server validado na porta 8766.
+- Dashboard/API validado na porta 8765.
+- Encoding visual do mobile/compacto corrigido.
+- Sessão limpa validada por aproximadamente 13 minutos.
+- Histórico limpo validado de 0 até 508 leituras.
+- price_ticks SQLite validado de 0 até 508.
+- Média observada de leitura: aproximadamente 1.5s.
+- Ativo validado: LATAM Index.
+- Modo mantido: observador/simulado, sem execução de ordens.
+
+Observações:
+- Motor de sinais permaneceu restritivo e não gerou sinais na sessão limpa.
+- Isso não bloqueia a PTP-108B, pois o escopo era runtime, leitura, dashboard e mobile.
+- Melhorias de sinal, scalper, day trade, backtest, Avalon/Quadcode, OCR, SDK e Session Launcher ficam para PTPs futuras.

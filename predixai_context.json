@@ -1309,5 +1309,30 @@
     "title": "Linux Mint Robot Runtime Recovery",
     "published_at": "2026-07-03T12:49:17-03:00",
     "status": "published"
+  },
+  "ptp_108b": {
+    "status": "PUBLICADA",
+    "title": "Linux Mint Dashboard and Observer Runtime Test",
+    "published_at": "2026-07-04 09:53:31",
+    "validated_environment": "Linux Mint + Brave + mobile panel",
+    "validated_asset": "LATAM Index",
+    "validated_features": [
+      "linux wmctrl/xprop broker window detection",
+      "observer runtime",
+      "dashboard API",
+      "mobile server",
+      "SQLite price tick persistence",
+      "UTF-8 mobile/compact encoding"
+    ],
+    "validation_result": "APTO PARA PUBLICAÇÃO",
+    "future_pending": [
+      "signal engine remains restrictive",
+      "session launcher",
+      "risk manager",
+      "Avalon/Quadcode SDK study",
+      "OCR/data capture matrix",
+      "backtest framework",
+      "scalper/day trade strategy modes"
+    ]
   }
 }

@@ -603,3 +603,13 @@ Observacao:
 
 ### Date
 - 2026-07-03T12:49:17-03:00
+
+## 2026-07-04 09:53:31 — PTP-108B publicada
+
+- Publicada a PTP-108B — Linux Mint Dashboard and Observer Runtime Test.
+- Corrigido detector Linux para leitura via wmctrl/xprop.
+- Validado painel mobile em telefone via porta 8766.
+- Corrigido encoding visual do mobile/compacto.
+- Validada sessão limpa com leitura estável e SQLite crescendo.
+- Mantido modo observador/simulado, sem ordens reais.
+- Registrada pendência futura: motor de sinais restritivo.

@@ -78,7 +78,7 @@ class CompactLauncher:
 
         tk.Label(
             self.root,
-            text="Modo observador. NÃ£o Ã© recomendaÃ§Ã£o financeira.",
+            text="Modo observador. Não é recomendação financeira.",
             bg=BG,
             fg=YELLOW,
             font=("Arial", 8, "bold"),
@@ -89,7 +89,7 @@ class CompactLauncher:
 
         tk.Label(
             self.root,
-            text="Modo observador/simulado. NÃ£o executa ordens.",
+            text="Modo observador/simulado. Não executa ordens.",
             bg=BG,
             fg=MUTED,
             font=("Arial", 8, "bold"),
@@ -173,7 +173,7 @@ class CompactLauncher:
 
     def start_mobile_server(self) -> None:
         if self.server_proc and self.server_proc.poll() is None:
-            self._status("Servidor mobile jÃ¡ estÃ¡ rodando.", GREEN)
+            self._status("Servidor mobile já está rodando.", GREEN)
             return
 
         script = REPO / "scripts" / "predixai_trader_mobile_server.py"
@@ -200,7 +200,7 @@ class CompactLauncher:
             return
 
         if self.reader_proc and self.reader_proc.poll() is None:
-            self._status("Leitor jÃ¡ estÃ¡ rodando.", GREEN)
+            self._status("Leitor já está rodando.", GREEN)
             return
 
         python_exe = REPO / ".venv" / "Scripts" / "python.exe"
@@ -250,7 +250,7 @@ class CompactLauncher:
 
     def focus_broker(self) -> None:
         if os.name != "nt":
-            self._status("Focar corretora automÃ¡tico sÃ³ estÃ¡ disponÃ­vel no Windows.", YELLOW)
+            self._status("Focar corretora automático só está disponível no Windows.", YELLOW)
             return
 
         try:
@@ -282,7 +282,7 @@ class CompactLauncher:
                 0,
             )
             if not target["hwnd"]:
-                self._status("Janela da corretora nÃ£o encontrada.", YELLOW)
+                self._status("Janela da corretora não encontrada.", YELLOW)
                 return
             user32.ShowWindow(target["hwnd"], 9)
             user32.SetForegroundWindow(target["hwnd"])

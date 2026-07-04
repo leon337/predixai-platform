@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import re
+import shutil
+import subprocess
 import sys
 from ctypes import Structure, byref, c_int, create_unicode_buffer
+from datetime import datetime
 
 if sys.platform.startswith("win"):
     from ctypes import windll
 else:
     windll = None
-from datetime import datetime
 
 from predixai.live.broker_window_state import BrokerWindowState
 
@@ -29,24 +31,9 @@ class BrokerWindowDetector:
         detected_at = datetime.now().astimezone().isoformat()
 
         if windll is None:
-            return BrokerWindowState(
-                title="LINUX_WINDOW_DETECTION_UNAVAILABLE",
-                resolution_width=0,
-                resolution_height=0,
-                left=0,
-                top=0,
-                maximized=False,
-                foreground=False,
-                detected_at=detected_at,
-                metadata={
-                    "detected": False,
-                    "broker_window_valid": False,
-                    "ignored": True,
-                    "ignore_reason": "Detecção automática de janela via ctypes.windll disponível apenas no Windows.",
-                    "window_kind": "linux_unsupported",
-                    "platform": sys.platform,
-                },
-            )
+            if sys.platform.startswith("linux"):
+                return self._detect_linux(detected_at)
+            return self._unsupported_platform(detected_at)
 
         user32 = windll.user32
         hwnd = user32.GetForegroundWindow()
@@ -74,8 +61,156 @@ class BrokerWindowDetector:
                 "ignored": not validation["valid"],
                 "ignore_reason": validation["reason"],
                 "window_kind": validation["kind"],
+                "platform": sys.platform,
+                "detector": "windows_ctypes",
             },
         )
+
+    def _detect_linux(self, detected_at: str) -> BrokerWindowState:
+        if shutil.which("wmctrl") is None:
+            return self._unsupported_platform(
+                detected_at,
+                reason="wmctrl não instalado; detector Linux indisponível.",
+            )
+
+        windows = self._linux_windows()
+        active_window_id = self._linux_active_window_id()
+
+        if not windows:
+            return BrokerWindowState(
+                title="LINUX_NO_WINDOWS_FOUND",
+                resolution_width=0,
+                resolution_height=0,
+                left=0,
+                top=0,
+                maximized=False,
+                foreground=False,
+                detected_at=detected_at,
+                metadata={
+                    "detected": False,
+                    "broker_window_valid": False,
+                    "ignored": True,
+                    "ignore_reason": "Nenhuma janela encontrada via wmctrl.",
+                    "window_kind": "linux_no_windows",
+                    "platform": sys.platform,
+                    "detector": "linux_wmctrl",
+                },
+            )
+
+        active_window = None
+        for window in windows:
+            if active_window_id is not None and window["id_int"] == active_window_id:
+                active_window = window
+                break
+
+        valid_window = None
+        for window in windows:
+            validation = self._classify_title(window["title"])
+            if validation["valid"]:
+                valid_window = window
+                break
+
+        selected = valid_window or active_window or windows[0]
+        validation = self._classify_title(selected["title"])
+        foreground = active_window_id is not None and selected["id_int"] == active_window_id
+
+        return BrokerWindowState(
+            title=selected["title"] or "UNKNOWN",
+            resolution_width=selected["width"],
+            resolution_height=selected["height"],
+            left=selected["left"],
+            top=selected["top"],
+            maximized=False,
+            foreground=foreground,
+            detected_at=detected_at,
+            metadata={
+                "detected": True,
+                "broker_window_valid": validation["valid"],
+                "ignored": not validation["valid"],
+                "ignore_reason": validation["reason"],
+                "window_kind": validation["kind"],
+                "platform": sys.platform,
+                "detector": "linux_wmctrl",
+                "window_id": selected["id"],
+                "active_window_id": hex(active_window_id) if active_window_id is not None else None,
+            },
+        )
+
+    def _unsupported_platform(self, detected_at: str, reason: str | None = None) -> BrokerWindowState:
+        return BrokerWindowState(
+            title="WINDOW_DETECTION_UNAVAILABLE",
+            resolution_width=0,
+            resolution_height=0,
+            left=0,
+            top=0,
+            maximized=False,
+            foreground=False,
+            detected_at=detected_at,
+            metadata={
+                "detected": False,
+                "broker_window_valid": False,
+                "ignored": True,
+                "ignore_reason": reason or "Detecção automática de janela indisponível nesta plataforma.",
+                "window_kind": "unsupported_platform",
+                "platform": sys.platform,
+            },
+        )
+
+    def _linux_windows(self) -> list[dict[str, object]]:
+        result = subprocess.run(
+            ["wmctrl", "-lG"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+
+        windows: list[dict[str, object]] = []
+        for line in result.stdout.splitlines():
+            parts = line.split(maxsplit=7)
+            if len(parts) < 8:
+                continue
+
+            window_id, desktop, left, top, width, height, host, title = parts
+            try:
+                windows.append(
+                    {
+                        "id": window_id,
+                        "id_int": int(window_id, 16),
+                        "desktop": desktop,
+                        "left": int(left),
+                        "top": int(top),
+                        "width": int(width),
+                        "height": int(height),
+                        "host": host,
+                        "title": title.strip(),
+                    }
+                )
+            except ValueError:
+                continue
+
+        return windows
+
+    def _linux_active_window_id(self) -> int | None:
+        if shutil.which("xprop") is None:
+            return None
+
+        result = subprocess.run(
+            ["xprop", "-root", "_NET_ACTIVE_WINDOW"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+
+        match = re.search(r"#\s*(0x[0-9a-fA-F]+)", result.stdout)
+        if not match:
+            return None
+
+        try:
+            return int(match.group(1), 16)
+        except ValueError:
+            return None
 
     def _window_text(self, user32: object, hwnd: int) -> str:
         length = user32.GetWindowTextLengthW(hwnd)
@@ -108,12 +243,13 @@ class BrokerWindowDetector:
                 }
 
         broker_evidence = re.search(
-            r"olymp\s*trade|olymptrade(?:\.com)?|google\s+chrome|microsoft\s+edge",
+            r"olymp\s*trade|olymptrade(?:\.com)?|iq\s*option|quotex|exnova|avalon|quadcode|"
+            r"google\s+chrome|microsoft\s+edge|brave|firefox",
             text,
             flags=re.IGNORECASE,
         )
         asset_or_price_evidence = re.search(
-            r"cafe[ií]na\s+index|asia\s+composite\s+index|"
+            r"cafe[ií]na\s+index|asia\s+composite\s+index|latam\s+index|"
             r"\b\d{3,6}(?:[.,]\d{1,6})?\s+[A-Za-zÀ-ÿ ]{2,40}\s+Index\b",
             text,
             flags=re.IGNORECASE,
@@ -122,6 +258,7 @@ class BrokerWindowDetector:
         valid_patterns = (
             r"cafe[ií]na\s+index",
             r"asia\s+composite\s+index",
+            r"latam\s+index",
             r"\b\d{3,6}(?:[.,]\d{1,6})?\s+[A-Za-zÀ-ÿ ]{2,40}\s+Index\b",
         )
         if (

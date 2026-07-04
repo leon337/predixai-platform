@@ -60,10 +60,10 @@ ALLOWED_EXPIRATION_SECONDS = {30}
 RESULT_PRICE_TOLERANCE_SECONDS = 10
 UNKNOWN_AFTER_EXPIRATION_SECONDS = 45
 WAITING_RESULT_STATUS = "WAITING_RESULT"
-UNKNOWN_NO_HISTORY_REASON = "Sem preÃ§o vÃ¡lido entre 30s e 40s apÃ³s o sinal"
+UNKNOWN_NO_HISTORY_REASON = "Sem preço válido entre 30s e 40s após o sinal"
 
-OBSERVATION_NOTICE = "Modo observador. NÃ£o Ã© recomendaÃ§Ã£o financeira."
-SIMULATION_NOTICE = "Modo observador/simulado. NÃ£o executa ordens."
+OBSERVATION_NOTICE = "Modo observador. Não é recomendação financeira."
+SIMULATION_NOTICE = "Modo observador/simulado. Não executa ordens."
 
 _reader_process: subprocess.Popen | None = None
 _reader_interval: int | None = None
@@ -300,8 +300,8 @@ MOBILE_HTML = r"""<!doctype html>
   </header>
 
   <div class="notice">
-    <div>Modo observador. NÃ£o Ã© recomendaÃ§Ã£o financeira.</div>
-    <div>Modo observador/simulado. NÃ£o executa ordens.</div>
+    <div>Modo observador. Não é recomendação financeira.</div>
+    <div>Modo observador/simulado. Não executa ordens.</div>
   </div>
 
   <main class="grid">
@@ -311,7 +311,7 @@ MOBILE_HTML = r"""<!doctype html>
     </section>
 
     <section class="card wide">
-      <div class="label">Ãšltimo preÃ§o vÃ¡lido</div>
+      <div class="label">Último preço válido</div>
       <div id="price" class="value big">-</div>
     </section>
 
@@ -321,7 +321,7 @@ MOBILE_HTML = r"""<!doctype html>
     </section>
 
     <section class="card">
-      <div class="label">ResistÃªncia</div>
+      <div class="label">Resistência</div>
       <div id="resistance" class="value">-</div>
     </section>
 
@@ -331,19 +331,19 @@ MOBILE_HTML = r"""<!doctype html>
     </section>
 
     <section class="card wide">
-      <div class="label">ExpiraÃ§Ã£o simulada</div>
-      <div id="readInterval" class="muted">Leitura de preÃ§o: 3s</div>
-      <div id="signalInterval" class="muted">AnÃ¡lise de sinal: 3s</div>
-      <div id="expirationCurrent" class="muted">ExpiraÃ§Ã£o: 30s</div>
+      <div class="label">Expiração simulada</div>
+      <div id="readInterval" class="muted">Leitura de preço: 3s</div>
+      <div id="signalInterval" class="muted">Análise de sinal: 3s</div>
+      <div id="expirationCurrent" class="muted">Expiração: 30s</div>
     </section>
 
     <section class="card">
-      <div class="label">ConfianÃ§a</div>
+      <div class="label">Confiança</div>
       <div id="confidence" class="value">-</div>
     </section>
 
     <section class="card">
-      <div class="label">Ãšltima leitura</div>
+      <div class="label">Última leitura</div>
       <div id="age" class="value">-</div>
     </section>
 
@@ -354,18 +354,18 @@ MOBILE_HTML = r"""<!doctype html>
     </section>
 
     <section class="card wide">
-      <div class="label">DiagnÃ³stico do preÃ§o</div>
+      <div class="label">Diagnóstico do preço</div>
       <div class="metrics">
         <div class="metric"><span>Idade</span><strong id="diagPriceAge">-</strong></div>
-        <div class="metric"><span>HistÃ³rico</span><strong id="diagHistoryCount">0</strong></div>
-        <div class="metric"><span>MÃ©dia</span><strong id="diagAvgInterval">-</strong></div>
+        <div class="metric"><span>Histórico</span><strong id="diagHistoryCount">0</strong></div>
+        <div class="metric"><span>Média</span><strong id="diagAvgInterval">-</strong></div>
         <div class="metric"><span>Aguardando</span><strong id="diagWaiting">0</strong></div>
       </div>
-      <div id="diagLastTimestamp" class="muted">Ãšltimo timestamp: -</div>
-      <div id="diagFinalSearch" class="muted">Busca do preÃ§o final: -</div>
+      <div id="diagLastTimestamp" class="muted">Último timestamp: -</div>
+      <div id="diagFinalSearch" class="muted">Busca do preço final: -</div>
       <div id="diagTickCount" class="muted">price_ticks SQLite: -</div>
       <div class="admin-actions">
-        <button type="button" onclick="resetSession()">Limpar sessÃ£o</button>
+        <button type="button" onclick="resetSession()">Limpar sessão</button>
         <span id="resetMessage" class="admin-message"></span>
       </div>
     </section>
@@ -382,18 +382,18 @@ MOBILE_HTML = r"""<!doctype html>
         <div class="metric"><span>UNKNOWN</span><strong id="statsUnknown">0</strong></div>
         <div class="metric"><span>Taxa</span><strong id="statsHitRate">0%</strong></div>
       </div>
-      <div id="latestSignal" class="muted">Ãšltimo sinal: -</div>
+      <div id="latestSignal" class="muted">Último sinal: -</div>
       <div id="latestRemaining" class="muted">Tempo restante: -</div>
       <div id="latestResult" class="muted">Resultado: -</div>
     </section>
 
     <section class="wide">
       <canvas id="chart" width="680" height="260"></canvas>
-      <div id="chartLegend" class="chart-note">Suporte: - / ResistÃªncia: - / Ãšltimo sinal: -</div>
+      <div id="chartLegend" class="chart-note">Suporte: - / Resistência: - / Último sinal: -</div>
     </section>
 
     <section class="card wide">
-      <div class="label">Ãšltimos sinais simulados</div>
+      <div class="label">Últimos sinais simulados</div>
       <div id="signals" class="signals">
         <div class="muted">Sem sinais simulados registrados.</div>
       </div>
@@ -459,7 +459,7 @@ MOBILE_HTML = r"""<!doctype html>
         const active = button.dataset.expirationLabel === expirationLabel;
         button.classList.toggle("active", active);
       });
-      document.getElementById("expirationCurrent").textContent = "ExpiraÃ§Ã£o: 30s";
+      document.getElementById("expirationCurrent").textContent = "Expiração: 30s";
     }
 
     function setExpiration(seconds, label) {
@@ -488,7 +488,7 @@ MOBILE_HTML = r"""<!doctype html>
         ctx.fillStyle = "#a8b5c6";
         ctx.font = "700 22px Arial";
         ctx.textAlign = "center";
-        ctx.fillText("Coletando dados para grÃ¡fico...", w / 2, h / 2);
+        ctx.fillText("Coletando dados para gráfico...", w / 2, h / 2);
         return;
       }
       const values = points.map(p => Number(p.price_value)).filter(v => !Number.isNaN(v));
@@ -597,13 +597,13 @@ MOBILE_HTML = r"""<!doctype html>
         const waiting = ["PENDING", "WAITING_RESULT"].includes(item.status || result);
         const remaining = waiting ? `restante: ${fmtRemaining(item.remaining_seconds)}` : `resultado: ${result}`;
         const expiration = item.expiration_seconds || 30;
-        const unknownReason = result === "UNKNOWN" ? (item.result_reason || item.unknown_reason || "Sem preÃ§o vÃ¡lido entre 30s e 40s apÃ³s o sinal") : "";
+        const unknownReason = result === "UNKNOWN" ? (item.result_reason || item.unknown_reason || "Sem preço válido entre 30s e 40s após o sinal") : "";
         return `<div class="signal-row">
           <div>
             <strong>${item.signal || "-"} ${item.direction ? `(${item.direction})` : ""}</strong>
             <div class="muted">${item.asset || "-"} / ${price} / conf. ${fmtConfidence(item.confidence)}</div>
             <div class="muted">emitido: ${fmtDateTime(item.emitted_at || item.created_at)} / confirmado: ${fmtDateTime(item.result_checked_at)}</div>
-            <div class="muted">preÃ§o final: ${resultPrice}</div>
+            <div class="muted">preço final: ${resultPrice}</div>
             <div class="muted">exp. ${expiration}s / ${remaining}</div>
             <div class="muted">delta: ${delta}</div>
             ${unknownReason ? `<div class="muted">${unknownReason}</div>` : ""}
@@ -625,16 +625,16 @@ MOBILE_HTML = r"""<!doctype html>
       document.getElementById("statsUnknown").textContent = stats.unknown || 0;
       document.getElementById("statsHitRate").textContent = fmtHitRate(stats.hit_rate_percent);
       if (!latest) {
-        document.getElementById("latestSignal").textContent = "Ãšltimo sinal: -";
+        document.getElementById("latestSignal").textContent = "Último sinal: -";
         document.getElementById("latestRemaining").textContent = "Tempo restante: -";
         document.getElementById("latestResult").textContent = "Resultado: -";
         return;
       }
-      document.getElementById("latestSignal").textContent = `Ãšltimo sinal: ${latest.direction || "-"} / emitido ${fmtDateTime(latest.emitted_at || latest.created_at)} / entrada ${fmtPrice(latest.entry_price ?? latest.price)}`;
+      document.getElementById("latestSignal").textContent = `Último sinal: ${latest.direction || "-"} / emitido ${fmtDateTime(latest.emitted_at || latest.created_at)} / entrada ${fmtPrice(latest.entry_price ?? latest.price)}`;
       document.getElementById("latestRemaining").textContent = ["PENDING", "WAITING_RESULT"].includes(latest.status)
         ? `Tempo restante: ${fmtRemaining(latest.remaining_seconds)}`
-        : `Confirmado: ${fmtDateTime(latest.result_checked_at)} / preÃ§o final ${fmtPrice(latest.result_price)}`;
-      const latestReason = (latest.result || latest.status) === "UNKNOWN" ? ` / ${latest.result_reason || latest.unknown_reason || "Sem preÃ§o vÃ¡lido entre 30s e 40s apÃ³s o sinal"}` : "";
+        : `Confirmado: ${fmtDateTime(latest.result_checked_at)} / preço final ${fmtPrice(latest.result_price)}`;
+      const latestReason = (latest.result || latest.status) === "UNKNOWN" ? ` / ${latest.result_reason || latest.unknown_reason || "Sem preço válido entre 30s e 40s após o sinal"}` : "";
       document.getElementById("latestResult").textContent = `Resultado: ${latest.result || latest.status || "-"}${latestReason}`;
     }
 
@@ -647,8 +647,8 @@ MOBILE_HTML = r"""<!doctype html>
           ? "-"
           : `${Number(diagnostics.average_interval_seconds).toFixed(1)}s`;
       document.getElementById("diagWaiting").textContent = diagnostics.waiting_result_count || 0;
-      document.getElementById("diagLastTimestamp").textContent = `Ãšltimo timestamp: ${fmtDateTime(diagnostics.last_history_timestamp)}`;
-      document.getElementById("diagFinalSearch").textContent = `Busca do preÃ§o final: ${diagnostics.final_price_search_status || "-"}`;
+      document.getElementById("diagLastTimestamp").textContent = `Último timestamp: ${fmtDateTime(diagnostics.last_history_timestamp)}`;
+      document.getElementById("diagFinalSearch").textContent = `Busca do preço final: ${diagnostics.final_price_search_status || "-"}`;
       document.getElementById("diagTickCount").textContent = `price_ticks SQLite: ${diagnostics.price_ticks_count ?? 0}`;
     }
 
@@ -664,8 +664,8 @@ MOBILE_HTML = r"""<!doctype html>
       document.getElementById("price").textContent = fmtPrice(state.price);
       document.getElementById("support").textContent = fmtPrice(data.support);
       document.getElementById("resistance").textContent = fmtPrice(data.resistance);
-      document.getElementById("readInterval").textContent = `Leitura de preÃ§o: ${data.reader_interval || 3}s`;
-      document.getElementById("signalInterval").textContent = `AnÃ¡lise de sinal: ${data.signal_analysis_interval || 3}s`;
+      document.getElementById("readInterval").textContent = `Leitura de preço: ${data.reader_interval || 3}s`;
+      document.getElementById("signalInterval").textContent = `Análise de sinal: ${data.signal_analysis_interval || 3}s`;
       document.getElementById("confidence").textContent = fmtConfidence(state.confidence);
       document.getElementById("age").textContent = fmtAge(state.last_reading_age_seconds);
       document.getElementById("status").textContent = status;
@@ -690,7 +690,7 @@ MOBILE_HTML = r"""<!doctype html>
       paintDiagnostics(data.price_diagnostics || {});
       const latest = (data.signal_stats || {}).latest_signal || signals[0] || null;
       document.getElementById("chartLegend").textContent =
-        `Suporte: ${fmtPrice(data.support)} / ResistÃªncia: ${fmtPrice(data.resistance)} / preÃ§o: ${fmtPrice(state.price)} / hora: ${fmtDateTime((data.price_history || data.history || []).slice(-1)[0]?.timestamp)} / Ãºltimo sinal: ${latest ? `${latest.direction || "-"} ${latest.result || latest.status || "-"}` : "-"}`;
+        `Suporte: ${fmtPrice(data.support)} / Resistência: ${fmtPrice(data.resistance)} / preço: ${fmtPrice(state.price)} / hora: ${fmtDateTime((data.price_history || data.history || []).slice(-1)[0]?.timestamp)} / último sinal: ${latest ? `${latest.direction || "-"} ${latest.result || latest.status || "-"}` : "-"}`;
       document.getElementById("localUrl").textContent = data.mobile_url || window.location.href;
       document.getElementById("dashboardLink").href = `${window.location.protocol}//${window.location.hostname}:8765/`;
     }
@@ -711,17 +711,17 @@ MOBILE_HTML = r"""<!doctype html>
     }
 
     async function resetSession() {
-      const confirmed = window.confirm("Isso farÃ¡ backup e limparÃ¡ apenas os dados da sessÃ£o/testes. Deseja continuar?");
+      const confirmed = window.confirm("Isso fará backup e limpará apenas os dados da sessão/testes. Deseja continuar?");
       if (!confirmed) return;
       const message = document.getElementById("resetMessage");
-      message.textContent = "Criando backup e limpando sessÃ£o...";
+      message.textContent = "Criando backup e limpando sessão...";
       const response = await fetch("/api/mobile/reset-session", { method: "POST" });
       const payload = await response.json();
       if (!response.ok || payload.status !== "RESET_OK") {
-        message.textContent = payload.message || "Falha ao limpar sessÃ£o.";
+        message.textContent = payload.message || "Falha ao limpar sessão.";
         return;
       }
-      message.textContent = "SessÃ£o limpa criada com backup.";
+      message.textContent = "Sessão limpa criada com backup.";
       await refreshState();
     }
 
@@ -963,7 +963,7 @@ def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]:
             "price_value": None,
             "confidence": 0.0,
             "unknown_fields": [],
-            "message": "SessÃ£o limpa criada com backup; aguardando nova leitura.",
+            "message": "Sessão limpa criada com backup; aguardando nova leitura.",
             "observer_only": True,
             "orders_enabled": False,
         },
@@ -976,7 +976,7 @@ def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]:
         "files_backed_up": [str(path) for path in sources],
         "files_cleared": planned_files,
         "tables_cleared": reset_tables,
-        "message": "SessÃ£o limpa criada com backup.",
+        "message": "Sessão limpa criada com backup.",
         "observer_only": True,
     }
 
@@ -1124,7 +1124,7 @@ def _collect_texts(data: Any) -> list[str]:
 
 def _asset_from_text(data: Any) -> str:
     text = " ".join(_collect_texts(data))
-    if re.search(r"cafe[iÃ­]na\s+index", text, flags=re.IGNORECASE):
+    if re.search(r"cafe[ií]na\s+index", text, flags=re.IGNORECASE):
         return "Cafeina Index"
     if re.search(r"asia\s+composite\s+index", text, flags=re.IGNORECASE):
         return "Asia Composite Index"
@@ -1238,7 +1238,7 @@ def _compute_signal(history: list[dict[str, Any]]) -> dict[str, Any]:
             "signal": "AGUARDAR",
             "direction": "COLETANDO",
             "confidence": 20,
-            "reason": "HistÃ³rico ainda pequeno.",
+            "reason": "Histórico ainda pequeno.",
         }
 
     delta = prices[-1] - prices[-6]
@@ -1248,20 +1248,20 @@ def _compute_signal(history: list[dict[str, Any]]) -> dict[str, Any]:
             "signal": "AGUARDAR",
             "direction": "LATERAL",
             "confidence": 35,
-            "reason": "Movimento fraco no histÃ³rico recente.",
+            "reason": "Movimento fraco no histórico recente.",
         }
     if delta > 0:
         return {
             "signal": "OBSERVAR ALTA",
             "direction": "ALTA",
             "confidence": 55 if short_delta >= 0 else 45,
-            "reason": "PreÃ§o recente acima da base anterior.",
+            "reason": "Preço recente acima da base anterior.",
         }
     return {
         "signal": "OBSERVAR BAIXA",
         "direction": "BAIXA",
         "confidence": 55 if short_delta <= 0 else 45,
-        "reason": "PreÃ§o recente abaixo da base anterior.",
+        "reason": "Preço recente abaixo da base anterior.",
     }
 
 
@@ -2544,7 +2544,7 @@ def _build_state(
         latest_rejection_status == "PRICE_NOT_FOUND"
         or "price_not_found" in rejection_reason.lower()
         or "preco nao encontrado" in rejection_reason.lower()
-        or "preÃ§o nÃ£o encontrado" in rejection_reason.lower()
+        or "preço não encontrado" in rejection_reason.lower()
     )
     ignored_window = (
         last_status == "IGNORED_WINDOW"
@@ -2563,25 +2563,25 @@ def _build_state(
     age = valid_age if valid_age is not None else event_age
 
     if ignored_window and running:
-        status = "Rodando â€” aguardando preÃ§o"
+        status = "Rodando — aguardando preço"
         message = rejection_reason or reason or "Leitor ativo; aguardando a janela da corretora."
         signal = "AGUARDAR"
         confidence = 0
     elif running and price is None:
-        status = "Rodando â€” aguardando preÃ§o"
-        message = "Leitor ativo; aguardando primeiro preÃ§o vÃ¡lido."
+        status = "Rodando — aguardando preço"
+        message = "Leitor ativo; aguardando primeiro preço válido."
     elif running and (valid_age is None or valid_age > max(4, effective_reader_interval * 3)):
-        status = "Rodando â€” aguardando preÃ§o"
-        message = "Leitor ativo; aguardando nova leitura de preÃ§o."
+        status = "Rodando — aguardando preço"
+        message = "Leitor ativo; aguardando nova leitura de preço."
     elif running:
         status = "Rodando"
         message = "Leitor ativo. Acompanhe apenas em modo simulado."
     else:
         status = "Parado"
         if ignored_window:
-            message = "Leitor parado. Ãšltima tentativa encontrou janela errada; dados abaixo usam o histÃ³rico vÃ¡lido."
+            message = "Leitor parado. Última tentativa encontrou janela errada; dados abaixo usam o histórico válido."
         else:
-            message = "Leitor parado. Sinais abaixo sÃ£o histÃ³ricos."
+            message = "Leitor parado. Sinais abaixo são históricos."
 
     if duplicate_reader_warning:
         message = f"{message} {duplicate_reader_warning}"
@@ -2718,7 +2718,7 @@ def _handle_post(
             return 500, "application/json; charset=utf-8", _json_bytes(
                 {
                     "status": "RESET_FAILED",
-                    "message": "Falha ao criar backup/limpar sessÃ£o.",
+                    "message": "Falha ao criar backup/limpar sessão.",
                     "error": str(exc),
                     "observer_only": True,
                 }
@@ -2808,7 +2808,7 @@ def create_mobile_app() -> Flask:
             return jsonify(
                 {
                     "status": "RESET_FAILED",
-                    "message": "Falha ao criar backup/limpar sessÃ£o.",
+                    "message": "Falha ao criar backup/limpar sessão.",
                     "error": str(exc),
                     "observer_only": True,
                 }

@@ -170,8 +170,8 @@ class LiveCalibrationEngine:
         window_title: str = "unknown",
     ) -> CalibrationResult:
         started_at = time.perf_counter()
-        print("Modo de calibraÃ§Ã£o iniciado.")
-        print("VocÃª possui 10 segundos para colocar a corretora em primeiro plano.")
+        print("Modo de calibração iniciado.")
+        print("Você possui 10 segundos para colocar a corretora em primeiro plano.")
         for second in range(countdown_seconds, 0, -1):
             print(f"{second}...")
             time.sleep(1)
