@@ -14,11 +14,11 @@ A Fase 0 foi concluÃ­da, a Fase 1 foi criada e validada, e a base atual jÃ¡ 
 
 ## Ãšltimo PTP aprovado
 
-PTP-103 - Overnight Observer.
+PTP-112 - Mobile-First Strategy Engine e Sessao Simulada.
 
 ## PrÃ³ximo PTP pendente
 
-Auditoria final da V1 Trader.
+Saneamento futuro dos arquivos trader untracked e legados fora do nucleo PTP-112.
 
 ## Status geral
 
@@ -81,6 +81,8 @@ Toda mudanÃ§a relevante deve atualizar:
 - O PTP-088 instalou e validou o OpenClaw oficial no notebook, criou comando global `openclaw`, validou Ollama com `qwen2.5:1.5b` e protegeu o clone oficial com `openclaw/` no `.gitignore`.
 - O PTP-089 configurou o OpenClaw para usar Ollama local como provider principal, com modelo default `ollama/qwen2.5:1.5b`, preservando custo zero e sem API paga obrigat?ria.
 - O PTP-103 publicou o Overnight Observer do Trader, validado com 30 ciclos sinteticos, fechamento de sessao por `close_session(session_id=..., status=...)`, preservacao do PTP-102 e escopo V1 Observador.
+- O PTP-112 publicou o Mobile-First Strategy Engine e Sessao Simulada, validando o fluxo Strategy Engine -> Confluence Engine -> Mobile Signal Screen -> Paper Trade -> saldo simulado.
+- O PTP-112 preserva o escopo seguro: sem execucao real, sem clique automatico, sem corretora real, sem login, sem senha e sem saldo real.
 - A estratÃ©gia Ãºnica da V1 Ã© Rebote Triplo.
 - O mercado inicial Ã© Fixed Time.
 - O Core inicializa configuraÃ§Ã£o, mÃ³dulos, logs e eventos.
@@ -891,3 +893,34 @@ Observações:
 - Motor de sinais permaneceu restritivo e não gerou sinais na sessão limpa.
 - Isso não bloqueia a PTP-108B, pois o escopo era runtime, leitura, dashboard e mobile.
 - Melhorias de sinal, scalper, day trade, backtest, Avalon/Quadcode, OCR, SDK e Session Launcher ficam para PTPs futuras.
+
+## PTP-112 — Mobile-First Strategy Engine e Sessao Simulada
+
+Status: PUBLICADA
+
+Publicado em: 2026-07-05T15:30:23-03:00
+
+Resumo:
+- PTP-112 publicada como milestone mobile-first do PredixAI Trader.
+- PTP-112A ate PTP-112I concluidas.
+- PTP-112J.0, PTP-112J.0.1, PTP-112J.1 e PTP-112J.2 realizadas como auditoria, saneamento e publicacao final controlada.
+- Fluxo validado: Strategy Engine -> Confluence Engine -> Mobile Signal Screen -> Paper Trade -> saldo simulado.
+- Mobile preservado como controle operacional.
+- Dashboard preservado como historico/auditoria.
+- Paper trade preservado como sessao simulada.
+- Validacao cumulativa aprovada com todos os validadores `scripts/ptp112*.py`.
+- `compileall` aprovado em `src` e `scripts`.
+- `git diff --check` e `git diff --cached --check` aprovados.
+
+Regra preservada:
+- Sem execucao real de ordem.
+- Sem clique automatico.
+- Sem corretora real.
+- Sem login.
+- Sem senha.
+- Sem saldo real.
+- Sem compra/venda real.
+
+Pendencias futuras:
+- Decidir destino dos arquivos untracked fora do nucleo em `src/predixai/trader/`.
+- Tratar em mini-PTP futura os legados `scripts/run_minimal_trader_test.py` e `tests/test_trader_basic.py`, que importam `PaperTrader` inexistente no desenho atual.

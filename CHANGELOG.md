@@ -613,3 +613,16 @@ Observacao:
 - Validada sessão limpa com leitura estável e SQLite crescendo.
 - Mantido modo observador/simulado, sem ordens reais.
 - Registrada pendência futura: motor de sinais restritivo.
+
+## 2026-07-05 15:30:23 - PTP-112 publicada
+
+- Publicada a milestone PTP-112 — Mobile-First Strategy Engine e Sessao Simulada.
+- Concluidas PTP-112A ate PTP-112I.
+- Realizadas PTP-112J.0, PTP-112J.0.1, PTP-112J.1 e PTP-112J.2 para auditoria, saneamento e publicacao final controlada.
+- Versionado o nucleo aprovado: validadores `scripts/ptp112*.py`, `src/predixai/mobile/`, `src/predixai/trader/strategy_engine.py`, `src/predixai/trader/confluence_engine.py`, `src/predixai/trader/paper_trade.py` e `src/predixai/trader/mobile_session_contract.py`.
+- Validado fluxo cumulativo: Strategy Engine -> Confluence Engine -> Mobile Signal Screen -> Paper Trade -> saldo simulado.
+- Confirmado que APROVADO + ALTA/BAIXA abre somente operacao simulada, enquanto REJEITADO e AGUARDAR nao abrem operacao.
+- Confirmado escopo seguro: sem execucao real, sem clique automatico, sem corretora real, sem login, sem senha, sem saldo real e sem compra/venda real.
+- Validadores `scripts/ptp112*.py`, `compileall`, `git diff --check` e `git diff --cached --check` aprovados.
+- Mantidos fora da publicacao: `backups/`, `data/runtime/`, logs, SQLite, pycache, `scripts/run_minimal_trader_test.py`, `tests/test_trader_basic.py` e untracked adjacentes em `src/predixai/trader/`.
+- Pendencia futura: decidir destino dos arquivos untracked fora do nucleo e tratar os legados que importam `PaperTrader` inexistente.
