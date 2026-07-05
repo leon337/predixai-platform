@@ -81,6 +81,12 @@ def _normalize_point(point: dict[str, Any], index: int) -> dict[str, Any]:
         "timeframe": point.get("timeframe"),
         "confidence": point.get("confidence"),
         "status": point.get("status"),
+        "source": point.get("source"),
+        "session_id": point.get("session_id"),
+        "simulation_only": point.get("simulation_only"),
+        "observer_only": point.get("observer_only"),
+        "mobile_signal": point.get("mobile_signal"),
+        "paper_trade_session": point.get("paper_trade_session"),
     }
 
 

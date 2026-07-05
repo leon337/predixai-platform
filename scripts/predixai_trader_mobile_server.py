@@ -39,6 +39,18 @@ except ImportError:  # pragma: no cover - runtime fallback for local setup
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from predixai.mobile.signal_screen import build_mobile_signal_screen
+from predixai.trader.confluence_engine import ConfluenceEngine
+from predixai.trader.mobile_session_contract import (
+    build_mobile_session_contract,
+    validate_mobile_session_contract,
+)
+from predixai.trader.paper_trade import build_paper_trade_from_mobile_signal
+from predixai.trader.strategy_engine import MinimalStrategyEngine, StrategyInput
+
 RUNTIME_DIR = ROOT_DIR / "data" / "runtime"
 LAST_READING_PATH = RUNTIME_DIR / "last_live_reading.json"
 PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
@@ -61,6 +73,16 @@ RESULT_PRICE_TOLERANCE_SECONDS = 10
 UNKNOWN_AFTER_EXPIRATION_SECONDS = 45
 WAITING_RESULT_STATUS = "WAITING_RESULT"
 UNKNOWN_NO_HISTORY_REASON = "Sem preço válido entre 30s e 40s após o sinal"
+SIMULATED_BRIDGE_SOURCE = "MOBILE_FIRST_SIMULATED_BRIDGE"
+SIMULATED_START_ROUTES = {"/mobile/session/start", "/api/mobile/simulated-session/start"}
+DEFAULT_SIMULATED_ASSET = "Cafeina Index"
+ALLOWED_SIMULATED_STRATEGIES = {
+    "LEGACY_MOMENTUM",
+    "SUPPORT_RESISTANCE",
+    "PRICE_ACTION",
+    "CANDLE_REVERSAL",
+}
+ALLOWED_SIMULATED_RISK_PROFILES = {"CONSERVATIVE", "MODERATE", "AGGRESSIVE"}
 
 OBSERVATION_NOTICE = "Modo observador. Não é recomendação financeira."
 SIMULATION_NOTICE = "Modo observador/simulado. Não executa ordens."
@@ -402,7 +424,7 @@ MOBILE_HTML = r"""<!doctype html>
 
   <section class="controls">
     <button type="button" onclick="refreshState()">Atualizar</button>
-    <button type="button" onclick="startReader(3)">Iniciar 3s</button>
+    <button type="button" onclick="startSimulatedSession()">Iniciar simulado</button>
     <button type="button" onclick="stopReader()">Parar leitor</button>
     <a id="dashboardLink" class="button" href="/mobile">Dashboard</a>
   </section>
@@ -701,7 +723,52 @@ MOBILE_HTML = r"""<!doctype html>
     }
 
     async function startReader(interval) {
-      await fetch(`/api/mobile/start?interval=${interval}`, { method: "POST" });
+      await startSimulatedSession();
+    }
+
+    async function startSimulatedSession() {
+      await fetch("/mobile/session/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session: {
+            session_type: "TEST",
+            session_name: "PTP-113 simulated mobile-first"
+          },
+          strategy: {
+            primary_strategy: "LEGACY_MOMENTUM",
+            strategy_stack: ["LEGACY_MOMENTUM"],
+            confluence_required: true,
+            min_confidence: 70
+          },
+          bankroll: {
+            simulated: true,
+            initial_bankroll: 100,
+            current_bankroll: 100,
+            initial_entry: 5,
+            current_entry: 5
+          },
+          risk: {
+            risk_profile: "CONSERVATIVE",
+            stop_loss: 20,
+            take_profit: 20,
+            max_signals: 10,
+            max_losses: 3
+          },
+          operation: {
+            paper_trade_enabled: true,
+            payout_min: 80,
+            expiration_seconds: 30,
+            max_open_trades: 1
+          },
+          simulated_market: {
+            asset: "Cafeina Index",
+            previous_price: 4100.00,
+            current_price: 4182.10,
+            recent_prices: [4100.00, 4120.00, 4140.00, 4160.00, 4175.00, 4182.10]
+          }
+        })
+      });
       await refreshState();
     }
 
@@ -978,6 +1045,392 @@ def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]:
         "tables_cleared": reset_tables,
         "message": "Sessão limpa criada com backup.",
         "observer_only": True,
+    }
+
+
+def _as_bool(value: Any, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    return str(value).strip().lower() in {"1", "true", "yes", "sim", "on"}
+
+
+def _number(value: Any, default: float) -> float:
+    parsed = _parse_float(value)
+    return default if parsed is None else float(parsed)
+
+
+def _int_number(value: Any, default: int) -> int:
+    try:
+        return int(_number(value, float(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _block(payload: dict[str, Any], name: str) -> dict[str, Any]:
+    value = payload.get(name)
+    return value if isinstance(value, dict) else {}
+
+
+def _safe_choice(value: Any, allowed: set[str], default: str) -> str:
+    text = str(value or "").strip().upper()
+    return text if text in allowed else default
+
+
+def _simulated_contract_config(payload: dict[str, Any]) -> dict[str, Any]:
+    session = _block(payload, "session")
+    strategy = _block(payload, "strategy")
+    bankroll = _block(payload, "bankroll")
+    risk = _block(payload, "risk")
+    operation = _block(payload, "operation")
+    recovery = _block(payload, "recovery")
+
+    strategy_mode = _safe_choice(
+        strategy.get("primary_strategy") or strategy.get("strategy_mode"),
+        ALLOWED_SIMULATED_STRATEGIES,
+        "LEGACY_MOMENTUM",
+    )
+    risk_profile = _safe_choice(
+        risk.get("risk_profile"),
+        ALLOWED_SIMULATED_RISK_PROFILES,
+        "CONSERVATIVE",
+    )
+    recovery_enabled = _as_bool(recovery.get("recovery_enabled"), False)
+    recovery_mode = str(recovery.get("recovery_mode") or "NONE").upper().strip()
+    if recovery_mode == "MULTIPLIER":
+        recovery_mode = "SOFT_MARTINGALE"
+    if not recovery_enabled:
+        recovery_mode = "NONE"
+
+    initial_bankroll = max(1.0, _number(bankroll.get("initial_bankroll"), 100.0))
+    current_bankroll = max(0.0, _number(bankroll.get("current_bankroll"), initial_bankroll))
+    initial_entry = max(1.0, _number(bankroll.get("initial_entry"), 5.0))
+    current_entry = max(1.0, _number(bankroll.get("current_entry"), initial_entry))
+    current_entry = min(current_entry, max(current_bankroll, 1.0))
+
+    return {
+        "session": {
+            "status": "RUNNING",
+            "started_at": _now_iso(),
+            "session_type": _safe_choice(session.get("session_type"), {"SCALPER", "DAY_TRADE", "TEST", "TRAINING"}, "TEST"),
+        },
+        "config": {
+            "session_notes": session.get("session_name") or "PTP-113 simulated mobile-first bridge",
+            "broker_mode": "SIMULATED_ONLY",
+            "start_mode": "MOBILE_SIMULATED_START",
+        },
+        "strategy": {
+            "strategy_mode": strategy_mode,
+            "strategy_stack": [strategy_mode],
+            "confluence_required": True,
+            "min_confidence": max(50, min(95, _int_number(strategy.get("min_confidence"), 70))),
+        },
+        "bankroll": {
+            "initial_bankroll": round(initial_bankroll, 2),
+            "current_bankroll": round(current_bankroll, 2),
+            "initial_entry": round(min(initial_entry, initial_bankroll), 2),
+            "current_entry": round(current_entry, 2),
+            "profit_loss": 0.0,
+            "profit_loss_percent": 0.0,
+        },
+        "risk": {
+            "risk_profile": risk_profile,
+            "stop_loss": max(1.0, min(_number(risk.get("stop_loss"), 20.0), initial_bankroll)),
+            "take_profit": max(1.0, _number(risk.get("take_profit"), 20.0)),
+            "max_signals": max(1, min(100, _int_number(risk.get("max_signals"), 10))),
+            "max_losses": max(1, min(20, _int_number(risk.get("max_losses"), 3))),
+            "payout_min": max(50, min(100, _int_number(operation.get("payout_min") or risk.get("payout_min"), 80))),
+            "payout_source": "MANUAL",
+        },
+        "operation": {
+            "expiration_seconds": max(30, _int_number(operation.get("expiration_seconds"), DEFAULT_EXPIRATION_SECONDS)),
+            "paper_trade_enabled": True,
+            "allow_multiple_open_trades": False,
+            "max_open_trades": 1,
+        },
+        "recovery": {
+            "recovery_enabled": recovery_enabled,
+            "recovery_mode": recovery_mode,
+            "max_recovery_steps": 0 if not recovery_enabled else max(0, min(5, _int_number(recovery.get("max_recovery_steps"), 0))),
+            "current_recovery_step": 0,
+            "recovery_multiplier": max(1.0, min(3.0, _number(recovery.get("recovery_multiplier"), 1.0))),
+        },
+    }
+
+
+def _simulated_market_payload(payload: dict[str, Any]) -> tuple[str, float, float, list[float]]:
+    market = _block(payload, "simulated_market")
+    asset = _as_text(market.get("asset")) or DEFAULT_SIMULATED_ASSET
+    if not _is_valid_asset(asset):
+        asset = DEFAULT_SIMULATED_ASSET
+
+    previous_price = _number(market.get("previous_price"), 4100.00)
+    current_price = _number(market.get("current_price"), 4182.10)
+    if not _is_valid_price(previous_price, asset):
+        previous_price = 4100.00
+    if not _is_valid_price(current_price, asset):
+        current_price = 4182.10
+
+    recent_values = market.get("recent_prices")
+    recent_prices: list[float] = []
+    if isinstance(recent_values, list):
+        for item in recent_values:
+            parsed = _parse_float(item)
+            if _is_valid_price(parsed, asset):
+                recent_prices.append(float(parsed))
+
+    if len(recent_prices) < 6:
+        step = (current_price - previous_price) / 5 or 0.15
+        recent_prices = [round(previous_price + step * idx, 6) for idx in range(6)]
+        recent_prices[-1] = current_price
+
+    return asset, float(previous_price), float(current_price), recent_prices[-6:]
+
+
+def _write_simulated_history_points(
+    *,
+    session_id: str,
+    asset: str,
+    recent_prices: list[float],
+    mobile_signal: dict[str, Any],
+    paper_trade: dict[str, Any],
+) -> list[dict[str, Any]]:
+    raw_history = _read_json(PRICE_HISTORY_PATH, [])
+    if not isinstance(raw_history, list):
+        raw_history = []
+
+    base_time = _now()
+    points: list[dict[str, Any]] = []
+    for index, price in enumerate(recent_prices):
+        timestamp = (base_time - timedelta(seconds=(len(recent_prices) - index - 1) * 3)).isoformat()
+        point = {
+            "timestamp": timestamp,
+            "session_id": session_id,
+            "asset": asset,
+            "price": _format_price_value(price),
+            "price_value": _format_price_value(price),
+            "confidence": mobile_signal.get("confidence"),
+            "status": "SIMULATED",
+            "source": SIMULATED_BRIDGE_SOURCE,
+            "simulation_only": True,
+            "observer_only": True,
+            "orders_enabled": False,
+            "auto_click_enabled": False,
+            "real_money_enabled": False,
+            "mobile_signal": mobile_signal,
+            "paper_trade_session": paper_trade,
+        }
+        raw_history.append(point)
+        points.append(point)
+
+    _write_json(PRICE_HISTORY_PATH, raw_history[-3000:])
+    _ensure_signal_db()
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        for point in points:
+            conn.execute(
+                """
+                INSERT INTO price_ticks (created_at, asset, price, source, metadata_json)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    point["timestamp"],
+                    asset,
+                    float(point["price_value"]),
+                    SIMULATED_BRIDGE_SOURCE,
+                    json.dumps(
+                        {
+                            "session_id": session_id,
+                            "simulation_only": True,
+                            "orders_enabled": False,
+                        },
+                        ensure_ascii=False,
+                    ),
+                ),
+            )
+        conn.commit()
+    return points
+
+
+def _persist_paper_trade_signal(
+    *,
+    session_id: str,
+    asset: str,
+    price: float,
+    mobile_signal: dict[str, Any],
+    paper_trade: dict[str, Any],
+    contract: dict[str, Any],
+) -> None:
+    operations = paper_trade.get("operations") if isinstance(paper_trade, dict) else []
+    if not operations:
+        return
+
+    operation = operations[0]
+    direction = str(operation.get("direction") or mobile_signal.get("decision") or "").upper()
+    if direction not in {"ALTA", "BAIXA"}:
+        return
+
+    _ensure_signal_db()
+    created_at = _now_iso()
+    metadata = {
+        "session_id": session_id,
+        "simulation_only": True,
+        "observer_only": True,
+        "orders_enabled": False,
+        "auto_click_enabled": False,
+        "real_money_enabled": False,
+        "paper_trade_session": paper_trade,
+        "mobile_signal": mobile_signal,
+        "contract_version": contract.get("session", {}).get("contract_version"),
+    }
+    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+        conn.execute(
+            """
+            INSERT INTO signals (
+                created_at, asset, price, signal, direction, confidence,
+                expiration_seconds, reason, source, status, result,
+                session_id, metadata_json, entry_price, support, resistance
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                created_at,
+                asset,
+                _format_price_value(price),
+                f"OBSERVAR {direction}",
+                direction,
+                float(mobile_signal.get("confidence") or 0),
+                _normalize_expiration_seconds(contract.get("operation", {}).get("expiration_seconds")),
+                "PaperTradeSession simulado iniciado por /mobile/session/start.",
+                SIMULATED_BRIDGE_SOURCE,
+                "PENDING",
+                "PENDING",
+                session_id,
+                json.dumps(metadata, ensure_ascii=False),
+                _format_price_value(price),
+                None,
+                None,
+            ),
+        )
+        conn.commit()
+
+
+def _start_simulated_mobile_session(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    payload = payload if isinstance(payload, dict) else {}
+    contract = build_mobile_session_contract(_simulated_contract_config(payload))
+    ok, errors = validate_mobile_session_contract(contract)
+    if not ok:
+        return {
+            "ok": False,
+            "status": "VALIDATION_FAILED",
+            "errors": errors,
+            "observer_only": True,
+            "simulation_only": True,
+            "orders_enabled": False,
+        }
+
+    asset, previous_price, current_price, recent_prices = _simulated_market_payload(payload)
+    strategy_input = StrategyInput(
+        asset=asset,
+        current_price=current_price,
+        previous_price=previous_price,
+        recent_prices=recent_prices,
+    )
+    strategy_decision = MinimalStrategyEngine().analyze(strategy_input)
+    minimum_confidence = float(contract.get("strategy", {}).get("min_confidence", 70))
+    confluence_result = ConfluenceEngine(minimum_confidence=minimum_confidence).evaluate(strategy_decision)
+    mobile_screen = build_mobile_signal_screen(confluence_result)
+    entry_value = float(contract.get("bankroll", {}).get("current_entry", 5.0))
+    initial_balance = float(contract.get("bankroll", {}).get("initial_bankroll", 100.0))
+    session_id = str(contract["session"]["session_id"])
+    paper_session = build_paper_trade_from_mobile_signal(
+        mobile_screen,
+        session_id=session_id,
+        entry_value=entry_value,
+        initial_balance=initial_balance,
+    )
+
+    mobile_signal = mobile_screen.to_dict()
+    paper_trade = paper_session.to_dict()
+    session_payload = {
+        "session_id": session_id,
+        "started_at": contract["session"]["started_at"],
+        "asset": asset,
+        "mode": "mobile_first_simulated",
+        "source": SIMULATED_BRIDGE_SOURCE,
+        "orders_enabled": False,
+        "auto_click_enabled": False,
+        "real_money_enabled": False,
+        "broker_login_enabled": False,
+        "simulation_only": True,
+        "contract": contract,
+        "strategy_decision": strategy_decision.to_dict(),
+        "confluence_result": confluence_result.to_dict(),
+        "mobile_signal": mobile_signal,
+        "paper_trade_session": paper_trade,
+    }
+    _write_mobile_session(session_payload)
+    history_points = _write_simulated_history_points(
+        session_id=session_id,
+        asset=asset,
+        recent_prices=recent_prices,
+        mobile_signal=mobile_signal,
+        paper_trade=paper_trade,
+    )
+    _persist_paper_trade_signal(
+        session_id=session_id,
+        asset=asset,
+        price=current_price,
+        mobile_signal=mobile_signal,
+        paper_trade=paper_trade,
+        contract=contract,
+    )
+    _write_json(
+        LAST_READING_PATH,
+        {
+            "status": "SIMULATED_SESSION_READY",
+            "source": SIMULATED_BRIDGE_SOURCE,
+            "timestamp": _now_iso(),
+            "session_id": session_id,
+            "asset": asset,
+            "price": _format_price_value(current_price),
+            "price_value": _format_price_value(current_price),
+            "signal": f"OBSERVAR {mobile_signal['decision']}" if mobile_signal["decision"] in {"ALTA", "BAIXA"} else "AGUARDAR",
+            "direction": mobile_signal["decision"],
+            "confidence": mobile_signal["confidence"],
+            "reason": confluence_result.reason,
+            "observer_only": True,
+            "simulation_only": True,
+            "orders_enabled": False,
+            "auto_click_enabled": False,
+            "real_money_enabled": False,
+            "mobile_signal": mobile_signal,
+            "paper_trade_session": paper_trade,
+        },
+    )
+
+    return {
+        "ok": True,
+        "status": "SIMULATED_SESSION_STARTED",
+        "session_id": session_id,
+        "observer_only": True,
+        "simulation_only": True,
+        "orders_enabled": False,
+        "auto_click_enabled": False,
+        "real_money_enabled": False,
+        "asset": asset,
+        "source": SIMULATED_BRIDGE_SOURCE,
+        "strategy_decision": strategy_decision.to_dict(),
+        "confluence_result": confluence_result.to_dict(),
+        "mobile_signal": mobile_signal,
+        "paper_trade_session": paper_trade,
+        "history_points": len(history_points),
+        "runtime": {
+            "mobile_session": str(MOBILE_SESSION_PATH),
+            "last_live_reading": str(LAST_READING_PATH),
+            "live_price_history": str(PRICE_HISTORY_PATH),
+            "signals_db": str(SIGNALS_DB_PATH),
+        },
     }
 
 
@@ -2014,7 +2467,7 @@ def _list_signals(
             SELECT id, created_at, asset, price, signal, direction, confidence,
                    expiration_seconds, reason, status, result_checked_at,
                    result_price, result, delta, entry_price, support, resistance,
-                   result_reason, session_id, metadata_json
+                   result_reason, session_id, source, metadata_json
             FROM signals
             {where_sql}
             ORDER BY id DESC
@@ -2057,7 +2510,7 @@ def _signal_stats(
             SELECT id, created_at, asset, price, signal, direction, confidence,
                    expiration_seconds, reason, status, result_checked_at,
                    result_price, result, delta, entry_price, support, resistance,
-                   result_reason, session_id, metadata_json
+                   result_reason, session_id, source, metadata_json
             FROM signals
             {where_sql}
             ORDER BY id DESC
@@ -2700,12 +3153,18 @@ def _handle_get(
 def _handle_post(
     path: str,
     query: dict[str, list[str]] | None = None,
+    payload: dict[str, Any] | None = None,
 ) -> tuple[int, str, bytes]:
     query = query or {}
+    if path in SIMULATED_START_ROUTES:
+        result = _start_simulated_mobile_session(payload)
+        status_code = 200 if result.get("ok") else 400
+        return status_code, "application/json; charset=utf-8", _json_bytes(result)
     if path == "/api/mobile/start":
-        interval = (query.get("interval") or [str(DEFAULT_READER_INTERVAL_SECONDS)])[0]
-        result = _start_reader(interval)
-        status_code = 500 if result.get("status") == "START_FAILED" else 200
+        result = _start_simulated_mobile_session(payload)
+        result["compatibility_route"] = "/api/mobile/start"
+        result["legacy_live_loop_disabled"] = True
+        status_code = 200 if result.get("ok") else 400
         return status_code, "application/json; charset=utf-8", _json_bytes(result)
     if path == "/api/mobile/stop":
         return 200, "application/json; charset=utf-8", _json_bytes(_stop_reader())
@@ -2738,9 +3197,23 @@ class MobileRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802 - stdlib hook
         parsed = urlparse(self.path)
+        payload: dict[str, Any] | None = None
+        try:
+            length = int(self.headers.get("Content-Length") or "0")
+        except ValueError:
+            length = 0
+        if length > 0:
+            try:
+                decoded = self.rfile.read(length).decode("utf-8")
+                loaded = json.loads(decoded) if decoded.strip() else {}
+                if isinstance(loaded, dict):
+                    payload = loaded
+            except (UnicodeDecodeError, json.JSONDecodeError):
+                payload = {}
         status, content_type, body = _handle_post(
             parsed.path,
             query=parse_qs(parsed.query),
+            payload=payload,
         )
         self._send(status, content_type, body)
 
@@ -2790,9 +3263,19 @@ def create_mobile_app() -> Flask:
 
     @app.route("/api/mobile/start", methods=["POST"])
     def mobile_start():  # type: ignore[no-untyped-def]
-        interval = request.args.get("interval", str(DEFAULT_READER_INTERVAL_SECONDS))
-        result = _start_reader(interval)
-        status_code = 500 if result.get("status") == "START_FAILED" else 200
+        payload = request.get_json(silent=True) or {}
+        result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+        result["compatibility_route"] = "/api/mobile/start"
+        result["legacy_live_loop_disabled"] = True
+        status_code = 200 if result.get("ok") else 400
+        return jsonify(result), status_code
+
+    @app.route("/mobile/session/start", methods=["POST"])
+    @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+    def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+        payload = request.get_json(silent=True) or {}
+        result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+        status_code = 200 if result.get("ok") else 400
         return jsonify(result), status_code
 
     @app.route("/api/mobile/stop", methods=["POST"])
@@ -3109,7 +3592,8 @@ def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
     print(SIMULATION_NOTICE)
     print(f"Local PC: http://127.0.0.1:{port}/mobile")
     print(f"Celular na mesma Wi-Fi: http://{local_ip}:{port}/mobile")
-    print("Endpoints: GET /api/mobile/state | POST /api/mobile/start?interval=3 | POST /api/mobile/stop")
+    print("Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start")
+    print("Endpoint observador legado: POST /api/mobile/stop")
     reader_warning = _reader_warning(_active_reader_processes())
     if reader_warning:
         print(reader_warning)
@@ -3129,7 +3613,7 @@ def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
 
 def smoke_test(port: int = DEFAULT_PORT) -> int:
     global RUNTIME_DIR, LAST_READING_PATH, PRICE_HISTORY_PATH
-    global REJECTED_READINGS_PATH, SIGNALS_DB_PATH
+    global REJECTED_READINGS_PATH, SIGNALS_DB_PATH, MOBILE_SESSION_PATH
 
     original_paths = (
         RUNTIME_DIR,
@@ -3137,6 +3621,7 @@ def smoke_test(port: int = DEFAULT_PORT) -> int:
         PRICE_HISTORY_PATH,
         REJECTED_READINGS_PATH,
         SIGNALS_DB_PATH,
+        MOBILE_SESSION_PATH,
     )
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp_dir:
         RUNTIME_DIR = Path(tmp_dir)
@@ -3144,6 +3629,7 @@ def smoke_test(port: int = DEFAULT_PORT) -> int:
         PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
         REJECTED_READINGS_PATH = RUNTIME_DIR / "rejected_live_readings.json"
         SIGNALS_DB_PATH = RUNTIME_DIR / "predixai_trader_signals.db"
+        MOBILE_SESSION_PATH = RUNTIME_DIR / "mobile_current_session.json"
 
         RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
         now = _now()
@@ -3169,6 +3655,16 @@ def smoke_test(port: int = DEFAULT_PORT) -> int:
         try:
             _ensure_signal_db()
             audit_logic_ok = _run_audit_logic_smoke_test()
+            _insert_price_tick(
+                created_at=now.isoformat(),
+                asset="Cafeina Index",
+                price=4182.10,
+                source="smoke",
+                metadata={
+                    "reader_interval_seconds": DEFAULT_READER_INTERVAL_SECONDS,
+                    "simulation_only": True,
+                },
+            )
             if HAS_FLASK:
                 app = create_mobile_app()
                 with app.test_client() as client:
@@ -3211,6 +3707,7 @@ def smoke_test(port: int = DEFAULT_PORT) -> int:
                 PRICE_HISTORY_PATH,
                 REJECTED_READINGS_PATH,
                 SIGNALS_DB_PATH,
+                MOBILE_SESSION_PATH,
             ) = original_paths
 
 

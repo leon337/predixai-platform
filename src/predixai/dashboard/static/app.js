@@ -380,7 +380,14 @@ async function clearData() {
 }
 
 function bindControls() {
-  byId("open_broker")?.addEventListener("click", () => window.open("https://olymptrade.com/platform", "_blank"));
+  byId("open_broker")?.addEventListener("click", () => {
+    const log = byId("robot_log");
+    if (log) {
+      const now = new Date().toLocaleTimeString("pt-BR");
+      log.insertAdjacentHTML("afterbegin", `<p>${now} [SAFE] Corretora real bloqueada neste modo simulado.</p>`);
+    }
+    window.alert("Corretora real bloqueada: este modo nao abre corretora, nao faz login e nao envia ordem.");
+  });
   byId("start_3")?.addEventListener("click", () => startReader(3));
   byId("start_5")?.addEventListener("click", () => startReader(5));
   byId("stop_reader")?.addEventListener("click", stopReader);
