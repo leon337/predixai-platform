@@ -958,3 +958,26 @@ Resumo:
 - Criada mini-PTP porque a tela /session/setup abriu, mas o botão Iniciar sessão simulada retornou 405 Method Not Allowed.
 - Correção: garantir rota POST em /session/setup apontando para o mesmo handler da tela inicial.
 - Objetivo: permitir envio do formulário e redirecionamento para /mobile.
+
+## PTP-113B.3.1A.4 — Meta de lucro e cancelamento no sinal
+
+Data: 2026-07-06T16:21:38
+Status: EM VALIDAÇÃO
+Resumo:
+- Adicionado campo Lucro desejado da sessão na tela /session/setup.
+- Contrato da sessão passa a expor profit_target com desired_profit, target_bankroll e target_profit_percent.
+- Bloco visual de cancelamento foi reposicionado conceitualmente: tela inicial mostra regra geral da sessão; cancelamento específico fica no sinal.
+- Mantida operação 100% simulada, sem ordem real, clique automático, login ou saldo real.
+
+## PTP-113B.3.1A.4.1 — Meta de lucro V2 aplicada
+
+Data: 2026-07-06T16:24:12
+Status: EM VALIDAÇÃO
+Resumo:
+- Criada correção robusta porque a PTP-113B.3.1A.4 não inseriu os campos na tela/contrato.
+- /session/setup passa a exibir Lucro desejado da sessão.
+- /session/setup passa a exibir Saldo alvo.
+- Alerta de cancelamento foi reposicionado para Regra geral da sessão.
+- Cancelamento específico permanece como campo do sinal.
+- /api/mobile/signal/contract passa a expor profit_target.
+- /api/mobile/state passa a refletir profit_target.

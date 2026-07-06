@@ -1434,6 +1434,22 @@
       "summary": "Correção do POST em /session/setup após 405 Method Not Allowed.",
       "reason": "A tela inicial abriu visualmente, mas o botão Iniciar sessão simulada falhou porque a rota não aceitava POST.",
       "next_step": "Validar POST, reiniciar servidor e testar no telefone."
+    },
+    {
+      "ptp": "PTP-113B.3.1A.4",
+      "date": "2026-07-06T16:21:38",
+      "status": "EM_VALIDACAO",
+      "summary": "Adicionado lucro desejado da sessão e reposicionado cancelamento específico para o sinal.",
+      "reason": "Leo observou que a meta de lucro da sessão estava faltando e que cancelamento específico deve acompanhar o sinal.",
+      "next_step": "Validar visualmente no notebook e telefone antes de iniciar PTP-113B.3.1B."
+    },
+    {
+      "ptp": "PTP-113B.3.1A.4.1",
+      "date": "2026-07-06T16:24:12",
+      "status": "EM_VALIDACAO",
+      "summary": "Correção robusta da meta de lucro e reposicionamento do cancelamento específico para o sinal.",
+      "reason": "A tentativa PTP-113B.3.1A.4 falhou porque o patch não encontrou os pontos reais de inserção.",
+      "next_step": "Validar notebook e telefone antes de fechar PTP-113B.3.1A."
     }
   ]
 }
