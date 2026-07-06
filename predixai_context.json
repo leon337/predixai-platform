@@ -1426,6 +1426,14 @@
       "summary": "Correção flexível para expor available_strategies no contrato público.",
       "reason": "O patch anterior falhou porque o ponto literal de inserção não foi encontrado.",
       "expected_result": "Contrato contém pullback e catálogo completo de estratégias."
+    },
+    {
+      "ptp": "PTP-113B.3.1A.3",
+      "date": "2026-07-06T16:06:59",
+      "status": "EM_VALIDACAO",
+      "summary": "Correção do POST em /session/setup após 405 Method Not Allowed.",
+      "reason": "A tela inicial abriu visualmente, mas o botão Iniciar sessão simulada falhou porque a rota não aceitava POST.",
+      "next_step": "Validar POST, reiniciar servidor e testar no telefone."
     }
   ]
 }

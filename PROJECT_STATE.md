@@ -949,3 +949,12 @@ Resumo:
 - O patch anterior falhou porque procurava um ponto literal de inserção.
 - Aplicado patch V2 com busca flexível dentro da função _ptp113b31a_signal_contract_override.
 - /api/mobile/signal/contract deve expor available_strategies, incluindo pullback.
+
+## PTP-113B.3.1A.3 — Fix POST /session/setup
+
+Data: 2026-07-06T16:06:59
+Status: EM VALIDAÇÃO
+Resumo:
+- Criada mini-PTP porque a tela /session/setup abriu, mas o botão Iniciar sessão simulada retornou 405 Method Not Allowed.
+- Correção: garantir rota POST em /session/setup apontando para o mesmo handler da tela inicial.
+- Objetivo: permitir envio do formulário e redirecionamento para /mobile.

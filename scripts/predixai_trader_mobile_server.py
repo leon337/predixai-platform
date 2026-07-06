@@ -3835,6 +3835,22 @@ def create_mobile_app() -> Flask:
             _ptp113b31a_signal_contract_override,
             methods=["GET"],
         )
+
+    # BEGIN PTP-113B.3.1A.3 POST SESSION SETUP FIX
+    _ptp113b31a_has_post_session_setup = False
+    for _rule in list(app.url_map.iter_rules()):
+        if _rule.rule == "/session/setup" and "POST" in _rule.methods:
+            _ptp113b31a_has_post_session_setup = True
+
+    if not _ptp113b31a_has_post_session_setup:
+        app.add_url_rule(
+            "/session/setup",
+            "ptp113b31a_session_setup_post",
+            _ptp113b31a_session_setup_override,
+            methods=["POST"],
+        )
+    # END PTP-113B.3.1A.3 POST SESSION SETUP FIX
+
     # END PTP-113B.3.1A COMPLETE SESSION CONTRACT
 
     return app
