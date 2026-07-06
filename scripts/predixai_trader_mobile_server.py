@@ -5170,5 +5170,359 @@ except NameError:
     pass
 
 
+
+# PTP-113B.3.1A.5.1A.1_CURRENCY_LAYOUT_RECOVERY_LOGIC_V1
+def _ptp113b3151a1_currency_layout_assets_v1():
+    return """
+<style id="ptp113b3151a1-currency-layout-style">
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  .money-stepper {
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+    gap: 8px !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 6px 0 8px 0 !important;
+  }
+
+  .money-stepper button {
+    width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 10px !important;
+    border: 1px solid #31516f !important;
+    background: #102239 !important;
+    color: #f5c542 !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+    font-weight: 800 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .money-stepper input {
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 10px !important;
+    border: 1px solid #31516f !important;
+    background: #061423 !important;
+    color: #ffffff !important;
+    padding: 0 12px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    box-sizing: border-box !important;
+  }
+
+  .money-hidden-source {
+    display: none !important;
+  }
+
+  .money-help {
+    color: #8ea4b9 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    margin: 0 0 12px 0 !important;
+  }
+
+  .money-recovery-limit-hidden {
+    display: none !important;
+  }
+</style>
+
+<script id="ptp113b3151a1-currency-layout-script">
+(function () {
+  const LABEL_TARGETS = [
+    "Banca simulada inicial",
+    "Valor da entrada simulada",
+    "Lucro desejado da sessão",
+    "Limite máximo de entrada simulada"
+  ];
+
+  function parseMoney(value) {
+    if (value === null || value === undefined) return 0;
+    let raw = String(value).trim();
+    raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
+    raw = raw.replace(/\\./g, "").replace(",", ".");
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function toDecimal(value) {
+    return Number(value || 0).toFixed(2);
+  }
+
+  function formatBRL(value) {
+    return Number(value || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function normalizeText(text) {
+    return String(text || "").replace(/\\s+/g, " ").trim().toLowerCase();
+  }
+
+  function findInputAfterLabel(label) {
+    let node = label.nextElementSibling;
+    let guard = 0;
+    while (node && guard < 8) {
+      if (node.matches && node.matches("input")) return node;
+      const nested = node.querySelector ? node.querySelector("input") : null;
+      if (nested) return nested;
+      node = node.nextElementSibling;
+      guard += 1;
+    }
+    return null;
+  }
+
+  function fieldNameForLabel(labelText, source) {
+    const t = normalizeText(labelText);
+    if (t.includes("banca simulada inicial")) return "initial_bankroll";
+    if (t.includes("valor da entrada simulada")) return "initial_entry";
+    if (t.includes("lucro desejado")) return "profit_target";
+    if (t.includes("limite máximo de entrada")) return "max_entry_limit";
+    return source.name || source.id || "money";
+  }
+
+  function createMoneyControl(source, labelText) {
+    if (!source || source.dataset.moneyFieldV2 === "1") return;
+
+    const fieldName = fieldNameForLabel(labelText, source);
+    source.dataset.moneyFieldV2 = "1";
+    source.dataset.moneySemanticName = fieldName;
+    source.classList.add("money-hidden-source");
+    source.setAttribute("step", "1.00");
+
+    const initialValue = parseMoney(source.value || source.getAttribute("value") || "0");
+    source.value = toDecimal(initialValue);
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "money-stepper";
+    wrapper.dataset.moneyStepperFor = fieldName;
+
+    const minus = document.createElement("button");
+    minus.type = "button";
+    minus.textContent = "−";
+    minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+
+    const visible = document.createElement("input");
+    visible.type = "text";
+    visible.inputMode = "decimal";
+    visible.autocomplete = "off";
+    visible.value = formatBRL(initialValue);
+    visible.setAttribute("aria-label", labelText + " em reais");
+
+    const plus = document.createElement("button");
+    plus.type = "button";
+    plus.textContent = "+";
+    plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+
+    function sync(value) {
+      const min = parseMoney(source.getAttribute("min") || "0");
+      let next = Number(value || 0);
+      if (!Number.isFinite(next)) next = 0;
+      if (next < min) next = min;
+
+      source.value = toDecimal(next);
+      visible.value = formatBRL(next);
+
+      source.dispatchEvent(new Event("input", { bubbles: true }));
+      source.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    minus.addEventListener("click", function () {
+      sync(parseMoney(source.value) - 1);
+    });
+
+    plus.addEventListener("click", function () {
+      sync(parseMoney(source.value) + 1);
+    });
+
+    visible.addEventListener("focus", function () {
+      visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+      visible.select();
+    });
+
+    visible.addEventListener("blur", function () {
+      sync(parseMoney(visible.value));
+    });
+
+    visible.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sync(parseMoney(visible.value));
+        visible.blur();
+      }
+    });
+
+    wrapper.appendChild(minus);
+    wrapper.appendChild(visible);
+    wrapper.appendChild(plus);
+
+    source.parentNode.insertBefore(wrapper, source.nextSibling);
+
+    const help = document.createElement("div");
+    help.className = "money-help";
+    help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+    wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+  }
+
+  function applyByLabels() {
+    const labels = Array.from(document.querySelectorAll("label"));
+    labels.forEach(function (label) {
+      const text = normalizeText(label.textContent);
+      const match = LABEL_TARGETS.find(function (target) {
+        return text.includes(normalizeText(target));
+      });
+      if (!match) return;
+
+      const input = findInputAfterLabel(label);
+      if (!input) return;
+
+      createMoneyControl(input, match);
+    });
+  }
+
+  function getRecoverySelect() {
+    return document.querySelector('[name="recovery_mode"]');
+  }
+
+  function findRecoveryLimitElements() {
+    const result = {
+      label: null,
+      source: document.querySelector('[data-money-semantic-name="max_entry_limit"], [name="max_entry_limit"], #max_entry_limit'),
+      stepper: null,
+      help: null
+    };
+
+    const labels = Array.from(document.querySelectorAll("label"));
+    result.label = labels.find(function (label) {
+      return normalizeText(label.textContent).includes("limite máximo de entrada");
+    }) || null;
+
+    if (result.source) {
+      result.stepper = document.querySelector('[data-money-stepper-for="max_entry_limit"]');
+      if (result.stepper && result.stepper.nextElementSibling && result.stepper.nextElementSibling.classList.contains("money-help")) {
+        result.help = result.stepper.nextElementSibling;
+      }
+    }
+
+    return result;
+  }
+
+  function updateRecoveryLimitVisibility() {
+    const select = getRecoverySelect();
+    const mode = select ? String(select.value || "NONE").toUpperCase() : "NONE";
+    const hidden = mode === "NONE" || mode === "SEM_RECUPERACAO" || mode === "SEM_RECUPERAÇÃO";
+
+    const elements = findRecoveryLimitElements();
+
+    [elements.label, elements.stepper, elements.help].forEach(function (el) {
+      if (!el) return;
+      el.classList.toggle("money-recovery-limit-hidden", hidden);
+    });
+
+    if (elements.source) {
+      if (hidden) {
+        elements.source.dataset.previousMoneyValue = elements.source.value || "";
+        elements.source.value = "";
+        elements.source.disabled = true;
+      } else {
+        elements.source.disabled = false;
+        if (!elements.source.value) {
+          elements.source.value = elements.source.dataset.previousMoneyValue || "20.00";
+        }
+      }
+    }
+  }
+
+  function applyMoneyUI() {
+    applyByLabels();
+    updateRecoveryLimitVisibility();
+
+    const select = getRecoverySelect();
+    if (select && select.dataset.moneyRecoveryListener !== "1") {
+      select.dataset.moneyRecoveryListener = "1";
+      select.addEventListener("change", updateRecoveryLimitVisibility);
+      select.addEventListener("input", updateRecoveryLimitVisibility);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", applyMoneyUI);
+  setTimeout(applyMoneyUI, 100);
+  setTimeout(applyMoneyUI, 500);
+
+  document.addEventListener("submit", function () {
+    updateRecoveryLimitVisibility();
+
+    document.querySelectorAll("[data-money-field-v2='1']").forEach(function (source) {
+      if (source.disabled) return;
+      source.value = toDecimal(parseMoney(source.value));
+    });
+  }, true);
+
+  window.PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC = true;
+})();
+</script>
+"""
+
+def _ptp113b3151a1_inject_currency_layout_v1(html):
+    if not isinstance(html, str):
+        return html
+
+    if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
+        return html
+
+    assets = _ptp113b3151a1_currency_layout_assets_v1()
+
+    if "</body>" in html:
+        return html.replace("</body>", assets + "\n</body>", 1)
+
+    return html + "\n" + assets
+
+
+try:
+    _ptp113b3151a1_original_create_mobile_app_v1 = create_mobile_app
+
+    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+        app = _ptp113b3151a1_original_create_mobile_app_v1(*args, **kwargs)
+
+        if not getattr(app, "_ptp113b3151a1_currency_layout_v1", False):
+            @app.after_request
+            def _ptp113b3151a1_currency_layout_after_request_v1(response):
+                try:
+                    if request.path == "/session/setup":
+                        content_type = str(response.headers.get("Content-Type", ""))
+                        if "text/html" in content_type:
+                            html = response.get_data(as_text=True)
+                            html = _ptp113b3151a1_inject_currency_layout_v1(html)
+                            response.set_data(html)
+                            response.headers["Content-Length"] = str(len(response.get_data()))
+                    return response
+                except Exception as exc:
+                    response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+                    return response
+
+            app._ptp113b3151a1_currency_layout_v1 = True
+
+        return app
+except NameError:
+    pass
+
+
 if __name__ == "__main__":
     raise SystemExit(main())
