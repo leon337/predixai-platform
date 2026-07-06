@@ -4831,5 +4831,99 @@ except NameError:
     pass
 
 
+
+# PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3
+import re as _ptp113b3151_setup_re_v3
+
+
+def _ptp113b3151_setup_ui_block_v3():
+    return "\n".join([
+        '<section class="box" data-ptp="PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3">',
+        '  <h2>Recuperação e risco simulados</h2>',
+        '  <label>Recuperação simulada</label>',
+        '  <select name="recovery_mode" id="recovery_mode">',
+        '    <option value="NONE">Sem recuperação</option>',
+        '    <option value="MAO_FIXA">Mão fixa / entrada fixa</option>',
+        '    <option value="SOROS">Soros / anti-martingale</option>',
+        '    <option value="MARTINGALE_1">1 Martingale</option>',
+        '    <option value="MARTINGALE_2">2 Martingales</option>',
+        '    <option value="SMARTGALE">SmartGale simulado</option>',
+        '  </select>',
+        '  <label>Limite máximo de entrada simulada</label>',
+        '  <input name="max_entry_limit" id="max_entry_limit" type="number" min="1" step="0.01" value="20.00"/>',
+        '  <div class="box">',
+        '    <div class="k">Prévia de risco</div>',
+        '    <div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, percentual da banca exposto, risco combinado e alerta.</div>',
+        '  </div>',
+        '</section>',
+    ])
+
+
+def _ptp113b3151_force_setup_ui_v3(html):
+    if not isinstance(html, str):
+        return html
+
+    if "PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3" in html:
+        return html
+
+    block = _ptp113b3151_setup_ui_block_v3()
+
+    # Se já houver select recovery antigo, substitui por versão completa.
+    if 'name="recovery_mode"' in html or "name='recovery_mode'" in html:
+        full_select = "\n".join([
+            '<select name="recovery_mode" id="recovery_mode">',
+            '  <option value="NONE">Sem recuperação</option>',
+            '  <option value="MAO_FIXA">Mão fixa / entrada fixa</option>',
+            '  <option value="SOROS">Soros / anti-martingale</option>',
+            '  <option value="MARTINGALE_1">1 Martingale</option>',
+            '  <option value="MARTINGALE_2">2 Martingales</option>',
+            '  <option value="SMARTGALE">SmartGale simulado</option>',
+            '</select>',
+        ])
+        html = _ptp113b3151_setup_re_v3.sub(
+            r"<select[^>]+name=[\"']recovery_mode[\"'][^>]*>.*?</select>",
+            full_select,
+            html,
+            flags=_ptp113b3151_setup_re_v3.S,
+        )
+
+    # Injeta bloco completo antes do fechamento do formulário.
+    if "</form>" in html:
+        html = html.replace("</form>", block + "\n</form>", 1)
+    else:
+        html += "\n" + block
+
+    return html
+
+
+try:
+    _ptp113b3151_original_create_mobile_app_v3 = create_mobile_app
+
+    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+        app = _ptp113b3151_original_create_mobile_app_v3(*args, **kwargs)
+
+        if not getattr(app, "_ptp113b3151_setup_ui_force_hook_v3", False):
+            @app.after_request
+            def _ptp113b3151_setup_ui_after_request_v3(response):
+                try:
+                    if request.path == "/session/setup":
+                        content_type = str(response.headers.get("Content-Type", ""))
+                        if "text/html" in content_type:
+                            html = response.get_data(as_text=True)
+                            html = _ptp113b3151_force_setup_ui_v3(html)
+                            response.set_data(html)
+                            response.headers["Content-Length"] = str(len(response.get_data()))
+                    return response
+                except Exception as exc:
+                    response.headers["X-PTP113B3151-SetupUI-Warning"] = str(exc)[:120]
+                    return response
+
+            app._ptp113b3151_setup_ui_force_hook_v3 = True
+
+        return app
+except NameError:
+    pass
+
+
 if __name__ == "__main__":
     raise SystemExit(main())
