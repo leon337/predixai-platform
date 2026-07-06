@@ -1,0 +1,47 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1 — RESTART MOBILE SERVER V3
+Data: seg 06 jul 2026 18:14:02 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== PROCESSO NA PORTA 8766 ANTES =====
+COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+python  91774  leo    3u  IPv4 483243      0t0  TCP *:8766 (LISTEN)
+
+===== ENCERRANDO SERVIDOR ANTIGO =====
+Matando PIDs: 91774
+
+===== PROCESSO NA PORTA 8766 DEPOIS DO KILL =====
+
+===== INICIANDO SERVIDOR ATUALIZADO =====
+SERVER_PID=97851
+SERVER_LOG=data/runtime/mobile_server_v3_20260706_181405.log
+
+===== LOG INICIAL DO SERVIDOR =====
+PredixAI Trader Mobile Server
+Modo observador. Não é recomendação financeira.
+Modo observador/simulado. Não executa ordens.
+Local PC: http://127.0.0.1:8766/mobile
+Celular na mesma Wi-Fi: http://192.168.10.101:8766/mobile
+Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start
+Endpoint observador legado: POST /api/mobile/stop
+ * Serving Flask app 'predixai_trader_mobile_server'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8766
+ * Running on http://192.168.10.101:8766
+[33mPress CTRL+C to quit[0m
+
+===== TESTE LOCAL /session/setup =====
+HTTP_LOCAL_OK: PASS
+HAS_SMARTGALE: PASS
+HAS_MARTINGALE_2: PASS
+HAS_MAX_ENTRY_LIMIT: PASS
+HAS_RECOVERY_BLOCK: PASS
+LOCAL_SETUP_UI_V3_PASS
+local_test_exit=0
+
+===== LINK PARA TELEFONE =====
+http://192.168.10.101:8766/session/setup
+
+===== RESULTADO =====
+RESTART_SERVER_V3_PASS

@@ -4925,5 +4925,250 @@ except NameError:
     pass
 
 
+
+# PTP-113B.3.1A.5.1A_CURRENCY_CONTROLS_BRL_V1
+def _ptp113b3151a_currency_controls_v1_assets():
+    css = """
+<style id="ptp113b3151a-currency-style">
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+
+  .money-stepper {
+    display: grid;
+    grid-template-columns: 52px 1fr 52px;
+    gap: 8px;
+    align-items: center;
+    margin: 6px 0 14px 0;
+  }
+
+  .money-stepper button {
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid #31516f;
+    background: #102239;
+    color: #f5c542;
+    font-size: 24px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .money-stepper button:active {
+    transform: scale(0.98);
+  }
+
+  .money-stepper input {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid #31516f;
+    background: #061423;
+    color: #ffffff;
+    padding: 0 14px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .money-hidden-source {
+    display: none !important;
+  }
+
+  .money-help {
+    color: #8ea4b9;
+    font-size: 12px;
+    margin-top: -8px;
+    margin-bottom: 10px;
+  }
+</style>
+"""
+
+    js = """
+<script id="ptp113b3151a-currency-script">
+(function () {
+  const MONEY_FIELDS = [
+    "initial_bankroll",
+    "simulated_bankroll",
+    "initial_entry",
+    "entry_value",
+    "profit_target",
+    "take_profit",
+    "max_entry_limit",
+    "stop_loss"
+  ];
+
+  function parseMoney(value) {
+    if (value === null || value === undefined) return 0;
+    let raw = String(value).trim();
+    raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
+    raw = raw.replace(/\\./g, "").replace(",", ".");
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function toDecimal(value) {
+    return Number(value || 0).toFixed(2);
+  }
+
+  function formatBRL(value) {
+    const number = Number(value || 0);
+    return number.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function createMoneyControl(source) {
+    if (!source || source.dataset.moneyField === "1") return;
+
+    const current = parseMoney(source.value || source.getAttribute("value") || "0");
+    source.value = toDecimal(current);
+    source.dataset.moneyField = "1";
+    source.classList.add("money-hidden-source");
+    source.setAttribute("step", "1.00");
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "money-stepper";
+    wrapper.dataset.moneyStepperFor = source.name || source.id || "money";
+
+    const minus = document.createElement("button");
+    minus.type = "button";
+    minus.textContent = "−";
+    minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+
+    const visible = document.createElement("input");
+    visible.type = "text";
+    visible.inputMode = "decimal";
+    visible.autocomplete = "off";
+    visible.value = formatBRL(current);
+    visible.setAttribute("aria-label", "Valor em reais");
+
+    const plus = document.createElement("button");
+    plus.type = "button";
+    plus.textContent = "+";
+    plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+
+    function sync(value) {
+      const min = parseMoney(source.getAttribute("min") || "0");
+      let next = Number(value || 0);
+      if (!Number.isFinite(next)) next = 0;
+      if (next < min) next = min;
+      source.value = toDecimal(next);
+      visible.value = formatBRL(next);
+
+      source.dispatchEvent(new Event("input", { bubbles: true }));
+      source.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    minus.addEventListener("click", function () {
+      sync(parseMoney(source.value) - 1);
+    });
+
+    plus.addEventListener("click", function () {
+      sync(parseMoney(source.value) + 1);
+    });
+
+    visible.addEventListener("focus", function () {
+      visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+      visible.select();
+    });
+
+    visible.addEventListener("blur", function () {
+      sync(parseMoney(visible.value));
+    });
+
+    visible.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sync(parseMoney(visible.value));
+        visible.blur();
+      }
+    });
+
+    wrapper.appendChild(minus);
+    wrapper.appendChild(visible);
+    wrapper.appendChild(plus);
+
+    source.parentNode.insertBefore(wrapper, source.nextSibling);
+
+    const help = document.createElement("div");
+    help.className = "money-help";
+    help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+    wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+  }
+
+  function applyMoneyControls() {
+    MONEY_FIELDS.forEach(function (name) {
+      document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", applyMoneyControls);
+  setTimeout(applyMoneyControls, 250);
+
+  document.addEventListener("submit", function () {
+    document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+      source.value = toDecimal(parseMoney(source.value));
+    });
+  }, true);
+
+  window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+})();
+</script>
+"""
+    return css + "\n" + js
+
+
+def _ptp113b3151a_inject_currency_controls_v1(html):
+    if not isinstance(html, str):
+        return html
+
+    if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+        return html
+
+    assets = _ptp113b3151a_currency_controls_v1_assets()
+
+    if "</body>" in html:
+        return html.replace("</body>", assets + "\n</body>", 1)
+
+    return html + "\n" + assets
+
+
+try:
+    _ptp113b3151a_original_create_mobile_app_v1 = create_mobile_app
+
+    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+        app = _ptp113b3151a_original_create_mobile_app_v1(*args, **kwargs)
+
+        if not getattr(app, "_ptp113b3151a_currency_controls_v1", False):
+            @app.after_request
+            def _ptp113b3151a_currency_after_request_v1(response):
+                try:
+                    if request.path == "/session/setup":
+                        content_type = str(response.headers.get("Content-Type", ""))
+                        if "text/html" in content_type:
+                            html = response.get_data(as_text=True)
+                            html = _ptp113b3151a_inject_currency_controls_v1(html)
+                            response.set_data(html)
+                            response.headers["Content-Length"] = str(len(response.get_data()))
+                    return response
+                except Exception as exc:
+                    response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+                    return response
+
+            app._ptp113b3151a_currency_controls_v1 = True
+
+        return app
+except NameError:
+    pass
+
+
 if __name__ == "__main__":
     raise SystemExit(main())
