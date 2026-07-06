@@ -1,0 +1,50 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1 — PASS PUBLISH SETUP UI V3
+Data: seg 06 jul 2026 18:02:52 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== STATUS ANTES =====
+ M scripts/predixai_trader_mobile_server.py
+?? reports/PTP-113B.3.1A.5.1_FIX_setup_ui_v3_20260706_180128.txt
+
+===== ÚLTIMO COMMIT ANTES =====
+cb26f24 PTP-113B.3.1A.5.1 FAIL setup UI recovery risk
+
+===== VALIDAÇÕES CONFIRMADAS =====
+py_compile: PASS
+compileall: PASS
+git diff --check: PASS
+/session/setup HTTP 200: PASS
+/api/mobile/signal/contract HTTP 200: PASS
+/api/mobile/state HTTP 200: PASS
+setup_has_smartgale: PASS
+setup_has_martingale_2: PASS
+setup_has_max_entry_limit: PASS
+setup_has_recovery_preview: PASS
+contract_has_recovery_plan: PASS
+state_has_recovery_plan: PASS
+state_has_risk_management: PASS
+
+===== DIFF CHECK =====
+git_diff_check_exit=0
+
+===== ADD PATCH + RELATÓRIO DE VALIDAÇÃO =====
+
+===== DIFF CACHED CHECK =====
+git_diff_cached_check_exit=0
+
+===== COMMIT PASS =====
+[main b2449b9] PTP-113B.3.1A.5.1 PASS setup UI recovery risk
+ 2 files changed, 165 insertions(+)
+ create mode 100644 reports/PTP-113B.3.1A.5.1_FIX_setup_ui_v3_20260706_180128.txt
+
+===== PUSH PASS =====
+To https://github.com/leon337/predixai-platform.git
+   cb26f24..b2449b9  main -> main
+
+===== STATUS APÓS PUSH PASS =====
+
+===== ÚLTIMO COMMIT APÓS PUSH PASS =====
+b2449b9 PTP-113B.3.1A.5.1 PASS setup UI recovery risk
+
+===== RESULTADO PARCIAL =====
+PASS_SETUP_UI_PUBLISHED
