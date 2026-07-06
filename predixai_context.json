@@ -1403,5 +1403,29 @@
       "decidir destino dos arquivos untracked fora do nucleo em src/predixai/trader/",
       "tratar scripts/run_minimal_trader_test.py e tests/test_trader_basic.py em mini-PTP futura por importarem PaperTrader inexistente"
     ]
-  }
+  },
+  "construction_timeline": [
+    {
+      "ptp": "PTP-113B.3.1A",
+      "date": "2026-07-06T15:50:01",
+      "status": "EM_VALIDACAO",
+      "summary": "Construção do contrato completo da tela inicial mobile-first simulada.",
+      "changes": [
+        "Separação entre modo operacional e estratégia geradora.",
+        "Inclusão da estratégia Pullback.",
+        "Inclusão de estimativa de sinais em 5 minutos e 1 hora.",
+        "Inclusão de banca simulada, saldo atual, entrada, risco e expiração no contrato.",
+        "Exposição de segurança simulada no contrato e no /api/mobile/state."
+      ],
+      "next_step": "Validar PTP-113B.3.1A antes de avançar para PTP-113B.3.1B."
+    },
+    {
+      "ptp": "PTP-113B.3.1A.1-V2",
+      "date": "2026-07-06T15:53:34",
+      "status": "EM_VALIDACAO",
+      "summary": "Correção flexível para expor available_strategies no contrato público.",
+      "reason": "O patch anterior falhou porque o ponto literal de inserção não foi encontrado.",
+      "expected_result": "Contrato contém pullback e catálogo completo de estratégias."
+    }
+  ]
 }

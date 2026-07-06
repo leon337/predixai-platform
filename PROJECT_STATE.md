@@ -924,3 +924,28 @@ Regra preservada:
 Pendencias futuras:
 - Decidir destino dos arquivos untracked fora do nucleo em `src/predixai/trader/`.
 - Tratar em mini-PTP futura os legados `scripts/run_minimal_trader_test.py` e `tests/test_trader_basic.py`, que importam `PaperTrader` inexistente no desenho atual.
+
+## PTP-113B.3.1A — Construção do contrato completo da tela inicial
+
+Data: 2026-07-06T15:50:01
+Status: EM VALIDAÇÃO
+Resumo:
+- Corrigida a tela /session/setup para contrato operacional completo.
+- Separado modo operacional de estratégia geradora.
+- Adicionada estratégia Pullback.
+- Adicionada estimativa aproximada de sinais em 5 minutos e 1 hora.
+- Reforçados campos de banca simulada, saldo atual, entrada, risco, expiração e segurança simulada.
+- /api/mobile/signal/contract passa a expor contrato completo.
+- /api/mobile/state passa a expor campos top-level de segurança simulada para auditoria.
+Governança:
+- Registro criado para preservar linha do tempo de construção.
+- Commit/push deve ocorrer somente após validações passarem.
+
+## PTP-113B.3.1A.1 — Fix Pullback no contrato público V2
+
+Data: 2026-07-06T15:53:34
+Status: EM VALIDAÇÃO
+Resumo:
+- O patch anterior falhou porque procurava um ponto literal de inserção.
+- Aplicado patch V2 com busca flexível dentro da função _ptp113b31a_signal_contract_override.
+- /api/mobile/signal/contract deve expor available_strategies, incluindo pullback.

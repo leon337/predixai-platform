@@ -3229,6 +3229,125 @@ class MobileRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
+
+# PTP-113B.2.3 — Tela inicial e contrato visual do sinal
+SESSION_SETUP_HTML = """
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PredixAI BR — Iniciar Sessão</title>
+<style>
+body{margin:0;background:#07111f;color:#eaf4ff;font-family:Arial,sans-serif}
+.wrap{max-width:540px;margin:0 auto;padding:22px}
+.card{background:#0d1c31;border:1px solid #1f3c5c;border-radius:18px;padding:20px;box-shadow:0 0 22px #0008}
+h1{font-size:24px;margin:0 0 8px;color:#66d9ff}
+p{color:#b8c7d9;line-height:1.45}
+label{display:block;margin-top:14px;font-weight:bold}
+select,input{width:100%;padding:12px;border-radius:10px;border:1px solid #2c5278;background:#081625;color:#fff;font-size:16px;box-sizing:border-box}
+button{width:100%;margin-top:22px;padding:15px;border:0;border-radius:12px;background:#d8aa3a;color:#08111f;font-weight:bold;font-size:17px}
+.note{margin-top:14px;font-size:13px;color:#90a7bd;line-height:1.4}
+.badge{display:inline-block;background:#12324f;border:1px solid #2b6e9f;color:#9de6ff;border-radius:999px;padding:6px 10px;font-size:12px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<div class="badge">MODO 100% SIMULADO</div>
+<h1>PredixAI Trader</h1>
+<p>Configure a sessão antes de abrir o painel mobile de observação e sinais.</p>
+
+<label>Estratégia</label>
+<select id="strategy">
+<option value="scalper">Scalper</option>
+<option value="day_trade">Day Trade</option>
+</select>
+
+<label>Perfil de risco</label>
+<select id="risk">
+<option value="conservador">Conservador</option>
+<option value="moderado">Moderado</option>
+<option value="agressivo">Agressivo</option>
+</select>
+
+<label>Banca simulada</label>
+<input id="bankroll" type="number" value="100" min="1">
+
+<label>Valor da entrada simulada</label>
+<input id="entry_amount" type="number" value="5" min="1">
+
+<label>Tempo de expiração</label>
+<select id="expiration">
+<option value="60">60 segundos</option>
+<option value="300">5 minutos</option>
+<option value="900">15 minutos</option>
+</select>
+
+<button onclick="startSession()">Iniciar sessão simulada</button>
+
+<div class="note">
+Nenhuma corretora real será aberta. Nenhum login, saldo real, clique automático ou ordem real será usado.
+</div>
+</div>
+</div>
+
+<script>
+async function startSession(){
+  const payload = {
+    strategy: document.getElementById("strategy").value,
+    risk_profile: document.getElementById("risk").value,
+    bankroll: Number(document.getElementById("bankroll").value),
+    entry_amount: Number(document.getElementById("entry_amount").value),
+    expiration_seconds: Number(document.getElementById("expiration").value)
+  };
+
+  const res = await fetch("/mobile/session/start", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  });
+
+  if(!res.ok){
+    alert("Falha ao iniciar sessão simulada.");
+    return;
+  }
+
+  window.location.href = "/mobile";
+}
+</script>
+</body>
+</html>
+"""
+
+
+def predixai_visual_signal_contract():
+    return {
+        "required_visual_fields": [
+            "ativo",
+            "direcao",
+            "horario_entrada",
+            "preco_referencia",
+            "tempo_expiracao",
+            "alerta_cancelamento",
+            "explicacao",
+            "confianca",
+            "status",
+        ],
+        "example": {
+            "ativo": "Cafeina Index",
+            "direcao": "COMPRA / VENDA / AGUARDAR",
+            "horario_entrada": "HH:MM:SS",
+            "preco_referencia": "preço ou zona de entrada",
+            "tempo_expiracao": "60 segundos / 5 minutos / 15 minutos",
+            "alerta_cancelamento": "Cancelar se o preço fugir da zona antes do horário de entrada.",
+            "explicacao": "Motivo técnico da sugestão conforme estratégia escolhida.",
+            "confianca": "0-100%",
+            "status": "AGUARDANDO HORÁRIO DE ENTRADA",
+        },
+    }
+
+
 def create_mobile_app() -> Flask:
     if not HAS_FLASK:
         raise RuntimeError("Flask nao esta disponivel; usando servidor http.server.")
@@ -3243,6 +3362,15 @@ def create_mobile_app() -> Flask:
     @app.route("/")
     def root():  # type: ignore[no-untyped-def]
         return MOBILE_HTML
+
+
+    @app.route("/session/setup")
+    def session_setup():  # type: ignore[no-untyped-def]
+        return SESSION_SETUP_HTML
+
+    @app.route("/api/mobile/signal/contract")
+    def mobile_signal_contract():  # type: ignore[no-untyped-def]
+        return jsonify(predixai_visual_signal_contract())
 
     @app.route("/mobile")
     def mobile():  # type: ignore[no-untyped-def]
@@ -3296,6 +3424,418 @@ def create_mobile_app() -> Flask:
                     "observer_only": True,
                 }
             ), 500
+
+    # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+    def _ptp113b31a_strategy_catalog():
+        return {
+            "support_resistance": {
+                "label": "Suporte e resistência",
+                "signals_5m_scalper": 1,
+                "signals_1h_scalper": 8,
+                "signals_5m_day_trade": 0,
+                "signals_1h_day_trade": 3,
+                "risk": "médio",
+                "description": "Busca zonas de suporte/resistência e aguarda reação do preço.",
+            },
+            "candle_reversal": {
+                "label": "Reversão de vela",
+                "signals_5m_scalper": 1,
+                "signals_1h_scalper": 10,
+                "signals_5m_day_trade": 0,
+                "signals_1h_day_trade": 4,
+                "risk": "médio/alto",
+                "description": "Busca sinais de reversão após movimento curto ou esticado.",
+            },
+            "breakout": {
+                "label": "Rompimento",
+                "signals_5m_scalper": 1,
+                "signals_1h_scalper": 7,
+                "signals_5m_day_trade": 0,
+                "signals_1h_day_trade": 3,
+                "risk": "alto",
+                "description": "Busca rompimento de zona relevante com confirmação mínima.",
+            },
+            "moving_average_trend": {
+                "label": "Tendência por médias",
+                "signals_5m_scalper": 0,
+                "signals_1h_scalper": 6,
+                "signals_5m_day_trade": 0,
+                "signals_1h_day_trade": 2,
+                "risk": "médio",
+                "description": "Usa direção das médias para filtrar compra, venda ou aguardar.",
+            },
+            "pullback": {
+                "label": "Pullback",
+                "signals_5m_scalper": 1,
+                "signals_1h_scalper": 6,
+                "signals_5m_day_trade": 0,
+                "signals_1h_day_trade": 2,
+                "risk": "médio",
+                "description": "Aguarda retorno do preço para uma zona antes de sugerir entrada.",
+            },
+            "simple_confluence": {
+                "label": "Confluência simples",
+                "signals_5m_scalper": 1,
+                "signals_1h_scalper": 5,
+                "signals_5m_day_trade": 0,
+                "signals_1h_day_trade": 2,
+                "risk": "baixo/médio",
+                "description": "Só libera sinal quando múltiplos critérios técnicos concordam.",
+            },
+        }
+
+    def _ptp113b31a_float(value, default):
+        try:
+            parsed = float(str(value).replace(",", "."))
+            return parsed if parsed >= 0 else default
+        except Exception:
+            return default
+
+    def _ptp113b31a_int(value, default):
+        try:
+            parsed = int(float(str(value).replace(",", ".")))
+            return parsed if parsed > 0 else default
+        except Exception:
+            return default
+
+    def _ptp113b31a_build_contract(form=None):
+        form = form or {}
+        catalog = _ptp113b31a_strategy_catalog()
+
+        operational_mode = str(form.get("operational_mode") or form.get("mode") or "scalper").strip()
+        if operational_mode not in {"scalper", "day_trade"}:
+            operational_mode = "scalper"
+
+        strategy_key = str(form.get("strategy_key") or form.get("strategy") or "simple_confluence").strip()
+        if strategy_key not in catalog:
+            strategy_key = "simple_confluence"
+
+        initial_bankroll = _ptp113b31a_float(form.get("initial_bankroll") or form.get("bankroll"), 100.0)
+        current_bankroll = _ptp113b31a_float(form.get("current_bankroll"), initial_bankroll)
+        current_entry = _ptp113b31a_float(form.get("current_entry") or form.get("entry_amount"), 5.0)
+        expiration_seconds = _ptp113b31a_int(form.get("expiration_seconds"), 60)
+        risk_profile = str(form.get("risk_profile") or "conservador").strip() or "conservador"
+
+        meta = catalog[strategy_key]
+        if operational_mode == "scalper":
+            signals_5m = meta["signals_5m_scalper"]
+            signals_1h = meta["signals_1h_scalper"]
+            mode_label = "Scalper"
+            mode_description = "Sessão curta, com foco em sinais rápidos e controle rígido."
+        else:
+            signals_5m = meta["signals_5m_day_trade"]
+            signals_1h = meta["signals_1h_day_trade"]
+            mode_label = "Day Trade"
+            mode_description = "Sessão mais lenta, com menos sinais e maior seletividade."
+
+        max_entries_by_bankroll = int(current_bankroll // current_entry) if current_entry > 0 else 0
+        estimated_consumption_1h = round(min(signals_1h, max_entries_by_bankroll) * current_entry, 2)
+        estimated_consumption_percent = round((estimated_consumption_1h / current_bankroll) * 100, 2) if current_bankroll else 0.0
+
+        return {
+            "simulation_only": True,
+            "orders_enabled": False,
+            "real_money_enabled": False,
+            "auto_click_enabled": False,
+            "broker_login_enabled": False,
+            "credentials_allowed": False,
+            "operational_mode": {
+                "key": operational_mode,
+                "label": mode_label,
+                "description": mode_description,
+            },
+            "strategy": {
+                "key": strategy_key,
+                "label": meta["label"],
+                "risk": meta["risk"],
+                "description": meta["description"],
+            },
+            "bankroll": {
+                "currency": "BRL",
+                "initial_bankroll": initial_bankroll,
+                "current_bankroll": current_bankroll,
+                "current_entry": current_entry,
+                "profit_loss": round(current_bankroll - initial_bankroll, 2),
+                "profit_loss_percent": round(((current_bankroll - initial_bankroll) / initial_bankroll) * 100, 2) if initial_bankroll else 0.0,
+            },
+            "risk": {
+                "profile": risk_profile,
+                "entry_percent_of_bankroll": round((current_entry / current_bankroll) * 100, 2) if current_bankroll else 0.0,
+                "estimated_consumption_1h": estimated_consumption_1h,
+                "estimated_consumption_percent_1h": estimated_consumption_percent,
+            },
+            "expiration": {
+                "seconds": expiration_seconds,
+                "label": f"{expiration_seconds} segundos" if expiration_seconds < 60 else f"{int(expiration_seconds/60)} minuto(s)",
+            },
+            "preview": {
+                "estimated_signals_5m": signals_5m,
+                "estimated_signals_1h": signals_1h,
+                "session_classification": "alta frequência" if signals_1h >= 8 else "seletiva",
+                "recommendation": "Operar somente em modo simulado e cancelar se o preço fugir da zona.",
+                "cancel_alert": "Cancelar se o preço fugir da zona antes do horário de entrada.",
+            },
+            "required_visual_fields": [
+                "ativo",
+                "direcao",
+                "horario_entrada",
+                "preco_referencia",
+                "tempo_expiracao",
+                "alerta_cancelamento",
+                "explicacao",
+                "confianca",
+                "status",
+                "modo_operacional",
+                "estrategia_geradora",
+                "banca_simulada",
+                "saldo_atual",
+                "entrada_simulada",
+                "risco",
+                "estimativa_sinais_5m",
+                "estimativa_sinais_1h",
+            ],
+            "security": {
+                "simulation_only": True,
+                "orders_enabled": False,
+                "real_money_enabled": False,
+                "auto_click_enabled": False,
+                "broker_login_enabled": False,
+                "credentials_allowed": False,
+            },
+        }
+
+    def _ptp113b31a_session_setup_override():
+        from flask import request, redirect, Response
+        contract = _ptp113b31a_build_contract(request.form if request.method == "POST" else {})
+        app.config["PTP113B31A_SESSION_CONTRACT"] = contract
+
+        if request.method == "POST":
+            return redirect("/mobile")
+
+        html = f"""<!doctype html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PredixAI BR — Iniciar Sessão Simulada</title>
+    <style>
+    body{{margin:0;background:#07111f;color:#eaf4ff;font-family:Arial,sans-serif}}
+    .wrap{{max-width:620px;margin:0 auto;padding:22px}}
+    .card{{background:#0d1c31;border:1px solid #1f3c5c;border-radius:18px;padding:20px;box-shadow:0 0 22px #0008}}
+    h1{{font-size:24px;margin:0 0 8px;color:#66d9ff}}
+    h2{{font-size:17px;margin:22px 0 8px;color:#d8aa3a}}
+    p{{color:#b8c7d9;line-height:1.45}}
+    label{{display:block;margin-top:14px;font-weight:bold}}
+    select,input{{width:100%;padding:12px;border-radius:10px;border:1px solid #2c5278;background:#081625;color:#fff;font-size:16px;box-sizing:border-box}}
+    button{{width:100%;margin-top:22px;padding:15px;border:0;border-radius:12px;background:#d8aa3a;color:#08111f;font-weight:bold;font-size:17px}}
+    .badge{{display:inline-block;background:#12324f;border:1px solid #2b6e9f;color:#9de6ff;border-radius:999px;padding:6px 10px;font-size:12px;margin-bottom:10px}}
+    .grid{{display:grid;grid-template-columns:1fr 1fr;gap:10px}}
+    .box{{background:#081625;border:1px solid #1f3c5c;border-radius:12px;padding:12px;margin-top:10px}}
+    .k{{font-size:12px;color:#8fa6bd}}
+    .v{{font-size:18px;font-weight:bold;color:#fff;margin-top:4px}}
+    .note{{margin-top:14px;font-size:13px;color:#90a7bd;line-height:1.4}}
+    .warn{{border-color:#d8aa3a;color:#ffe4a0}}
+    </style>
+    </head>
+    <body>
+    <div class="wrap">
+    <div class="card">
+    <div class="badge">MODO 100% SIMULADO</div>
+    <h1>PredixAI Trader — Configurar Sessão</h1>
+    <p>Configure o contrato operacional antes de abrir o painel mobile. Nenhuma ordem real, clique automático, login ou saldo real será usado.</p>
+
+    <form method="post">
+    <h2>1. Modo operacional</h2>
+    <label>Modo</label>
+    <select name="operational_mode" id="operational_mode" onchange="updatePreview()">
+    <option value="scalper">Scalper — sinais rápidos</option>
+    <option value="day_trade">Day Trade — sinais mais seletivos</option>
+    </select>
+
+    <h2>2. Estratégia geradora do sinal</h2>
+    <label>Estratégia</label>
+    <select name="strategy_key" id="strategy_key" onchange="updatePreview()">
+    <option value="support_resistance">Suporte e resistência</option>
+    <option value="candle_reversal">Reversão de vela</option>
+    <option value="breakout">Rompimento</option>
+    <option value="moving_average_trend">Tendência por médias</option>
+    <option value="pullback">Pullback</option>
+    <option value="simple_confluence" selected>Confluência simples</option>
+    </select>
+
+    <h2>3. Banca simulada e risco</h2>
+    <label>Banca simulada inicial</label>
+    <input name="initial_bankroll" id="initial_bankroll" type="number" step="0.01" value="{contract['bankroll']['initial_bankroll']}" oninput="updatePreview()">
+
+    <label>Valor da entrada simulada</label>
+    <input name="current_entry" id="current_entry" type="number" step="0.01" value="{contract['bankroll']['current_entry']}" oninput="updatePreview()">
+
+    <label>Expiração</label>
+    <select name="expiration_seconds" id="expiration_seconds">
+    <option value="30">30 segundos</option>
+    <option value="60" selected>60 segundos</option>
+    <option value="300">5 minutos</option>
+    <option value="900">15 minutos</option>
+    </select>
+
+    <label>Perfil de risco</label>
+    <select name="risk_profile" id="risk_profile">
+    <option value="conservador" selected>Conservador</option>
+    <option value="moderado">Moderado</option>
+    <option value="agressivo_simulado">Agressivo apenas simulado</option>
+    </select>
+
+    <h2>4. Prévia operacional</h2>
+    <div class="grid">
+    <div class="box"><div class="k">Estimativa em 5 min</div><div class="v" id="signals5">1 sinal</div></div>
+    <div class="box"><div class="k">Estimativa em 1 hora</div><div class="v" id="signals1h">5 sinais</div></div>
+    <div class="box"><div class="k">Risco da estratégia</div><div class="v" id="riskBox">baixo/médio</div></div>
+    <div class="box"><div class="k">Consumo estimado 1h</div><div class="v" id="consumption">R$ 25,00</div></div>
+    </div>
+
+    <div class="box warn">
+    <div class="k">Alerta de cancelamento</div>
+    <div class="note" id="cancelAlert">Cancelar se o preço fugir da zona antes do horário de entrada.</div>
+    </div>
+
+    <button type="submit">Iniciar sessão simulada</button>
+    </form>
+
+    <div class="note">
+    Contrato: mobile-first, observador visual, motor lógico programado, saldo simulado e segurança travada.
+    </div>
+    </div>
+    </div>
+
+    <script>
+    const catalog = {{
+      support_resistance: {{label:"Suporte e resistência", scalper5:1, scalper1h:8, day5:0, day1h:3, risk:"médio"}},
+      candle_reversal: {{label:"Reversão de vela", scalper5:1, scalper1h:10, day5:0, day1h:4, risk:"médio/alto"}},
+      breakout: {{label:"Rompimento", scalper5:1, scalper1h:7, day5:0, day1h:3, risk:"alto"}},
+      moving_average_trend: {{label:"Tendência por médias", scalper5:0, scalper1h:6, day5:0, day1h:2, risk:"médio"}},
+      pullback: {{label:"Pullback", scalper5:1, scalper1h:6, day5:0, day1h:2, risk:"médio"}},
+      simple_confluence: {{label:"Confluência simples", scalper5:1, scalper1h:5, day5:0, day1h:2, risk:"baixo/médio"}}
+    }};
+    function brl(v) {{ return "R$ " + Number(v || 0).toFixed(2).replace(".", ","); }}
+    function updatePreview() {{
+      const mode = document.getElementById("operational_mode").value;
+      const strategy = document.getElementById("strategy_key").value;
+      const bankroll = Number(document.getElementById("initial_bankroll").value || 0);
+      const entry = Number(document.getElementById("current_entry").value || 0);
+      const meta = catalog[strategy];
+      const s5 = mode === "scalper" ? meta.scalper5 : meta.day5;
+      const s1h = mode === "scalper" ? meta.scalper1h : meta.day1h;
+      document.getElementById("signals5").innerText = s5 + (s5 === 1 ? " sinal" : " sinais");
+      document.getElementById("signals1h").innerText = s1h + (s1h === 1 ? " sinal" : " sinais");
+      document.getElementById("riskBox").innerText = meta.risk;
+      document.getElementById("consumption").innerText = brl(Math.min(s1h * entry, bankroll));
+    }}
+    updatePreview();
+    </script>
+    </body>
+    </html>"""
+        return Response(html, mimetype="text/html; charset=utf-8")
+
+    def _ptp113b31a_signal_contract_override():
+        from flask import jsonify, request
+        contract = app.config.get("PTP113B31A_SESSION_CONTRACT") or _ptp113b31a_build_contract(request.args)
+        return jsonify({
+        "available_strategies": _ptp113b31a_strategy_catalog(),
+        "available_operational_modes": {
+            "scalper": "Scalper — sinais rápidos",
+            "day_trade": "Day Trade — sinais mais seletivos"
+        },
+
+            "version": "PTP-113B.3.1A",
+            "status": "COMPLETE_SIMULATED_CONTRACT",
+            "contract": contract,
+            "required_visual_fields": contract["required_visual_fields"],
+            "example": {
+                "ativo": "LATAM Index",
+                "direcao": "COMPRA / VENDA / AGUARDAR",
+                "horario_entrada": "HH:MM:SS",
+                "preco_referencia": "preço ou zona de entrada",
+                "tempo_expiracao": contract["expiration"]["label"],
+                "alerta_cancelamento": contract["preview"]["cancel_alert"],
+                "explicacao": "Motivo técnico conforme modo operacional e estratégia geradora.",
+                "confianca": "0-100%",
+                "status": "AGUARDANDO HORÁRIO DE ENTRADA",
+                "modo_operacional": contract["operational_mode"]["label"],
+                "estrategia_geradora": contract["strategy"]["label"],
+                "banca_simulada": contract["bankroll"]["initial_bankroll"],
+                "saldo_atual": contract["bankroll"]["current_bankroll"],
+                "entrada_simulada": contract["bankroll"]["current_entry"],
+                "risco": contract["risk"],
+                "estimativa_sinais_5m": contract["preview"]["estimated_signals_5m"],
+                "estimativa_sinais_1h": contract["preview"]["estimated_signals_1h"],
+            },
+        })
+
+    @app.after_request
+    def _ptp113b31a_enrich_mobile_state(response):
+        try:
+            from flask import request
+            import json as _json
+            if request.path != "/api/mobile/state":
+                return response
+
+            data = response.get_json(silent=True)
+            if not isinstance(data, dict):
+                return response
+
+            contract = app.config.get("PTP113B31A_SESSION_CONTRACT") or _ptp113b31a_build_contract({})
+            mobile_session = data.get("mobile_session")
+            if not isinstance(mobile_session, dict):
+                mobile_session = {}
+
+            mobile_session["contract"] = contract
+            mobile_session["operational_mode"] = contract["operational_mode"]
+            mobile_session["strategy"] = contract["strategy"]
+            mobile_session["simulated_bankroll"] = contract["bankroll"]
+            mobile_session["risk"] = contract["risk"]
+            mobile_session["preview"] = contract["preview"]
+
+            data["mobile_session"] = mobile_session
+            data["simulation_only"] = True
+            data["orders_enabled"] = False
+            data["real_money_enabled"] = False
+            data["auto_click_enabled"] = False
+            data["broker_login_enabled"] = False
+            data["credentials_allowed"] = False
+            data["ptp113b31a_contract_complete"] = True
+
+            response.set_data(_json.dumps(data, ensure_ascii=False, default=str).encode("utf-8"))
+            response.headers["Content-Type"] = "application/json; charset=utf-8"
+        except Exception as exc:
+            response.headers["X-PTP113B31A-State-Enrich-Error"] = str(exc)[:180]
+        return response
+
+    _found_session_setup = False
+    _found_signal_contract = False
+    for _rule in list(app.url_map.iter_rules()):
+        if _rule.rule == "/session/setup":
+            app.view_functions[_rule.endpoint] = _ptp113b31a_session_setup_override
+            _found_session_setup = True
+        if _rule.rule == "/api/mobile/signal/contract":
+            app.view_functions[_rule.endpoint] = _ptp113b31a_signal_contract_override
+            _found_signal_contract = True
+
+    if not _found_session_setup:
+        app.add_url_rule(
+            "/session/setup",
+            "ptp113b31a_session_setup",
+            _ptp113b31a_session_setup_override,
+            methods=["GET", "POST"],
+        )
+
+    if not _found_signal_contract:
+        app.add_url_rule(
+            "/api/mobile/signal/contract",
+            "ptp113b31a_signal_contract",
+            _ptp113b31a_signal_contract_override,
+            methods=["GET"],
+        )
+    # END PTP-113B.3.1A COMPLETE SESSION CONTRACT
 
     return app
 
