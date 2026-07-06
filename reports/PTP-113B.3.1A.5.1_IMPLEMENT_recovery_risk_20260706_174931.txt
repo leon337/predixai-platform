@@ -1,0 +1,4 @@
+  File "<stdin>", line 868
+    new_select = '''<select name="recovery_mode" id="recovery_mode">
+                            ^^^^
+SyntaxError: invalid syntax
