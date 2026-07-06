@@ -1,0 +1,120 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1A.2 — PAUSE STATE BEFORE CHECKPOINT
+Data: seg 06 jul 2026 19:00:13 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== MOTIVO DA PAUSA =====
+Chat em uso alto. Pausar novos patches, salvar estado no GitHub e continuar em novo chat.
+
+===== ESTADO FUNCIONAL OBSERVADO =====
+1. Campos monetários aparecem em BRL na tela /session/setup.
+2. Botões + e - aparecem visualmente.
+3. Bug confirmado: botão '-' está aumentando em vez de diminuir.
+4. Alguns valores monetários explodem para milhões.
+5. Há indício de múltiplos hooks monetários acumulados no servidor mobile.
+6. Próximo chat deve auditar scripts/predixai_trader_mobile_server.py antes de novo patch.
+
+===== REGRA PARA O PRÓXIMO CHAT =====
+Não aplicar patch direto.
+Primeiro auditar hooks monetários existentes.
+Depois corrigir apenas a causa raiz do stepper monetário.
+
+===== GIT STATUS ANTES =====
+?? reports/PTP-113B.3.1A.5.1A.1_RESTART_currency_layout_recovery_logic_20260706_184655.txt
+?? reports/PTP-113B.3.1A.5.1A.2_AUDIT_money_stepper_before_fix_20260706_185815.txt
+?? reports/PTP-113B.3.1A.5.1A.2_PAUSE_state_before_checkpoint_20260706_190013.txt
+
+===== ÚLTIMOS 12 COMMITS =====
+1461ee4 PTP-113B.3.1A.5.1A.1 PASS currency layout publish report
+f24fe10 PTP-113B.3.1A.5.1A.1 PASS currency layout recovery logic
+27ac65f PTP-113B.3.1A.5.1A PASS currency controls publish report
+6d88950 PTP-113B.3.1A.5.1A PASS currency controls BRL
+e424f11 PTP-113B.3.1A.5.1 PASS setup UI publish report
+b2449b9 PTP-113B.3.1A.5.1 PASS setup UI recovery risk
+cb26f24 PTP-113B.3.1A.5.1 FAIL setup UI recovery risk
+45d3ad0 PTP-113B.3.1A.5.1 FAIL recovery risk syntax error
+b44ea6f PTP-113B.3.1A.5.1 AUDIT clean close report
+cccf827 PTP-113B.3.1A.5.1 AUDIT finalize recovery report
+933591e PTP-113B.3.1A.5.1 AUDIT recovery reports
+f600c31 PTP-113B.3.1A.5.1 AUDIT publish reports
+
+===== RELATÓRIOS RECENTES =====
+reports/PTP-113B.3.1A.5.1A.1_FIX_currency_layout_recovery_logic_20260706_184357.txt
+reports/PTP-113B.3.1A.5.1A.1_PASS_publish_currency_layout_recovery_logic_20260706_184548.txt
+reports/PTP-113B.3.1A.5.1A.1_RESTART_currency_layout_recovery_logic_20260706_184655.txt
+reports/PTP-113B.3.1A.5.1A.2_AUDIT_money_stepper_before_fix_20260706_185815.txt
+reports/PTP-113B.3.1A.5.1A.2_PAUSE_state_before_checkpoint_20260706_190013.txt
+reports/PTP-113B.3.1A.5.1A_FIX_currency_controls_brl_20260706_183106.txt
+reports/PTP-113B.3.1A.5.1A_PASS_publish_currency_controls_brl_20260706_183321.txt
+reports/PTP-113B.3.1A.5.1A_RESTART_currency_controls_brl_20260706_183644.txt
+reports/PTP-113B.3.1A.5.1_AUDIT_clean_close_20260706_174222.txt
+reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt
+reports/PTP-113B.3.1A.5.1_AUDIT_publish_reports_20260706_173602.txt
+reports/PTP-113B.3.1A.5.1_AUDIT_recovery_status_20260706_174050.txt
+reports/PTP-113B.3.1A.5.1_FIX_setup_ui_v3_20260706_180128.txt
+reports/PTP-113B.3.1A.5.1_IMPLEMENT_FAIL_syntax_error_20260706_175112.txt
+reports/PTP-113B.3.1A.5.1_IMPLEMENT_recovery_risk_20260706_174931.txt
+reports/PTP-113B.3.1A.5.1_IMPLEMENT_recovery_risk_v2_20260706_175505.txt
+reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt
+reports/PTP-113B.3.1A.5.1_PASS_publish_setup_ui_v3_20260706_180252.txt
+reports/PTP-113B.3.1A.5.1_RESTART_mobile_server_v3_20260706_181402.txt
+reports/PTP-113B.3.1A.5.1_VALIDATE_FAIL_setup_ui_20260706_175821.txt
+reports/PTP-113B.3.1A.5.1_VALIDATE_recovery_risk_endpoints_20260706_175640.txt
+
+===== MARCADORES MONETÁRIOS NO SERVIDOR =====
+3357:    @app.after_request
+3775:    @app.after_request
+4069:    @app.after_request
+4804:            @app.after_request
+4805:            def _ptp113b3151_after_request_v2(response):
+4906:            @app.after_request
+4907:            def _ptp113b3151_setup_ui_after_request_v3(response):
+4943:  .money-stepper {
+4951:  .money-stepper button {
+4962:  .money-stepper button:active {
+4966:  .money-stepper input {
+5005:  function parseMoney(value) {
+5018:  function formatBRL(value) {
+5031:    const current = parseMoney(source.value || source.getAttribute("value") || "0");
+5038:    wrapper.className = "money-stepper";
+5050:    visible.value = formatBRL(current);
+5059:      const min = parseMoney(source.getAttribute("min") || "0");
+5064:      visible.value = formatBRL(next);
+5071:      sync(parseMoney(source.value) - 1);
+5075:      sync(parseMoney(source.value) + 1);
+5079:      visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+5084:      sync(parseMoney(visible.value));
+5090:        sync(parseMoney(visible.value));
+5118:      source.value = toDecimal(parseMoney(source.value));
+5122:  window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+5133:    if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+5151:            @app.after_request
+5152:            def _ptp113b3151a_currency_after_request_v1(response):
+5163:                    response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+5188:  .money-stepper {
+5197:  .money-stepper button {
+5214:  .money-stepper input {
+5253:  function parseMoney(value) {
+5266:  function formatBRL(value) {
+5310:    const initialValue = parseMoney(source.value || source.getAttribute("value") || "0");
+5314:    wrapper.className = "money-stepper";
+5326:    visible.value = formatBRL(initialValue);
+5335:      const min = parseMoney(source.getAttribute("min") || "0");
+5341:      visible.value = formatBRL(next);
+5348:      sync(parseMoney(source.value) - 1);
+5352:      sync(parseMoney(source.value) + 1);
+5356:      visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+5361:      sync(parseMoney(visible.value));
+5367:        sync(parseMoney(visible.value));
+5418:      result.stepper = document.querySelector('[data-money-stepper-for="max_entry_limit"]');
+5474:      source.value = toDecimal(parseMoney(source.value));
+5478:  window.PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC = true;
+5487:    if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
+5505:            @app.after_request
+5506:            def _ptp113b3151a1_currency_layout_after_request_v1(response):
+5517:                    response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+
+===== DIFF CHECK =====
+git_diff_check_exit=0
+
+===== RESULTADO =====
+PAUSE_STATE_READY_TO_COMMIT

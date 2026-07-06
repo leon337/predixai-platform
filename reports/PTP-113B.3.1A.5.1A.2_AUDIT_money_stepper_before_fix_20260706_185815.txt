@@ -1,0 +1,3099 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1A.2 — AUDIT MONEY STEPPER BEFORE FIX
+Data: seg 06 jul 2026 18:58:15 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== GIT STATUS =====
+?? reports/PTP-113B.3.1A.5.1A.1_RESTART_currency_layout_recovery_logic_20260706_184655.txt
+?? reports/PTP-113B.3.1A.5.1A.2_AUDIT_money_stepper_before_fix_20260706_185815.txt
+
+===== ÚLTIMOS 10 COMMITS =====
+1461ee4 PTP-113B.3.1A.5.1A.1 PASS currency layout publish report
+f24fe10 PTP-113B.3.1A.5.1A.1 PASS currency layout recovery logic
+27ac65f PTP-113B.3.1A.5.1A PASS currency controls publish report
+6d88950 PTP-113B.3.1A.5.1A PASS currency controls BRL
+e424f11 PTP-113B.3.1A.5.1 PASS setup UI publish report
+b2449b9 PTP-113B.3.1A.5.1 PASS setup UI recovery risk
+cb26f24 PTP-113B.3.1A.5.1 FAIL setup UI recovery risk
+45d3ad0 PTP-113B.3.1A.5.1 FAIL recovery risk syntax error
+b44ea6f PTP-113B.3.1A.5.1 AUDIT clean close report
+cccf827 PTP-113B.3.1A.5.1 AUDIT finalize recovery report
+
+===== ARQUIVO-ALVO =====
+-rw-rw-r-- 1 leo leo 201K jul  6 18:43 scripts/predixai_trader_mobile_server.py
+
+===== MARCADORES PTP MONETÁRIOS =====
+1220:            "real_money_enabled": False,
+1281:        "real_money_enabled": False,
+1363:        "real_money_enabled": False,
+1406:            "real_money_enabled": False,
+1420:        "real_money_enabled": False,
+3538:            "real_money_enabled": False,
+3554:                "currency": "BRL",
+3601:                "real_money_enabled": False,
+3802:            data["real_money_enabled"] = False
+4098:            data["real_money_enabled"] = False
+4929:# PTP-113B.3.1A.5.1A_CURRENCY_CONTROLS_BRL_V1
+4930:def _ptp113b3151a_currency_controls_v1_assets():
+4932:<style id="ptp113b3151a-currency-style">
+4943:  .money-stepper {
+4951:  .money-stepper button {
+4962:  .money-stepper button:active {
+4966:  .money-stepper input {
+4978:  .money-hidden-source {
+4982:  .money-help {
+4992:<script id="ptp113b3151a-currency-script">
+4994:  const MONEY_FIELDS = [
+5018:  function formatBRL(value) {
+5021:      style: "currency",
+5022:      currency: "BRL",
+5029:    if (!source || source.dataset.moneyField === "1") return;
+5033:    source.dataset.moneyField = "1";
+5034:    source.classList.add("money-hidden-source");
+5038:    wrapper.className = "money-stepper";
+5039:    wrapper.dataset.moneyStepperFor = source.name || source.id || "money";
+5050:    visible.value = formatBRL(current);
+5064:      visible.value = formatBRL(next);
+5102:    help.className = "money-help";
+5108:    MONEY_FIELDS.forEach(function (name) {
+5117:    document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+5122:  window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+5129:def _ptp113b3151a_inject_currency_controls_v1(html):
+5133:    if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+5136:    assets = _ptp113b3151a_currency_controls_v1_assets()
+5150:        if not getattr(app, "_ptp113b3151a_currency_controls_v1", False):
+5152:            def _ptp113b3151a_currency_after_request_v1(response):
+5158:                            html = _ptp113b3151a_inject_currency_controls_v1(html)
+5163:                    response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+5166:            app._ptp113b3151a_currency_controls_v1 = True
+5174:# PTP-113B.3.1A.5.1A.1_CURRENCY_LAYOUT_RECOVERY_LOGIC_V1
+5175:def _ptp113b3151a1_currency_layout_assets_v1():
+5177:<style id="ptp113b3151a1-currency-layout-style">
+5188:  .money-stepper {
+5197:  .money-stepper button {
+5214:  .money-stepper input {
+5228:  .money-hidden-source {
+5232:  .money-help {
+5239:  .money-recovery-limit-hidden {
+5244:<script id="ptp113b3151a1-currency-layout-script">
+5266:  function formatBRL(value) {
+5268:      style: "currency",
+5269:      currency: "BRL",
+5298:    return source.name || source.id || "money";
+5302:    if (!source || source.dataset.moneyFieldV2 === "1") return;
+5305:    source.dataset.moneyFieldV2 = "1";
+5306:    source.dataset.moneySemanticName = fieldName;
+5307:    source.classList.add("money-hidden-source");
+5314:    wrapper.className = "money-stepper";
+5315:    wrapper.dataset.moneyStepperFor = fieldName;
+5326:    visible.value = formatBRL(initialValue);
+5341:      visible.value = formatBRL(next);
+5379:    help.className = "money-help";
+5407:      source: document.querySelector('[data-money-semantic-name="max_entry_limit"], [name="max_entry_limit"], #max_entry_limit'),
+5408:      stepper: null,
+5418:      result.stepper = document.querySelector('[data-money-stepper-for="max_entry_limit"]');
+5419:      if (result.stepper && result.stepper.nextElementSibling && result.stepper.nextElementSibling.classList.contains("money-help")) {
+5420:        result.help = result.stepper.nextElementSibling;
+5434:    [elements.label, elements.stepper, elements.help].forEach(function (el) {
+5436:      el.classList.toggle("money-recovery-limit-hidden", hidden);
+5458:    if (select && select.dataset.moneyRecoveryListener !== "1") {
+5459:      select.dataset.moneyRecoveryListener = "1";
+5472:    document.querySelectorAll("[data-money-field-v2='1']").forEach(function (source) {
+5478:  window.PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC = true;
+5483:def _ptp113b3151a1_inject_currency_layout_v1(html):
+5487:    if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
+5490:    assets = _ptp113b3151a1_currency_layout_assets_v1()
+5504:        if not getattr(app, "_ptp113b3151a1_currency_layout_v1", False):
+5506:            def _ptp113b3151a1_currency_layout_after_request_v1(response):
+5512:                            html = _ptp113b3151a1_inject_currency_layout_v1(html)
+5517:                    response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+5520:            app._ptp113b3151a1_currency_layout_v1 = True
+
+===== FUNÇÕES DE MOEDA / PARSE / FORMAT =====
+390:        <button type="button" onclick="resetSession()">Limpar sessão</button>
+426:    <button type="button" onclick="refreshState()">Atualizar</button>
+427:    <button type="button" onclick="startSimulatedSession()">Iniciar simulado</button>
+428:    <button type="button" onclick="stopReader()">Parar leitor</button>
+720:    async function refreshState() {
+725:    async function startReader(interval) {
+729:    async function startSimulatedSession() {
+775:    async function stopReader() {
+780:    async function resetSession() {
+1219:            "auto_click_enabled": False,
+1280:        "auto_click_enabled": False,
+1362:        "auto_click_enabled": False,
+1405:            "auto_click_enabled": False,
+1419:        "auto_click_enabled": False,
+3287:<button onclick="startSession()">Iniciar sessão simulada</button>
+3296:async function startSession(){
+3539:            "auto_click_enabled": False,
+3602:                "auto_click_enabled": False,
+3803:            data["auto_click_enabled"] = False
+4099:            data["auto_click_enabled"] = False
+5005:  function parseMoney(value) {
+5014:  function toDecimal(value) {
+5018:  function formatBRL(value) {
+5031:    const current = parseMoney(source.value || source.getAttribute("value") || "0");
+5032:    source.value = toDecimal(current);
+5041:    const minus = document.createElement("button");
+5042:    minus.type = "button";
+5043:    minus.textContent = "−";
+5044:    minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+5050:    visible.value = formatBRL(current);
+5053:    const plus = document.createElement("button");
+5054:    plus.type = "button";
+5055:    plus.textContent = "+";
+5056:    plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+5058:    function sync(value) {
+5059:      const min = parseMoney(source.getAttribute("min") || "0");
+5063:      source.value = toDecimal(next);
+5064:      visible.value = formatBRL(next);
+5070:    minus.addEventListener("click", function () {
+5071:      sync(parseMoney(source.value) - 1);
+5074:    plus.addEventListener("click", function () {
+5075:      sync(parseMoney(source.value) + 1);
+5078:    visible.addEventListener("focus", function () {
+5079:      visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+5083:    visible.addEventListener("blur", function () {
+5084:      sync(parseMoney(visible.value));
+5087:    visible.addEventListener("keydown", function (event) {
+5090:        sync(parseMoney(visible.value));
+5095:    wrapper.appendChild(minus);
+5097:    wrapper.appendChild(plus);
+5113:  document.addEventListener("DOMContentLoaded", applyMoneyControls);
+5116:  document.addEventListener("submit", function () {
+5118:      source.value = toDecimal(parseMoney(source.value));
+5253:  function parseMoney(value) {
+5262:  function toDecimal(value) {
+5266:  function formatBRL(value) {
+5310:    const initialValue = parseMoney(source.value || source.getAttribute("value") || "0");
+5311:    source.value = toDecimal(initialValue);
+5317:    const minus = document.createElement("button");
+5318:    minus.type = "button";
+5319:    minus.textContent = "−";
+5320:    minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+5326:    visible.value = formatBRL(initialValue);
+5329:    const plus = document.createElement("button");
+5330:    plus.type = "button";
+5331:    plus.textContent = "+";
+5332:    plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+5334:    function sync(value) {
+5335:      const min = parseMoney(source.getAttribute("min") || "0");
+5340:      source.value = toDecimal(next);
+5341:      visible.value = formatBRL(next);
+5347:    minus.addEventListener("click", function () {
+5348:      sync(parseMoney(source.value) - 1);
+5351:    plus.addEventListener("click", function () {
+5352:      sync(parseMoney(source.value) + 1);
+5355:    visible.addEventListener("focus", function () {
+5356:      visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+5360:    visible.addEventListener("blur", function () {
+5361:      sync(parseMoney(visible.value));
+5364:    visible.addEventListener("keydown", function (event) {
+5367:        sync(parseMoney(visible.value));
+5372:    wrapper.appendChild(minus);
+5374:    wrapper.appendChild(plus);
+5460:      select.addEventListener("change", updateRecoveryLimitVisibility);
+5461:      select.addEventListener("input", updateRecoveryLimitVisibility);
+5465:  document.addEventListener("DOMContentLoaded", applyMoneyUI);
+5469:  document.addEventListener("submit", function () {
+5474:      source.value = toDecimal(parseMoney(source.value));
+
+===== AFTER_REQUEST REGISTRADOS =====
+3351:def create_mobile_app() -> Flask:
+3357:    @app.after_request
+3775:    @app.after_request
+4069:    @app.after_request
+4430:        create_mobile_app().run(host=host, port=port, debug=False, use_reloader=False, threaded=True)
+4498:                app = create_mobile_app()
+4798:    _ptp113b3151_original_create_mobile_app_v2 = create_mobile_app
+4800:    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+4801:        app = _ptp113b3151_original_create_mobile_app_v2(*args, **kwargs)
+4804:            @app.after_request
+4805:            def _ptp113b3151_after_request_v2(response):
+4900:    _ptp113b3151_original_create_mobile_app_v3 = create_mobile_app
+4902:    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+4903:        app = _ptp113b3151_original_create_mobile_app_v3(*args, **kwargs)
+4906:            @app.after_request
+4907:            def _ptp113b3151_setup_ui_after_request_v3(response):
+5145:    _ptp113b3151a_original_create_mobile_app_v1 = create_mobile_app
+5147:    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+5148:        app = _ptp113b3151a_original_create_mobile_app_v1(*args, **kwargs)
+5151:            @app.after_request
+5152:            def _ptp113b3151a_currency_after_request_v1(response):
+5499:    _ptp113b3151a1_original_create_mobile_app_v1 = create_mobile_app
+5501:    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+5502:        app = _ptp113b3151a1_original_create_mobile_app_v1(*args, **kwargs)
+5505:            @app.after_request
+5506:            def _ptp113b3151a1_currency_layout_after_request_v1(response):
+
+===== TRECHO DOS HOOKS MONETÁRIOS =====
+
+----- LINHAS 4923 A 4988 -----
+04923:         return app
+04924: except NameError:
+04925:     pass
+04926:
+04927:
+04928:
+04929: # PTP-113B.3.1A.5.1A_CURRENCY_CONTROLS_BRL_V1
+04930: def _ptp113b3151a_currency_controls_v1_assets():
+04931:     css = """
+04932: <style id="ptp113b3151a-currency-style">
+04933:   input[type=number]::-webkit-outer-spin-button,
+04934:   input[type=number]::-webkit-inner-spin-button {
+04935:     -webkit-appearance: none;
+04936:     margin: 0;
+04937:   }
+04938:
+04939:   input[type=number] {
+04940:     -moz-appearance: textfield;
+04941:   }
+04942:
+04943:   .money-stepper {
+04944:     display: grid;
+04945:     grid-template-columns: 52px 1fr 52px;
+04946:     gap: 8px;
+04947:     align-items: center;
+04948:     margin: 6px 0 14px 0;
+04949:   }
+04950:
+04951:   .money-stepper button {
+04952:     min-height: 44px;
+04953:     border-radius: 12px;
+04954:     border: 1px solid #31516f;
+04955:     background: #102239;
+04956:     color: #f5c542;
+04957:     font-size: 24px;
+04958:     font-weight: 800;
+04959:     cursor: pointer;
+04960:   }
+04961:
+04962:   .money-stepper button:active {
+04963:     transform: scale(0.98);
+04964:   }
+04965:
+04966:   .money-stepper input {
+04967:     width: 100%;
+04968:     min-height: 44px;
+04969:     border-radius: 12px;
+04970:     border: 1px solid #31516f;
+04971:     background: #061423;
+04972:     color: #ffffff;
+04973:     padding: 0 14px;
+04974:     font-size: 16px;
+04975:     font-weight: 700;
+04976:   }
+04977:
+04978:   .money-hidden-source {
+04979:     display: none !important;
+04980:   }
+04981:
+04982:   .money-help {
+04983:     color: #8ea4b9;
+04984:     font-size: 12px;
+04985:     margin-top: -8px;
+04986:     margin-bottom: 10px;
+04987:   }
+04988: </style>
+
+----- LINHAS 4931 A 4996 -----
+04931:     css = """
+04932: <style id="ptp113b3151a-currency-style">
+04933:   input[type=number]::-webkit-outer-spin-button,
+04934:   input[type=number]::-webkit-inner-spin-button {
+04935:     -webkit-appearance: none;
+04936:     margin: 0;
+04937:   }
+04938:
+04939:   input[type=number] {
+04940:     -moz-appearance: textfield;
+04941:   }
+04942:
+04943:   .money-stepper {
+04944:     display: grid;
+04945:     grid-template-columns: 52px 1fr 52px;
+04946:     gap: 8px;
+04947:     align-items: center;
+04948:     margin: 6px 0 14px 0;
+04949:   }
+04950:
+04951:   .money-stepper button {
+04952:     min-height: 44px;
+04953:     border-radius: 12px;
+04954:     border: 1px solid #31516f;
+04955:     background: #102239;
+04956:     color: #f5c542;
+04957:     font-size: 24px;
+04958:     font-weight: 800;
+04959:     cursor: pointer;
+04960:   }
+04961:
+04962:   .money-stepper button:active {
+04963:     transform: scale(0.98);
+04964:   }
+04965:
+04966:   .money-stepper input {
+04967:     width: 100%;
+04968:     min-height: 44px;
+04969:     border-radius: 12px;
+04970:     border: 1px solid #31516f;
+04971:     background: #061423;
+04972:     color: #ffffff;
+04973:     padding: 0 14px;
+04974:     font-size: 16px;
+04975:     font-weight: 700;
+04976:   }
+04977:
+04978:   .money-hidden-source {
+04979:     display: none !important;
+04980:   }
+04981:
+04982:   .money-help {
+04983:     color: #8ea4b9;
+04984:     font-size: 12px;
+04985:     margin-top: -8px;
+04986:     margin-bottom: 10px;
+04987:   }
+04988: </style>
+04989: """
+04990:
+04991:     js = """
+04992: <script id="ptp113b3151a-currency-script">
+04993: (function () {
+04994:   const MONEY_FIELDS = [
+04995:     "initial_bankroll",
+04996:     "simulated_bankroll",
+
+----- LINHAS 4942 A 5007 -----
+04942:
+04943:   .money-stepper {
+04944:     display: grid;
+04945:     grid-template-columns: 52px 1fr 52px;
+04946:     gap: 8px;
+04947:     align-items: center;
+04948:     margin: 6px 0 14px 0;
+04949:   }
+04950:
+04951:   .money-stepper button {
+04952:     min-height: 44px;
+04953:     border-radius: 12px;
+04954:     border: 1px solid #31516f;
+04955:     background: #102239;
+04956:     color: #f5c542;
+04957:     font-size: 24px;
+04958:     font-weight: 800;
+04959:     cursor: pointer;
+04960:   }
+04961:
+04962:   .money-stepper button:active {
+04963:     transform: scale(0.98);
+04964:   }
+04965:
+04966:   .money-stepper input {
+04967:     width: 100%;
+04968:     min-height: 44px;
+04969:     border-radius: 12px;
+04970:     border: 1px solid #31516f;
+04971:     background: #061423;
+04972:     color: #ffffff;
+04973:     padding: 0 14px;
+04974:     font-size: 16px;
+04975:     font-weight: 700;
+04976:   }
+04977:
+04978:   .money-hidden-source {
+04979:     display: none !important;
+04980:   }
+04981:
+04982:   .money-help {
+04983:     color: #8ea4b9;
+04984:     font-size: 12px;
+04985:     margin-top: -8px;
+04986:     margin-bottom: 10px;
+04987:   }
+04988: </style>
+04989: """
+04990:
+04991:     js = """
+04992: <script id="ptp113b3151a-currency-script">
+04993: (function () {
+04994:   const MONEY_FIELDS = [
+04995:     "initial_bankroll",
+04996:     "simulated_bankroll",
+04997:     "initial_entry",
+04998:     "entry_value",
+04999:     "profit_target",
+05000:     "take_profit",
+05001:     "max_entry_limit",
+05002:     "stop_loss"
+05003:   ];
+05004:
+05005:   function parseMoney(value) {
+05006:     if (value === null || value === undefined) return 0;
+05007:     let raw = String(value).trim();
+
+----- LINHAS 4946 A 5011 -----
+04946:     gap: 8px;
+04947:     align-items: center;
+04948:     margin: 6px 0 14px 0;
+04949:   }
+04950:
+04951:   .money-stepper button {
+04952:     min-height: 44px;
+04953:     border-radius: 12px;
+04954:     border: 1px solid #31516f;
+04955:     background: #102239;
+04956:     color: #f5c542;
+04957:     font-size: 24px;
+04958:     font-weight: 800;
+04959:     cursor: pointer;
+04960:   }
+04961:
+04962:   .money-stepper button:active {
+04963:     transform: scale(0.98);
+04964:   }
+04965:
+04966:   .money-stepper input {
+04967:     width: 100%;
+04968:     min-height: 44px;
+04969:     border-radius: 12px;
+04970:     border: 1px solid #31516f;
+04971:     background: #061423;
+04972:     color: #ffffff;
+04973:     padding: 0 14px;
+04974:     font-size: 16px;
+04975:     font-weight: 700;
+04976:   }
+04977:
+04978:   .money-hidden-source {
+04979:     display: none !important;
+04980:   }
+04981:
+04982:   .money-help {
+04983:     color: #8ea4b9;
+04984:     font-size: 12px;
+04985:     margin-top: -8px;
+04986:     margin-bottom: 10px;
+04987:   }
+04988: </style>
+04989: """
+04990:
+04991:     js = """
+04992: <script id="ptp113b3151a-currency-script">
+04993: (function () {
+04994:   const MONEY_FIELDS = [
+04995:     "initial_bankroll",
+04996:     "simulated_bankroll",
+04997:     "initial_entry",
+04998:     "entry_value",
+04999:     "profit_target",
+05000:     "take_profit",
+05001:     "max_entry_limit",
+05002:     "stop_loss"
+05003:   ];
+05004:
+05005:   function parseMoney(value) {
+05006:     if (value === null || value === undefined) return 0;
+05007:     let raw = String(value).trim();
+05008:     raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
+05009:     raw = raw.replace(/\\./g, "").replace(",", ".");
+05010:     const parsed = Number(raw);
+05011:     return Number.isFinite(parsed) ? parsed : 0;
+
+----- LINHAS 4985 A 5050 -----
+04985:     margin-top: -8px;
+04986:     margin-bottom: 10px;
+04987:   }
+04988: </style>
+04989: """
+04990:
+04991:     js = """
+04992: <script id="ptp113b3151a-currency-script">
+04993: (function () {
+04994:   const MONEY_FIELDS = [
+04995:     "initial_bankroll",
+04996:     "simulated_bankroll",
+04997:     "initial_entry",
+04998:     "entry_value",
+04999:     "profit_target",
+05000:     "take_profit",
+05001:     "max_entry_limit",
+05002:     "stop_loss"
+05003:   ];
+05004:
+05005:   function parseMoney(value) {
+05006:     if (value === null || value === undefined) return 0;
+05007:     let raw = String(value).trim();
+05008:     raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
+05009:     raw = raw.replace(/\\./g, "").replace(",", ".");
+05010:     const parsed = Number(raw);
+05011:     return Number.isFinite(parsed) ? parsed : 0;
+05012:   }
+05013:
+05014:   function toDecimal(value) {
+05015:     return Number(value || 0).toFixed(2);
+05016:   }
+05017:
+05018:   function formatBRL(value) {
+05019:     const number = Number(value || 0);
+05020:     return number.toLocaleString("pt-BR", {
+05021:       style: "currency",
+05022:       currency: "BRL",
+05023:       minimumFractionDigits: 2,
+05024:       maximumFractionDigits: 2
+05025:     });
+05026:   }
+05027:
+05028:   function createMoneyControl(source) {
+05029:     if (!source || source.dataset.moneyField === "1") return;
+05030:
+05031:     const current = parseMoney(source.value || source.getAttribute("value") || "0");
+05032:     source.value = toDecimal(current);
+05033:     source.dataset.moneyField = "1";
+05034:     source.classList.add("money-hidden-source");
+05035:     source.setAttribute("step", "1.00");
+05036:
+05037:     const wrapper = document.createElement("div");
+05038:     wrapper.className = "money-stepper";
+05039:     wrapper.dataset.moneyStepperFor = source.name || source.id || "money";
+05040:
+05041:     const minus = document.createElement("button");
+05042:     minus.type = "button";
+05043:     minus.textContent = "−";
+05044:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05045:
+05046:     const visible = document.createElement("input");
+05047:     visible.type = "text";
+05048:     visible.inputMode = "decimal";
+05049:     visible.autocomplete = "off";
+05050:     visible.value = formatBRL(current);
+
+----- LINHAS 4998 A 5063 -----
+04998:     "entry_value",
+04999:     "profit_target",
+05000:     "take_profit",
+05001:     "max_entry_limit",
+05002:     "stop_loss"
+05003:   ];
+05004:
+05005:   function parseMoney(value) {
+05006:     if (value === null || value === undefined) return 0;
+05007:     let raw = String(value).trim();
+05008:     raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
+05009:     raw = raw.replace(/\\./g, "").replace(",", ".");
+05010:     const parsed = Number(raw);
+05011:     return Number.isFinite(parsed) ? parsed : 0;
+05012:   }
+05013:
+05014:   function toDecimal(value) {
+05015:     return Number(value || 0).toFixed(2);
+05016:   }
+05017:
+05018:   function formatBRL(value) {
+05019:     const number = Number(value || 0);
+05020:     return number.toLocaleString("pt-BR", {
+05021:       style: "currency",
+05022:       currency: "BRL",
+05023:       minimumFractionDigits: 2,
+05024:       maximumFractionDigits: 2
+05025:     });
+05026:   }
+05027:
+05028:   function createMoneyControl(source) {
+05029:     if (!source || source.dataset.moneyField === "1") return;
+05030:
+05031:     const current = parseMoney(source.value || source.getAttribute("value") || "0");
+05032:     source.value = toDecimal(current);
+05033:     source.dataset.moneyField = "1";
+05034:     source.classList.add("money-hidden-source");
+05035:     source.setAttribute("step", "1.00");
+05036:
+05037:     const wrapper = document.createElement("div");
+05038:     wrapper.className = "money-stepper";
+05039:     wrapper.dataset.moneyStepperFor = source.name || source.id || "money";
+05040:
+05041:     const minus = document.createElement("button");
+05042:     minus.type = "button";
+05043:     minus.textContent = "−";
+05044:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05045:
+05046:     const visible = document.createElement("input");
+05047:     visible.type = "text";
+05048:     visible.inputMode = "decimal";
+05049:     visible.autocomplete = "off";
+05050:     visible.value = formatBRL(current);
+05051:     visible.setAttribute("aria-label", "Valor em reais");
+05052:
+05053:     const plus = document.createElement("button");
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+
+----- LINHAS 5011 A 5076 -----
+05011:     return Number.isFinite(parsed) ? parsed : 0;
+05012:   }
+05013:
+05014:   function toDecimal(value) {
+05015:     return Number(value || 0).toFixed(2);
+05016:   }
+05017:
+05018:   function formatBRL(value) {
+05019:     const number = Number(value || 0);
+05020:     return number.toLocaleString("pt-BR", {
+05021:       style: "currency",
+05022:       currency: "BRL",
+05023:       minimumFractionDigits: 2,
+05024:       maximumFractionDigits: 2
+05025:     });
+05026:   }
+05027:
+05028:   function createMoneyControl(source) {
+05029:     if (!source || source.dataset.moneyField === "1") return;
+05030:
+05031:     const current = parseMoney(source.value || source.getAttribute("value") || "0");
+05032:     source.value = toDecimal(current);
+05033:     source.dataset.moneyField = "1";
+05034:     source.classList.add("money-hidden-source");
+05035:     source.setAttribute("step", "1.00");
+05036:
+05037:     const wrapper = document.createElement("div");
+05038:     wrapper.className = "money-stepper";
+05039:     wrapper.dataset.moneyStepperFor = source.name || source.id || "money";
+05040:
+05041:     const minus = document.createElement("button");
+05042:     minus.type = "button";
+05043:     minus.textContent = "−";
+05044:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05045:
+05046:     const visible = document.createElement("input");
+05047:     visible.type = "text";
+05048:     visible.inputMode = "decimal";
+05049:     visible.autocomplete = "off";
+05050:     visible.value = formatBRL(current);
+05051:     visible.setAttribute("aria-label", "Valor em reais");
+05052:
+05053:     const plus = document.createElement("button");
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+
+----- LINHAS 5018 A 5083 -----
+05018:   function formatBRL(value) {
+05019:     const number = Number(value || 0);
+05020:     return number.toLocaleString("pt-BR", {
+05021:       style: "currency",
+05022:       currency: "BRL",
+05023:       minimumFractionDigits: 2,
+05024:       maximumFractionDigits: 2
+05025:     });
+05026:   }
+05027:
+05028:   function createMoneyControl(source) {
+05029:     if (!source || source.dataset.moneyField === "1") return;
+05030:
+05031:     const current = parseMoney(source.value || source.getAttribute("value") || "0");
+05032:     source.value = toDecimal(current);
+05033:     source.dataset.moneyField = "1";
+05034:     source.classList.add("money-hidden-source");
+05035:     source.setAttribute("step", "1.00");
+05036:
+05037:     const wrapper = document.createElement("div");
+05038:     wrapper.className = "money-stepper";
+05039:     wrapper.dataset.moneyStepperFor = source.name || source.id || "money";
+05040:
+05041:     const minus = document.createElement("button");
+05042:     minus.type = "button";
+05043:     minus.textContent = "−";
+05044:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05045:
+05046:     const visible = document.createElement("input");
+05047:     visible.type = "text";
+05048:     visible.inputMode = "decimal";
+05049:     visible.autocomplete = "off";
+05050:     visible.value = formatBRL(current);
+05051:     visible.setAttribute("aria-label", "Valor em reais");
+05052:
+05053:     const plus = document.createElement("button");
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+
+----- LINHAS 5030 A 5095 -----
+05030:
+05031:     const current = parseMoney(source.value || source.getAttribute("value") || "0");
+05032:     source.value = toDecimal(current);
+05033:     source.dataset.moneyField = "1";
+05034:     source.classList.add("money-hidden-source");
+05035:     source.setAttribute("step", "1.00");
+05036:
+05037:     const wrapper = document.createElement("div");
+05038:     wrapper.className = "money-stepper";
+05039:     wrapper.dataset.moneyStepperFor = source.name || source.id || "money";
+05040:
+05041:     const minus = document.createElement("button");
+05042:     minus.type = "button";
+05043:     minus.textContent = "−";
+05044:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05045:
+05046:     const visible = document.createElement("input");
+05047:     visible.type = "text";
+05048:     visible.inputMode = "decimal";
+05049:     visible.autocomplete = "off";
+05050:     visible.value = formatBRL(current);
+05051:     visible.setAttribute("aria-label", "Valor em reais");
+05052:
+05053:     const plus = document.createElement("button");
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+
+----- LINHAS 5039 A 5104 -----
+05039:     wrapper.dataset.moneyStepperFor = source.name || source.id || "money";
+05040:
+05041:     const minus = document.createElement("button");
+05042:     minus.type = "button";
+05043:     minus.textContent = "−";
+05044:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05045:
+05046:     const visible = document.createElement("input");
+05047:     visible.type = "text";
+05048:     visible.inputMode = "decimal";
+05049:     visible.autocomplete = "off";
+05050:     visible.value = formatBRL(current);
+05051:     visible.setAttribute("aria-label", "Valor em reais");
+05052:
+05053:     const plus = document.createElement("button");
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+
+----- LINHAS 5044 A 5109 -----
+05044:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05045:
+05046:     const visible = document.createElement("input");
+05047:     visible.type = "text";
+05048:     visible.inputMode = "decimal";
+05049:     visible.autocomplete = "off";
+05050:     visible.value = formatBRL(current);
+05051:     visible.setAttribute("aria-label", "Valor em reais");
+05052:
+05053:     const plus = document.createElement("button");
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+
+----- LINHAS 5050 A 5115 -----
+05050:     visible.value = formatBRL(current);
+05051:     visible.setAttribute("aria-label", "Valor em reais");
+05052:
+05053:     const plus = document.createElement("button");
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+
+----- LINHAS 5051 A 5116 -----
+05051:     visible.setAttribute("aria-label", "Valor em reais");
+05052:
+05053:     const plus = document.createElement("button");
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+
+----- LINHAS 5054 A 5119 -----
+05054:     plus.type = "button";
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+05117:     document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+05118:       source.value = toDecimal(parseMoney(source.value));
+05119:     });
+
+----- LINHAS 5055 A 5120 -----
+05055:     plus.textContent = "+";
+05056:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05057:
+05058:     function sync(value) {
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+05117:     document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+05118:       source.value = toDecimal(parseMoney(source.value));
+05119:     });
+05120:   }, true);
+
+----- LINHAS 5059 A 5124 -----
+05059:       const min = parseMoney(source.getAttribute("min") || "0");
+05060:       let next = Number(value || 0);
+05061:       if (!Number.isFinite(next)) next = 0;
+05062:       if (next < min) next = min;
+05063:       source.value = toDecimal(next);
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+05117:     document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+05118:       source.value = toDecimal(parseMoney(source.value));
+05119:     });
+05120:   }, true);
+05121:
+05122:   window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+05123: })();
+05124: </script>
+
+----- LINHAS 5064 A 5129 -----
+05064:       visible.value = formatBRL(next);
+05065:
+05066:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05067:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05068:     }
+05069:
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+05117:     document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+05118:       source.value = toDecimal(parseMoney(source.value));
+05119:     });
+05120:   }, true);
+05121:
+05122:   window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+05123: })();
+05124: </script>
+05125: """
+05126:     return css + "\n" + js
+05127:
+05128:
+05129: def _ptp113b3151a_inject_currency_controls_v1(html):
+
+----- LINHAS 5070 A 5135 -----
+05070:     minus.addEventListener("click", function () {
+05071:       sync(parseMoney(source.value) - 1);
+05072:     });
+05073:
+05074:     plus.addEventListener("click", function () {
+05075:       sync(parseMoney(source.value) + 1);
+05076:     });
+05077:
+05078:     visible.addEventListener("focus", function () {
+05079:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05080:       visible.select();
+05081:     });
+05082:
+05083:     visible.addEventListener("blur", function () {
+05084:       sync(parseMoney(visible.value));
+05085:     });
+05086:
+05087:     visible.addEventListener("keydown", function (event) {
+05088:       if (event.key === "Enter") {
+05089:         event.preventDefault();
+05090:         sync(parseMoney(visible.value));
+05091:         visible.blur();
+05092:       }
+05093:     });
+05094:
+05095:     wrapper.appendChild(minus);
+05096:     wrapper.appendChild(visible);
+05097:     wrapper.appendChild(plus);
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+05117:     document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+05118:       source.value = toDecimal(parseMoney(source.value));
+05119:     });
+05120:   }, true);
+05121:
+05122:   window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+05123: })();
+05124: </script>
+05125: """
+05126:     return css + "\n" + js
+05127:
+05128:
+05129: def _ptp113b3151a_inject_currency_controls_v1(html):
+05130:     if not isinstance(html, str):
+05131:         return html
+05132:
+05133:     if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+05134:         return html
+05135:
+
+----- LINHAS 5098 A 5163 -----
+05098:
+05099:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05100:
+05101:     const help = document.createElement("div");
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+05117:     document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+05118:       source.value = toDecimal(parseMoney(source.value));
+05119:     });
+05120:   }, true);
+05121:
+05122:   window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+05123: })();
+05124: </script>
+05125: """
+05126:     return css + "\n" + js
+05127:
+05128:
+05129: def _ptp113b3151a_inject_currency_controls_v1(html):
+05130:     if not isinstance(html, str):
+05131:         return html
+05132:
+05133:     if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+05134:         return html
+05135:
+05136:     assets = _ptp113b3151a_currency_controls_v1_assets()
+05137:
+05138:     if "</body>" in html:
+05139:         return html.replace("</body>", assets + "\n</body>", 1)
+05140:
+05141:     return html + "\n" + assets
+05142:
+05143:
+05144: try:
+05145:     _ptp113b3151a_original_create_mobile_app_v1 = create_mobile_app
+05146:
+05147:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+05148:         app = _ptp113b3151a_original_create_mobile_app_v1(*args, **kwargs)
+05149:
+05150:         if not getattr(app, "_ptp113b3151a_currency_controls_v1", False):
+05151:             @app.after_request
+05152:             def _ptp113b3151a_currency_after_request_v1(response):
+05153:                 try:
+05154:                     if request.path == "/session/setup":
+05155:                         content_type = str(response.headers.get("Content-Type", ""))
+05156:                         if "text/html" in content_type:
+05157:                             html = response.get_data(as_text=True)
+05158:                             html = _ptp113b3151a_inject_currency_controls_v1(html)
+05159:                             response.set_data(html)
+05160:                             response.headers["Content-Length"] = str(len(response.get_data()))
+05161:                     return response
+05162:                 except Exception as exc:
+05163:                     response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+
+----- LINHAS 5102 A 5167 -----
+05102:     help.className = "money-help";
+05103:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05104:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05105:   }
+05106:
+05107:   function applyMoneyControls() {
+05108:     MONEY_FIELDS.forEach(function (name) {
+05109:       document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+05110:     });
+05111:   }
+05112:
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+05117:     document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+05118:       source.value = toDecimal(parseMoney(source.value));
+05119:     });
+05120:   }, true);
+05121:
+05122:   window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+05123: })();
+05124: </script>
+05125: """
+05126:     return css + "\n" + js
+05127:
+05128:
+05129: def _ptp113b3151a_inject_currency_controls_v1(html):
+05130:     if not isinstance(html, str):
+05131:         return html
+05132:
+05133:     if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+05134:         return html
+05135:
+05136:     assets = _ptp113b3151a_currency_controls_v1_assets()
+05137:
+05138:     if "</body>" in html:
+05139:         return html.replace("</body>", assets + "\n</body>", 1)
+05140:
+05141:     return html + "\n" + assets
+05142:
+05143:
+05144: try:
+05145:     _ptp113b3151a_original_create_mobile_app_v1 = create_mobile_app
+05146:
+05147:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+05148:         app = _ptp113b3151a_original_create_mobile_app_v1(*args, **kwargs)
+05149:
+05150:         if not getattr(app, "_ptp113b3151a_currency_controls_v1", False):
+05151:             @app.after_request
+05152:             def _ptp113b3151a_currency_after_request_v1(response):
+05153:                 try:
+05154:                     if request.path == "/session/setup":
+05155:                         content_type = str(response.headers.get("Content-Type", ""))
+05156:                         if "text/html" in content_type:
+05157:                             html = response.get_data(as_text=True)
+05158:                             html = _ptp113b3151a_inject_currency_controls_v1(html)
+05159:                             response.set_data(html)
+05160:                             response.headers["Content-Length"] = str(len(response.get_data()))
+05161:                     return response
+05162:                 except Exception as exc:
+05163:                     response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+05164:                     return response
+05165:
+05166:             app._ptp113b3151a_currency_controls_v1 = True
+05167:
+
+----- LINHAS 5113 A 5178 -----
+05113:   document.addEventListener("DOMContentLoaded", applyMoneyControls);
+05114:   setTimeout(applyMoneyControls, 250);
+05115:
+05116:   document.addEventListener("submit", function () {
+05117:     document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+05118:       source.value = toDecimal(parseMoney(source.value));
+05119:     });
+05120:   }, true);
+05121:
+05122:   window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+05123: })();
+05124: </script>
+05125: """
+05126:     return css + "\n" + js
+05127:
+05128:
+05129: def _ptp113b3151a_inject_currency_controls_v1(html):
+05130:     if not isinstance(html, str):
+05131:         return html
+05132:
+05133:     if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+05134:         return html
+05135:
+05136:     assets = _ptp113b3151a_currency_controls_v1_assets()
+05137:
+05138:     if "</body>" in html:
+05139:         return html.replace("</body>", assets + "\n</body>", 1)
+05140:
+05141:     return html + "\n" + assets
+05142:
+05143:
+05144: try:
+05145:     _ptp113b3151a_original_create_mobile_app_v1 = create_mobile_app
+05146:
+05147:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+05148:         app = _ptp113b3151a_original_create_mobile_app_v1(*args, **kwargs)
+05149:
+05150:         if not getattr(app, "_ptp113b3151a_currency_controls_v1", False):
+05151:             @app.after_request
+05152:             def _ptp113b3151a_currency_after_request_v1(response):
+05153:                 try:
+05154:                     if request.path == "/session/setup":
+05155:                         content_type = str(response.headers.get("Content-Type", ""))
+05156:                         if "text/html" in content_type:
+05157:                             html = response.get_data(as_text=True)
+05158:                             html = _ptp113b3151a_inject_currency_controls_v1(html)
+05159:                             response.set_data(html)
+05160:                             response.headers["Content-Length"] = str(len(response.get_data()))
+05161:                     return response
+05162:                 except Exception as exc:
+05163:                     response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+05164:                     return response
+05165:
+05166:             app._ptp113b3151a_currency_controls_v1 = True
+05167:
+05168:         return app
+05169: except NameError:
+05170:     pass
+05171:
+05172:
+05173:
+05174: # PTP-113B.3.1A.5.1A.1_CURRENCY_LAYOUT_RECOVERY_LOGIC_V1
+05175: def _ptp113b3151a1_currency_layout_assets_v1():
+05176:     return """
+05177: <style id="ptp113b3151a1-currency-layout-style">
+05178:   input[type=number]::-webkit-outer-spin-button,
+
+----- LINHAS 5168 A 5233 -----
+05168:         return app
+05169: except NameError:
+05170:     pass
+05171:
+05172:
+05173:
+05174: # PTP-113B.3.1A.5.1A.1_CURRENCY_LAYOUT_RECOVERY_LOGIC_V1
+05175: def _ptp113b3151a1_currency_layout_assets_v1():
+05176:     return """
+05177: <style id="ptp113b3151a1-currency-layout-style">
+05178:   input[type=number]::-webkit-outer-spin-button,
+05179:   input[type=number]::-webkit-inner-spin-button {
+05180:     -webkit-appearance: none;
+05181:     margin: 0;
+05182:   }
+05183:
+05184:   input[type=number] {
+05185:     -moz-appearance: textfield;
+05186:   }
+05187:
+05188:   .money-stepper {
+05189:     display: grid !important;
+05190:     grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+05191:     gap: 8px !important;
+05192:     align-items: center !important;
+05193:     width: 100% !important;
+05194:     margin: 6px 0 8px 0 !important;
+05195:   }
+05196:
+05197:   .money-stepper button {
+05198:     width: 42px !important;
+05199:     height: 42px !important;
+05200:     min-height: 42px !important;
+05201:     border-radius: 10px !important;
+05202:     border: 1px solid #31516f !important;
+05203:     background: #102239 !important;
+05204:     color: #f5c542 !important;
+05205:     font-size: 22px !important;
+05206:     line-height: 1 !important;
+05207:     font-weight: 800 !important;
+05208:     display: flex !important;
+05209:     align-items: center !important;
+05210:     justify-content: center !important;
+05211:     padding: 0 !important;
+05212:   }
+05213:
+05214:   .money-stepper input {
+05215:     width: 100% !important;
+05216:     height: 42px !important;
+05217:     min-height: 42px !important;
+05218:     border-radius: 10px !important;
+05219:     border: 1px solid #31516f !important;
+05220:     background: #061423 !important;
+05221:     color: #ffffff !important;
+05222:     padding: 0 12px !important;
+05223:     font-size: 15px !important;
+05224:     font-weight: 700 !important;
+05225:     box-sizing: border-box !important;
+05226:   }
+05227:
+05228:   .money-hidden-source {
+05229:     display: none !important;
+05230:   }
+05231:
+05232:   .money-help {
+05233:     color: #8ea4b9 !important;
+
+----- LINHAS 5177 A 5242 -----
+05177: <style id="ptp113b3151a1-currency-layout-style">
+05178:   input[type=number]::-webkit-outer-spin-button,
+05179:   input[type=number]::-webkit-inner-spin-button {
+05180:     -webkit-appearance: none;
+05181:     margin: 0;
+05182:   }
+05183:
+05184:   input[type=number] {
+05185:     -moz-appearance: textfield;
+05186:   }
+05187:
+05188:   .money-stepper {
+05189:     display: grid !important;
+05190:     grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+05191:     gap: 8px !important;
+05192:     align-items: center !important;
+05193:     width: 100% !important;
+05194:     margin: 6px 0 8px 0 !important;
+05195:   }
+05196:
+05197:   .money-stepper button {
+05198:     width: 42px !important;
+05199:     height: 42px !important;
+05200:     min-height: 42px !important;
+05201:     border-radius: 10px !important;
+05202:     border: 1px solid #31516f !important;
+05203:     background: #102239 !important;
+05204:     color: #f5c542 !important;
+05205:     font-size: 22px !important;
+05206:     line-height: 1 !important;
+05207:     font-weight: 800 !important;
+05208:     display: flex !important;
+05209:     align-items: center !important;
+05210:     justify-content: center !important;
+05211:     padding: 0 !important;
+05212:   }
+05213:
+05214:   .money-stepper input {
+05215:     width: 100% !important;
+05216:     height: 42px !important;
+05217:     min-height: 42px !important;
+05218:     border-radius: 10px !important;
+05219:     border: 1px solid #31516f !important;
+05220:     background: #061423 !important;
+05221:     color: #ffffff !important;
+05222:     padding: 0 12px !important;
+05223:     font-size: 15px !important;
+05224:     font-weight: 700 !important;
+05225:     box-sizing: border-box !important;
+05226:   }
+05227:
+05228:   .money-hidden-source {
+05229:     display: none !important;
+05230:   }
+05231:
+05232:   .money-help {
+05233:     color: #8ea4b9 !important;
+05234:     font-size: 11px !important;
+05235:     line-height: 1.35 !important;
+05236:     margin: 0 0 12px 0 !important;
+05237:   }
+05238:
+05239:   .money-recovery-limit-hidden {
+05240:     display: none !important;
+05241:   }
+05242: </style>
+
+----- LINHAS 5194 A 5259 -----
+05194:     margin: 6px 0 8px 0 !important;
+05195:   }
+05196:
+05197:   .money-stepper button {
+05198:     width: 42px !important;
+05199:     height: 42px !important;
+05200:     min-height: 42px !important;
+05201:     border-radius: 10px !important;
+05202:     border: 1px solid #31516f !important;
+05203:     background: #102239 !important;
+05204:     color: #f5c542 !important;
+05205:     font-size: 22px !important;
+05206:     line-height: 1 !important;
+05207:     font-weight: 800 !important;
+05208:     display: flex !important;
+05209:     align-items: center !important;
+05210:     justify-content: center !important;
+05211:     padding: 0 !important;
+05212:   }
+05213:
+05214:   .money-stepper input {
+05215:     width: 100% !important;
+05216:     height: 42px !important;
+05217:     min-height: 42px !important;
+05218:     border-radius: 10px !important;
+05219:     border: 1px solid #31516f !important;
+05220:     background: #061423 !important;
+05221:     color: #ffffff !important;
+05222:     padding: 0 12px !important;
+05223:     font-size: 15px !important;
+05224:     font-weight: 700 !important;
+05225:     box-sizing: border-box !important;
+05226:   }
+05227:
+05228:   .money-hidden-source {
+05229:     display: none !important;
+05230:   }
+05231:
+05232:   .money-help {
+05233:     color: #8ea4b9 !important;
+05234:     font-size: 11px !important;
+05235:     line-height: 1.35 !important;
+05236:     margin: 0 0 12px 0 !important;
+05237:   }
+05238:
+05239:   .money-recovery-limit-hidden {
+05240:     display: none !important;
+05241:   }
+05242: </style>
+05243:
+05244: <script id="ptp113b3151a1-currency-layout-script">
+05245: (function () {
+05246:   const LABEL_TARGETS = [
+05247:     "Banca simulada inicial",
+05248:     "Valor da entrada simulada",
+05249:     "Lucro desejado da sessão",
+05250:     "Limite máximo de entrada simulada"
+05251:   ];
+05252:
+05253:   function parseMoney(value) {
+05254:     if (value === null || value === undefined) return 0;
+05255:     let raw = String(value).trim();
+05256:     raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
+05257:     raw = raw.replace(/\\./g, "").replace(",", ".");
+05258:     const parsed = Number(raw);
+05259:     return Number.isFinite(parsed) ? parsed : 0;
+
+----- LINHAS 5233 A 5298 -----
+05233:     color: #8ea4b9 !important;
+05234:     font-size: 11px !important;
+05235:     line-height: 1.35 !important;
+05236:     margin: 0 0 12px 0 !important;
+05237:   }
+05238:
+05239:   .money-recovery-limit-hidden {
+05240:     display: none !important;
+05241:   }
+05242: </style>
+05243:
+05244: <script id="ptp113b3151a1-currency-layout-script">
+05245: (function () {
+05246:   const LABEL_TARGETS = [
+05247:     "Banca simulada inicial",
+05248:     "Valor da entrada simulada",
+05249:     "Lucro desejado da sessão",
+05250:     "Limite máximo de entrada simulada"
+05251:   ];
+05252:
+05253:   function parseMoney(value) {
+05254:     if (value === null || value === undefined) return 0;
+05255:     let raw = String(value).trim();
+05256:     raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
+05257:     raw = raw.replace(/\\./g, "").replace(",", ".");
+05258:     const parsed = Number(raw);
+05259:     return Number.isFinite(parsed) ? parsed : 0;
+05260:   }
+05261:
+05262:   function toDecimal(value) {
+05263:     return Number(value || 0).toFixed(2);
+05264:   }
+05265:
+05266:   function formatBRL(value) {
+05267:     return Number(value || 0).toLocaleString("pt-BR", {
+05268:       style: "currency",
+05269:       currency: "BRL",
+05270:       minimumFractionDigits: 2,
+05271:       maximumFractionDigits: 2
+05272:     });
+05273:   }
+05274:
+05275:   function normalizeText(text) {
+05276:     return String(text || "").replace(/\\s+/g, " ").trim().toLowerCase();
+05277:   }
+05278:
+05279:   function findInputAfterLabel(label) {
+05280:     let node = label.nextElementSibling;
+05281:     let guard = 0;
+05282:     while (node && guard < 8) {
+05283:       if (node.matches && node.matches("input")) return node;
+05284:       const nested = node.querySelector ? node.querySelector("input") : null;
+05285:       if (nested) return nested;
+05286:       node = node.nextElementSibling;
+05287:       guard += 1;
+05288:     }
+05289:     return null;
+05290:   }
+05291:
+05292:   function fieldNameForLabel(labelText, source) {
+05293:     const t = normalizeText(labelText);
+05294:     if (t.includes("banca simulada inicial")) return "initial_bankroll";
+05295:     if (t.includes("valor da entrada simulada")) return "initial_entry";
+05296:     if (t.includes("lucro desejado")) return "profit_target";
+05297:     if (t.includes("limite máximo de entrada")) return "max_entry_limit";
+05298:     return source.name || source.id || "money";
+
+----- LINHAS 5246 A 5311 -----
+05246:   const LABEL_TARGETS = [
+05247:     "Banca simulada inicial",
+05248:     "Valor da entrada simulada",
+05249:     "Lucro desejado da sessão",
+05250:     "Limite máximo de entrada simulada"
+05251:   ];
+05252:
+05253:   function parseMoney(value) {
+05254:     if (value === null || value === undefined) return 0;
+05255:     let raw = String(value).trim();
+05256:     raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
+05257:     raw = raw.replace(/\\./g, "").replace(",", ".");
+05258:     const parsed = Number(raw);
+05259:     return Number.isFinite(parsed) ? parsed : 0;
+05260:   }
+05261:
+05262:   function toDecimal(value) {
+05263:     return Number(value || 0).toFixed(2);
+05264:   }
+05265:
+05266:   function formatBRL(value) {
+05267:     return Number(value || 0).toLocaleString("pt-BR", {
+05268:       style: "currency",
+05269:       currency: "BRL",
+05270:       minimumFractionDigits: 2,
+05271:       maximumFractionDigits: 2
+05272:     });
+05273:   }
+05274:
+05275:   function normalizeText(text) {
+05276:     return String(text || "").replace(/\\s+/g, " ").trim().toLowerCase();
+05277:   }
+05278:
+05279:   function findInputAfterLabel(label) {
+05280:     let node = label.nextElementSibling;
+05281:     let guard = 0;
+05282:     while (node && guard < 8) {
+05283:       if (node.matches && node.matches("input")) return node;
+05284:       const nested = node.querySelector ? node.querySelector("input") : null;
+05285:       if (nested) return nested;
+05286:       node = node.nextElementSibling;
+05287:       guard += 1;
+05288:     }
+05289:     return null;
+05290:   }
+05291:
+05292:   function fieldNameForLabel(labelText, source) {
+05293:     const t = normalizeText(labelText);
+05294:     if (t.includes("banca simulada inicial")) return "initial_bankroll";
+05295:     if (t.includes("valor da entrada simulada")) return "initial_entry";
+05296:     if (t.includes("lucro desejado")) return "profit_target";
+05297:     if (t.includes("limite máximo de entrada")) return "max_entry_limit";
+05298:     return source.name || source.id || "money";
+05299:   }
+05300:
+05301:   function createMoneyControl(source, labelText) {
+05302:     if (!source || source.dataset.moneyFieldV2 === "1") return;
+05303:
+05304:     const fieldName = fieldNameForLabel(labelText, source);
+05305:     source.dataset.moneyFieldV2 = "1";
+05306:     source.dataset.moneySemanticName = fieldName;
+05307:     source.classList.add("money-hidden-source");
+05308:     source.setAttribute("step", "1.00");
+05309:
+05310:     const initialValue = parseMoney(source.value || source.getAttribute("value") || "0");
+05311:     source.value = toDecimal(initialValue);
+
+----- LINHAS 5290 A 5355 -----
+05290:   }
+05291:
+05292:   function fieldNameForLabel(labelText, source) {
+05293:     const t = normalizeText(labelText);
+05294:     if (t.includes("banca simulada inicial")) return "initial_bankroll";
+05295:     if (t.includes("valor da entrada simulada")) return "initial_entry";
+05296:     if (t.includes("lucro desejado")) return "profit_target";
+05297:     if (t.includes("limite máximo de entrada")) return "max_entry_limit";
+05298:     return source.name || source.id || "money";
+05299:   }
+05300:
+05301:   function createMoneyControl(source, labelText) {
+05302:     if (!source || source.dataset.moneyFieldV2 === "1") return;
+05303:
+05304:     const fieldName = fieldNameForLabel(labelText, source);
+05305:     source.dataset.moneyFieldV2 = "1";
+05306:     source.dataset.moneySemanticName = fieldName;
+05307:     source.classList.add("money-hidden-source");
+05308:     source.setAttribute("step", "1.00");
+05309:
+05310:     const initialValue = parseMoney(source.value || source.getAttribute("value") || "0");
+05311:     source.value = toDecimal(initialValue);
+05312:
+05313:     const wrapper = document.createElement("div");
+05314:     wrapper.className = "money-stepper";
+05315:     wrapper.dataset.moneyStepperFor = fieldName;
+05316:
+05317:     const minus = document.createElement("button");
+05318:     minus.type = "button";
+05319:     minus.textContent = "−";
+05320:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05321:
+05322:     const visible = document.createElement("input");
+05323:     visible.type = "text";
+05324:     visible.inputMode = "decimal";
+05325:     visible.autocomplete = "off";
+05326:     visible.value = formatBRL(initialValue);
+05327:     visible.setAttribute("aria-label", labelText + " em reais");
+05328:
+05329:     const plus = document.createElement("button");
+05330:     plus.type = "button";
+05331:     plus.textContent = "+";
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+
+----- LINHAS 5294 A 5359 -----
+05294:     if (t.includes("banca simulada inicial")) return "initial_bankroll";
+05295:     if (t.includes("valor da entrada simulada")) return "initial_entry";
+05296:     if (t.includes("lucro desejado")) return "profit_target";
+05297:     if (t.includes("limite máximo de entrada")) return "max_entry_limit";
+05298:     return source.name || source.id || "money";
+05299:   }
+05300:
+05301:   function createMoneyControl(source, labelText) {
+05302:     if (!source || source.dataset.moneyFieldV2 === "1") return;
+05303:
+05304:     const fieldName = fieldNameForLabel(labelText, source);
+05305:     source.dataset.moneyFieldV2 = "1";
+05306:     source.dataset.moneySemanticName = fieldName;
+05307:     source.classList.add("money-hidden-source");
+05308:     source.setAttribute("step", "1.00");
+05309:
+05310:     const initialValue = parseMoney(source.value || source.getAttribute("value") || "0");
+05311:     source.value = toDecimal(initialValue);
+05312:
+05313:     const wrapper = document.createElement("div");
+05314:     wrapper.className = "money-stepper";
+05315:     wrapper.dataset.moneyStepperFor = fieldName;
+05316:
+05317:     const minus = document.createElement("button");
+05318:     minus.type = "button";
+05319:     minus.textContent = "−";
+05320:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05321:
+05322:     const visible = document.createElement("input");
+05323:     visible.type = "text";
+05324:     visible.inputMode = "decimal";
+05325:     visible.autocomplete = "off";
+05326:     visible.value = formatBRL(initialValue);
+05327:     visible.setAttribute("aria-label", labelText + " em reais");
+05328:
+05329:     const plus = document.createElement("button");
+05330:     plus.type = "button";
+05331:     plus.textContent = "+";
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+
+----- LINHAS 5306 A 5371 -----
+05306:     source.dataset.moneySemanticName = fieldName;
+05307:     source.classList.add("money-hidden-source");
+05308:     source.setAttribute("step", "1.00");
+05309:
+05310:     const initialValue = parseMoney(source.value || source.getAttribute("value") || "0");
+05311:     source.value = toDecimal(initialValue);
+05312:
+05313:     const wrapper = document.createElement("div");
+05314:     wrapper.className = "money-stepper";
+05315:     wrapper.dataset.moneyStepperFor = fieldName;
+05316:
+05317:     const minus = document.createElement("button");
+05318:     minus.type = "button";
+05319:     minus.textContent = "−";
+05320:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05321:
+05322:     const visible = document.createElement("input");
+05323:     visible.type = "text";
+05324:     visible.inputMode = "decimal";
+05325:     visible.autocomplete = "off";
+05326:     visible.value = formatBRL(initialValue);
+05327:     visible.setAttribute("aria-label", labelText + " em reais");
+05328:
+05329:     const plus = document.createElement("button");
+05330:     plus.type = "button";
+05331:     plus.textContent = "+";
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+
+----- LINHAS 5315 A 5380 -----
+05315:     wrapper.dataset.moneyStepperFor = fieldName;
+05316:
+05317:     const minus = document.createElement("button");
+05318:     minus.type = "button";
+05319:     minus.textContent = "−";
+05320:     minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+05321:
+05322:     const visible = document.createElement("input");
+05323:     visible.type = "text";
+05324:     visible.inputMode = "decimal";
+05325:     visible.autocomplete = "off";
+05326:     visible.value = formatBRL(initialValue);
+05327:     visible.setAttribute("aria-label", labelText + " em reais");
+05328:
+05329:     const plus = document.createElement("button");
+05330:     plus.type = "button";
+05331:     plus.textContent = "+";
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+
+----- LINHAS 5321 A 5386 -----
+05321:
+05322:     const visible = document.createElement("input");
+05323:     visible.type = "text";
+05324:     visible.inputMode = "decimal";
+05325:     visible.autocomplete = "off";
+05326:     visible.value = formatBRL(initialValue);
+05327:     visible.setAttribute("aria-label", labelText + " em reais");
+05328:
+05329:     const plus = document.createElement("button");
+05330:     plus.type = "button";
+05331:     plus.textContent = "+";
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05381:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05382:   }
+05383:
+05384:   function applyByLabels() {
+05385:     const labels = Array.from(document.querySelectorAll("label"));
+05386:     labels.forEach(function (label) {
+
+----- LINHAS 5327 A 5392 -----
+05327:     visible.setAttribute("aria-label", labelText + " em reais");
+05328:
+05329:     const plus = document.createElement("button");
+05330:     plus.type = "button";
+05331:     plus.textContent = "+";
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05381:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05382:   }
+05383:
+05384:   function applyByLabels() {
+05385:     const labels = Array.from(document.querySelectorAll("label"));
+05386:     labels.forEach(function (label) {
+05387:       const text = normalizeText(label.textContent);
+05388:       const match = LABEL_TARGETS.find(function (target) {
+05389:         return text.includes(normalizeText(target));
+05390:       });
+05391:       if (!match) return;
+05392:
+
+----- LINHAS 5328 A 5393 -----
+05328:
+05329:     const plus = document.createElement("button");
+05330:     plus.type = "button";
+05331:     plus.textContent = "+";
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05381:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05382:   }
+05383:
+05384:   function applyByLabels() {
+05385:     const labels = Array.from(document.querySelectorAll("label"));
+05386:     labels.forEach(function (label) {
+05387:       const text = normalizeText(label.textContent);
+05388:       const match = LABEL_TARGETS.find(function (target) {
+05389:         return text.includes(normalizeText(target));
+05390:       });
+05391:       if (!match) return;
+05392:
+05393:       const input = findInputAfterLabel(label);
+
+----- LINHAS 5331 A 5396 -----
+05331:     plus.textContent = "+";
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05381:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05382:   }
+05383:
+05384:   function applyByLabels() {
+05385:     const labels = Array.from(document.querySelectorAll("label"));
+05386:     labels.forEach(function (label) {
+05387:       const text = normalizeText(label.textContent);
+05388:       const match = LABEL_TARGETS.find(function (target) {
+05389:         return text.includes(normalizeText(target));
+05390:       });
+05391:       if (!match) return;
+05392:
+05393:       const input = findInputAfterLabel(label);
+05394:       if (!input) return;
+05395:
+05396:       createMoneyControl(input, match);
+
+----- LINHAS 5332 A 5397 -----
+05332:     plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+05333:
+05334:     function sync(value) {
+05335:       const min = parseMoney(source.getAttribute("min") || "0");
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05381:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05382:   }
+05383:
+05384:   function applyByLabels() {
+05385:     const labels = Array.from(document.querySelectorAll("label"));
+05386:     labels.forEach(function (label) {
+05387:       const text = normalizeText(label.textContent);
+05388:       const match = LABEL_TARGETS.find(function (target) {
+05389:         return text.includes(normalizeText(target));
+05390:       });
+05391:       if (!match) return;
+05392:
+05393:       const input = findInputAfterLabel(label);
+05394:       if (!input) return;
+05395:
+05396:       createMoneyControl(input, match);
+05397:     });
+
+----- LINHAS 5336 A 5401 -----
+05336:       let next = Number(value || 0);
+05337:       if (!Number.isFinite(next)) next = 0;
+05338:       if (next < min) next = min;
+05339:
+05340:       source.value = toDecimal(next);
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05381:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05382:   }
+05383:
+05384:   function applyByLabels() {
+05385:     const labels = Array.from(document.querySelectorAll("label"));
+05386:     labels.forEach(function (label) {
+05387:       const text = normalizeText(label.textContent);
+05388:       const match = LABEL_TARGETS.find(function (target) {
+05389:         return text.includes(normalizeText(target));
+05390:       });
+05391:       if (!match) return;
+05392:
+05393:       const input = findInputAfterLabel(label);
+05394:       if (!input) return;
+05395:
+05396:       createMoneyControl(input, match);
+05397:     });
+05398:   }
+05399:
+05400:   function getRecoverySelect() {
+05401:     return document.querySelector('[name="recovery_mode"]');
+
+----- LINHAS 5341 A 5406 -----
+05341:       visible.value = formatBRL(next);
+05342:
+05343:       source.dispatchEvent(new Event("input", { bubbles: true }));
+05344:       source.dispatchEvent(new Event("change", { bubbles: true }));
+05345:     }
+05346:
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05381:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05382:   }
+05383:
+05384:   function applyByLabels() {
+05385:     const labels = Array.from(document.querySelectorAll("label"));
+05386:     labels.forEach(function (label) {
+05387:       const text = normalizeText(label.textContent);
+05388:       const match = LABEL_TARGETS.find(function (target) {
+05389:         return text.includes(normalizeText(target));
+05390:       });
+05391:       if (!match) return;
+05392:
+05393:       const input = findInputAfterLabel(label);
+05394:       if (!input) return;
+05395:
+05396:       createMoneyControl(input, match);
+05397:     });
+05398:   }
+05399:
+05400:   function getRecoverySelect() {
+05401:     return document.querySelector('[name="recovery_mode"]');
+05402:   }
+05403:
+05404:   function findRecoveryLimitElements() {
+05405:     const result = {
+05406:       label: null,
+
+----- LINHAS 5347 A 5412 -----
+05347:     minus.addEventListener("click", function () {
+05348:       sync(parseMoney(source.value) - 1);
+05349:     });
+05350:
+05351:     plus.addEventListener("click", function () {
+05352:       sync(parseMoney(source.value) + 1);
+05353:     });
+05354:
+05355:     visible.addEventListener("focus", function () {
+05356:       visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+05357:       visible.select();
+05358:     });
+05359:
+05360:     visible.addEventListener("blur", function () {
+05361:       sync(parseMoney(visible.value));
+05362:     });
+05363:
+05364:     visible.addEventListener("keydown", function (event) {
+05365:       if (event.key === "Enter") {
+05366:         event.preventDefault();
+05367:         sync(parseMoney(visible.value));
+05368:         visible.blur();
+05369:       }
+05370:     });
+05371:
+05372:     wrapper.appendChild(minus);
+05373:     wrapper.appendChild(visible);
+05374:     wrapper.appendChild(plus);
+05375:
+05376:     source.parentNode.insertBefore(wrapper, source.nextSibling);
+05377:
+05378:     const help = document.createElement("div");
+05379:     help.className = "money-help";
+05380:     help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+05381:     wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+05382:   }
+05383:
+05384:   function applyByLabels() {
+05385:     const labels = Array.from(document.querySelectorAll("label"));
+05386:     labels.forEach(function (label) {
+05387:       const text = normalizeText(label.textContent);
+05388:       const match = LABEL_TARGETS.find(function (target) {
+05389:         return text.includes(normalizeText(target));
+05390:       });
+05391:       if (!match) return;
+05392:
+05393:       const input = findInputAfterLabel(label);
+05394:       if (!input) return;
+05395:
+05396:       createMoneyControl(input, match);
+05397:     });
+05398:   }
+05399:
+05400:   function getRecoverySelect() {
+05401:     return document.querySelector('[name="recovery_mode"]');
+05402:   }
+05403:
+05404:   function findRecoveryLimitElements() {
+05405:     const result = {
+05406:       label: null,
+05407:       source: document.querySelector('[data-money-semantic-name="max_entry_limit"], [name="max_entry_limit"], #max_entry_limit'),
+05408:       stepper: null,
+05409:       help: null
+05410:     };
+05411:
+05412:     const labels = Array.from(document.querySelectorAll("label"));
+
+----- LINHAS 5398 A 5463 -----
+05398:   }
+05399:
+05400:   function getRecoverySelect() {
+05401:     return document.querySelector('[name="recovery_mode"]');
+05402:   }
+05403:
+05404:   function findRecoveryLimitElements() {
+05405:     const result = {
+05406:       label: null,
+05407:       source: document.querySelector('[data-money-semantic-name="max_entry_limit"], [name="max_entry_limit"], #max_entry_limit'),
+05408:       stepper: null,
+05409:       help: null
+05410:     };
+05411:
+05412:     const labels = Array.from(document.querySelectorAll("label"));
+05413:     result.label = labels.find(function (label) {
+05414:       return normalizeText(label.textContent).includes("limite máximo de entrada");
+05415:     }) || null;
+05416:
+05417:     if (result.source) {
+05418:       result.stepper = document.querySelector('[data-money-stepper-for="max_entry_limit"]');
+05419:       if (result.stepper && result.stepper.nextElementSibling && result.stepper.nextElementSibling.classList.contains("money-help")) {
+05420:         result.help = result.stepper.nextElementSibling;
+05421:       }
+05422:     }
+05423:
+05424:     return result;
+05425:   }
+05426:
+05427:   function updateRecoveryLimitVisibility() {
+05428:     const select = getRecoverySelect();
+05429:     const mode = select ? String(select.value || "NONE").toUpperCase() : "NONE";
+05430:     const hidden = mode === "NONE" || mode === "SEM_RECUPERACAO" || mode === "SEM_RECUPERAÇÃO";
+05431:
+05432:     const elements = findRecoveryLimitElements();
+05433:
+05434:     [elements.label, elements.stepper, elements.help].forEach(function (el) {
+05435:       if (!el) return;
+05436:       el.classList.toggle("money-recovery-limit-hidden", hidden);
+05437:     });
+05438:
+05439:     if (elements.source) {
+05440:       if (hidden) {
+05441:         elements.source.dataset.previousMoneyValue = elements.source.value || "";
+05442:         elements.source.value = "";
+05443:         elements.source.disabled = true;
+05444:       } else {
+05445:         elements.source.disabled = false;
+05446:         if (!elements.source.value) {
+05447:           elements.source.value = elements.source.dataset.previousMoneyValue || "20.00";
+05448:         }
+05449:       }
+05450:     }
+05451:   }
+05452:
+05453:   function applyMoneyUI() {
+05454:     applyByLabels();
+05455:     updateRecoveryLimitVisibility();
+05456:
+05457:     const select = getRecoverySelect();
+05458:     if (select && select.dataset.moneyRecoveryListener !== "1") {
+05459:       select.dataset.moneyRecoveryListener = "1";
+05460:       select.addEventListener("change", updateRecoveryLimitVisibility);
+05461:       select.addEventListener("input", updateRecoveryLimitVisibility);
+05462:     }
+05463:   }
+
+----- LINHAS 5454 A 5519 -----
+05454:     applyByLabels();
+05455:     updateRecoveryLimitVisibility();
+05456:
+05457:     const select = getRecoverySelect();
+05458:     if (select && select.dataset.moneyRecoveryListener !== "1") {
+05459:       select.dataset.moneyRecoveryListener = "1";
+05460:       select.addEventListener("change", updateRecoveryLimitVisibility);
+05461:       select.addEventListener("input", updateRecoveryLimitVisibility);
+05462:     }
+05463:   }
+05464:
+05465:   document.addEventListener("DOMContentLoaded", applyMoneyUI);
+05466:   setTimeout(applyMoneyUI, 100);
+05467:   setTimeout(applyMoneyUI, 500);
+05468:
+05469:   document.addEventListener("submit", function () {
+05470:     updateRecoveryLimitVisibility();
+05471:
+05472:     document.querySelectorAll("[data-money-field-v2='1']").forEach(function (source) {
+05473:       if (source.disabled) return;
+05474:       source.value = toDecimal(parseMoney(source.value));
+05475:     });
+05476:   }, true);
+05477:
+05478:   window.PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC = true;
+05479: })();
+05480: </script>
+05481: """
+05482:
+05483: def _ptp113b3151a1_inject_currency_layout_v1(html):
+05484:     if not isinstance(html, str):
+05485:         return html
+05486:
+05487:     if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
+05488:         return html
+05489:
+05490:     assets = _ptp113b3151a1_currency_layout_assets_v1()
+05491:
+05492:     if "</body>" in html:
+05493:         return html.replace("</body>", assets + "\n</body>", 1)
+05494:
+05495:     return html + "\n" + assets
+05496:
+05497:
+05498: try:
+05499:     _ptp113b3151a1_original_create_mobile_app_v1 = create_mobile_app
+05500:
+05501:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+05502:         app = _ptp113b3151a1_original_create_mobile_app_v1(*args, **kwargs)
+05503:
+05504:         if not getattr(app, "_ptp113b3151a1_currency_layout_v1", False):
+05505:             @app.after_request
+05506:             def _ptp113b3151a1_currency_layout_after_request_v1(response):
+05507:                 try:
+05508:                     if request.path == "/session/setup":
+05509:                         content_type = str(response.headers.get("Content-Type", ""))
+05510:                         if "text/html" in content_type:
+05511:                             html = response.get_data(as_text=True)
+05512:                             html = _ptp113b3151a1_inject_currency_layout_v1(html)
+05513:                             response.set_data(html)
+05514:                             response.headers["Content-Length"] = str(len(response.get_data()))
+05515:                     return response
+05516:                 except Exception as exc:
+05517:                     response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+05518:                     return response
+05519:
+
+----- LINHAS 5458 A 5523 -----
+05458:     if (select && select.dataset.moneyRecoveryListener !== "1") {
+05459:       select.dataset.moneyRecoveryListener = "1";
+05460:       select.addEventListener("change", updateRecoveryLimitVisibility);
+05461:       select.addEventListener("input", updateRecoveryLimitVisibility);
+05462:     }
+05463:   }
+05464:
+05465:   document.addEventListener("DOMContentLoaded", applyMoneyUI);
+05466:   setTimeout(applyMoneyUI, 100);
+05467:   setTimeout(applyMoneyUI, 500);
+05468:
+05469:   document.addEventListener("submit", function () {
+05470:     updateRecoveryLimitVisibility();
+05471:
+05472:     document.querySelectorAll("[data-money-field-v2='1']").forEach(function (source) {
+05473:       if (source.disabled) return;
+05474:       source.value = toDecimal(parseMoney(source.value));
+05475:     });
+05476:   }, true);
+05477:
+05478:   window.PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC = true;
+05479: })();
+05480: </script>
+05481: """
+05482:
+05483: def _ptp113b3151a1_inject_currency_layout_v1(html):
+05484:     if not isinstance(html, str):
+05485:         return html
+05486:
+05487:     if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
+05488:         return html
+05489:
+05490:     assets = _ptp113b3151a1_currency_layout_assets_v1()
+05491:
+05492:     if "</body>" in html:
+05493:         return html.replace("</body>", assets + "\n</body>", 1)
+05494:
+05495:     return html + "\n" + assets
+05496:
+05497:
+05498: try:
+05499:     _ptp113b3151a1_original_create_mobile_app_v1 = create_mobile_app
+05500:
+05501:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+05502:         app = _ptp113b3151a1_original_create_mobile_app_v1(*args, **kwargs)
+05503:
+05504:         if not getattr(app, "_ptp113b3151a1_currency_layout_v1", False):
+05505:             @app.after_request
+05506:             def _ptp113b3151a1_currency_layout_after_request_v1(response):
+05507:                 try:
+05508:                     if request.path == "/session/setup":
+05509:                         content_type = str(response.headers.get("Content-Type", ""))
+05510:                         if "text/html" in content_type:
+05511:                             html = response.get_data(as_text=True)
+05512:                             html = _ptp113b3151a1_inject_currency_layout_v1(html)
+05513:                             response.set_data(html)
+05514:                             response.headers["Content-Length"] = str(len(response.get_data()))
+05515:                     return response
+05516:                 except Exception as exc:
+05517:                     response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+05518:                     return response
+05519:
+05520:             app._ptp113b3151a1_currency_layout_v1 = True
+05521:
+05522:         return app
+05523: except NameError:
+
+----- LINHAS 5467 A 5528 -----
+05467:   setTimeout(applyMoneyUI, 500);
+05468:
+05469:   document.addEventListener("submit", function () {
+05470:     updateRecoveryLimitVisibility();
+05471:
+05472:     document.querySelectorAll("[data-money-field-v2='1']").forEach(function (source) {
+05473:       if (source.disabled) return;
+05474:       source.value = toDecimal(parseMoney(source.value));
+05475:     });
+05476:   }, true);
+05477:
+05478:   window.PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC = true;
+05479: })();
+05480: </script>
+05481: """
+05482:
+05483: def _ptp113b3151a1_inject_currency_layout_v1(html):
+05484:     if not isinstance(html, str):
+05485:         return html
+05486:
+05487:     if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
+05488:         return html
+05489:
+05490:     assets = _ptp113b3151a1_currency_layout_assets_v1()
+05491:
+05492:     if "</body>" in html:
+05493:         return html.replace("</body>", assets + "\n</body>", 1)
+05494:
+05495:     return html + "\n" + assets
+05496:
+05497:
+05498: try:
+05499:     _ptp113b3151a1_original_create_mobile_app_v1 = create_mobile_app
+05500:
+05501:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+05502:         app = _ptp113b3151a1_original_create_mobile_app_v1(*args, **kwargs)
+05503:
+05504:         if not getattr(app, "_ptp113b3151a1_currency_layout_v1", False):
+05505:             @app.after_request
+05506:             def _ptp113b3151a1_currency_layout_after_request_v1(response):
+05507:                 try:
+05508:                     if request.path == "/session/setup":
+05509:                         content_type = str(response.headers.get("Content-Type", ""))
+05510:                         if "text/html" in content_type:
+05511:                             html = response.get_data(as_text=True)
+05512:                             html = _ptp113b3151a1_inject_currency_layout_v1(html)
+05513:                             response.set_data(html)
+05514:                             response.headers["Content-Length"] = str(len(response.get_data()))
+05515:                     return response
+05516:                 except Exception as exc:
+05517:                     response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+05518:                     return response
+05519:
+05520:             app._ptp113b3151a1_currency_layout_v1 = True
+05521:
+05522:         return app
+05523: except NameError:
+05524:     pass
+05525:
+05526:
+05527: if __name__ == "__main__":
+05528:     raise SystemExit(main())
+
+===== TESTE LOCAL HTML GERADO =====
+http_200: PASS
+has_brl: PASS
+has_money_stepper: PASS
+has_minus: PASS
+has_plus: PASS
+has_multiple_currency_hooks: PASS
+html_size: 22736
+money-stepper count: 10
+ptp-money-row count: 0
+parseMoney count: 18
+parseMoneyAny count: 0
+formatBRL count: 6
+
+===== CONCLUSÃO ESPERADA =====
+Enviar este relatório ao ChatGPT antes de qualquer novo patch.
+Nenhum código foi alterado.
