@@ -16,3 +16,25 @@ reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt
 ===== CHECAGEM DE SEGURANÇA DOS RELATÓRIOS =====
 
 ===== ADICIONANDO RELATÓRIOS AO GIT =====
+
+===== DIFF CACHED CHECK =====
+git diff --cached --check exit code: 0
+
+===== COMMIT =====
+[main f600c31] PTP-113B.3.1A.5.1 AUDIT publish reports
+ 3 files changed, 1542 insertions(+)
+ create mode 100644 reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt
+ create mode 100644 reports/PTP-113B.3.1A.5.1_AUDIT_publish_reports_20260706_173602.txt
+ create mode 100644 reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt
+
+===== PUSH =====
+
+===== STATUS DEPOIS =====
+ M reports/PTP-113B.3.1A.5.1_AUDIT_publish_reports_20260706_173602.txt
+
+===== ÚLTIMO COMMIT DEPOIS =====
+f600c31 PTP-113B.3.1A.5.1 AUDIT publish reports
+
+===== RESULTADO =====
+AUDIT_PUBLISH_PASS
+Relatórios de auditoria versionados para preservar histórico técnico.

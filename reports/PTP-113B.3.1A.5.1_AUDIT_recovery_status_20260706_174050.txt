@@ -1,0 +1,26 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1 — AUDIT RECOVERY STATUS
+Data: seg 06 jul 2026 17:40:50 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== RELATÓRIOS EXISTENTES =====
+reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt
+reports/PTP-113B.3.1A.5.1_AUDIT_publish_reports_20260706_173602.txt
+reports/PTP-113B.3.1A.5.1_AUDIT_recovery_status_20260706_174050.txt
+reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt
+
+===== STATUS ANTES =====
+ M reports/PTP-113B.3.1A.5.1_AUDIT_publish_reports_20260706_173602.txt
+?? reports/PTP-113B.3.1A.5.1_AUDIT_recovery_status_20260706_174050.txt
+
+===== ÚLTIMOS COMMITS =====
+f600c31 PTP-113B.3.1A.5.1 AUDIT publish reports
+d6025b6 PTP-113B.3.1A.5.0 publish trader pending files
+b3f16c5 PTP-113B.3.1A add profit target v2
+8105f35 PTP-113B.3.1A fix session setup POST
+41fca6c PTP-113B.3.1A complete mobile session contract
+
+===== ARQUIVOS MODIFICADOS EM REPORTS =====
+ M reports/PTP-113B.3.1A.5.1_AUDIT_publish_reports_20260706_173602.txt
+?? reports/PTP-113B.3.1A.5.1_AUDIT_recovery_status_20260706_174050.txt
+
+===== ADICIONANDO REPORTS AO GIT =====
