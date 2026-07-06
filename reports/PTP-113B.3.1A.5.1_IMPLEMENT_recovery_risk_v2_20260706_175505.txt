@@ -1,0 +1,80 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1 — IMPLEMENT RECOVERY RISK V2
+Data: 2026-07-06T17:55:05
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== BACKUP =====
+OK backup: src/predixai/trader/recovery.py
+OK backup: src/predixai/trader/risk_simulator.py
+OK backup: src/predixai/trader/mobile_session_contract.py
+OK backup: src/predixai/mobile/session_start_page.py
+OK backup: scripts/predixai_trader_mobile_server.py
+Backup dir: /home/leo/Documentos/GitHub/predixai-platform/backups/ptp113b3151_recovery_risk_v2_20260706_175505
+
+OK: recovery.py e risk_simulator.py atualizados
+OK: mobile_session_contract.py atualizado
+OK: session_start_page.py atualizado
+OK: predixai_trader_mobile_server.py atualizado
+
+===== VALIDAÇÕES =====
+
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python3 -m py_compile src/predixai/trader/recovery.py src/predixai/trader/risk_simulator.py src/predixai/trader/mobile_session_contract.py src/predixai/mobile/session_start_page.py scripts/predixai_trader_mobile_server.py
+
+exit_code=0
+
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python3 -m compileall src scripts
+Listing 'src'...
+Listing 'src/predixai'...
+Listing 'src/predixai/ai_provider'...
+Listing 'src/predixai/auditor'...
+Listing 'src/predixai/broker_adapter'...
+Listing 'src/predixai/capture'...
+Listing 'src/predixai/core'...
+Listing 'src/predixai/dashboard'...
+Listing 'src/predixai/dashboard/static'...
+Listing 'src/predixai/dashboard/templates'...
+Listing 'src/predixai/learning'...
+Listing 'src/predixai/live'...
+Listing 'src/predixai/mobile'...
+Listing 'src/predixai/ocr'...
+Listing 'src/predixai/ocr/providers'...
+Listing 'src/predixai/perception'...
+Listing 'src/predixai/security'...
+Listing 'src/predixai/strategy'...
+Listing 'src/predixai/trader'...
+Listing 'src/predixai/utils'...
+Listing 'src/predixai/vision'...
+Listing 'src/predixai/vision/regions'...
+Listing 'src/predixai/vision/visual'...
+Listing 'scripts'...
+
+exit_code=0
+
+$ git diff --check
+
+exit_code=0
+
+===== TESTE INTERNO RECOVERY/CONTRACT =====
+SmartGale plan: {'mode': 'smartgale', 'enabled': True, 'entry_sequence': [5.0, 8.0, 11.0], 'next_entry': 8.0, 'max_entry': 11.0, 'exposure_max': 24.0, 'exposure_percent': 24.0, 'combined_risk': 'MODERADO', 'risk_alert': 'Risco simulado moderado. Monitorar exposição e sequência de perdas.', 'reason': 'SmartGale: progressão simulada limitada por banca, stop e entrada máxima.'}
+Contract recovery: {'recovery_enabled': True, 'recovery_mode': 'SMARTGALE', 'max_recovery_steps': 2, 'current_recovery_step': 0, 'recovery_multiplier': 1.0, 'entry_sequence': [5.0, 8.0, 11.0], 'next_entry': 8.0, 'max_entry': 11.0, 'exposure_max': 24.0, 'exposure_percent': 24.0, 'combined_risk': 'MODERADO', 'risk_alert': 'Risco simulado moderado. Monitorar sequência de perdas.', 'recovery_plan': {'mode': 'SMARTGALE', 'enabled': True, 'max_recovery_steps': 2, 'entry_sequence': [5.0, 8.0, 11.0], 'next_entry': 8.0, 'max_entry': 11.0, 'exposure_max': 24.0, 'exposure_percent': 24.0, 'combined_risk': 'MODERADO', 'risk_alert': 'Risco simulado moderado. Monitorar sequência de perdas.', 'reason': 'SmartGale simulado limitado por banca, stop e entrada máxima.', 'payout_reference': 80.0}}
+Contract valid: True
+Contract errors: []
+
+===== GIT STATUS =====
+ M scripts/predixai_trader_mobile_server.py
+ M src/predixai/mobile/session_start_page.py
+ M src/predixai/trader/mobile_session_contract.py
+ M src/predixai/trader/recovery.py
+ M src/predixai/trader/risk_simulator.py
+?? reports/PTP-113B.3.1A.5.1_IMPLEMENT_recovery_risk_v2_20260706_175505.txt
+
+===== GIT DIFF SUMMARY =====
+ scripts/predixai_trader_mobile_server.py       | 275 +++++++++++++++++++++++++
+ src/predixai/mobile/session_start_page.py      |   9 +-
+ src/predixai/trader/mobile_session_contract.py | 185 +++++++++++++++++
+ src/predixai/trader/recovery.py                | 202 ++++++++++++++++--
+ src/predixai/trader/risk_simulator.py          |  84 +++++---
+ 5 files changed, 706 insertions(+), 49 deletions(-)
+
+===== RESULTADO =====
+IMPLEMENT_PATCH_PASS
+Patch V2 aplicado e validações mínimas passaram.

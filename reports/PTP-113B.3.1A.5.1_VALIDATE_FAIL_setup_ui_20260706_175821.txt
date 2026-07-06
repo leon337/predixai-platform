@@ -1,0 +1,45 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1 — VALIDATE FAIL SETUP UI
+Data: seg 06 jul 2026 17:58:21 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== DIAGNÓSTICO =====
+Patch V2 aplicado com backend funcional, mas /session/setup ainda não expõe SmartGale, 2 Martingales e max_entry_limit.
+Classificação: FAIL parcial visual.
+
+===== STATUS ANTES =====
+ M scripts/predixai_trader_mobile_server.py
+ M src/predixai/mobile/session_start_page.py
+ M src/predixai/trader/mobile_session_contract.py
+ M src/predixai/trader/recovery.py
+ M src/predixai/trader/risk_simulator.py
+?? reports/PTP-113B.3.1A.5.1_IMPLEMENT_recovery_risk_v2_20260706_175505.txt
+?? reports/PTP-113B.3.1A.5.1_VALIDATE_FAIL_setup_ui_20260706_175821.txt
+?? reports/PTP-113B.3.1A.5.1_VALIDATE_recovery_risk_endpoints_20260706_175640.txt
+
+===== ÚLTIMO COMMIT =====
+45d3ad0 PTP-113B.3.1A.5.1 FAIL recovery risk syntax error
+
+===== VALIDAÇÕES JÁ OBSERVADAS =====
+py_compile: PASS
+compileall: PASS
+git diff --check: PASS
+contract_has_recovery_plan: PASS
+state_has_recovery_plan: PASS
+state_has_recovery_fields: PASS
+setup_has_smartgale: FAIL
+setup_has_martingale_2: FAIL
+setup_has_max_entry_limit: FAIL
+
+===== DIFF CHECK =====
+git_diff_check_exit=0
+
+===== DIFF STAT =====
+ scripts/predixai_trader_mobile_server.py       | 275 +++++++++++++++++++++++++
+ src/predixai/mobile/session_start_page.py      |   9 +-
+ src/predixai/trader/mobile_session_contract.py | 185 +++++++++++++++++
+ src/predixai/trader/recovery.py                | 202 ++++++++++++++++--
+ src/predixai/trader/risk_simulator.py          |  84 +++++---
+ 5 files changed, 706 insertions(+), 49 deletions(-)
+
+===== RESULTADO =====
+VALIDATE_FAIL_RECORDED_READY_TO_COMMIT

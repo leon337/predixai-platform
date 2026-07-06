@@ -112,6 +112,9 @@ def render_mobile_session_start_page() -> str:
 
       <label>Máximo de perdas</label>
       <input name="max_losses" type="number" min="1" value="3"/>
+
+      <label>Limite máximo de entrada simulada</label>
+      <input name="max_entry_limit" type="number" min="1" step="0.01" value="20.00"/>
     </div>
 
     <div class="card">
@@ -160,7 +163,8 @@ Depósito e saque bloqueados</pre>
 
     <button class="primary" type="submit">Iniciar Sessão Simulada</button>
     <button class="secondary" type="reset">Limpar Configuração</button>
-  </form>
+  <div class="box" data-ptp="PTP-113B.3.1A.5.1_RECOVERY_OPTIONS_V2"><strong>Recuperação e risco simulados</strong><br/>O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, percentual da banca exposto, risco combinado e alerta.</div>
+</form>
 
   <div class="card">
     <h2>Payload gerado</h2>
@@ -197,7 +201,8 @@ document.getElementById("sessionForm").addEventListener("submit", async function
       stop_loss: Number(data.stop_loss),
       take_profit: Number(data.take_profit),
       max_signals: Number(data.max_signals),
-      max_losses: Number(data.max_losses)
+      max_losses: Number(data.max_losses),
+      max_entry_limit: Number(data.max_entry_limit || 20)
     },
     operation: {
       paper_trade_enabled: true,

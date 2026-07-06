@@ -68,7 +68,12 @@ ALLOWED_RISK_PROFILES = {
 ALLOWED_RECOVERY_MODES = {
     "NONE",
     "FIXED",
+    "MAO_FIXA",
+    "SOROS",
     "SOFT_MARTINGALE",
+    "MARTINGALE_1",
+    "MARTINGALE_2",
+    "SMARTGALE",
     "CUSTOM",
 }
 
@@ -147,6 +152,7 @@ def default_mobile_session_contract() -> Dict[str, Any]:
             "take_profit": 20.0,
             "max_signals": 10,
             "max_losses": 3,
+            "max_entry_limit": 20.0,
             "payout_min": 80,
             "payout_source": "MANUAL",
         },
@@ -163,6 +169,14 @@ def default_mobile_session_contract() -> Dict[str, Any]:
             "max_recovery_steps": 0,
             "current_recovery_step": 0,
             "recovery_multiplier": 1.0,
+            "entry_sequence": [5.0],
+            "next_entry": 5.0,
+            "max_entry": 5.0,
+            "exposure_max": 5.0,
+            "exposure_percent": 5.0,
+            "combined_risk": "BAIXO",
+            "risk_alert": "Sem recuperação ativa.",
+            "recovery_plan": {},
         },
         "security": deepcopy(SECURITY_FIXED_VALUES),
         "data_quality": {
@@ -243,8 +257,172 @@ def build_mobile_session_contract(
 
     contract = enforce_server_security(contract)
     contract["session"]["updated_at"] = now_iso(contract["session"].get("timezone", DEFAULT_TIMEZONE))
+    contract = _ptp113b3151_enrich_contract_recovery_risk_v2(contract)
 
     return contract
+
+
+
+# PTP-113B.3.1A.5.1_DYNAMIC_RECOVERY_RISK_V2
+def _ptp113b3151_number_v2(value: Any, default: float) -> float:
+    try:
+        if value is None or value == "":
+            return float(default)
+        return float(value)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def _ptp113b3151_normalize_recovery_mode_v2(mode: Any) -> str:
+    raw = str(mode or "NONE").strip().upper().replace("-", "_").replace(" ", "_")
+    aliases = {
+        "SEM_RECUPERACAO": "NONE",
+        "SEM_RECUPERAÇÃO": "NONE",
+        "FIXED": "MAO_FIXA",
+        "MAO_FIXA": "MAO_FIXA",
+        "MÃO_FIXA": "MAO_FIXA",
+        "SOROS": "SOROS",
+        "SOFT_MARTINGALE": "MARTINGALE_1",
+        "MARTINGALE": "MARTINGALE_1",
+        "MARTINGALE_1": "MARTINGALE_1",
+        "MARTINGALE_2": "MARTINGALE_2",
+        "SMARTGALE": "SMARTGALE",
+        "CUSTOM": "SMARTGALE",
+        "NONE": "NONE",
+    }
+    return aliases.get(raw, raw)
+
+
+def _ptp113b3151_build_recovery_plan_v2(contract: Dict[str, Any]) -> Dict[str, Any]:
+    bankroll = contract.get("bankroll", {})
+    risk = contract.get("risk", {})
+    recovery = contract.get("recovery", {})
+
+    current_bankroll = _ptp113b3151_number_v2(bankroll.get("current_bankroll"), 100.0)
+    initial_entry = _ptp113b3151_number_v2(bankroll.get("initial_entry"), 5.0)
+    stop_loss = _ptp113b3151_number_v2(risk.get("stop_loss"), 20.0)
+    max_entry_limit = _ptp113b3151_number_v2(risk.get("max_entry_limit"), min(stop_loss, current_bankroll))
+    payout = _ptp113b3151_number_v2(risk.get("payout_min"), 80.0)
+
+    enabled = bool(recovery.get("recovery_enabled", False))
+    mode = _ptp113b3151_normalize_recovery_mode_v2(recovery.get("recovery_mode"))
+    if not enabled:
+        mode = "NONE"
+
+    max_steps = int(_ptp113b3151_number_v2(recovery.get("max_recovery_steps"), 0))
+    if mode == "MARTINGALE_1":
+        max_steps = 1
+    elif mode in {"MARTINGALE_2", "SMARTGALE"}:
+        max_steps = 2
+    elif mode == "SOROS":
+        max_steps = max(1, min(max_steps or 2, 3))
+    elif mode == "MAO_FIXA":
+        max_steps = max(1, min(max_steps or 2, 5))
+    elif mode == "NONE":
+        max_steps = 0
+
+    hard_cap = max(0.01, min(current_bankroll, stop_loss if stop_loss > 0 else current_bankroll, max_entry_limit if max_entry_limit > 0 else current_bankroll))
+
+    if mode == "NONE":
+        sequence = [initial_entry]
+        reason = "Sem recuperação: entrada base mantida."
+    elif mode == "MAO_FIXA":
+        sequence = [initial_entry for _ in range(max_steps + 1)]
+        reason = "Mão fixa: mesma entrada após perda."
+    elif mode == "SOROS":
+        sequence = [initial_entry]
+        for _ in range(max_steps):
+            sequence.append(sequence[-1] * 1.5)
+        reason = "Soros/anti-martingale simulado."
+    elif mode == "MARTINGALE_1":
+        sequence = [initial_entry, initial_entry * 2]
+        reason = "1 Martingale simulado."
+    elif mode == "MARTINGALE_2":
+        sequence = [initial_entry, initial_entry * 2, initial_entry * 4]
+        reason = "2 Martingales simulados."
+    elif mode == "SMARTGALE":
+        sequence = [initial_entry, initial_entry * 1.6, initial_entry * 2.2]
+        reason = "SmartGale simulado limitado por banca, stop e entrada máxima."
+    else:
+        sequence = [initial_entry]
+        reason = "Modo tratado como entrada base."
+
+    sequence = [round(min(max(0.01, value), hard_cap), 2) for value in sequence]
+    exposure_max = round(sum(sequence), 2)
+    max_entry = round(max(sequence), 2)
+    next_entry = round(sequence[1] if len(sequence) > 1 else sequence[0], 2)
+    exposure_percent = round((exposure_max / current_bankroll) * 100, 2) if current_bankroll else 0.0
+
+    risk_score = 0
+    if exposure_percent > 10:
+        risk_score += 1
+    if exposure_percent > 25:
+        risk_score += 1
+    if exposure_percent > 50:
+        risk_score += 2
+    if mode.startswith("MARTINGALE"):
+        risk_score += 1
+    if mode == "MARTINGALE_2":
+        risk_score += 1
+    if payout < 70:
+        risk_score += 1
+    if exposure_max > stop_loss > 0:
+        risk_score += 2
+
+    if risk_score <= 1:
+        combined_risk = "BAIXO"
+        alert = "Risco simulado baixo."
+    elif risk_score <= 3:
+        combined_risk = "MODERADO"
+        alert = "Risco simulado moderado. Monitorar sequência de perdas."
+    else:
+        combined_risk = "ALTO"
+        alert = "Risco simulado alto. Reduzir entrada ou recuperação."
+
+    return {
+        "mode": mode,
+        "enabled": enabled,
+        "max_recovery_steps": max_steps,
+        "entry_sequence": sequence,
+        "next_entry": next_entry,
+        "max_entry": max_entry,
+        "exposure_max": exposure_max,
+        "exposure_percent": exposure_percent,
+        "combined_risk": combined_risk,
+        "risk_alert": alert,
+        "reason": reason,
+        "payout_reference": payout,
+    }
+
+
+def _ptp113b3151_enrich_contract_recovery_risk_v2(contract: Dict[str, Any]) -> Dict[str, Any]:
+    safe = deepcopy(contract)
+    safe.setdefault("risk", {})
+    safe.setdefault("recovery", {})
+    safe.setdefault("preview", {})
+
+    plan = _ptp113b3151_build_recovery_plan_v2(safe)
+
+    safe["risk"].setdefault("max_entry_limit", 20.0)
+    safe["recovery"].update({
+        "recovery_enabled": plan["enabled"],
+        "recovery_mode": plan["mode"],
+        "max_recovery_steps": plan["max_recovery_steps"],
+        "entry_sequence": plan["entry_sequence"],
+        "next_entry": plan["next_entry"],
+        "max_entry": plan["max_entry"],
+        "exposure_max": plan["exposure_max"],
+        "exposure_percent": plan["exposure_percent"],
+        "combined_risk": plan["combined_risk"],
+        "risk_alert": plan["risk_alert"],
+        "recovery_plan": plan,
+    })
+
+    safe["preview"]["recovery_warning"] = plan["risk_alert"]
+    safe["preview"]["risk_warning"] = plan["combined_risk"]
+    safe["preview"]["session_feasibility"] = "SIMULADA"
+
+    return safe
 
 
 def validate_mobile_session_contract(contract: Dict[str, Any]) -> Tuple[bool, List[str]]:
@@ -381,6 +559,7 @@ def validate_mobile_session_contract(contract: Dict[str, Any]) -> Tuple[bool, Li
     stop_loss = risk.get("stop_loss")
     take_profit = risk.get("take_profit")
     payout_min = risk.get("payout_min")
+    max_entry_limit = risk.get("max_entry_limit")
 
     if not isinstance(stop_loss, (int, float)) or stop_loss <= 0:
         errors.append("stop_loss deve ser maior que zero")
@@ -394,6 +573,12 @@ def validate_mobile_session_contract(contract: Dict[str, Any]) -> Tuple[bool, Li
 
     if not isinstance(payout_min, (int, float)) or not 50 <= payout_min <= 100:
         errors.append("payout_min deve ficar entre 50 e 100")
+
+    if max_entry_limit is not None:
+        if not isinstance(max_entry_limit, (int, float)) or max_entry_limit <= 0:
+            errors.append("max_entry_limit deve ser maior que zero")
+        elif isinstance(initial_bankroll, (int, float)) and max_entry_limit > initial_bankroll:
+            errors.append("max_entry_limit não pode ser maior que initial_bankroll")
 
     if risk.get("payout_source") not in ALLOWED_PAYOUT_SOURCES:
         errors.append("payout_source inválido")

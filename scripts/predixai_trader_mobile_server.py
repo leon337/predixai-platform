@@ -4556,5 +4556,280 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
+
+# PTP-113B.3.1A.5.1_SERVER_RECOVERY_RISK_HOOK_V2
+import json as _ptp113b3151_json_v2
+import re as _ptp113b3151_re_v2
+
+
+def _ptp113b3151_num_v2(value, default=0.0):
+    try:
+        if value is None or value == "":
+            return float(default)
+        return float(value)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def _ptp113b3151_bool_v2(value):
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "sim", "yes", "on"}
+
+
+def _ptp113b3151_mode_v2(mode, enabled=True):
+    raw = str(mode or "NONE").strip().upper().replace("-", "_").replace(" ", "_")
+    aliases = {
+        "SEM_RECUPERACAO": "NONE",
+        "SEM_RECUPERAÇÃO": "NONE",
+        "FIXED": "MAO_FIXA",
+        "MAO_FIXA": "MAO_FIXA",
+        "MÃO_FIXA": "MAO_FIXA",
+        "SOROS": "SOROS",
+        "SOFT_MARTINGALE": "MARTINGALE_1",
+        "MARTINGALE": "MARTINGALE_1",
+        "MARTINGALE_1": "MARTINGALE_1",
+        "MARTINGALE_2": "MARTINGALE_2",
+        "CUSTOM": "SMARTGALE",
+        "SMARTGALE": "SMARTGALE",
+        "NONE": "NONE",
+    }
+    normalized = aliases.get(raw, raw)
+    return normalized if enabled else "NONE"
+
+
+def _ptp113b3151_plan_v2(bankroll, entry, stop_loss, max_entry_limit, payout, mode, enabled, max_steps, strategy_risk="médio"):
+    bankroll = max(0.01, _ptp113b3151_num_v2(bankroll, 100.0))
+    entry = max(0.01, _ptp113b3151_num_v2(entry, 5.0))
+    stop_loss = max(0.0, _ptp113b3151_num_v2(stop_loss, 20.0))
+    max_entry_limit = max(0.01, _ptp113b3151_num_v2(max_entry_limit, min(bankroll, stop_loss or bankroll)))
+    payout = max(0.0, _ptp113b3151_num_v2(payout, 80.0))
+    mode = _ptp113b3151_mode_v2(mode, enabled)
+    max_steps = max(0, int(_ptp113b3151_num_v2(max_steps, 0)))
+    cap = min(bankroll, stop_loss if stop_loss else bankroll, max_entry_limit)
+
+    if mode == "NONE":
+        sequence = [entry]
+        max_steps = 0
+        reason = "Sem recuperação."
+    elif mode == "MAO_FIXA":
+        max_steps = max(1, min(max_steps or 2, 5))
+        sequence = [entry for _ in range(max_steps + 1)]
+        reason = "Mão fixa: entrada fixa após perda."
+    elif mode == "SOROS":
+        max_steps = max(1, min(max_steps or 2, 3))
+        sequence = [entry]
+        for _ in range(max_steps):
+            sequence.append(sequence[-1] * 1.5)
+        reason = "Soros/anti-martingale simulado."
+    elif mode == "MARTINGALE_1":
+        max_steps = 1
+        sequence = [entry, entry * 2]
+        reason = "1 Martingale simulado."
+    elif mode == "MARTINGALE_2":
+        max_steps = 2
+        sequence = [entry, entry * 2, entry * 4]
+        reason = "2 Martingales simulados."
+    elif mode == "SMARTGALE":
+        max_steps = 2
+        sequence = [entry, entry * 1.6, entry * 2.2]
+        reason = "SmartGale simulado com progressão limitada."
+    else:
+        sequence = [entry]
+        reason = "Modo não reconhecido tratado como entrada base."
+
+    sequence = [round(min(max(0.01, x), cap), 2) for x in sequence]
+    exposure = round(sum(sequence), 2)
+    max_entry = round(max(sequence), 2)
+    next_entry = round(sequence[1] if len(sequence) > 1 else sequence[0], 2)
+    exposure_percent = round((exposure / bankroll) * 100, 2) if bankroll else 0.0
+
+    risk_score = 0
+    if exposure_percent > 10:
+        risk_score += 1
+    if exposure_percent > 25:
+        risk_score += 1
+    if exposure_percent > 50:
+        risk_score += 2
+    if mode.startswith("MARTINGALE"):
+        risk_score += 1
+    if mode == "MARTINGALE_2":
+        risk_score += 1
+    if payout < 70:
+        risk_score += 1
+    if "alto" in str(strategy_risk).lower():
+        risk_score += 1
+    if exposure > stop_loss > 0:
+        risk_score += 2
+
+    if risk_score <= 1:
+        combined = "BAIXO"
+        alert = "Risco simulado baixo."
+    elif risk_score <= 3:
+        combined = "MODERADO"
+        alert = "Risco simulado moderado. Monitorar sequência de perdas."
+    else:
+        combined = "ALTO"
+        alert = "Risco simulado alto. Reduzir entrada, recuperação ou stop."
+
+    return {
+        "mode": mode,
+        "enabled": mode != "NONE",
+        "max_recovery_steps": max_steps,
+        "entry_sequence": sequence,
+        "next_entry": next_entry,
+        "max_entry": max_entry,
+        "exposure_max": exposure,
+        "exposure_percent": exposure_percent,
+        "combined_risk": combined,
+        "risk_alert": alert,
+        "reason": reason,
+        "payout_reference": payout,
+    }
+
+
+def _ptp113b3151_enrich_dict_v2(data):
+    if not isinstance(data, dict):
+        return data
+
+    contract = data.get("contract") if isinstance(data.get("contract"), dict) else data
+    mobile_session = data.get("mobile_session") if isinstance(data.get("mobile_session"), dict) else None
+    if mobile_session:
+        contract = mobile_session
+
+    bankroll = contract.setdefault("bankroll", {})
+    risk = contract.setdefault("risk", {})
+    recovery = contract.setdefault("recovery", {})
+
+    current_bankroll = _ptp113b3151_num_v2(
+        bankroll.get("current_bankroll") or data.get("current_bankroll") or data.get("balance"),
+        _ptp113b3151_num_v2(bankroll.get("initial_bankroll"), 100.0),
+    )
+    initial_entry = _ptp113b3151_num_v2(
+        bankroll.get("current_entry") or bankroll.get("initial_entry") or data.get("current_entry"),
+        5.0,
+    )
+    stop_loss = _ptp113b3151_num_v2(risk.get("stop_loss") or data.get("stop_loss"), 20.0)
+    max_entry_limit = _ptp113b3151_num_v2(risk.get("max_entry_limit") or data.get("max_entry_limit"), min(current_bankroll, stop_loss or current_bankroll))
+    payout = _ptp113b3151_num_v2(risk.get("payout_min") or data.get("payout") or data.get("payout_min"), 80.0)
+    enabled = _ptp113b3151_bool_v2(recovery.get("recovery_enabled", recovery.get("enabled", False)))
+    mode = _ptp113b3151_mode_v2(recovery.get("recovery_mode") or recovery.get("mode"), enabled)
+    max_steps = int(_ptp113b3151_num_v2(recovery.get("max_recovery_steps"), 0))
+
+    plan = _ptp113b3151_plan_v2(
+        bankroll=current_bankroll,
+        entry=initial_entry,
+        stop_loss=stop_loss,
+        max_entry_limit=max_entry_limit,
+        payout=payout,
+        mode=mode,
+        enabled=enabled,
+        max_steps=max_steps,
+        strategy_risk=(contract.get("strategy") or {}).get("risk", "médio"),
+    )
+
+    risk["max_entry_limit"] = max_entry_limit
+    recovery.update({
+        "recovery_enabled": plan["enabled"],
+        "recovery_mode": plan["mode"],
+        "max_recovery_steps": plan["max_recovery_steps"],
+        "entry_sequence": plan["entry_sequence"],
+        "next_entry": plan["next_entry"],
+        "max_entry": plan["max_entry"],
+        "exposure_max": plan["exposure_max"],
+        "exposure_percent": plan["exposure_percent"],
+        "combined_risk": plan["combined_risk"],
+        "risk_alert": plan["risk_alert"],
+        "recovery_plan": plan,
+    })
+
+    risk_management = {
+        "payout": payout,
+        "stop_loss": stop_loss,
+        "max_entry_limit": max_entry_limit,
+        "recovery_plan": plan,
+        "combined_risk": plan["combined_risk"],
+        "risk_alert": plan["risk_alert"],
+    }
+
+    contract["risk_management"] = risk_management
+    data["risk_management"] = risk_management
+    data["recovery_plan"] = plan
+    return data
+
+
+def _ptp113b3151_enhance_session_setup_html_v2(html):
+    if not isinstance(html, str) or "recovery_mode" not in html:
+        return html
+
+    new_select = "\n".join([
+        '<select name="recovery_mode" id="recovery_mode">',
+        '  <option value="NONE">Sem recuperação</option>',
+        '  <option value="MAO_FIXA">Mão fixa / entrada fixa</option>',
+        '  <option value="SOROS">Soros / anti-martingale</option>',
+        '  <option value="MARTINGALE_1">1 Martingale</option>',
+        '  <option value="MARTINGALE_2">2 Martingales</option>',
+        '  <option value="SMARTGALE">SmartGale simulado</option>',
+        '</select>',
+    ])
+
+    html = _ptp113b3151_re_v2.sub(
+        r"<select[^>]+name=[\"']recovery_mode[\"'][^>]*>.*?</select>",
+        new_select,
+        html,
+        flags=_ptp113b3151_re_v2.S,
+    )
+
+    if 'name="max_entry_limit"' not in html:
+        html = html.replace(
+            '<label>Perfil de risco</label>',
+            '<label>Limite máximo de entrada simulada</label><input name="max_entry_limit" id="max_entry_limit" type="number" min="1" step="0.01" value="20.00"/><label>Perfil de risco</label>',
+            1,
+        )
+
+    if "PTP-113B.3.1A.5.1_RECOVERY_PREVIEW_V2" not in html and "</form>" in html:
+        preview = '<div class="box" id="recoveryPreview" data-ptp="PTP-113B.3.1A.5.1_RECOVERY_PREVIEW_V2"><div class="k">Gestão simulada de recuperação e risco</div><div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, risco combinado e alerta.</div></div>'
+        html = html.replace("</form>", preview + "\n</form>", 1)
+
+    return html
+
+
+try:
+    _ptp113b3151_original_create_mobile_app_v2 = create_mobile_app
+
+    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+        app = _ptp113b3151_original_create_mobile_app_v2(*args, **kwargs)
+
+        if not getattr(app, "_ptp113b3151_recovery_risk_hook_v2", False):
+            @app.after_request
+            def _ptp113b3151_after_request_v2(response):
+                try:
+                    if request.path == "/session/setup":
+                        content_type = str(response.headers.get("Content-Type", ""))
+                        if "text/html" in content_type:
+                            html = response.get_data(as_text=True)
+                            html = _ptp113b3151_enhance_session_setup_html_v2(html)
+                            response.set_data(html)
+                            response.headers["Content-Length"] = str(len(response.get_data()))
+                        return response
+
+                    if request.path in {"/api/mobile/state", "/api/mobile/signal/contract"}:
+                        data = response.get_json(silent=True)
+                        if isinstance(data, dict):
+                            data = _ptp113b3151_enrich_dict_v2(data)
+                            response.set_data(_ptp113b3151_json_v2.dumps(data, ensure_ascii=False, default=str))
+                            response.mimetype = "application/json"
+                    return response
+                except Exception as exc:
+                    response.headers["X-PTP113B3151-Warning"] = str(exc)[:120]
+                    return response
+
+            app._ptp113b3151_recovery_risk_hook_v2 = True
+
+        return app
+except NameError:
+    pass
+
+
 if __name__ == "__main__":
     raise SystemExit(main())

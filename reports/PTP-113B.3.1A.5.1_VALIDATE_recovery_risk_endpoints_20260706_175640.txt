@@ -1,0 +1,84 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1 — VALIDATE RECOVERY RISK ENDPOINTS
+Data: seg 06 jul 2026 17:56:40 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== STATUS ANTES =====
+ M scripts/predixai_trader_mobile_server.py
+ M src/predixai/mobile/session_start_page.py
+ M src/predixai/trader/mobile_session_contract.py
+ M src/predixai/trader/recovery.py
+ M src/predixai/trader/risk_simulator.py
+?? reports/PTP-113B.3.1A.5.1_IMPLEMENT_recovery_risk_v2_20260706_175505.txt
+?? reports/PTP-113B.3.1A.5.1_VALIDATE_recovery_risk_endpoints_20260706_175640.txt
+
+===== VALIDAÇÕES PYTHON =====
+py_compile_exit=0
+
+Listing 'src'...
+Listing 'src/predixai'...
+Listing 'src/predixai/ai_provider'...
+Listing 'src/predixai/auditor'...
+Listing 'src/predixai/broker_adapter'...
+Listing 'src/predixai/capture'...
+Listing 'src/predixai/core'...
+Listing 'src/predixai/dashboard'...
+Listing 'src/predixai/dashboard/static'...
+Listing 'src/predixai/dashboard/templates'...
+Listing 'src/predixai/learning'...
+Listing 'src/predixai/live'...
+Listing 'src/predixai/mobile'...
+Listing 'src/predixai/ocr'...
+Listing 'src/predixai/ocr/providers'...
+Listing 'src/predixai/perception'...
+Listing 'src/predixai/security'...
+Listing 'src/predixai/strategy'...
+Listing 'src/predixai/trader'...
+Listing 'src/predixai/utils'...
+Listing 'src/predixai/vision'...
+Listing 'src/predixai/vision/regions'...
+Listing 'src/predixai/vision/visual'...
+Listing 'scripts'...
+compileall_exit=0
+
+===== VALIDAÇÃO FLASK ENDPOINTS =====
+HTTP /session/setup: 200
+HTTP /api/mobile/signal/contract: 200
+HTTP /api/mobile/state: 200
+setup_http_200: PASS
+contract_http_200: PASS
+state_http_200: PASS
+setup_has_smartgale: FAIL
+setup_has_martingale_2: FAIL
+setup_has_max_entry_limit: FAIL
+contract_has_recovery_plan: PASS
+contract_has_risk_management: PASS
+contract_has_max_entry_limit: PASS
+state_has_recovery_plan: PASS
+state_has_risk_management: PASS
+state_has_recovery_fields: PASS
+
+===== CONTRACT KEYS =====
+['available_operational_modes', 'available_strategies', 'contract', 'example', 'recovery_plan', 'required_visual_fields', 'risk_management', 'status', 'version']
+
+===== STATE RECOVERY/RISK PREVIEW =====
+risk_management = {'payout': 80.0, 'stop_loss': 20.0, 'max_entry_limit': 20.0, 'recovery_plan': {'mode': 'NONE', 'enabled': False, 'max_recovery_steps': 0, 'entry_sequence': [5.0], 'next_entry': 5.0, 'max_entry': 5.0, 'exposure_max': 5.0, 'exposure_percent': 5.0, 'combined_risk': 'BAIXO', 'risk_alert': 'Risco simulado baixo.', 'reason': 'Sem recuperação.', 'payout_reference': 80.0}, 'combined_risk': 'BAIXO', 'risk_alert': 'Risco simulado baixo.'}
+recovery_plan = {'mode': 'NONE', 'enabled': False, 'max_recovery_steps': 0, 'entry_sequence': [5.0], 'next_entry': 5.0, 'max_entry': 5.0, 'exposure_max': 5.0, 'exposure_percent': 5.0, 'combined_risk': 'BAIXO', 'risk_alert': 'Risco simulado baixo.', 'reason': 'Sem recuperação.', 'payout_reference': 80.0}
+
+VALIDATION_RESULT=FAIL
+FAILED_CHECKS=setup_has_smartgale,setup_has_martingale_2,setup_has_max_entry_limit
+endpoint_validation_exit=1
+
+===== GIT DIFF CHECK =====
+git_diff_check_exit=0
+
+===== STATUS DEPOIS =====
+ M scripts/predixai_trader_mobile_server.py
+ M src/predixai/mobile/session_start_page.py
+ M src/predixai/trader/mobile_session_contract.py
+ M src/predixai/trader/recovery.py
+ M src/predixai/trader/risk_simulator.py
+?? reports/PTP-113B.3.1A.5.1_IMPLEMENT_recovery_risk_v2_20260706_175505.txt
+?? reports/PTP-113B.3.1A.5.1_VALIDATE_recovery_risk_endpoints_20260706_175640.txt
+
+===== RESULTADO =====
+VALIDATE_ENDPOINTS_FAIL
