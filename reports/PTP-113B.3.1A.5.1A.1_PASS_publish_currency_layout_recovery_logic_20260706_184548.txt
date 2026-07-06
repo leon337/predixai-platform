@@ -1,0 +1,51 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1A.1 — PASS PUBLISH CURRENCY LAYOUT RECOVERY LOGIC
+Data: seg 06 jul 2026 18:45:48 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== STATUS ANTES =====
+ M scripts/predixai_trader_mobile_server.py
+?? reports/PTP-113B.3.1A.5.1A.1_FIX_currency_layout_recovery_logic_20260706_184357.txt
+?? reports/PTP-113B.3.1A.5.1A_RESTART_currency_controls_brl_20260706_183644.txt
+
+===== ÚLTIMO COMMIT ANTES =====
+27ac65f PTP-113B.3.1A.5.1A PASS currency controls publish report
+
+===== VALIDAÇÕES CONFIRMADAS =====
+py_compile: PASS
+compileall: PASS
+git diff --check: PASS
+/session/setup HTTP 200: PASS
+targets_banca: PASS
+targets_entrada: PASS
+targets_lucro: PASS
+targets_limite: PASS
+has_plus_minus_buttons: PASS
+has_conditional_recovery_hide: PASS
+disables_limit_when_none: PASS
+step_one_real: PASS
+
+===== DIFF CHECK =====
+git_diff_check_exit=0
+
+===== ADD PATCH + RELATÓRIOS =====
+
+===== DIFF CACHED CHECK =====
+git_diff_cached_check_exit=0
+
+===== COMMIT PASS =====
+[main f24fe10] PTP-113B.3.1A.5.1A.1 PASS currency layout recovery logic
+ 3 files changed, 449 insertions(+)
+ create mode 100644 reports/PTP-113B.3.1A.5.1A.1_FIX_currency_layout_recovery_logic_20260706_184357.txt
+ create mode 100644 reports/PTP-113B.3.1A.5.1A_RESTART_currency_controls_brl_20260706_183644.txt
+
+===== PUSH PASS =====
+To https://github.com/leon337/predixai-platform.git
+   27ac65f..f24fe10  main -> main
+
+===== STATUS APÓS PUSH PASS =====
+
+===== ÚLTIMO COMMIT APÓS PUSH PASS =====
+f24fe10 PTP-113B.3.1A.5.1A.1 PASS currency layout recovery logic
+
+===== RESULTADO PARCIAL =====
+PASS_CURRENCY_LAYOUT_RECOVERY_LOGIC_PUBLISHED
