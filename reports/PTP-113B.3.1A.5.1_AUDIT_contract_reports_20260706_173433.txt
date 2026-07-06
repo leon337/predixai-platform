@@ -1,0 +1,894 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1-AUDIT
+Auditoria do contrato dinâmico + relatórios existentes
+Data: seg 06 jul 2026 17:34:33 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== GIT STATUS =====
+?? reports/
+
+===== ÚLTIMO COMMIT =====
+d6025b6 PTP-113B.3.1A.5.0 publish trader pending files
+
+===== ARQUIVOS-ALVO EXISTENTES =====
+OK: scripts/predixai_trader_mobile_server.py
+OK: src/predixai/mobile/session_start_page.py
+OK: src/predixai/trader/mobile_session_contract.py
+OK: src/predixai/trader/recovery.py
+OK: src/predixai/trader/risk_manager.py
+OK: src/predixai/trader/risk_simulator.py
+OK: src/predixai/trader/session.py
+OK: src/predixai/trader/signal.py
+OK: src/predixai/trader/strategy.py
+
+===== BUSCA DE CAMPOS DINÂMICOS =====
+scripts/predixai_trader_mobile_server.py:203:    .expiration-controls {
+scripts/predixai_trader_mobile_server.py:239:    .expiration-controls button {
+scripts/predixai_trader_mobile_server.py:244:    .expiration-controls button.active {
+scripts/predixai_trader_mobile_server.py:359:      <div id="expirationCurrent" class="muted">Expiração: 30s</div>
+scripts/predixai_trader_mobile_server.py:438:    let expirationSeconds = 30;
+scripts/predixai_trader_mobile_server.py:439:    let expirationLabel = "30s";
+scripts/predixai_trader_mobile_server.py:480:      document.querySelectorAll("[data-expiration-label]").forEach(button => {
+scripts/predixai_trader_mobile_server.py:481:        const active = button.dataset.expirationLabel === expirationLabel;
+scripts/predixai_trader_mobile_server.py:484:      document.getElementById("expirationCurrent").textContent = "Expiração: 30s";
+scripts/predixai_trader_mobile_server.py:488:      expirationSeconds = 30;
+scripts/predixai_trader_mobile_server.py:489:      expirationLabel = "30s";
+scripts/predixai_trader_mobile_server.py:494:    function drawChart(points, support, resistance, signals) {
+scripts/predixai_trader_mobile_server.py:552:      function drawLevel(value, color, label) {
+scripts/predixai_trader_mobile_server.py:581:      drawLevel(supportValue, "#ffbf00", "S");
+scripts/predixai_trader_mobile_server.py:582:      drawLevel(resistanceValue, "#00e5ff", "R");
+scripts/predixai_trader_mobile_server.py:621:        const expiration = item.expiration_seconds || 30;
+scripts/predixai_trader_mobile_server.py:629:            <div class="muted">exp. ${expiration}s / ${remaining}</div>
+scripts/predixai_trader_mobile_server.py:644:      document.getElementById("statsWin").textContent = stats.win || 0;
+scripts/predixai_trader_mobile_server.py:645:      document.getElementById("statsLoss").textContent = stats.loss || 0;
+scripts/predixai_trader_mobile_server.py:646:      document.getElementById("statsDraw").textContent = stats.draw || 0;
+scripts/predixai_trader_mobile_server.py:681:      if ([30, 60].includes(Number(data.expiration_seconds))) {
+scripts/predixai_trader_mobile_server.py:682:        expirationSeconds = Number(data.expiration_seconds);
+scripts/predixai_trader_mobile_server.py:709:      drawChart(data.price_history || data.history || [], data.support, data.resistance, signals);
+scripts/predixai_trader_mobile_server.py:716:      document.getElementById("localUrl").textContent = data.mobile_url || window.location.href;
+scripts/predixai_trader_mobile_server.py:717:      document.getElementById("dashboardLink").href = `${window.location.protocol}//${window.location.hostname}:8765/`;
+scripts/predixai_trader_mobile_server.py:721:      const response = await fetch(`/api/mobile/state?expiration=${expirationSeconds}`, { cache: "no-store" });
+scripts/predixai_trader_mobile_server.py:751:          risk: {
+scripts/predixai_trader_mobile_server.py:752:            risk_profile: "CONSERVATIVE",
+scripts/predixai_trader_mobile_server.py:753:            stop_loss: 20,
+scripts/predixai_trader_mobile_server.py:756:            max_losses: 3
+scripts/predixai_trader_mobile_server.py:760:            payout_min: 80,
+scripts/predixai_trader_mobile_server.py:761:            expiration_seconds: 30,
+scripts/predixai_trader_mobile_server.py:781:      const confirmed = window.confirm("Isso fará backup e limpará apenas os dados da sessão/testes. Deseja continuar?");
+scripts/predixai_trader_mobile_server.py:1085:    risk = _block(payload, "risk")
+scripts/predixai_trader_mobile_server.py:1087:    recovery = _block(payload, "recovery")
+scripts/predixai_trader_mobile_server.py:1094:    risk_profile = _safe_choice(
+scripts/predixai_trader_mobile_server.py:1095:        risk.get("risk_profile"),
+scripts/predixai_trader_mobile_server.py:1099:    recovery_enabled = _as_bool(recovery.get("recovery_enabled"), False)
+scripts/predixai_trader_mobile_server.py:1100:    recovery_mode = str(recovery.get("recovery_mode") or "NONE").upper().strip()
+scripts/predixai_trader_mobile_server.py:1101:    if recovery_mode == "MULTIPLIER":
+scripts/predixai_trader_mobile_server.py:1102:        recovery_mode = "SOFT_MARTINGALE"
+scripts/predixai_trader_mobile_server.py:1103:    if not recovery_enabled:
+scripts/predixai_trader_mobile_server.py:1104:        recovery_mode = "NONE"
+scripts/predixai_trader_mobile_server.py:1134:            "profit_loss": 0.0,
+scripts/predixai_trader_mobile_server.py:1135:            "profit_loss_percent": 0.0,
+scripts/predixai_trader_mobile_server.py:1137:        "risk": {
+scripts/predixai_trader_mobile_server.py:1138:            "risk_profile": risk_profile,
+scripts/predixai_trader_mobile_server.py:1139:            "stop_loss": max(1.0, min(_number(risk.get("stop_loss"), 20.0), initial_bankroll)),
+scripts/predixai_trader_mobile_server.py:1140:            "take_profit": max(1.0, _number(risk.get("take_profit"), 20.0)),
+scripts/predixai_trader_mobile_server.py:1141:            "max_signals": max(1, min(100, _int_number(risk.get("max_signals"), 10))),
+scripts/predixai_trader_mobile_server.py:1142:            "max_losses": max(1, min(20, _int_number(risk.get("max_losses"), 3))),
+scripts/predixai_trader_mobile_server.py:1143:            "payout_min": max(50, min(100, _int_number(operation.get("payout_min") or risk.get("payout_min"), 80))),
+scripts/predixai_trader_mobile_server.py:1144:            "payout_source": "MANUAL",
+scripts/predixai_trader_mobile_server.py:1147:            "expiration_seconds": max(30, _int_number(operation.get("expiration_seconds"), DEFAULT_EXPIRATION_SECONDS)),
+scripts/predixai_trader_mobile_server.py:1152:        "recovery": {
+scripts/predixai_trader_mobile_server.py:1153:            "recovery_enabled": recovery_enabled,
+scripts/predixai_trader_mobile_server.py:1154:            "recovery_mode": recovery_mode,
+scripts/predixai_trader_mobile_server.py:1155:            "max_recovery_steps": 0 if not recovery_enabled else max(0, min(5, _int_number(recovery.get("max_recovery_steps"), 0))),
+scripts/predixai_trader_mobile_server.py:1156:            "current_recovery_step": 0,
+scripts/predixai_trader_mobile_server.py:1157:            "recovery_multiplier": max(1.0, min(3.0, _number(recovery.get("recovery_multiplier"), 1.0))),
+scripts/predixai_trader_mobile_server.py:1291:                expiration_seconds, reason, source, status, result,
+scripts/predixai_trader_mobile_server.py:1303:                _normalize_expiration_seconds(contract.get("operation", {}).get("expiration_seconds")),
+scripts/predixai_trader_mobile_server.py:1499:def _normalize_expiration_seconds(value: Any = None) -> int:
+scripts/predixai_trader_mobile_server.py:1509:def _stored_expiration_seconds(value: Any = None) -> int:
+scripts/predixai_trader_mobile_server.py:1658:            "window_title": item.get("window_title"),
+scripts/predixai_trader_mobile_server.py:1749:                expiration_seconds INTEGER,
+scripts/predixai_trader_mobile_server.py:1801:def _invalid_window_text(value: Any) -> bool:
+scripts/predixai_trader_mobile_server.py:1826:    broker_window = metadata.get("broker_window")
+scripts/predixai_trader_mobile_server.py:1827:    if isinstance(broker_window, dict):
+scripts/predixai_trader_mobile_server.py:1828:        broker_metadata = broker_window.get("metadata")
+scripts/predixai_trader_mobile_server.py:1830:            metadata["broker_window_valid"] = broker_metadata.get("broker_window_valid")
+scripts/predixai_trader_mobile_server.py:1834:def _point_window_text(point: dict[str, Any]) -> str:
+scripts/predixai_trader_mobile_server.py:1837:        point.get("window_title"),
+scripts/predixai_trader_mobile_server.py:1839:        metadata.get("window_title"),
+scripts/predixai_trader_mobile_server.py:1841:    broker_window = metadata.get("broker_window")
+scripts/predixai_trader_mobile_server.py:1842:    if isinstance(broker_window, dict):
+scripts/predixai_trader_mobile_server.py:1843:        parts.append(broker_window.get("title"))
+scripts/predixai_trader_mobile_server.py:1870:    if metadata.get("broker_window_valid") is False:
+scripts/predixai_trader_mobile_server.py:1872:    if _invalid_window_text(_point_window_text(point)):
+scripts/predixai_trader_mobile_server.py:1886:        "search_window_end": (
+scripts/predixai_trader_mobile_server.py:1929:        "search_window_end": (
+scripts/predixai_trader_mobile_server.py:2078:            expiration_seconds = _stored_expiration_seconds(row["expiration_seconds"])
+scripts/predixai_trader_mobile_server.py:2079:            target_dt = created_at + timedelta(seconds=expiration_seconds)
+scripts/predixai_trader_mobile_server.py:2172:            expiration_seconds = _stored_expiration_seconds(row["expiration_seconds"])
+scripts/predixai_trader_mobile_server.py:2173:            if created_at is None or entry_price is None or not expiration_seconds:
+scripts/predixai_trader_mobile_server.py:2176:            target_dt = created_at + timedelta(seconds=expiration_seconds)
+scripts/predixai_trader_mobile_server.py:2271:def _register_signal_if_needed(state: dict[str, Any], expiration_seconds: int) -> None:
+scripts/predixai_trader_mobile_server.py:2282:    expiration_seconds = _normalize_expiration_seconds(expiration_seconds)
+scripts/predixai_trader_mobile_server.py:2351:            "expiration_seconds": expiration_seconds,
+scripts/predixai_trader_mobile_server.py:2362:                expiration_seconds, reason, source, status, result,
+scripts/predixai_trader_mobile_server.py:2374:                expiration_seconds,
+scripts/predixai_trader_mobile_server.py:2392:    expiration_seconds = _stored_expiration_seconds(item.get("expiration_seconds"))
+scripts/predixai_trader_mobile_server.py:2393:    item["expiration_seconds"] = expiration_seconds
+scripts/predixai_trader_mobile_server.py:2408:    item["search_window_end"] = metadata.get("search_window_end")
+scripts/predixai_trader_mobile_server.py:2422:    expires_at = created_at + timedelta(seconds=expiration_seconds)
+scripts/predixai_trader_mobile_server.py:2468:                   expiration_seconds, reason, status, result_checked_at,
+scripts/predixai_trader_mobile_server.py:2481:def _hit_rate_percent(win: int, loss: int, draw: int) -> float:
+scripts/predixai_trader_mobile_server.py:2482:    valid = win + loss + draw
+scripts/predixai_trader_mobile_server.py:2483:    return round((win / valid) * 100, 1) if valid else 0.0
+scripts/predixai_trader_mobile_server.py:2498:                SUM(CASE WHEN result = 'WIN' THEN 1 ELSE 0 END) AS win,
+scripts/predixai_trader_mobile_server.py:2499:                SUM(CASE WHEN result = 'LOSS' THEN 1 ELSE 0 END) AS loss,
+scripts/predixai_trader_mobile_server.py:2500:                SUM(CASE WHEN result = 'DRAW' THEN 1 ELSE 0 END) AS draw,
+scripts/predixai_trader_mobile_server.py:2511:                   expiration_seconds, reason, status, result_checked_at,
+scripts/predixai_trader_mobile_server.py:2523:    win = int(row["win"] or 0)
+scripts/predixai_trader_mobile_server.py:2524:    loss = int(row["loss"] or 0)
+scripts/predixai_trader_mobile_server.py:2525:    draw = int(row["draw"] or 0)
+scripts/predixai_trader_mobile_server.py:2528:    closed = win + loss + draw + unknown
+scripts/predixai_trader_mobile_server.py:2529:    hit_rate = _hit_rate_percent(win, loss, draw)
+scripts/predixai_trader_mobile_server.py:2533:        "win": win,
+scripts/predixai_trader_mobile_server.py:2534:        "loss": loss,
+scripts/predixai_trader_mobile_server.py:2535:        "draw": draw,
+scripts/predixai_trader_mobile_server.py:2908:    expiration_seconds: int = DEFAULT_EXPIRATION_SECONDS,
+scripts/predixai_trader_mobile_server.py:2910:    expiration_seconds = _normalize_expiration_seconds(expiration_seconds)
+scripts/predixai_trader_mobile_server.py:3002:    ignored_window = (
+scripts/predixai_trader_mobile_server.py:3018:    if ignored_window and running:
+scripts/predixai_trader_mobile_server.py:3034:        if ignored_window:
+scripts/predixai_trader_mobile_server.py:3057:        "last_window_title": scoped_last.get("window_title") or (scoped_last.get("broker_window") or {}).get("title"),
+scripts/predixai_trader_mobile_server.py:3058:        "expiration_seconds": expiration_seconds,
+scripts/predixai_trader_mobile_server.py:3066:        _register_signal_if_needed(state, expiration_seconds=expiration_seconds)
+scripts/predixai_trader_mobile_server.py:3089:        "expiration_seconds": expiration_seconds,
+scripts/predixai_trader_mobile_server.py:3146:        expiration_seconds = _normalize_expiration_seconds((query.get("expiration") or [DEFAULT_EXPIRATION_SECONDS])[0])
+scripts/predixai_trader_mobile_server.py:3148:            _build_state(host_for_url=host, port=port, expiration_seconds=expiration_seconds)
+scripts/predixai_trader_mobile_server.py:3267:<label>Perfil de risco</label>
+scripts/predixai_trader_mobile_server.py:3268:<select id="risk">
+scripts/predixai_trader_mobile_server.py:3281:<select id="expiration">
+scripts/predixai_trader_mobile_server.py:3299:    risk_profile: document.getElementById("risk").value,
+scripts/predixai_trader_mobile_server.py:3302:    expiration_seconds: Number(document.getElementById("expiration").value)
+scripts/predixai_trader_mobile_server.py:3316:  window.location.href = "/mobile";
+scripts/predixai_trader_mobile_server.py:3383:        expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+scripts/predixai_trader_mobile_server.py:3388:                expiration_seconds=expiration_seconds,
+scripts/predixai_trader_mobile_server.py:3437:                "risk": "médio",
+scripts/predixai_trader_mobile_server.py:3446:                "risk": "médio/alto",
+scripts/predixai_trader_mobile_server.py:3455:                "risk": "alto",
+scripts/predixai_trader_mobile_server.py:3464:                "risk": "médio",
+scripts/predixai_trader_mobile_server.py:3473:                "risk": "médio",
+scripts/predixai_trader_mobile_server.py:3482:                "risk": "baixo/médio",
+scripts/predixai_trader_mobile_server.py:3516:        expiration_seconds = _ptp113b31a_int(form.get("expiration_seconds"), 60)
+scripts/predixai_trader_mobile_server.py:3517:        risk_profile = str(form.get("risk_profile") or "conservador").strip() or "conservador"
+scripts/predixai_trader_mobile_server.py:3550:                "risk": meta["risk"],
+scripts/predixai_trader_mobile_server.py:3558:                "profit_loss": round(current_bankroll - initial_bankroll, 2),
+scripts/predixai_trader_mobile_server.py:3559:                "profit_loss_percent": round(((current_bankroll - initial_bankroll) / initial_bankroll) * 100, 2) if initial_bankroll else 0.0,
+scripts/predixai_trader_mobile_server.py:3561:            "risk": {
+scripts/predixai_trader_mobile_server.py:3562:                "profile": risk_profile,
+scripts/predixai_trader_mobile_server.py:3567:            "expiration": {
+scripts/predixai_trader_mobile_server.py:3568:                "seconds": expiration_seconds,
+scripts/predixai_trader_mobile_server.py:3569:                "label": f"{expiration_seconds} segundos" if expiration_seconds < 60 else f"{int(expiration_seconds/60)} minuto(s)",
+scripts/predixai_trader_mobile_server.py:3594:                "risco",
+scripts/predixai_trader_mobile_server.py:3667:    <h2>3. Banca simulada e risco</h2>
+scripts/predixai_trader_mobile_server.py:3675:    <select name="expiration_seconds" id="expiration_seconds">
+scripts/predixai_trader_mobile_server.py:3682:    <label>Perfil de risco</label>
+scripts/predixai_trader_mobile_server.py:3683:    <select name="risk_profile" id="risk_profile">
+scripts/predixai_trader_mobile_server.py:3693:    <div class="box"><div class="k">Risco da estratégia</div><div class="v" id="riskBox">baixo/médio</div></div>
+scripts/predixai_trader_mobile_server.py:3713:      support_resistance: {{label:"Suporte e resistência", scalper5:1, scalper1h:8, day5:0, day1h:3, risk:"médio"}},
+scripts/predixai_trader_mobile_server.py:3714:      candle_reversal: {{label:"Reversão de vela", scalper5:1, scalper1h:10, day5:0, day1h:4, risk:"médio/alto"}},
+scripts/predixai_trader_mobile_server.py:3715:      breakout: {{label:"Rompimento", scalper5:1, scalper1h:7, day5:0, day1h:3, risk:"alto"}},
+scripts/predixai_trader_mobile_server.py:3716:      moving_average_trend: {{label:"Tendência por médias", scalper5:0, scalper1h:6, day5:0, day1h:2, risk:"médio"}},
+scripts/predixai_trader_mobile_server.py:3717:      pullback: {{label:"Pullback", scalper5:1, scalper1h:6, day5:0, day1h:2, risk:"médio"}},
+scripts/predixai_trader_mobile_server.py:3718:      simple_confluence: {{label:"Confluência simples", scalper5:1, scalper1h:5, day5:0, day1h:2, risk:"baixo/médio"}}
+scripts/predixai_trader_mobile_server.py:3731:      document.getElementById("riskBox").innerText = meta.risk;
+scripts/predixai_trader_mobile_server.py:3759:                "tempo_expiracao": contract["expiration"]["label"],
+scripts/predixai_trader_mobile_server.py:3769:                "risco": contract["risk"],
+scripts/predixai_trader_mobile_server.py:3796:            mobile_session["risk"] = contract["risk"]
+scripts/predixai_trader_mobile_server.py:3952:    <h2>3. Banca simulada, meta e risco</h2>
+scripts/predixai_trader_mobile_server.py:3963:    <select name="expiration_seconds" id="expiration_seconds">
+scripts/predixai_trader_mobile_server.py:3970:    <label>Perfil de risco</label>
+scripts/predixai_trader_mobile_server.py:3971:    <select name="risk_profile" id="risk_profile">
+scripts/predixai_trader_mobile_server.py:3981:    <div class="box"><div class="k">Risco da estratégia</div><div class="v" id="riskBox">baixo/médio</div></div>
+scripts/predixai_trader_mobile_server.py:4003:      support_resistance: {label:"Suporte e resistência", scalper5:1, scalper1h:8, day5:0, day1h:3, risk:"médio"},
+scripts/predixai_trader_mobile_server.py:4004:      candle_reversal: {label:"Reversão de vela", scalper5:1, scalper1h:10, day5:0, day1h:4, risk:"médio/alto"},
+scripts/predixai_trader_mobile_server.py:4005:      breakout: {label:"Rompimento", scalper5:1, scalper1h:7, day5:0, day1h:3, risk:"alto"},
+scripts/predixai_trader_mobile_server.py:4006:      moving_average_trend: {label:"Tendência por médias", scalper5:0, scalper1h:6, day5:0, day1h:2, risk:"médio"},
+scripts/predixai_trader_mobile_server.py:4007:      pullback: {label:"Pullback", scalper5:1, scalper1h:6, day5:0, day1h:2, risk:"médio"},
+scripts/predixai_trader_mobile_server.py:4008:      simple_confluence: {label:"Confluência simples", scalper5:1, scalper1h:5, day5:0, day1h:2, risk:"baixo/médio"}
+scripts/predixai_trader_mobile_server.py:4022:      document.getElementById("riskBox").innerText = meta.risk;
+scripts/predixai_trader_mobile_server.py:4051:                "tempo_expiracao": contract["expiration"]["label"],
+scripts/predixai_trader_mobile_server.py:4062:                "risco": contract["risk"],
+scripts/predixai_trader_mobile_server.py:4138:        expiration_seconds: int = DEFAULT_EXPIRATION_SECONDS,
+scripts/predixai_trader_mobile_server.py:4147:                    expiration_seconds, reason, source, status, result,
+scripts/predixai_trader_mobile_server.py:4158:                    expiration_seconds,
+scripts/predixai_trader_mobile_server.py:4282:        raise AssertionError("Audit nearest pre-expiration tolerance test failed")
+scripts/predixai_trader_mobile_server.py:4313:    win_created = now - timedelta(seconds=36)
+scripts/predixai_trader_mobile_server.py:4314:    win_target = win_created + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+scripts/predixai_trader_mobile_server.py:4315:    win_id = insert_signal(created_at=win_created, direction="BAIXA", entry_price=4182.00)
+scripts/predixai_trader_mobile_server.py:4319:                "timestamp": (win_target + timedelta(seconds=5)).isoformat(),
+scripts/predixai_trader_mobile_server.py:4326:    win_row = get_signal(win_id)
+scripts/predixai_trader_mobile_server.py:4327:    if win_row.get("result") != "WIN":
+scripts/predixai_trader_mobile_server.py:4332:    sqlite_win_created = now - timedelta(seconds=36)
+scripts/predixai_trader_mobile_server.py:4333:    sqlite_win_target = sqlite_win_created + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+scripts/predixai_trader_mobile_server.py:4335:        created_at=sqlite_win_created,
+scripts/predixai_trader_mobile_server.py:4340:        created_at=(sqlite_win_target + timedelta(seconds=5)).isoformat(),
+scripts/predixai_trader_mobile_server.py:4344:        metadata={"window_title": "4181.90 Cafeina Index - OlympTrade"},
+scripts/predixai_trader_mobile_server.py:4368:        metadata={"window_title": "4182.20 Cafeina Index - OlympTrade"},
+scripts/predixai_trader_mobile_server.py:4383:    if _hit_rate_percent(win=1, loss=1, draw=1) != 33.3:
+scripts/predixai_trader_mobile_server.py:4385:    if _hit_rate_percent(win=0, loss=0, draw=0) != 0.0:
+scripts/predixai_trader_mobile_server.py:4396:        expiration_seconds=60,
+scripts/predixai_trader_mobile_server.py:4404:        metadata={"window_title": "4181.80 Cafeina Index - OlympTrade"},
+scripts/predixai_trader_mobile_server.py:4409:    if old_row.get("result") != "WIN" or int(old_row.get("expiration_seconds")) != 60:
+src/predixai/mobile/session_start_page.py:97:      <label>Perfil de risco</label>
+src/predixai/mobile/session_start_page.py:98:      <select name="risk_profile">
+src/predixai/mobile/session_start_page.py:105:      <input name="stop_loss" type="number" min="1" step="0.01" value="20.00"/>
+src/predixai/mobile/session_start_page.py:114:      <input name="max_losses" type="number" min="1" value="3"/>
+src/predixai/mobile/session_start_page.py:120:      <input name="payout_min" type="number" min="50" max="100" value="80"/>
+src/predixai/mobile/session_start_page.py:123:      <select name="expiration_seconds">
+src/predixai/mobile/session_start_page.py:134:      <select name="recovery_enabled">
+src/predixai/mobile/session_start_page.py:140:      <select name="recovery_mode">
+src/predixai/mobile/session_start_page.py:147:      <input name="max_recovery_steps" type="number" min="0" value="2"/>
+src/predixai/mobile/session_start_page.py:150:      <input name="recovery_multiplier" type="number" min="1" step="0.1" value="1.5"/>
+src/predixai/mobile/session_start_page.py:195:    risk: {
+src/predixai/mobile/session_start_page.py:196:      risk_profile: data.risk_profile,
+src/predixai/mobile/session_start_page.py:197:      stop_loss: Number(data.stop_loss),
+src/predixai/mobile/session_start_page.py:200:      max_losses: Number(data.max_losses)
+src/predixai/mobile/session_start_page.py:204:      payout_mode: "MANUAL",
+src/predixai/mobile/session_start_page.py:205:      payout_min: Number(data.payout_min),
+src/predixai/mobile/session_start_page.py:206:      expiration_seconds: Number(data.expiration_seconds),
+src/predixai/mobile/session_start_page.py:209:    recovery: {
+src/predixai/mobile/session_start_page.py:210:      recovery_enabled: data.recovery_enabled === "true",
+src/predixai/mobile/session_start_page.py:211:      recovery_mode: data.recovery_enabled === "true" ? data.recovery_mode : "NONE",
+src/predixai/mobile/session_start_page.py:212:      max_recovery_steps: Number(data.max_recovery_steps),
+src/predixai/mobile/session_start_page.py:213:      recovery_multiplier: Number(data.recovery_multiplier),
+src/predixai/mobile/session_start_page.py:214:      current_recovery_step: 0
+src/predixai/trader/mobile_session_contract.py:88:    "withdraw_enabled": False,
+src/predixai/trader/mobile_session_contract.py:141:            "profit_loss": 0.0,
+src/predixai/trader/mobile_session_contract.py:142:            "profit_loss_percent": 0.0,
+src/predixai/trader/mobile_session_contract.py:144:        "risk": {
+src/predixai/trader/mobile_session_contract.py:145:            "risk_profile": "CONSERVATIVE",
+src/predixai/trader/mobile_session_contract.py:146:            "stop_loss": 20.0,
+src/predixai/trader/mobile_session_contract.py:149:            "max_losses": 3,
+src/predixai/trader/mobile_session_contract.py:150:            "payout_min": 80,
+src/predixai/trader/mobile_session_contract.py:151:            "payout_source": "MANUAL",
+src/predixai/trader/mobile_session_contract.py:154:            "expiration_seconds": 60,
+src/predixai/trader/mobile_session_contract.py:160:        "recovery": {
+src/predixai/trader/mobile_session_contract.py:161:            "recovery_enabled": False,
+src/predixai/trader/mobile_session_contract.py:162:            "recovery_mode": "NONE",
+src/predixai/trader/mobile_session_contract.py:163:            "max_recovery_steps": 0,
+src/predixai/trader/mobile_session_contract.py:164:            "current_recovery_step": 0,
+src/predixai/trader/mobile_session_contract.py:165:            "recovery_multiplier": 1.0,
+src/predixai/trader/mobile_session_contract.py:170:            "require_active_window": True,
+src/predixai/trader/mobile_session_contract.py:172:            "allow_ignored_window": False,
+src/predixai/trader/mobile_session_contract.py:180:            "risk_warning": None,
+src/predixai/trader/mobile_session_contract.py:181:            "payout_warning": None,
+src/predixai/trader/mobile_session_contract.py:182:            "recovery_warning": None,
+src/predixai/trader/mobile_session_contract.py:187:            "wins": 0,
+src/predixai/trader/mobile_session_contract.py:188:            "losses": 0,
+src/predixai/trader/mobile_session_contract.py:189:            "draws": 0,
+src/predixai/trader/mobile_session_contract.py:191:            "win_rate": 0.0,
+src/predixai/trader/mobile_session_contract.py:197:            "active_window_title": None,
+src/predixai/trader/mobile_session_contract.py:258:        "risk",
+src/predixai/trader/mobile_session_contract.py:260:        "recovery",
+src/predixai/trader/mobile_session_contract.py:279:    risk = contract["risk"]
+src/predixai/trader/mobile_session_contract.py:281:    recovery = contract["recovery"]
+src/predixai/trader/mobile_session_contract.py:365:    risk_profile = risk.get("risk_profile")
+src/predixai/trader/mobile_session_contract.py:366:    if risk_profile not in ALLOWED_RISK_PROFILES:
+src/predixai/trader/mobile_session_contract.py:367:        errors.append("risk_profile inválido")
+src/predixai/trader/mobile_session_contract.py:370:        exposure_percent = (initial_entry / initial_bankroll) * 100
+src/predixai/trader/mobile_session_contract.py:372:        if risk_profile == "CONSERVATIVE" and exposure_percent > 10:
+src/predixai/trader/mobile_session_contract.py:375:        if risk_profile == "MODERATE" and exposure_percent > 20:
+src/predixai/trader/mobile_session_contract.py:378:        if risk_profile == "AGGRESSIVE" and exposure_percent > 30:
+src/predixai/trader/mobile_session_contract.py:381:    stop_loss = risk.get("stop_loss")
+src/predixai/trader/mobile_session_contract.py:382:    take_profit = risk.get("take_profit")
+src/predixai/trader/mobile_session_contract.py:383:    payout_min = risk.get("payout_min")
+src/predixai/trader/mobile_session_contract.py:385:    if not isinstance(stop_loss, (int, float)) or stop_loss <= 0:
+src/predixai/trader/mobile_session_contract.py:386:        errors.append("stop_loss deve ser maior que zero")
+src/predixai/trader/mobile_session_contract.py:391:    if isinstance(stop_loss, (int, float)) and isinstance(initial_bankroll, (int, float)):
+src/predixai/trader/mobile_session_contract.py:392:        if stop_loss > initial_bankroll:
+src/predixai/trader/mobile_session_contract.py:393:            errors.append("stop_loss não pode ser maior que initial_bankroll")
+src/predixai/trader/mobile_session_contract.py:395:    if not isinstance(payout_min, (int, float)) or not 50 <= payout_min <= 100:
+src/predixai/trader/mobile_session_contract.py:396:        errors.append("payout_min deve ficar entre 50 e 100")
+src/predixai/trader/mobile_session_contract.py:398:    if risk.get("payout_source") not in ALLOWED_PAYOUT_SOURCES:
+src/predixai/trader/mobile_session_contract.py:399:        errors.append("payout_source inválido")
+src/predixai/trader/mobile_session_contract.py:401:    max_signals = risk.get("max_signals")
+src/predixai/trader/mobile_session_contract.py:402:    max_losses = risk.get("max_losses")
+src/predixai/trader/mobile_session_contract.py:407:    if not isinstance(max_losses, int) or not 1 <= max_losses <= 20:
+src/predixai/trader/mobile_session_contract.py:408:        errors.append("max_losses deve ficar entre 1 e 20")
+src/predixai/trader/mobile_session_contract.py:410:    expiration = operation.get("expiration_seconds")
+src/predixai/trader/mobile_session_contract.py:411:    if not isinstance(expiration, int) or not 30 <= expiration <= 3600:
+src/predixai/trader/mobile_session_contract.py:412:        errors.append("expiration_seconds deve ficar entre 30 e 3600")
+src/predixai/trader/mobile_session_contract.py:423:    recovery_enabled = recovery.get("recovery_enabled")
+src/predixai/trader/mobile_session_contract.py:424:    recovery_mode = recovery.get("recovery_mode")
+src/predixai/trader/mobile_session_contract.py:425:    max_recovery_steps = recovery.get("max_recovery_steps")
+src/predixai/trader/mobile_session_contract.py:426:    current_recovery_step = recovery.get("current_recovery_step")
+src/predixai/trader/mobile_session_contract.py:427:    recovery_multiplier = recovery.get("recovery_multiplier")
+src/predixai/trader/mobile_session_contract.py:429:    if recovery_mode not in ALLOWED_RECOVERY_MODES:
+src/predixai/trader/mobile_session_contract.py:430:        errors.append("recovery_mode inválido")
+src/predixai/trader/mobile_session_contract.py:432:    if recovery_enabled is False:
+src/predixai/trader/mobile_session_contract.py:433:        if recovery_mode != "NONE":
+src/predixai/trader/mobile_session_contract.py:434:            errors.append("recovery_mode deve ser NONE quando recovery_enabled=false")
+src/predixai/trader/mobile_session_contract.py:435:        if max_recovery_steps != 0:
+src/predixai/trader/mobile_session_contract.py:436:            errors.append("max_recovery_steps deve ser 0 quando recovery_enabled=false")
+src/predixai/trader/mobile_session_contract.py:438:    if not isinstance(max_recovery_steps, int) or not 0 <= max_recovery_steps <= 5:
+src/predixai/trader/mobile_session_contract.py:439:        errors.append("max_recovery_steps deve ficar entre 0 e 5")
+src/predixai/trader/mobile_session_contract.py:441:    if not isinstance(current_recovery_step, int) or not 0 <= current_recovery_step <= 5:
+src/predixai/trader/mobile_session_contract.py:442:        errors.append("current_recovery_step deve ficar entre 0 e 5")
+src/predixai/trader/mobile_session_contract.py:444:    if current_recovery_step > max_recovery_steps:
+src/predixai/trader/mobile_session_contract.py:445:        errors.append("current_recovery_step não pode ser maior que max_recovery_steps")
+src/predixai/trader/mobile_session_contract.py:447:    if not isinstance(recovery_multiplier, (int, float)) or not 1.0 <= recovery_multiplier <= 3.0:
+src/predixai/trader/mobile_session_contract.py:448:        errors.append("recovery_multiplier deve ficar entre 1.0 e 3.0")
+src/predixai/trader/mobile_session_contract.py:454:    if data_quality.get("allow_ignored_window") is not False:
+src/predixai/trader/mobile_session_contract.py:455:        errors.append("allow_ignored_window deve ser false")
+src/predixai/trader/recovery.py:7:        "mao_fixa",
+src/predixai/trader/recovery.py:8:        "soros",
+src/predixai/trader/recovery.py:9:        "martingale_1",
+src/predixai/trader/recovery.py:10:        "martingale_2",
+src/predixai/trader/recovery.py:11:        "martingale_3",
+src/predixai/trader/recovery.py:16:            raise ValueError("Invalid recovery mode")
+src/predixai/trader/recovery.py:20:    def suggest_after_loss(self, last_entry: float, step: int = 1) -> Dict:
+src/predixai/trader/recovery.py:24:        if self.mode == "mao_fixa":
+src/predixai/trader/recovery.py:26:        if self.mode.startswith("martingale"):
+src/predixai/trader/recovery.py:29:        if self.mode == "soros":
+src/predixai/trader/risk_manager.py:17:        if signal.payout is None or signal.payout <= 0:
+src/predixai/trader/risk_manager.py:19:            reasons.append("payout ausente")
+src/predixai/trader/risk_manager.py:20:        if session_config.stop_loss <= 0:
+src/predixai/trader/risk_manager.py:22:            reasons.append("stop_loss inválido")
+src/predixai/trader/risk_manager.py:28:        exposure = signal.suggested_entry
+src/predixai/trader/risk_manager.py:29:        if exposure > session_config.stop_loss:
+src/predixai/trader/risk_manager.py:31:            reasons.append("exposição maior que stop")
+src/predixai/trader/risk_simulator.py:5:    # Lightweight heuristics to estimate risks and exposures.
+src/predixai/trader/risk_simulator.py:7:    stop = max(0.0, float(session_config.stop_loss))
+src/predixai/trader/risk_simulator.py:10:    exposure_max = min(bankroll, limit * session_config.initial_entry)
+src/predixai/trader/risk_simulator.py:16:    stop_supports_recovery = stop < bankroll
+src/predixai/trader/risk_simulator.py:17:    martingale_aggressive = session_config.recovery_mode.lower().startswith("martingale")
+src/predixai/trader/risk_simulator.py:20:    risk_score = 0
+src/predixai/trader/risk_simulator.py:21:    if exposure_max > bankroll * 0.5:
+src/predixai/trader/risk_simulator.py:22:        risk_score += 2
+src/predixai/trader/risk_simulator.py:24:        risk_score += 2
+src/predixai/trader/risk_simulator.py:26:        risk_score += 1
+src/predixai/trader/risk_simulator.py:28:    if risk_score <= 1:
+src/predixai/trader/risk_simulator.py:30:    elif risk_score == 2:
+src/predixai/trader/risk_simulator.py:36:    if exposure_max > stop:
+src/predixai/trader/risk_simulator.py:37:        recommendation = "Reduzir exposição ou aumentar stop_loss"
+src/predixai/trader/risk_simulator.py:40:        "risk_classification": classification,
+src/predixai/trader/risk_simulator.py:41:        "exposure_max": exposure_max,
+src/predixai/trader/risk_simulator.py:45:        "stop_supports_recovery": stop_supports_recovery,
+src/predixai/trader/risk_simulator.py:46:        "martingale_aggressive": martingale_aggressive,
+src/predixai/trader/session.py:14:    stop_loss: float
+src/predixai/trader/session.py:16:    recovery_mode: str
+src/predixai/trader/session.py:17:    expiration: int
+src/predixai/trader/signal.py:24:    best_entry_window: Optional[str]
+src/predixai/trader/signal.py:25:    recommended_expiration: Optional[int]
+src/predixai/trader/signal.py:26:    alternative_expiration: Optional[int]
+src/predixai/trader/signal.py:29:    payout: Optional[float]
+src/predixai/trader/signal.py:33:    recovery_mode: Optional[str]
+src/predixai/trader/signal.py:34:    next_entry_on_loss: Optional[float]
+src/predixai/trader/signal.py:35:    action_on_win: Optional[str]
+src/predixai/trader/strategy.py:8:    default_expiration: int
+src/predixai/trader/strategy.py:13:    risk_level: str
+
+===== TRECHO: mobile_session_contract.py =====
+"""
+PredixAI BR — PTP-112A
+Mobile Session Contract v1.1
+
+Contrato oficial da sessão mobile-first simulada.
+
+Regras centrais:
+- Sem ordem real.
+- Sem clique automático.
+- Sem login/corretora/senha no mobile.
+- Sem dinheiro real.
+- Saldo exibido = banca simulada.
+- Segurança sempre forçada pelo servidor.
+"""
+
+from __future__ import annotations
+
+from copy import deepcopy
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+import json
+import uuid
+from zoneinfo import ZoneInfo
+
+
+CONTRACT_VERSION = "1.1"
+SCHEMA_NAME = "MobileSessionContract"
+SCHEMA_VERSION = "PTP-112A-v1.1"
+DEFAULT_TIMEZONE = "America/Recife"
+
+ALLOWED_STATUS = {
+    "CREATED",
+    "RUNNING",
+    "PAUSED",
+    "STOPPED",
+    "FINISHED",
+    "BLOCKED",
+    "ERROR",
+}
+
+ALLOWED_SESSION_TYPES = {
+    "SCALPER",
+    "DAY_TRADE",
+    "TEST",
+    "TRAINING",
+}
+
+ALLOWED_STRATEGIES = {
+    "LEGACY_MOMENTUM",
+    "SUPPORT_RESISTANCE",
+    "PRICE_ACTION",
+    "CANDLE_REVERSAL",
+}
+
+FUTURE_BLOCKED_STRATEGIES = {
+    "TRIPLE_REBOUND",
+    "TRIPLE_RSI",
+    "COMBINED_AI",
+}
+
+ALLOWED_RISK_PROFILES = {
+    "CONSERVATIVE",
+    "MODERATE",
+    "AGGRESSIVE",
+}
+
+ALLOWED_RECOVERY_MODES = {
+    "NONE",
+    "FIXED",
+    "SOFT_MARTINGALE",
+    "CUSTOM",
+}
+
+ALLOWED_PAYOUT_SOURCES = {
+    "MANUAL",
+    "AUTO_FUTURE",
+    "UNKNOWN",
+}
+
+SECURITY_FIXED_VALUES = {
+    "executor_blocked": True,
+    "orders_enabled": False,
+    "real_money_enabled": False,
+    "auto_click_enabled": False,
+    "broker_login_enabled": False,
+    "deposit_enabled": False,
+    "withdraw_enabled": False,
+    "credentials_allowed": False,
+}
+
+
+def now_iso(timezone: str = DEFAULT_TIMEZONE) -> str:
+    return datetime.now(ZoneInfo(timezone)).isoformat(timespec="seconds")
+
+
+def new_session_id() -> str:
+    stamp = datetime.now(ZoneInfo(DEFAULT_TIMEZONE)).strftime("%Y%m%d_%H%M%S")
+    suffix = uuid.uuid4().hex[:8]
+    return f"mobile_{stamp}_{suffix}"
+
+
+def default_mobile_session_contract() -> Dict[str, Any]:
+    timestamp = now_iso()
+
+    return {
+        "session": {
+            "contract_version": CONTRACT_VERSION,
+            "schema_name": SCHEMA_NAME,
+            "schema_version": SCHEMA_VERSION,
+            "session_id": new_session_id(),
+            "created_at": timestamp,
+            "updated_at": timestamp,
+            "started_at": None,
+            "ended_at": None,
+            "timezone": DEFAULT_TIMEZONE,
+            "created_by": "mobile",
+            "environment": "LOCAL_SIMULATION",
+            "status": "CREATED",
+            "session_type": "SCALPER",
+        },
+        "config": {
+            "asset_mode": "DETECTED_BY_READER",
+            "broker_mode": "EXTERNAL_OPEN_WINDOW",
+            "start_mode": "MOBILE_START",
+            "session_notes": None,
+        },
+        "strategy": {
+            "strategy_mode": "LEGACY_MOMENTUM",
+            "strategy_stack": ["LEGACY_MOMENTUM"],
+            "confluence_required": True,
+            "min_confidence": 70,
+            "strategy_locked": False,
+        },
+        "bankroll": {
+            "currency": "BRL",
+            "initial_bankroll": 100.0,
+            "current_bankroll": 100.0,
+            "initial_entry": 5.0,
+            "current_entry": 5.0,
+            "profit_loss": 0.0,
+            "profit_loss_percent": 0.0,
+        },
+        "risk": {
+            "risk_profile": "CONSERVATIVE",
+            "stop_loss": 20.0,
+            "take_profit": 20.0,
+            "max_signals": 10,
+            "max_losses": 3,
+            "payout_min": 80,
+            "payout_source": "MANUAL",
+        },
+        "operation": {
+            "expiration_seconds": 60,
+            "paper_trade_enabled": True,
+            "signal_cooldown_seconds": 30,
+            "allow_multiple_open_trades": False,
+            "max_open_trades": 1,
+        },
+        "recovery": {
+            "recovery_enabled": False,
+            "recovery_mode": "NONE",
+            "max_recovery_steps": 0,
+            "current_recovery_step": 0,
+            "recovery_multiplier": 1.0,
+        },
+        "security": deepcopy(SECURITY_FIXED_VALUES),
+        "data_quality": {
+            "require_valid_price": True,
+            "require_active_window": True,
+            "min_data_quality": 60,
+            "allow_ignored_window": False,
+            "allow_unknown_asset": True,
+            "max_price_age_seconds": 10,
+        },
+        "preview": {
+            "estimated_signals_5m": None,
+            "estimated_signals_1h": None,
+            "operational_profile": None,
+            "risk_warning": None,
+            "payout_warning": None,
+            "recovery_warning": None,
+            "session_feasibility": None,
+        },
+        "stats": {
+            "signals_generated": 0,
+            "wins": 0,
+            "losses": 0,
+            "draws": 0,
+            "canceled": 0,
+            "win_rate": 0.0,
+            "last_signal_id": None,
+            "last_result": None,
+        },
+        "runtime": {
+            "detected_asset": None,
+            "active_window_title": None,
+            "last_price": None,
+            "last_price_at": None,
+            "reader_status": None,
+            "runtime_path": "data/runtime",
+        },
+        "safety_audit": {
+            "security_locked_at": None,
+            "security_source": "SERVER_ENFORCED",
+            "blocked_reason": None,
+            "last_validation_error": None,
+            "last_validation_at": None,
+        },
+    }
+
+
+def deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    result = deepcopy(base)
+
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = deep_merge(result[key], value)
+        else:
+            result[key] = value
+
+    return result
+
+
+def enforce_server_security(contract: Dict[str, Any]) -> Dict[str, Any]:
+    safe = deepcopy(contract)
+    safe.setdefault("security", {})
+    safe["security"].update(deepcopy(SECURITY_FIXED_VALUES))
+
+    safe.setdefault("safety_audit", {})
+    safe["safety_audit"]["security_source"] = "SERVER_ENFORCED"
+
+    return safe
+
+
+def build_mobile_session_contract(
+    mobile_config: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    contract = default_mobile_session_contract()
+
+    if mobile_config:
+        contract = deep_merge(contract, mobile_config)
+
+    contract = enforce_server_security(contract)
+    contract["session"]["updated_at"] = now_iso(contract["session"].get("timezone", DEFAULT_TIMEZONE))
+
+    return contract
+
+
+def validate_mobile_session_contract(contract: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    errors: List[str] = []
+
+    required_blocks = {
+        "session",
+        "config",
+        "strategy",
+        "bankroll",
+        "risk",
+        "operation",
+        "recovery",
+
+===== TRECHO: recovery.py =====
+from typing import Dict
+
+
+class RecoveryPlanner:
+    MODES = [
+        "sem_recuperacao",
+        "mao_fixa",
+        "soros",
+        "martingale_1",
+        "martingale_2",
+        "martingale_3",
+    ]
+
+    def __init__(self, mode: str = "sem_recuperacao", max_steps: int = 3):
+        if mode not in self.MODES:
+            raise ValueError("Invalid recovery mode")
+        self.mode = mode
+        self.max_steps = max_steps
+
+    def suggest_after_loss(self, last_entry: float, step: int = 1) -> Dict:
+        # Returns the next suggested entry amount and a short rationale.
+        if self.mode == "sem_recuperacao":
+            return {"next_entry": 0.0, "reason": "Sem recuperação"}
+        if self.mode == "mao_fixa":
+            return {"next_entry": last_entry, "reason": "Manter entrada fixa"}
+        if self.mode.startswith("martingale"):
+            factor = 2 ** step
+            return {"next_entry": last_entry * factor, "reason": f"Martingale x{factor}"}
+        if self.mode == "soros":
+            return {"next_entry": last_entry * 1.5, "reason": "Soros conservador"}
+        return {"next_entry": 0.0, "reason": "Sem sugestão"}
+
+===== TRECHO: risk_manager.py =====
+from typing import Dict
+
+
+class RiskManager:
+    def evaluate(self, signal, session_config, state: Dict = None) -> Dict:
+        # Minimal checks returning decision and reason.
+        state = state or {}
+        reasons = []
+        allowed = True
+
+        if signal.confidence < 0.2:
+            allowed = False
+            reasons.append("confiança baixa")
+        if signal.asset in (None, ""):
+            allowed = False
+            reasons.append("ativo inválido")
+        if signal.payout is None or signal.payout <= 0:
+            allowed = False
+            reasons.append("payout ausente")
+        if session_config.stop_loss <= 0:
+            allowed = False
+            reasons.append("stop_loss inválido")
+        if session_config.signals_limit <= 0:
+            allowed = False
+            reasons.append("limite de sinais atingido")
+
+        # Exposure rule
+        exposure = signal.suggested_entry
+        if exposure > session_config.stop_loss:
+            allowed = False
+            reasons.append("exposição maior que stop")
+
+        return {"allowed": allowed, "reasons": reasons}
+
+===== TRECHO: risk_simulator.py =====
+from typing import Dict
+
+
+def simulate_pre_session(session_config, strategy_profile) -> Dict:
+    # Lightweight heuristics to estimate risks and exposures.
+    bankroll = max(1.0, float(session_config.simulated_bankroll))
+    stop = max(0.0, float(session_config.stop_loss))
+    limit = max(1, int(session_config.signals_limit))
+
+    exposure_max = min(bankroll, limit * session_config.initial_entry)
+    estimated_signals = max(1, min(limit, int(bankroll // max(1.0, session_config.initial_entry))))
+    probable_time_minutes = estimated_signals * 5
+
+    # Simple realism checks
+    realistic_goal = session_config.session_goal <= bankroll * 2
+    stop_supports_recovery = stop < bankroll
+    martingale_aggressive = session_config.recovery_mode.lower().startswith("martingale")
+
+    # Risk classification
+    risk_score = 0
+    if exposure_max > bankroll * 0.5:
+        risk_score += 2
+    if session_config.initial_entry > bankroll * 0.2:
+        risk_score += 2
+    if session_config.signals_limit > 30:
+        risk_score += 1
+
+    if risk_score <= 1:
+        classification = "BAIXO"
+    elif risk_score == 2:
+        classification = "MODERADO"
+    else:
+        classification = "ALTO"
+
+    recommendation = "OK"
+    if exposure_max > stop:
+        recommendation = "Reduzir exposição ou aumentar stop_loss"
+
+    return {
+        "risk_classification": classification,
+        "exposure_max": exposure_max,
+        "estimated_signals": estimated_signals,
+        "probable_time_minutes": probable_time_minutes,
+        "realistic_goal": realistic_goal,
+        "stop_supports_recovery": stop_supports_recovery,
+        "martingale_aggressive": martingale_aggressive,
+        "recommendation": recommendation,
+    }
+
+===== ROTAS /session/setup, /mobile, /api/mobile =====
+77:SIMULATED_START_ROUTES = {"/mobile/session/start", "/api/mobile/simulated-session/start"}
+429:    <a id="dashboardLink" class="button" href="/mobile">Dashboard</a>
+721:      const response = await fetch(`/api/mobile/state?expiration=${expirationSeconds}`, { cache: "no-store" });
+730:      await fetch("/mobile/session/start", {
+776:      await fetch("/api/mobile/stop", { method: "POST" });
+785:      const response = await fetch("/api/mobile/reset-session", { method: "POST" });
+830:def _new_mobile_session() -> dict[str, Any]:
+842:def _read_mobile_session() -> dict[str, Any]:
+847:def _session_id(session: dict[str, Any] | None = None) -> str:
+852:def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None:
+859:def _write_mobile_session(session: dict[str, Any]) -> None:
+863:def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+872:def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+882:def _metadata_session_id(value: Any) -> str:
+887:def _point_session_id(point: dict[str, Any]) -> str:
+891:def _point_matches_session(
+994:def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]:
+1304:                "PaperTradeSession simulado iniciado por /mobile/session/start.",
+1318:def _start_simulated_mobile_session(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+3092:        "mobile_url": f"http://{host}:{port}/mobile",
+3141:    if path in {"/", "/mobile"}:
+3143:    if path == "/api/mobile/state":
+3163:    if path == "/api/mobile/start":
+3165:        result["compatibility_route"] = "/api/mobile/start"
+3169:    if path == "/api/mobile/stop":
+3171:    if path == "/api/mobile/reset-session":
+3305:  const res = await fetch("/mobile/session/start", {
+3316:  window.location.href = "/mobile";
+3351:def create_mobile_app() -> Flask:
+3362:    @app.route("/")
+3367:    @app.route("/session/setup")
+3368:    def session_setup():  # type: ignore[no-untyped-def]
+3371:    @app.route("/api/mobile/signal/contract")
+3372:    def mobile_signal_contract():  # type: ignore[no-untyped-def]
+3375:    @app.route("/mobile")
+3376:    def mobile():  # type: ignore[no-untyped-def]
+3379:    @app.route("/api/mobile/state")
+3380:    def mobile_state():  # type: ignore[no-untyped-def]
+3392:    @app.route("/api/mobile/start", methods=["POST"])
+3393:    def mobile_start():  # type: ignore[no-untyped-def]
+3396:        result["compatibility_route"] = "/api/mobile/start"
+3401:    @app.route("/mobile/session/start", methods=["POST"])
+3402:    @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+3403:    def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+3409:    @app.route("/api/mobile/stop", methods=["POST"])
+3410:    def mobile_stop():  # type: ignore[no-untyped-def]
+3413:    @app.route("/api/mobile/reset-session", methods=["POST"])
+3414:    def mobile_reset_session():  # type: ignore[no-untyped-def]
+3608:    def _ptp113b31a_session_setup_override():
+3614:            return redirect("/mobile")
+3776:    def _ptp113b31a_enrich_mobile_state(response):
+3780:            if request.path != "/api/mobile/state":
+3817:        if _rule.rule == "/session/setup":
+3820:        if _rule.rule == "/api/mobile/signal/contract":
+3826:            "/session/setup",
+3834:            "/api/mobile/signal/contract",
+3843:        if _rule.rule == "/session/setup" and "POST" in _rule.methods:
+3848:            "/session/setup",
+3890:    def _ptp113b31a41_session_setup_override():
+3896:            return redirect("/mobile")
+4070:    def _ptp113b31a41_enrich_mobile_state(response):
+4075:            if request.path != "/api/mobile/state":
+4110:        if _rule.rule == "/session/setup":
+4115:        if _rule.rule == "/api/mobile/signal/contract":
+4120:            "/session/setup",
+4422:    print(f"Local PC: http://127.0.0.1:{port}/mobile")
+4423:    print(f"Celular na mesma Wi-Fi: http://{local_ip}:{port}/mobile")
+4424:    print("Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start")
+4425:    print("Endpoint observador legado: POST /api/mobile/stop")
+4500:                    mobile_response = client.get("/mobile")
+4501:                    state_response = client.get("/api/mobile/state")
+4506:                mobile_status, _, _ = _handle_get("/mobile")
+4508:                    "/api/mobile/state",
+4530:            print(f"SMOKE_MOBILE_URL=http://{_local_ip()}:{port}/mobile")
+
+===== RELATÓRIOS EXISTENTES =====
+data/runtime/backups/mobile_reset_20260704_093600/last_live_reading.json
+data/runtime/backups/mobile_reset_20260704_093600/live_price_history.json
+data/runtime/backups/mobile_reset_20260704_093600/mobile_reader.log
+data/runtime/backups/mobile_reset_20260704_093600/rejected_live_readings.json
+data/runtime/last_live_reading.json
+data/runtime/live_price_history.json
+data/runtime/mobile_current_session.json
+data/runtime/mobile_reader.log
+data/runtime/mobile_session_contract_v1_1_example.json
+data/runtime/rejected_live_readings.json
+docs/blueprint/00_Blueprint_v1.0.md
+docs/blueprint/01_Constitution.md
+docs/blueprint/02_Architecture.md
+docs/blueprint/03_DevelopmentGuide.md
+docs/blueprint/04_Roadmap.md
+docs/blueprint/05_SecurityPolicy.md
+docs/blueprint/06_AIProviderPolicy.md
+docs/blueprint/07_DesignGuide.md
+docs/setup/Leo_Windows10_Validation.md
+docs/setup/Windows10.md
+docs/trader/LINUX_MINT_ROBOT_RECOVERY.md
+docs/trader/MOBILE_SIGNAL_LOGIC_AUDIT.md
+reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt
+reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt
+
+===== RELATÓRIOS CANDIDATOS PARA GIT =====
+docs/blueprint/00_Blueprint_v1.0.md
+docs/blueprint/01_Constitution.md
+docs/blueprint/02_Architecture.md
+docs/blueprint/03_DevelopmentGuide.md
+docs/blueprint/04_Roadmap.md
+docs/blueprint/05_SecurityPolicy.md
+docs/blueprint/06_AIProviderPolicy.md
+docs/blueprint/07_DesignGuide.md
+docs/setup/Leo_Windows10_Validation.md
+docs/setup/Windows10.md
+docs/trader/LINUX_MINT_ROBOT_RECOVERY.md
+docs/trader/MOBILE_SIGNAL_LOGIC_AUDIT.md
+reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt
+reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt
+
+===== TAMANHO DOS RELATÓRIOS =====
+36K	reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt
+52K	reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt
+4,0K	docs/setup/Windows10.md
+4,0K	docs/setup/Leo_Windows10_Validation.md
+4,0K	docs/blueprint/04_Roadmap.md
+4,0K	docs/blueprint/06_AIProviderPolicy.md
+4,0K	docs/blueprint/07_DesignGuide.md
+4,0K	docs/blueprint/03_DevelopmentGuide.md
+4,0K	docs/blueprint/00_Blueprint_v1.0.md
+4,0K	docs/blueprint/05_SecurityPolicy.md
+4,0K	docs/blueprint/02_Architecture.md
+4,0K	docs/blueprint/01_Constitution.md
+8,0K	docs/trader/MOBILE_SIGNAL_LOGIC_AUDIT.md
+4,0K	docs/trader/LINUX_MINT_ROBOT_RECOVERY.md
+
+===== ALERTAS DE SEGURANÇA EM RELATÓRIOS =====
+reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt:96:- O PTP-112 preserva o escopo seguro: sem execucao real, sem clique automatico, sem corretora real, sem login, sem senha e sem saldo real.
+reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt:380:- Sem login/corretora/senha no mobile.
+reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt:459:    "credentials_allowed": False,
+docs/blueprint/04_Roadmap.md:20:- Preparação para arquivos sensíveis: .env, license.local.json e secrets.local.json
+docs/blueprint/03_DevelopmentGuide.md:57:secrets.local.json
+docs/blueprint/05_SecurityPolicy.md:43:- secrets.local.json
+
+===== CONCLUSÃO ESPERADA =====
+Enviar este relatório ao ChatGPT.
+Nenhum código foi alterado nesta auditoria.

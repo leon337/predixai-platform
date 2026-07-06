@@ -1,0 +1,630 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1 — LEITURA MÍNIMA
+Data: seg 06 jul 2026 17:30:05 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== GIT STATUS =====
+?? reports/
+
+===== ÚLTIMO COMMIT =====
+d6025b6 PTP-113B.3.1A.5.0 publish trader pending files
+
+===== PROJECT_STATE.md =====
+# PredixAI BR â€” Estado Oficial do Projeto
+
+## Projeto
+
+PredixAI Platform
+
+Primeiro produto: PredixAI Trader.
+
+## Fase atual
+
+Fase 3 â€” Live Candle Analyzer.
+
+A Fase 0 foi concluÃ­da, a Fase 1 foi criada e validada, e a base atual jÃ¡ possui Perception Engine foundation, Capture Engine foundation, captura manual, Vision Engine foundation, ROI foundation, Image Loader foundation, ROI Crop foundation, ROI Crop Image Export, OCR foundation, OCR Provider Adapter foundation, OCR Pipeline Validation foundation, hotfix de logs do pipeline OCR para validaÃ§Ã£o no Windows do Leo, execuÃ§Ã£o obrigatÃ³ria visÃ­vel do pipeline OCR Mock no `--capture`, OCR Region Mapping foundation, Milestone-004 Region Mapping Expansion, Tesseract Provider foundation, Milestone-005 OCR Real Foundation, Milestone-006 Visual Intelligence Foundation, Milestone-007 Visual Understanding Foundation, Milestone-008 Interface Semantic Foundation, Milestone-009 Market Interface Foundation, Milestone-010 Market Structure Foundation, Milestone-011 Pattern Recognition Foundation, Milestone-012 Pattern Analysis Foundation, Milestone-013 Intelligence Foundation, Milestone-014 Strategy Readiness Foundation, primeira execuÃ§Ã£o local validada no Windows 10 do ambiente do Codex, workspace oficial preparado no Windows 10 do Leo, a primeira validaÃ§Ã£o ao vivo observadora com `--live-once` concluÃ­da, a camada Live Candle Analyzer validada com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, o Project Memory Spine criado como memÃ³ria operacional inicial do projeto, e o Live Loop Countdown Control validado.
+
+## Ãšltimo PTP aprovado
+
+PTP-112 - Mobile-First Strategy Engine e Sessao Simulada.
+
+## PrÃ³ximo PTP pendente
+
+Saneamento futuro dos arquivos trader untracked e legados fora do nucleo PTP-112.
+
+## Status geral
+
+V1 congelada.
+
+A plataforma executa localmente no Windows 10 do ambiente do Codex e no workspace oficial do Windows 10 do Leo, inicializa Core, Perception, Capture Engine e Vision Engine foundation, realiza captura manual em PNG quando solicitada por linha de comando, registra metadados tÃ©cnicos do frame, carrega o Screen Profile padrÃ£o, vincula a regiÃ£o lÃ³gica `FULL_SCREEN`, registra a regiÃ£o no `RegionRegistry`, valida o Region Mapping, carrega bytes do PNG em memÃ³ria como metadados de `ImageBuffer`, registra a ROI padrÃ£o `FULL_SCREEN`, cria metadados de `ROICrop` apÃ³s validaÃ§Ã£o matemÃ¡tica da ROI, exporta a ROI `FULL_SCREEN` em PNG para `captures/rois`, executa OCR real com provider `tesseract`, validaÃ§Ã£o de resultado, cache por SHA256 e benchmark tÃ©cnico, transforma o texto extraÃ­do em blocos estruturados, associa texto Ã  regiÃ£o `FULL_SCREEN`, consolida o Structured OCR Result, cria Visual Snapshot, registra Visual Benchmark, cria Screen Elements, monta Screen Layout, registra Screen Objects, consolida Visual Scene, registra Visual Scene Benchmark, cria Semantic Elements, mapeia Semantic Labels, consolida Semantic Scene, registra Semantic Registry, registra Semantic Benchmark, cria Market Elements, mapeia regiÃµes estruturais de preÃ§o e tempo, consolida Market Scene, registra Market Benchmark, consolida Market Structure, Pattern Detector, Pattern Scene e Pattern Benchmark, executa a primeira validaÃ§Ã£o ao vivo observadora com sessÃ£o, detecÃ§Ã£o de janela, captura programada, leitura bÃ¡sica de mercado, relatÃ³rio e benchmark ao vivo, valida a primeira vela viva com Field Locator, Field Extractor, Candle Snapshot, Candle Statistics e Live Candle Benchmark, possui `data/project_memory/project_memory_spine.json` como memÃ³ria operacional inicial do PTP-083, com ligaÃ§Ã£o mÃ­nima entre `predixai-platform`, `predixai-knowledge`, Codex, ChatGPT, Leo/Arquiteto e OpenClaw futuro, sem dependÃªncia runtime entre repositÃ³rios, e agora preserva o countdown padrÃ£o do `--live-once` enquanto o `--live-loop` usa `countdown_seconds_override=0` para nÃ£o repetir o countdown de 10 segundos a cada ciclo.
+
+## Ambiente principal atual
+
+Windows 10.
+
+Python validado: 3.12.10.
+
+Windows 10 no ambiente do Codex: validado.
+
+Windows 10 do Leo: workspace oficial preparado e validado.
+
+Workspace oficial do projeto:
+
+```text
+C:\Users\Leo\Documents\GitHub\predixai-platform
+```
+
+Capturas oficiais:
+
+```text
+C:\Users\Leo\Documents\GitHub\predixai-platform\captures
+```
+
+Logs oficiais:
+
+```text
+C:\Users\Leo\Documents\GitHub\predixai-platform\logs
+```
+
+Linux Mint serÃ¡ validado depois da estabilidade do workspace oficial no Windows 10 do Leo.
+
+## Regra de auditoria
+
+Nenhum PTP Ã© aprovado sem commit, push para `origin/main` e auditoria posterior.
+
+Toda mudanÃ§a relevante deve atualizar:
+
+- `CHANGELOG.md`
+- `predixai_context.json`
+- documentos oficiais relacionados
+
+## Resumo do estado atual
+
+- A arquitetura oficial da V1 estÃ¡ congelada.
+- A V1 opera em modo Observador.
+- A IA Ã© analista, nÃ£o operadora.
+- A V1 nÃ£o executa cliques, ordens ou automaÃ§Ã£o.
+- O PTP-083 criou `data/project_memory/project_memory_spine.json` como memÃ³ria operacional inicial do projeto.
+- O Project Memory Spine registra a ligaÃ§Ã£o mÃ­nima entre `predixai-platform`, `predixai-knowledge`, Codex, ChatGPT, Leo/Arquiteto e OpenClaw futuro, sem alterar o comportamento do Trader.
+- O PTP-084 validou o Live Loop Countdown Control: `--live-loop` usa `countdown_seconds_override=0` e `--live-once` preserva o countdown padrÃ£o.
+- O PTP-085 criou a Live Evidence Package Foundation: `live_once()` grava evidÃªncias JSON observadoras em `data/live_evidence/`, e `--live-loop` gera evidÃªncias por consequÃªncia ao chamar `live_once()`.
+- O PTP-086 criou a fundacao local do OpenClaw em `tools/openclaw/`, com runner seguro por allowlist, relatorios locais ignorados pelo Git e sem commit/push automatico.
+- O PTP-087 criou wrappers Windows em scripts/ para executar o OpenClaw com comandos curtos: openclaw.bat, openclaw_status.bat, openclaw_validate.bat e openclaw_precheck.bat.
+- O PTP-088 instalou e validou o OpenClaw oficial no notebook, criou comando global `openclaw`, validou Ollama com `qwen2.5:1.5b` e protegeu o clone oficial com `openclaw/` no `.gitignore`.
+- O PTP-089 configurou o OpenClaw para usar Ollama local como provider principal, com modelo default `ollama/qwen2.5:1.5b`, preservando custo zero e sem API paga obrigat?ria.
+- O PTP-103 publicou o Overnight Observer do Trader, validado com 30 ciclos sinteticos, fechamento de sessao por `close_session(session_id=..., status=...)`, preservacao do PTP-102 e escopo V1 Observador.
+- O PTP-112 publicou o Mobile-First Strategy Engine e Sessao Simulada, validando o fluxo Strategy Engine -> Confluence Engine -> Mobile Signal Screen -> Paper Trade -> saldo simulado.
+- O PTP-112 preserva o escopo seguro: sem execucao real, sem clique automatico, sem corretora real, sem login, sem senha e sem saldo real.
+- A estratÃ©gia Ãºnica da V1 Ã© Rebote Triplo.
+- O mercado inicial Ã© Fixed Time.
+- O Core inicializa configuraÃ§Ã£o, mÃ³dulos, logs e eventos.
+- O Perception Engine identifica ambiente de tela e lista janelas, sem OCR e sem leitura visual.
+- O Capture Engine possui sessÃ£o, storage, validaÃ§Ã£o e captura manual em PNG.
+- O Vision Engine foundation recebe o caminho da captura, valida metadados do PNG, calcula SHA256 e registra um Frame tÃ©cnico.
+- O Vision Engine foundation nÃ£o abre, decodifica, interpreta pixels, usa OCR, OpenCV, Pillow ou IA.
+- O Image Loader foundation carrega os bytes do PNG em memÃ³ria e registra apenas metadados tÃ©cnicos em `ImageBuffer`.
+- O Image Loader foundation nÃ£o decodifica pixels, nÃ£o recorta ROI, nÃ£o usa OCR, OpenCV, Pillow, IA ou Strategy.
+- A ROI foundation registra apenas metadados da regiÃ£o `FULL_SCREEN`, ocupando 100% da captura.
+- A ROI foundation nÃ£o recorta imagem, nÃ£o lÃª pixels, nÃ£o usa OCR, OpenCV ou IA.
+- O ROI Crop foundation valida matematicamente se a ROI estÃ¡ dentro dos limites do `ImageBuffer` e cria `ROICrop` apenas com metadados.
+- O ROI Crop Image Export exporta a ROI `FULL_SCREEN` em PNG reutilizando a captura original, porque a ROI ocupa 100% da imagem.
+- O ROI Crop Image Export nÃ£o usa OCR, OpenCV, Pillow, IA, Strategy ou leitura interpretativa de pixels.
+- O OCR foundation recebe o PNG exportado da ROI, valida a imagem e prepara o pipeline OCR como contrato tÃ©cnico.
+- O OCR foundation nÃ£o extrai texto, nÃ£o usa Tesseract, EasyOCR, PaddleOCR, Gemini, IA, Strategy, Dashboard ou Broker Adapter.
+- O OCR Provider Adapter foundation registra providers OCR, seleciona o provider configurado e usa `mock` como provider padrÃ£o.
+- O OCR Provider Adapter foundation mantÃ©m `text_extraction_enabled=false` e nÃ£o implementa OCR funcional, IA, Strategy ou Dashboard.
+- O OCR Pipeline Validation foundation executa o fluxo Capture â†’ Vision â†’ Frame â†’ ImageBuffer â†’ ROI â†’ ROICrop â†’ ROI Export â†’ OCR Engine â†’ Provider Selector â†’ Mock Provider â†’ OCRResult.
+- O OCR Pipeline Validation foundation cria `OCRResult` com `text_extracted=false`, `text=""`, `confidence=0.0` e tempo de processamento, sem OCR real.
+- O PTP-017A confirmou que o pipeline OCR completo jÃ¡ estava conectado e padronizou os logs obrigatÃ³rios da validaÃ§Ã£o.
+- O PTP-017B confirmou que o pipeline OCR continua conectado e ajustou o logger para exibir no CMD as mensagens literais exigidas na validaÃ§Ã£o do Windows do Leo.
+- O PTP-017C tornou obrigatÃ³rio que `python -m predixai.main --capture` execute Vision, ImageBuffer, ROI, ROICrop, ROI Export e OCR Mock com logs no CMD e em `logs/predixai.log`.
+- O OCR Region Mapping foundation registra regiÃµes lÃ³gicas de tela em `RegionRegistry`, comeÃ§ando apenas com `FULL_SCREEN`, sem ler texto, pixels ou conteÃºdo visual.
+- O Milestone-004 expandiu Region Mapping com Screen Profile Binding, metadata registry, validaÃ§Ã£o de regiÃµes e integraÃ§Ã£o definitiva entre Frame e ROI.
+- O Region Mapping registra apenas metadados: nÃ£o lÃª pixels, nÃ£o executa OCR real, nÃ£o usa IA e nÃ£o altera Strategy, Dashboard ou Broker Adapter.
+- O PTP-023 criou a fundaÃ§Ã£o do Tesseract Provider, configurado como provider OCR padrÃ£o com idioma `por`, sem executar OCR real naquele PTP.
+- A Milestone-005 implementou OCR real com Tesseract sobre a ROI `FULL_SCREEN` exportada.
+- O OCR Real Foundation gera `OCRResult` com texto extraÃ­do, confianÃ§a, idioma utilizado, validaÃ§Ã£o, erros, warnings, cache hit/miss, SHA256 e benchmark.
+- O Tesseract Provider valida a presenÃ§a do binÃ¡rio, valida idioma configurado e usa fallback configurado quando o idioma `por` nÃ£o estÃ¡ instalado localmente.
+- O OCR Cache reutiliza resultados por SHA256 da imagem em `data/ocr_cache`.
+- O OCR Benchmark registra tempo de processamento, pico de memÃ³ria, tamanho do texto e status tÃ©cnico.
+- A Milestone-006 Visual Intelligence Foundation transforma o texto bruto do OCR em blocos estruturados, sem IA, Gemini, LLM, Strategy, Dashboard, Broker Adapter, automaÃ§Ã£o ou tomada de decisÃ£o.
+- O OCR Parser Foundation cria blocos estruturados a partir do texto bruto extraÃ­do pelo OCR.
+- O Region Text Mapping associa textos extraÃ­dos Ã s regiÃµes da tela, iniciando apenas com `FULL_SCREEN`.
+- O Structured OCR Result consolida regiÃµes, textos, posiÃ§Ãµes, confianÃ§a e metadados em um objeto Ãºnico serializÃ¡vel.
+- O Visual Snapshot consolida captura, frame, Region Mapping, ROI Export e Structured OCR em um snapshot tÃ©cnico da tela.
+- O Visual Benchmark registra tempo de processamento, memÃ³ria, regiÃµes, blocos, tamanho do texto e cache hits do pipeline visual estruturado.
+- A Milestone-007 Visual Understanding Foundation cria a primeira camada estrutural de entendimento da interface, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter ou tomada de decisÃ£o.
+- O Screen Elements Foundation cria elementos visuais determinÃ­sticos a partir do Structured OCR e preserva posiÃ§Ã£o, texto, confianÃ§a e metadados.
+- O Screen Layout Builder organiza os elementos em um layout estruturado com raiz de tela e filhos posicionados.
+- O Screen Object Registry registra objetos visuais com identificadores estÃ¡veis preparados para reutilizaÃ§Ã£o entre capturas futuras.
+- O Visual Scene Builder consolida Visual Snapshot, Structured OCR, Screen Layout e Screen Object Registry em uma representaÃ§Ã£o Ãºnica da tela.
+- O Visual Scene Benchmark registra tempo de processamento, memÃ³ria, objetos, elementos, regiÃµes e nÃ³s de layout.
+- A Milestone-008 Interface Semantic Foundation cria a primeira camada semÃ¢ntica determinÃ­stica da interface, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automaÃ§Ã£o ou tomada de decisÃ£o.
+- O Semantic Element Foundation deriva entidades semÃ¢nticas a partir de Screen Objects e Visual Scene.
+- O Semantic Label Mapper aplica labels determinÃ­sticos por regras simples baseadas em tipo, regiÃ£o, texto e metadados.
+- O Semantic Scene Builder consolida Visual Scene, Semantic Elements e Semantic Labels em uma representaÃ§Ã£o semÃ¢ntica Ãºnica da tela.
+- O Semantic Registry registra entidades semÃ¢nticas com identificadores estÃ¡veis para reutilizaÃ§Ã£o futura entre capturas.
+- O Semantic Benchmark registra tempo de processamento, memÃ³ria, entidades, labels e regiÃµes.
+- A Milestone-009 Market Interface Foundation cria a primeira camada estrutural da interface do mercado, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automaÃ§Ã£o ou tomada de decisÃ£o.
+- O Market Element Foundation deriva elementos estruturais de mercado a partir da Semantic Scene, incluindo candidatos para preÃ§o, tempo, ativos e regiÃµes, sem interpretaÃ§Ã£o operacional.
+- O Price Region Mapper mapeia regiÃµes estruturais relacionadas a preÃ§o e registra posiÃ§Ã£o e metadados sem interpretar valores.
+- O Time Region Mapper mapeia regiÃµes estruturais relacionadas a tempo e registra posiÃ§Ã£o e metadados sem interpretar valores.
+- O Market Scene Builder consolida Visual Scene, Semantic Scene, Market Elements e mapeamentos de regiÃµes em uma representaÃ§Ã£o Ãºnica da interface de mercado.
+- O Market Benchmark registra tempo de processamento, memÃ³ria, elementos, regiÃµes, entidades e contagens de regiÃµes de preÃ§o e tempo.
+- A Milestone-010 Market Structure Foundation consolida Market Entities, Market Entity Registry, Market Structure, Market Structure Validator e Market Structure Benchmark.
+- O Pattern Foundation cria padrÃ£o estrutural determinÃ­stico a partir de Market Structure, sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automaÃ§Ã£o ou tomada de decisÃ£o.
+- O Pattern Registry registra padrÃµes estruturais com metadados, versionamento e perfil padrÃ£o, sem interpretaÃ§Ã£o inteligente.
+- O Pattern Detector usa apenas regras estruturais para derivar padrÃµes a partir da Market Structure.
+- O Pattern Scene consolida Market Structure, Pattern Registry e Patterns em uma representaÃ§Ã£o Ãºnica de padrÃµes.
+- O Pattern Benchmark registra tempo, memÃ³ria, quantidade de padrÃµes, entidades e regiÃµes.
+- A Milestone-013 Intelligence Foundation cria a infraestrutura para transformar Pattern Analysis em hipÃ³teses estruturais de mercado sem IA, LLM, Gemini, Strategy, Dashboard, Broker Adapter, automaÃ§Ã£o ou tomada de decisÃ£o.
+- O Intelligence Context Foundation consolida o contexto estruturado produzido pelas camadas anteriores.
+- O Market Hypothesis Foundation gera hipÃ³teses estruturais do mercado.
+- O Hypothesis Evaluator avalia hipÃ³teses apenas com regras estruturais.
+- O Intelligence Snapshot consolida Market Structure, Pattern Analysis, Intelligence Context e Market Hypothesis.
+- O Intelligence Benchmark registra tempo, memÃ³ria, quantidade de hipÃ³teses, anÃ¡lises, entidades e status.
+- A Milestone-014 Strategy Readiness Foundation cria a infraestrutura de preparaÃ§Ã£o para Strategy sem tomada de decisÃ£o, execuÃ§Ã£o ou automaÃ§Ã£o.
+- O Signal Foundation representa sinais estruturais derivados de Pattern Analysis e Intelligence Snapshot.
+- O Signal Registry e o Signal Scoring Foundation registram e pontuam sinais com regras fixas.
+- O Strategy Readiness Snapshot consolida Pattern Analysis, Intelligence Snapshot, Market Hypothesis, Signals e Scores.
+- O Strategy Readiness Benchmark registra tempo, memÃ³ria, quantidade de sinais, hipÃ³teses, anÃ¡lises e status.
+- A primeira execuÃ§Ã£o local no Windows 10 do ambiente do Codex foi validada.
+- O workspace oficial no Windows 10 do Leo foi preparado em `C:\Users\Leo\Documents\GitHub\predixai-platform`.
+- `scripts\setup_windows.bat` e `scripts\run_predixai.bat` usam a raiz do repositÃ³rio e recusam `C:\Windows\System32`.
+- O guia para Leo executar a validaÃ§Ã£o real estÃ¡ em `docs/setup/Leo_Windows10_Validation.md`.
+- O prÃ³ximo PTP pendente serÃ¡ definido pelo Leo.
+
+## PTP-089 - OpenClaw Ollama Provider Binding
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- OpenClaw configurado para usar Ollama local.
+- Vari?vel de ambiente de usu?rio `OLLAMA_API_KEY=ollama-local` definida.
+- Provider `ollama` configurado com `baseUrl` local `http://127.0.0.1:11434`.
+- Modelo principal definido como `ollama/qwen2.5:1.5b`.
+- `openclaw models status` validado com default local.
+- `openclaw infer model run` validado usando provider `ollama` e modelo `qwen2.5:1.5b`.
+
+Regra preservada:
+- Custo zero.
+- Execu??o local.
+- Sem OpenAI obrigat?rio.
+- Sem API paga obrigat?ria.
+- Sem cliques.
+- Sem ordens.
+- Sem automa??o operacional de corretora.
+- Sem decis?o operacional.
+- Sem conta real.
+- Sem altera??o de estrat?gia.
+
+Ponto t?cnico observado:
+- O modelo `qwen2.5:1.5b` ? leve e adequado para o hardware atual, mas pode n?o obedecer instru??es com precis?o alta.
+- Pr?ximos PTPs devem usar o modelo local para tarefas simples e supervisionadas primeiro.
+
+Pr?ximo foco:
+- PTP-090 - OpenClaw PredixAI Agent Bootstrap.
+
+## PTP-088 - OpenClaw Official Local Installation
+
+Status: CONCLUIDO
+Publicado em: 2026-06-30
+
+Resumo:
+- OpenClaw oficial clonado localmente.
+- Dependencias instaladas com pnpm.
+- Build local concluido.
+- Comando global `openclaw` criado em `C:\Users\leo\bin\openclaw.cmd`.
+- `openclaw --help` validado.
+- Ollama instalado localmente.
+- Modelo `qwen2.5:1.5b` baixado e validado.
+- Pasta `openclaw/` adicionada ao `.gitignore` para nao versionar o clone oficial dentro do PredixAI.
+
+Regra preservada:
+- Custo zero.
+- Execucao local.
+- Sem API paga obrigatoria.
+- Sem cliques.
+- Sem ordens.
+- Sem automacao operacional de corretora.
+- Sem decisao operacional.
+- Sem conta real.
+
+===== predixai_context.json =====
+{
+  "project": "PredixAI BR",
+  "repository": "predixai-platform",
+  "created_at": "2026-06-25",
+  "version": "0.1.0-foundation",
+  "current_phase": "Fase 3 - Live Candle Analyzer",
+  "first_product": "PredixAI Trader",
+  "v1_scope": {
+    "mode": "Observador",
+    "market": "Fixed Time",
+    "broker_initial": "Olymp Trade",
+    "strategy": "Rebote Triplo",
+    "indicators": [
+      "RSI 15",
+      "RSI 30",
+      "RSI 60"
+    ],
+    "execution": "disabled",
+    "clicks": false,
+    "real_account": false
+  },
+  "modules": [
+    "Core",
+    "Security",
+    "Vision",
+    "Auditor",
+    "Strategy",
+    "AI Provider",
+    "Dashboard",
+    "Broker Adapter",
+    "Trader"
+  ],
+  "ai_provider_v1": "Google Gemini",
+  "database_v1": "SQLite",
+  "perception_foundation": {
+    "environment_detection": true,
+    "window_listing": true,
+    "screen_profile": "config/screen_profiles/default_screen_profile.json",
+    "calibration_wizard": "architecture_only",
+    "visual_reading": false,
+    "ocr": false,
+    "ai": false,
+    "strategy": false,
+    "broker_interaction": false
+  },
+  "capture_foundation": {
+    "enabled": true,
+    "output_directory": "captures",
+    "image_format": "png",
+    "manual_snapshot": true,
+    "automatic_capture": false,
+    "visual_reading": false,
+    "ocr": false,
+    "ai": false,
+    "strategy": false,
+    "broker_interaction": false
+  },
+  "vision_foundation": {
+    "enabled": true,
+    "frame_metadata": true,
+    "roi": {
+      "enabled": true,
+      "default_roi": "FULL_SCREEN",
+      "registered_rois": 1,
+      "metadata_only": true,
+      "crop": false,
+      "pixel_reading": false,
+      "ocr": false,
+      "opencv": false,
+      "ai": false
+    },
+    "region_mapping": {
+      "enabled": true,
+      "default_region": "FULL_SCREEN",
+      "registered_regions": 1,
+      "milestone_004_complete": true,
+      "screen_profile_binding": true,
+      "screen_profile": "config/screen_profiles/default_screen_profile.json",
+      "profile_id": "default",
+      "registry_version": "1.0",
+      "registry_enabled": true,
+      "registry_metadata": true,
+      "full_serialization": true,
+      "validation_pipeline": true,
+      "coordinates_validation": true,
+      "width_height_validation": true,
+      "capture_bounds_validation": true,
+      "duplicate_id_validation": true,
+      "integrated_flow": "Capture -> Vision -> Frame -> Region Mapping -> ROI -> ROICrop -> ROI Export -> OCR Pipeline",
+      "mapping_start_finish_logs": true,
+      "metadata_only": true,
+      "pixel_reading": false,
+      "text_reading": false,
+      "ocr_real": false,
+      "opencv": false,
+      "pillow": false,
+      "ai": false,
+      "strategy": false,
+      "dashboard": false,
+      "broker_adapter": false
+    },
+    "image_loader": {
+      "enabled": true,
+      "loads_png_bytes": true,
+      "image_buffer": true,
+      "decode_pixels": false,
+      "crop": false,
+      "ocr": false,
+      "opencv": false,
+      "pillow": false,
+      "ai": false,
+      "strategy": false
+    },
+    "roi_crop": {
+      "enabled": true,
+      "metadata": true,
+      "validates_roi_bounds": true,
+      "pixel_crop": false,
+      "visual_reading": false,
+      "pixel_reading": false,
+      "ocr": false,
+      "opencv": false,
+      "ai": false,
+      "strategy": false
+    },
+    "roi_crop_export": {
+      "enabled": true,
+      "roi": "FULL_SCREEN",
+      "output_directory": "captures/rois",
+      "reuses_original_capture": true,
+      "pixel_crop": false,
+      "visual_reading": false,
+      "interpretative_pixel_reading": false,
+      "ocr": false,
+      "opencv": false,
+      "pillow": false,
+      "ai": false,
+      "strategy": false
+    },
+    "validates_file_exists": true,
+    "validates_png_extension": true,
+    "validates_file_size": true,
+    "validates_width_height": true,
+    "sha256": true,
+    "opens_image": false,
+    "visual_reading": false,
+    "pixel_reading": false,
+    "ocr": false,
+    "opencv": false,
+    "pillow": false,
+    "ai": false,
+    "strategy": false,
+    "broker_interaction": false
+  },
+  "ocr_foundation": {
+    "enabled": true,
+    "engine": true,
+    "provider_contract": true,
+    "provider_adapters": true,
+    "default_provider": "tesseract",
+    "available_providers": [
+      "mock",
+      "tesseract"
+    ],
+    "provider_registry": true,
+    "provider_selector": true,
+    "tesseract_provider_foundation": true,
+    "milestone_005_complete": true,
+    "tesseract_language": "por",
+    "tesseract_fallback_language": "eng",
+    "tesseract_status": "READY",
+    "tesseract_installation_validation": true,
+    "tesseract_text_extraction": true,
+    "tesseract_real_ocr": true,
+    "ocr_execution": true,
+    "ocr_validation": true,
+    "minimum_confidence": 0.0,
+    "language_fallback_enabled": true,
+    "cache_enabled": true,
+    "cache_directory": "data/ocr_cache",
+    "cache_key": "image_sha256",
+    "benchmark_enabled": true,
+    "benchmark_metrics": [
+      "provider_processing_time_ms",
+      "peak_memory_kb",
+      "current_memory_kb",
+      "text_length",
+      "status"
+    ],
+    "pipeline_validation": true,
+    "pipeline_logging_validated": true,
+    "windows_leo_cmd_logging_hotfix": true,
+    "cmd_visible_pipeline_logs": true,
+    "pipeline_connected": true,
+    "capture_command_forces_pipeline": true,
+    "silent_pipeline_skip": false,
+    "console_logging_stream": "stdout",
+    "file_logging": "logs/predixai.log",
+    "required_cmd_log_messages": [
+      "Pipeline OCR iniciado",
+      "OCR Engine iniciado",
+      "OCR Provider Registry iniciado",
+      "Provider mock registrado",
+      "Provider selecionado: mock",
+      "Imagem recebida",
+      "OCR executado (Mock)",
+      "Resultado criado",
+      "Pipeline finalizado"
+    ],
+    "ptp_017c_required_log_messages": [
+      "Vision Engine iniciado",
+      "ImageBuffer criado",
+      "ROI FULL_SCREEN registrada",
+      "ROICrop criado",
+      "ROI exportada",
+      "Pipeline OCR iniciado",
+      "Provider selecionado: mock",
+      "OCR executado (Mock)",
+      "OCRResult criado",
+      "Pipeline OCR finalizado"
+    ],
+    "mock_provider_executed": true,
+    "validator": true,
+    "result_contract": true,
+    "ocr_result_fields": [
+      "provider",
+      "status",
+      "pipeline_ready",
+      "text_extracted",
+      "text",
+      "confidence",
+      "language_used",
+      "error",
+      "validation_errors",
+      "validation_warnings",
+      "min_confidence",
+      "confidence_valid",
+      "language_valid",
+      "cache_hit",
+      "image_sha256",
+      "benchmark",
+      "processing_time_ms",
+      "timestamp"
+    ],
+    "pipeline_ready": true,
+    "input": "ROI PNG exportado",
+    "text_extraction": true,
+    "text_extracted": true,
+    "text": "runtime-dependent",
+    "confidence": "runtime-dependent",
+    "rsi_reading": false,
+    "broker_reading": false,
+    "balance_reading": false,
+    "tesseract": true,
+    "easyocr": false,
+    "paddleocr": false,
+    "gemini": false,
+    "ai": false,
+    "strategy": false,
+    "dashboard": false,
+
+===== ARQUIVOS TRADER =====
+src/predixai/trader/adapters.py
+src/predixai/trader/confluence_engine.py
+src/predixai/trader/data_quality_score.py
+src/predixai/trader/data_store.py
+src/predixai/trader/entry_plan.py
+src/predixai/trader/evidence.py
+src/predixai/trader/__init__.py
+src/predixai/trader/live_evidence_db_bridge.py
+src/predixai/trader/market_session_recorder.py
+src/predixai/trader/mobile_session_contract.py
+src/predixai/trader/overnight_observer.py
+src/predixai/trader/paper_trade.py
+src/predixai/trader/__pycache__/adapters.cpython-312.pyc
+src/predixai/trader/__pycache__/confluence_engine.cpython-312.pyc
+src/predixai/trader/__pycache__/data_quality_score.cpython-312.pyc
+src/predixai/trader/__pycache__/data_store.cpython-312.pyc
+src/predixai/trader/__pycache__/entry_plan.cpython-312.pyc
+src/predixai/trader/__pycache__/evidence.cpython-312.pyc
+src/predixai/trader/__pycache__/__init__.cpython-312.pyc
+src/predixai/trader/__pycache__/live_evidence_db_bridge.cpython-312.pyc
+src/predixai/trader/__pycache__/market_session_recorder.cpython-312.pyc
+src/predixai/trader/__pycache__/mobile_session_contract.cpython-312.pyc
+src/predixai/trader/__pycache__/overnight_observer.cpython-312.pyc
+src/predixai/trader/__pycache__/paper_trade.cpython-312.pyc
+src/predixai/trader/__pycache__/recovery.cpython-312.pyc
+src/predixai/trader/__pycache__/risk_manager.cpython-312.pyc
+src/predixai/trader/__pycache__/risk_simulator.cpython-312.pyc
+src/predixai/trader/__pycache__/session.cpython-312.pyc
+src/predixai/trader/__pycache__/signal.cpython-312.pyc
+src/predixai/trader/__pycache__/strategy.cpython-312.pyc
+src/predixai/trader/__pycache__/strategy_engine.cpython-312.pyc
+src/predixai/trader/__pycache__/support_resistance_zones.cpython-312.pyc
+src/predixai/trader/__pycache__/triple_rebound_observer.cpython-312.pyc
+src/predixai/trader/__pycache__/triple_rsi_observer.cpython-312.pyc
+src/predixai/trader/recovery.py
+src/predixai/trader/risk_manager.py
+src/predixai/trader/risk_simulator.py
+src/predixai/trader/session.py
+src/predixai/trader/signal.py
+src/predixai/trader/strategy_engine.py
+src/predixai/trader/strategy.py
+src/predixai/trader/support_resistance_zones.py
+src/predixai/trader/triple_rebound_observer.py
+src/predixai/trader/triple_rsi_observer.py
+
+===== POSSÍVEIS ARQUIVOS MOBILE / SESSION / SERVER =====
+./backups/ptp112h1_20260705_124322/ptp112h_validate_paper_trade_session.py.bak
+./backups/ptp112h_20260705_123515/session.py.bak
+./backups/ptp112i1_20260705_130852/ptp112i_validate_mobile_first_practical_flow.py
+./data/runtime/backups/mobile_reset_20260704_093600/mobile_reader.log
+./data/runtime/backups/ptp112b1_20260705_102033/ptp112b_validate_mobile_start_page.py
+./data/runtime/backups/ptp112b1_20260705_102033/session_start_page.py
+./data/runtime/backups/ptp112b_20260705_101604/predixai_trader_mobile_server.py
+./data/runtime/backups/ptp112b_20260705_101712/predixai_trader_mobile_server.py
+./data/runtime/mobile_current_session.json
+./data/runtime/mobile_reader.log
+./data/runtime/mobile_session_contract_v1_1_example.json
+./docs/trader/MOBILE_SIGNAL_LOGIC_AUDIT.md
+./scripts/predixai_market_session.bat
+./scripts/predixai_market_session.py
+./scripts/predixai_overnight_observer.bat
+./scripts/predixai_overnight_observer.py
+./scripts/predixai_trader_mobile_server.py
+./scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117
+./scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659
+./scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206
+./scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334
+./scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001
+./scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659
+./scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412
+./scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138
+./scripts/predixai_triple_rebound_observer.bat
+./scripts/predixai_triple_rebound_observer.py
+./scripts/predixai_triple_rsi_observer.bat
+./scripts/predixai_triple_rsi_observer.py
+./scripts/ptp105_observer_practical_test.py
+./scripts/ptp107a_live_popup_observer.py
+./scripts/ptp112a_validate_mobile_session_contract.py
+./scripts/ptp112b_validate_mobile_start_page.py
+./scripts/ptp112g_validate_mobile_signal_screen.py
+./scripts/ptp112h_validate_paper_trade_session.py
+./scripts/ptp112i_validate_mobile_first_practical_flow.py
+./scripts/__pycache__/predixai_market_session.cpython-312.pyc
+./scripts/__pycache__/predixai_overnight_observer.cpython-312.pyc
+./scripts/__pycache__/predixai_trader_mobile_server.cpython-312.pyc
+./scripts/__pycache__/predixai_triple_rebound_observer.cpython-312.pyc
+./scripts/__pycache__/predixai_triple_rsi_observer.cpython-312.pyc
+./scripts/__pycache__/ptp105_observer_practical_test.cpython-312.pyc
+./scripts/__pycache__/ptp107a_live_popup_observer.cpython-312.pyc
+./scripts/__pycache__/ptp112a_validate_mobile_session_contract.cpython-312.pyc
+./scripts/__pycache__/ptp112b_validate_mobile_start_page.cpython-312.pyc
+./scripts/__pycache__/ptp112g_validate_mobile_signal_screen.cpython-312.pyc
+./scripts/__pycache__/ptp112h_validate_paper_trade_session.cpython-312.pyc
+./scripts/__pycache__/ptp112i_validate_mobile_first_practical_flow.cpython-312.pyc
+./src/predixai/capture/capture_session.py
+./src/predixai/capture/__pycache__/capture_session.cpython-312.pyc
+./src/predixai/dashboard/dashboard_server.py
+./src/predixai/dashboard/__pycache__/dashboard_server.cpython-312.pyc
+./src/predixai/live/live_session_controller.py
+./src/predixai/live/live_session.py
+./src/predixai/live/live_session_state.py
+./src/predixai/live/__pycache__/live_session_controller.cpython-312.pyc
+./src/predixai/live/__pycache__/live_session.cpython-312.pyc
+./src/predixai/live/__pycache__/live_session_state.cpython-312.pyc
+./src/predixai/mobile/__pycache__/session_start_page.cpython-312.pyc
+./src/predixai/mobile/session_start_page.py
+./src/predixai/trader/market_session_recorder.py
+./src/predixai/trader/mobile_session_contract.py
+./src/predixai/trader/overnight_observer.py
+./src/predixai/trader/__pycache__/market_session_recorder.cpython-312.pyc
+./src/predixai/trader/__pycache__/mobile_session_contract.cpython-312.pyc
+./src/predixai/trader/__pycache__/overnight_observer.cpython-312.pyc
+./src/predixai/trader/__pycache__/session.cpython-312.pyc
+./src/predixai/trader/__pycache__/triple_rebound_observer.cpython-312.pyc
+./src/predixai/trader/__pycache__/triple_rsi_observer.cpython-312.pyc
+./src/predixai/trader/session.py
+./src/predixai/trader/triple_rebound_observer.py
+./src/predixai/trader/triple_rsi_observer.py
+./.venv/lib/python3.12/site-packages/flask/__pycache__/sessions.cpython-312.pyc
+./.venv/lib/python3.12/site-packages/flask/sessions.py
+./.venv/lib/python3.12/site-packages/pip/_internal/network/__pycache__/session.cpython-312.pyc
+./.venv/lib/python3.12/site-packages/pip/_internal/network/session.py
+./.venv/lib/python3.12/site-packages/pip/_vendor/requests/__pycache__/sessions.cpython-312.pyc
+./.venv/lib/python3.12/site-packages/pip/_vendor/requests/sessions.py
+./.venv/lib/python3.12/site-packages/selenium/webdriver/common/bidi/__pycache__/session.cpython-312.pyc
+./.venv/lib/python3.12/site-packages/selenium/webdriver/common/bidi/session.py
+./.venv/lib/python3.12/site-packages/selenium/webdriver/remote/mobile.py
+./.venv/lib/python3.12/site-packages/selenium/webdriver/remote/__pycache__/mobile.cpython-312.pyc
+./.venv/lib/python3.12/site-packages/selenium/webdriver/remote/__pycache__/server.cpython-312.pyc
+./.venv/lib/python3.12/site-packages/selenium/webdriver/remote/server.py
+./.venv/lib/python3.12/site-packages/websocket/tests/echo-server.py
+./.venv/lib/python3.12/site-packages/websocket/tests/__pycache__/echo-server.cpython-312.pyc
+
+===== PRÓXIMA AÇÃO ESPERADA =====
+Enviar este relatório para o ChatGPT analisar antes da implementação.

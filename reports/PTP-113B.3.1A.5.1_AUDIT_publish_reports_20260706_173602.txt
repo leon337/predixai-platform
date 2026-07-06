@@ -1,0 +1,18 @@
+PREDIXAI BR — PTP-113B.3.1A.5.1 — AUDIT PUBLISH REPORTS
+Data: seg 06 jul 2026 17:36:02 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== STATUS ANTES =====
+?? reports/
+
+===== ÚLTIMO COMMIT ANTES =====
+d6025b6 PTP-113B.3.1A.5.0 publish trader pending files
+
+===== ARQUIVOS DE RELATÓRIO CANDIDATOS =====
+reports/PTP-113B.3.1A.5.1_AUDIT_contract_reports_20260706_173433.txt
+reports/PTP-113B.3.1A.5.1_AUDIT_publish_reports_20260706_173602.txt
+reports/PTP-113B.3.1A.5.1_leitura_minima_20260706_173005.txt
+
+===== CHECAGEM DE SEGURANÇA DOS RELATÓRIOS =====
+
+===== ADICIONANDO RELATÓRIOS AO GIT =====
