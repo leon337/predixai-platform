@@ -1450,6 +1450,14 @@
       "summary": "Correção robusta da meta de lucro e reposicionamento do cancelamento específico para o sinal.",
       "reason": "A tentativa PTP-113B.3.1A.4 falhou porque o patch não encontrou os pontos reais de inserção.",
       "next_step": "Validar notebook e telefone antes de fechar PTP-113B.3.1A."
+    },
+    {
+      "ptp": "PTP-113B.3.1A.5.0",
+      "date": "2026-07-06T17:17:51",
+      "status": "EM_PUBLICACAO_CONTROLADA",
+      "summary": "Regularização dos arquivos trader untracked e start_predixai.sh no GitHub.",
+      "reason": "Leo recomendou subir tudo para manter memória real do projeto e permitir auditoria futura pelo GitHub.",
+      "next_step": "Gerar checkpoint geral e continuar melhorias em outro chat."
     }
   ]
 }

@@ -981,3 +981,26 @@ Resumo:
 - Cancelamento específico permanece como campo do sinal.
 - /api/mobile/signal/contract passa a expor profit_target.
 - /api/mobile/state passa a refletir profit_target.
+
+## PTP-113B.3.1A.5.0 — Regularização dos arquivos pendentes no GitHub
+
+Data: 2026-07-06T17:17:51
+Status: EM PUBLICAÇÃO CONTROLADA
+Resumo:
+- Criada etapa para versionar arquivos trader que estavam untracked.
+- Objetivo: preservar linha do tempo real da construção e permitir auditoria futura pelo GitHub.
+- Arquivos-alvo:
+  - src/predixai/trader/adapters.py
+  - src/predixai/trader/entry_plan.py
+  - src/predixai/trader/evidence.py
+  - src/predixai/trader/recovery.py
+  - src/predixai/trader/risk_manager.py
+  - src/predixai/trader/risk_simulator.py
+  - src/predixai/trader/session.py
+  - src/predixai/trader/signal.py
+  - src/predixai/trader/strategy.py
+  - start_predixai.sh
+Motivo:
+- Evitar pontas soltas fora do Git.
+- Permitir checkpoint geral com base versionada.
+- Preparar próximas correções de banca, recuperação, payout, expiração, histórico e estratégias.
