@@ -1,0 +1,113 @@
+PREDIXAI BR — REGISTRO DE PASS VISUAL
+PTP: PTP-113B.3.1A.5.1A.9
+Nome curto: visual_pass_stepper_brl
+Ação: PASS
+Data: 2026-07-06 22:59:41 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo técnico validado: scripts/predixai_trader_mobile_server.py
+
+===== OBJETIVO =====
+Registrar formalmente o PASS visual da Stepper BRL após correção do parseMoney.
+Esta etapa não altera código do app.
+Ela apenas documenta que Leo validou visualmente os botões + e - em /session/setup.
+
+===== CONTEXTO =====
+Sequência técnica concluída:
+- PTP-113B.3.1A.5.1A.3 — Audit Stepper BRL
+- PTP-113B.3.1A.5.1A.4 — Unify Stepper BRL
+- PTP-113B.3.1A.5.1A.5 — Validate Stepper BRL
+- PTP-113B.3.1A.5.1A.6 — Fix Stepper BRL Guard
+- PTP-113B.3.1A.5.1A.7 — Restart Validate Stepper BRL
+- PTP-113B.3.1A.5.1A.8 — Normalize Parse BRL
+- PTP-113B.3.1A.5.1A.9 — Registro PASS visual
+
+===== EVIDÊNCIA VISUAL INFORMADA PELO LEO =====
+Leo confirmou no chat: PASS visual.
+Prints enviados mostraram:
+- Banca simulada inicial em escala BRL normal.
+- Valor da entrada simulada em escala BRL normal.
+- Lucro desejado em escala BRL normal.
+- Limite máximo de entrada simulada em escala BRL normal.
+- Botões + e - variando valores sem explosão para milhares/milhões indevidos.
+
+Critério visual confirmado:
+- + soma R$ 1,00.
+- - subtrai R$ 1,00.
+- Valores permanecem em formato BRL legível.
+- /session/setup continua acessível pelo notebook/celular.
+
+===== INVESTIGAR — ESTADO DO GIT =====
+
+$ git rev-parse --show-toplevel
+/home/leo/Documentos/GitHub/predixai-platform
+exit_code=0
+
+$ git branch --show-current
+main
+exit_code=0
+
+$ git log -12 --oneline
+9b43979 PTP-113B.3.1A.5.1A.8 normalize BRL parser
+f51c10d PTP-113B.3.1A.5.1A.7 restart validate Stepper BRL
+198460d PTP-113B.3.1A.5.1A.6 fix Stepper BRL guard
+2c8fea5 PTP-113B.3.1A.5.1A.5 validate Stepper BRL
+6f91982 PTP-113B.3.1A.5.1A.4 unify Stepper BRL
+965bc1b PTP-113B.3.1A.5.1A.3 audit Stepper BRL
+34af941 PTP-GOV.2 add PredixAI Trader master scope
+217aaca PTP-GOV.1.1 close governance final report
+108108f PTP-GOV.1 install PredixAI governance protocols
+98a4a67 PTP-113B.3.1A.5.1A.2 AUDIT pause publish report
+9520510 PTP-113B.3.1A.5.1A.2 AUDIT pause money stepper state
+1461ee4 PTP-113B.3.1A.5.1A.1 PASS currency layout publish report
+exit_code=0
+
+--- git status inicial ---
+?? reports/20260706_225941_PTP-113B.3.1A.5.1A.9_visual_pass_stepper_brl_PASS.txt
+
+===== VALIDAR — ARQUIVO E MARCADORES =====
+OK: arquivo alvo encontrado.
+  5749 210976 scripts/predixai_trader_mobile_server.py
+728af10f84f426c737946cdd5d3bde3eb2ce16480129b892cc98b29cf7d6c459  scripts/predixai_trader_mobile_server.py
+PASS: marcador normalize_parse_brl encontrado.
+PASS: marcador inválido da guarda antiga ausente.
+
+$ python -m py_compile scripts/predixai_trader_mobile_server.py
+scripts/predixai_trader_mobile_server.py:4991: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+scripts/predixai_trader_mobile_server.py:5252: SyntaxWarning: invalid escape sequence '\d'
+  return """
+exit_code=0
+PASS: py_compile aprovado.
+
+===== VALIDAR — SEGURANÇA SIMULADA =====
+PASS: nenhuma ativação óbvia de ordem real, auto-click, login real ou dinheiro real encontrada.
+
+===== VALIDAR — GIT DIFF CHECK =====
+
+$ git diff --check
+exit_code=0
+PASS: git diff --check aprovado.
+
+===== REGISTRAR — STATUS FINAL =====
+Status calculado: PASS
+Warnings: 0
+Erros: 0
+
+===== REGISTRAR — MARKDOWN E ÍNDICE =====
+Backup do índice criado: backups/20260706_225941_PTP-113B.3.1A.5.1A.9_visual_pass_stepper_brl_reports_index.before.md
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260706_225941_PTP-113B.3.1A.5.1A.9_visual_pass_stepper_brl_PASS.md
+Índice atualizado: docs/reports_index.md
+
+===== SANITY CHECK — ARQUIVOS PARA VERSIONAMENTO =====
+intended_git_add: reports/20260706_225941_PTP-113B.3.1A.5.1A.9_visual_pass_stepper_brl_PASS.txt
+intended_git_add: docs/history/ptp/PTP-113/PTP-113B/20260706_225941_PTP-113B.3.1A.5.1A.9_visual_pass_stepper_brl_PASS.md
+intended_git_add: docs/reports_index.md
+intended_git_add: backups/20260706_225941_PTP-113B.3.1A.5.1A.9_visual_pass_stepper_brl_reports_index.before.md
+
+===== ENTREGAR — FECHAMENTO DO RELATÓRIO =====
+Status final: PASS
+Warnings: 0
+Erros: 0
+
+Relatório fechado antes de commit/push.
+Depois do push, o script apenas abrirá este relatório, sem escrever novas linhas nele.
