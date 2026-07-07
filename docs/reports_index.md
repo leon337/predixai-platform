@@ -20,3 +20,9 @@
 | 2026-07-06 23:58:28 | PTP-113B.3.1B.3 | contrato_real_mobile | PASS | `/home/leo/Documentos/GitHub/predixai-platform/reports/20260706_235822_PTP-113B.3.1B.3_contrato_real_mobile_FIX.txt` | `/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260706_235822_PTP-113B.3.1B.3_contrato_real_mobile_FIX.md` |
 | 2026-07-07 00:07:24 | PTP-113B.3.1B.4 | saneamento_ui_mobile | PASS | `/home/leo/Documentos/GitHub/predixai-platform/reports/20260707_000718_PTP-113B.3.1B.4_saneamento_ui_mobile_FIX.txt` | `/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260707_000718_PTP-113B.3.1B.4_saneamento_ui_mobile_FIX.md` |
 | 2026-07-07 00:21:45 | PTP-113B.3.1B.5 | estado_real_observador | PASS | `/home/leo/Documentos/GitHub/predixai-platform/reports/20260707_002139_PTP-113B.3.1B.5_estado_real_observador_FIX.txt` | `/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260707_002139_PTP-113B.3.1B.5_estado_real_observador_FIX.md` |
+
+## 20260707_004406 — PTP-113B.3.1B.5.1 — toggle_observador_persistente — PASS
+- Relatório: `reports/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.txt`
+- Markdown: `docs/history/ptp/PTP-113/PTP-113B/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.md`
+- Arquivo técnico: `scripts/predixai_trader_mobile_server.py`
+- Resultado: PASS

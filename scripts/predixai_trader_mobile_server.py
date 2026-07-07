@@ -1790,6 +1790,500 @@ a.px-btn-error {
 })();
 </script>
 
+
+/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START */
+<style id="ptp113b31b51-toggle-observador-persistente-style">
+  #px-observer-toggle-panel {
+    margin: 12px 0;
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.96);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.30);
+  }
+
+  #px-observer-toggle-panel .px-toggle-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  #px-observer-toggle-panel .px-toggle-title {
+    font-weight: 800;
+    letter-spacing: .02em;
+    color: #e5e7eb;
+    font-size: 0.98rem;
+  }
+
+  #px-observer-toggle-panel .px-toggle-badge {
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-size: .78rem;
+    font-weight: 800;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, .18);
+  }
+
+  #px-observer-toggle-panel .px-toggle-badge.off {
+    background: rgba(100, 116, 139, .22);
+    color: #cbd5e1;
+  }
+
+  #px-observer-toggle-panel .px-toggle-badge.starting,
+  #px-observer-toggle-panel .px-toggle-badge.waiting,
+  #px-observer-toggle-panel .px-toggle-badge.stale {
+    background: rgba(234, 179, 8, .18);
+    color: #fde68a;
+  }
+
+  #px-observer-toggle-panel .px-toggle-badge.reading {
+    background: rgba(34, 197, 94, .18);
+    color: #bbf7d0;
+  }
+
+  #px-observer-toggle-panel .px-toggle-badge.error {
+    background: rgba(239, 68, 68, .20);
+    color: #fecaca;
+  }
+
+  #px-observer-toggle-panel .px-toggle-switch {
+    width: 100%;
+    min-height: 56px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .16);
+    padding: 7px;
+    display: flex;
+    align-items: center;
+    background: rgba(30, 41, 59, .92);
+    color: #e5e7eb;
+    cursor: pointer;
+    font-weight: 900;
+    transition: .18s ease;
+    touch-action: manipulation;
+  }
+
+  #px-observer-toggle-panel .px-toggle-switch[aria-checked="true"] {
+    background: rgba(22, 101, 52, .85);
+  }
+
+  #px-observer-toggle-panel .px-toggle-switch.px-waiting {
+    background: rgba(146, 64, 14, .86);
+  }
+
+  #px-observer-toggle-panel .px-toggle-switch.px-error {
+    background: rgba(127, 29, 29, .92);
+  }
+
+  #px-observer-toggle-panel .px-toggle-knob {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    margin-right: 10px;
+    flex: 0 0 auto;
+    transition: .18s ease;
+  }
+
+  #px-observer-toggle-panel .px-toggle-switch[aria-checked="true"] .px-toggle-knob {
+    transform: translateX(10px);
+    background: #dcfce7;
+  }
+
+  #px-observer-toggle-panel .px-toggle-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.15;
+  }
+
+  #px-observer-toggle-panel .px-toggle-label {
+    font-size: .98rem;
+  }
+
+  #px-observer-toggle-panel .px-toggle-sub {
+    margin-top: 4px;
+    font-size: .78rem;
+    opacity: .86;
+    font-weight: 600;
+  }
+
+  #px-observer-toggle-panel .px-current-grid,
+  #px-observer-toggle-panel .px-history-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  #px-observer-toggle-panel .px-data-row {
+    border-radius: 13px;
+    padding: 10px 11px;
+    background: rgba(2, 6, 23, .52);
+    border: 1px solid rgba(148, 163, 184, .16);
+  }
+
+  #px-observer-toggle-panel .px-data-label {
+    display: block;
+    color: #94a3b8;
+    font-size: .74rem;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+
+  #px-observer-toggle-panel .px-data-value {
+    color: #f8fafc;
+    font-weight: 850;
+    font-size: .96rem;
+    overflow-wrap: anywhere;
+  }
+
+  #px-observer-toggle-panel .px-section-label {
+    margin-top: 14px;
+    color: #cbd5e1;
+    font-size: .8rem;
+    font-weight: 900;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+
+  #px-observer-toggle-panel .px-muted {
+    color: #94a3b8;
+  }
+
+  #px-observer-toggle-panel .px-warning-note {
+    margin-top: 10px;
+    color: #fde68a;
+    font-size: .82rem;
+    line-height: 1.35;
+  }
+
+  #px-observer-toggle-panel .px-safe-note {
+    margin-top: 10px;
+    color: #bbf7d0;
+    font-size: .78rem;
+    line-height: 1.35;
+  }
+</style>
+
+<script id="ptp113b31b51-toggle-observador-persistente-script">
+(function () {
+  const MARKER = "PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_RUNTIME";
+  if (window[MARKER]) return;
+  window[MARKER] = true;
+
+  const STALE_LIMIT_SECONDS = 12;
+
+  const qs = (sel, root = document) => root.querySelector(sel);
+
+  function brl(value) {
+    if (value === null || value === undefined || value === "" || Number.isNaN(Number(value))) {
+      return "Sem leitura ativa";
+    }
+    try {
+      return Number(value).toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    } catch (err) {
+      return String(value);
+    }
+  }
+
+  function safeText(value, fallback = "Sem leitura ativa") {
+    if (value === null || value === undefined || value === "") return fallback;
+    if (typeof value === "object") return fallback;
+    return String(value);
+  }
+
+  function latestItem(list) {
+    if (!Array.isArray(list) || list.length === 0) return null;
+    return list[list.length - 1] || null;
+  }
+
+  function ageSeconds(item) {
+    if (!item || !item.timestamp) return null;
+    const parsed = Date.parse(item.timestamp);
+    if (Number.isNaN(parsed)) return null;
+    return Math.max(0, Math.round((Date.now() - parsed) / 1000));
+  }
+
+  function classifyState(state) {
+    const activeCount = Number(state?.active_reader_count || 0);
+    const readers = Array.isArray(state?.active_readers) ? state.active_readers : [];
+    const running = Boolean(state?.reader_running || activeCount > 0 || readers.length > 0);
+    const historyLast = latestItem(state?.history);
+    const signalLast = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+    const lastAge = ageSeconds(historyLast);
+
+    if (!running) {
+      return {
+        key: "OFF",
+        badgeClass: "off",
+        switchClass: "",
+        checked: false,
+        label: "Observador desligado",
+        sub: "Sem leitura ativa",
+        message: "O painel atual não deve usar preço, ativo ou sinal histórico."
+      };
+    }
+
+    if (!historyLast) {
+      return {
+        key: "ON_WAITING_SOURCE",
+        badgeClass: "waiting",
+        switchClass: "px-waiting",
+        checked: true,
+        label: "Aguardando fonte visual",
+        sub: "Abra a corretora/ativo no notebook",
+        message: "Observador ligado, mas ainda sem leitura válida."
+      };
+    }
+
+    if (lastAge !== null && lastAge > STALE_LIMIT_SECONDS) {
+      return {
+        key: "STALE",
+        badgeClass: "stale",
+        switchClass: "px-waiting",
+        checked: true,
+        label: "Leitura antiga",
+        sub: "Aguardando atualização real",
+        message: "Existe dado antigo, mas ele não será tratado como operação atual."
+      };
+    }
+
+    return {
+      key: "ON_READING",
+      badgeClass: "reading",
+      switchClass: "",
+      checked: true,
+      label: "Observando",
+      sub: "Leitura ativa detectada",
+      message: "Dados atuais liberados somente enquanto a leitura estiver recente."
+    };
+  }
+
+  function currentRows(stateInfo, state) {
+    const historyLast = latestItem(state?.history);
+    const signal = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+    const isReading = stateInfo.key === "ON_READING";
+
+    if (!isReading) {
+      return [
+        ["Ativo atual", "Sem leitura ativa"],
+        ["Preço atual", "Sem leitura ativa"],
+        ["Suporte", "Sem leitura ativa"],
+        ["Resistência", "Sem leitura ativa"],
+        ["Sinal atual", "Aguardando leitura"],
+        ["Confiança", "-"]
+      ];
+    }
+
+    const support = state?.support ?? state?.technical_levels?.support ?? null;
+    const resistance = state?.resistance ?? state?.technical_levels?.resistance ?? null;
+    const decision = signal?.decision || signal?.direction || "Aguardando leitura";
+    const confidence = signal?.confidence !== undefined ? `${signal.confidence}%` : "-";
+
+    return [
+      ["Ativo atual", safeText(historyLast?.asset || state?.mobile_session?.asset)],
+      ["Preço atual", brl(historyLast?.price_value ?? historyLast?.price)],
+      ["Suporte", support === null ? "Sem leitura ativa" : brl(support)],
+      ["Resistência", resistance === null ? "Sem leitura ativa" : brl(resistance)],
+      ["Sinal atual", safeText(decision, "Aguardando leitura")],
+      ["Confiança", confidence]
+    ];
+  }
+
+  function historyRows(state) {
+    const historyLast = latestItem(state?.history);
+    const signal = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+
+    if (!historyLast && !signal) {
+      return [
+        ["Último histórico", "Nenhum histórico disponível"],
+        ["Status", "Histórico vazio"]
+      ];
+    }
+
+    return [
+      ["Ativo", safeText(historyLast?.asset, "Histórico sem ativo")],
+      ["Preço", historyLast ? brl(historyLast.price_value ?? historyLast.price) : "Histórico sem preço"],
+      ["Horário", safeText(historyLast?.timestamp, "Sem horário")],
+      ["Sinal histórico", safeText(signal?.decision || signal?.direction, "Sem sinal histórico")],
+      ["Confiança histórica", signal?.confidence !== undefined ? `${signal.confidence}%` : "-"],
+      ["Status", "Histórico, não operacional"]
+    ];
+  }
+
+  function row(label, value) {
+    return `
+      <div class="px-data-row">
+        <span class="px-data-label">${label}</span>
+        <span class="px-data-value">${value}</span>
+      </div>
+    `;
+  }
+
+  function ensurePanel() {
+    let panel = qs("#px-observer-toggle-panel");
+    if (panel) return panel;
+
+    panel = document.createElement("section");
+    panel.id = "px-observer-toggle-panel";
+    panel.innerHTML = `
+      <div class="px-toggle-head">
+        <div class="px-toggle-title">Observador mobile</div>
+        <div class="px-toggle-badge off" id="px-observer-toggle-badge">OFF</div>
+      </div>
+
+      <button type="button" class="px-toggle-switch" id="px-observer-toggle-button" aria-checked="false">
+        <span class="px-toggle-knob"></span>
+        <span class="px-toggle-main">
+          <span class="px-toggle-label" id="px-observer-toggle-label">Observador desligado</span>
+          <span class="px-toggle-sub" id="px-observer-toggle-sub">Sem leitura ativa</span>
+        </span>
+      </button>
+
+      <div class="px-warning-note" id="px-observer-toggle-message">
+        O painel atual não deve usar dados históricos.
+      </div>
+
+      <div class="px-section-label">Leitura atual</div>
+      <div class="px-current-grid" id="px-observer-current-grid"></div>
+
+      <div class="px-section-label">Último histórico</div>
+      <div class="px-history-grid" id="px-observer-history-grid"></div>
+
+      <div class="px-safe-note">
+        Modo 100% simulado: sem ordem real, sem saldo real, sem login real e sem auto-click.
+      </div>
+    `;
+
+    const preferred = qs("#px-mobile-ui") || qs(".predixai-mobile-shell") || qs("main") || document.body;
+    preferred.prepend(panel);
+
+    const button = qs("#px-observer-toggle-button", panel);
+    button.addEventListener("click", async () => {
+      const checked = button.getAttribute("aria-checked") === "true";
+      const endpoint = checked ? "/api/mobile/reader/stop" : "/api/mobile/reader/start";
+
+      qs("#px-observer-toggle-badge", panel).className = "px-toggle-badge starting";
+      qs("#px-observer-toggle-badge", panel).textContent = checked ? "PARANDO" : "STARTING";
+      qs("#px-observer-toggle-label", panel).textContent = checked ? "Parando observador" : "Ligando observador";
+      qs("#px-observer-toggle-sub", panel).textContent = "Aguardando resposta do servidor";
+
+      try {
+        const res = await fetch(endpoint, { method: "POST" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        setTimeout(refreshPanel, 400);
+      } catch (err) {
+        qs("#px-observer-toggle-badge", panel).className = "px-toggle-badge error";
+        qs("#px-observer-toggle-badge", panel).textContent = "ERROR";
+        button.className = "px-toggle-switch px-error";
+        button.setAttribute("aria-checked", "false");
+        qs("#px-observer-toggle-label", panel).textContent = "Erro operacional";
+        qs("#px-observer-toggle-sub", panel).textContent = String(err.message || err);
+      }
+    });
+
+    return panel;
+  }
+
+  function renderPanel(state) {
+    const panel = ensurePanel();
+    const info = classifyState(state);
+
+    const badge = qs("#px-observer-toggle-badge", panel);
+    const button = qs("#px-observer-toggle-button", panel);
+    const label = qs("#px-observer-toggle-label", panel);
+    const sub = qs("#px-observer-toggle-sub", panel);
+    const msg = qs("#px-observer-toggle-message", panel);
+    const current = qs("#px-observer-current-grid", panel);
+    const history = qs("#px-observer-history-grid", panel);
+
+    badge.className = `px-toggle-badge ${info.badgeClass}`;
+    badge.textContent = info.key;
+
+    button.className = `px-toggle-switch ${info.switchClass || ""}`.trim();
+    button.setAttribute("aria-checked", info.checked ? "true" : "false");
+
+    label.textContent = info.label;
+    sub.textContent = info.sub;
+    msg.textContent = info.message;
+
+    current.innerHTML = currentRows(info, state).map(([a, b]) => row(a, b)).join("");
+    history.innerHTML = historyRows(state).map(([a, b]) => row(a, b)).join("");
+
+    hideConflictingLegacyCurrent(info);
+  }
+
+  function hideConflictingLegacyCurrent(info) {
+    if (info.key === "ON_READING") return;
+
+    const blockers = [
+      "Cafeina Index",
+      "OBSERVAR ALTA",
+      "ALTA",
+      "95%"
+    ];
+
+    document.querySelectorAll("section, article, .card, .panel, .metric-card, .signal-card").forEach((node) => {
+      if (!node || node.closest("#px-observer-toggle-panel")) return;
+      if (node.id === "px-mobile-ui") return;
+
+      const txt = (node.textContent || "").trim();
+      if (!txt) return;
+
+      const looksLikeCurrentSignal =
+        blockers.some((item) => txt.includes(item)) &&
+        /preço|sinal|confiança|suporte|resistência|ativo/i.test(txt);
+
+      if (looksLikeCurrentSignal) {
+        node.setAttribute("data-ptp113b31b51-hidden-current", "true");
+        node.style.display = "none";
+      }
+    });
+  }
+
+  async function refreshPanel() {
+    try {
+      const res = await fetch("/api/mobile/state", { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const state = await res.json();
+      renderPanel(state || {});
+    } catch (err) {
+      renderPanel({
+        active_reader_count: 0,
+        active_readers: [],
+        history: [],
+        error: String(err.message || err)
+      });
+      const panel = ensurePanel();
+      qs("#px-observer-toggle-badge", panel).className = "px-toggle-badge error";
+      qs("#px-observer-toggle-badge", panel).textContent = "ERROR";
+      qs("#px-observer-toggle-button", panel).className = "px-toggle-switch px-error";
+      qs("#px-observer-toggle-label", panel).textContent = "Erro ao ler API";
+      qs("#px-observer-toggle-sub", panel).textContent = String(err.message || err);
+    }
+  }
+
+  function boot() {
+    ensurePanel();
+    refreshPanel();
+    setInterval(refreshPanel, 3000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END */
+
 </body>
 </html>
 """

@@ -1,0 +1,316 @@
+PREDIXAI PTP-113B.3.1B.5.1 toggle_observador_persistente
+Data: 2026-07-07 00:44:06 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+
+===== INVESTIGAR =====
+Git log:
+2a4d7cf PTP-113B.3.1B.5 add real observer state
+1a00840 PTP-113B.3.1B.4 sane mobile UI renderer
+6be04ce PTP-113B.3.1B.3 fix real contract data on mobile
+21fcea0 PTP-113B.3.1B.2.1 publish Observador UX without ignored backups
+1af77f9 PTP-113B.3.1B.1 audit Observador mobile-first
+
+Git status:
+?? reports/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.txt
+
+Marcadores atuais:
+891:/* PTP113B31B4_SANEAMENTO_UI_MOBILE */
+1034:/* PTP113B31B4_SANEAMENTO_UI_MOBILE */
+1036:  const MARKER = "PTP113B31B4_SANEAMENTO_UI_MOBILE_RUNTIME";
+1188:    if (id("px-mobile-ui")) return;
+1191:    shell.id = "px-mobile-ui";
+1235:      if (!el || el.closest("#px-mobile-ui")) return;
+1386:/* PTP113B31B5_ESTADO_REAL_OBSERVADOR */
+1387:.px-observer-state-card {
+1484:/* PTP113B31B5_ESTADO_REAL_OBSERVADOR */
+1486:  const MARKER = "PTP113B31B5_ESTADO_REAL_OBSERVADOR_RUNTIME";
+1592:    if (el("px-observer-state")) return;
+1595:    card.id = "px-observer-state";
+1596:    card.className = "px-observer-state-card";
+1607:    const shell = el("px-mobile-ui") || document.querySelector(".predixai-mobile-shell");
+1654:      if (!node || node.closest("#px-observer-state") || node.closest("#px-mobile-ui")) return;
+
+Endpoints locais antes do patch:
+API /api/mobile/state respondeu antes do patch.
+{
+    "active_reader_count": 0,
+    "active_readers": [],
+    "db_path": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db",
+    "expiration_seconds": 30,
+    "history": [
+        {
+            "asset": "Cafeina Index",
+            "confidence": 95.0,
+            "index": 608,
+            "metadata_json": null,
+            "price": 4182.1,
+            "price_value": 4182.1,
+            "session_id": "mobile_20260707_002328_eb83b451",
+            "source": "MOBILE_FIRST_SIMULATED_BRIDGE",
+            "source_ocr_text": null,
+            "status": "SIMULATED",
+            "timestamp": "2026-07-07T00:23:28.372418-03:00",
+            "window_title": null
+        }
+    ],
+    "mobile_session": {
+        "asset": "Cafeina Index",
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "confluence_result": {
+            "asset": "Cafeina Index",
+            "final_confidence": 95.0,
+            "level": "ALTA",
+            "reason": "Conflu\u00eancia aprovada por decis\u00e3o direcional v\u00e1lida e confian\u00e7a m\u00ednima atingida.",
+            "status": "APROVADO",
+            "strategy_decision": "ALTA",
+            "timestamp": "2026-07-07T03:23:28.171724+00:00"
+        },
+        "contract": {
+            "simulation_only": true,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "credentials_allowed": false,
+            "operational_mode": {
+                "key": "scalper",
+                "label": "Scalper",
+                "description": "Sess\u00e3o curta, com foco em sinais r\u00e1pidos e controle r\u00edgido."
+            },
+            "strategy": {
+                "key": "simple_confluence",
+                "label": "Conflu\u00eancia simples",
+                "risk": "baixo/m\u00e9dio",
+                "description": "S\u00f3 libera sinal quando m\u00faltiplos crit\u00e9rios t\u00e9cnicos concordam."
+            },
+            "bankroll": {
+                "currency": "BRL",
+                "initial_bankroll": 100.0,
+                "current_bankroll": 100.0,
+                "current_entry": 5.0,
+                "profit_loss": 0.0,
+                "profit_loss_percent": 0.0
+            },
+            "risk": {
+                "profile": "conservador",
+                "entry_percent_of_bankroll": 5.0,
+                "estimated_consumption_1h": 25.0,
+                "estimated_consumption_percent_1h": 25.0
+            },
+            "expiration": {
+                "seconds": 60,
+                "label": "1 minuto(s)"
+            },
+            "preview": {
+                "estimated_signals_5m": 1,
+                "estimated_signals_1h": 5,
+                "session_classification": "seletiva",
+                "recommendation": "Operar somente em modo simulado e cancelar se o pre\u00e7o fugir da zona.",
+                "general_safety_rule": "A condi\u00e7\u00e3o espec\u00edfica de cancelamento ser\u00e1 exibida junto do sinal gerado.",
+                "cancel_alert": "Cancelamento espec\u00edfico ser\u00e1 calculado no sinal conforme ativo, pre\u00e7o, hor\u00e1rio e estrat\u00e9gia."
+            },
+            "required_visual_fields": [
+                "ativo",
+
+===== PLANEJAR =====
+Plano aprovado:
+1. Criar backup.
+2. Injetar CSS/JS com marcador PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE.
+3. Criar estado persistente visual do observador.
+4. Separar leitura atual de último histórico.
+5. Preservar travas simuladas.
+6. Validar, registrar, commit e push.
+
+===== CONSTRUIR =====
+Backup criado: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente/predixai_trader_mobile_server.py.bak
+Patch injetado no arquivo: scripts/predixai_trader_mobile_server.py
+
+===== VALIDAR =====
+py_compile:
+
+git diff --check:
+
+Marcador novo:
+1794:/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START */
+1973:  const MARKER = "PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_RUNTIME";
+2285:/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END */
+
+Travas simuladas no arquivo:
+1173:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+1174:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+1175:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+1176:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+1177:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+1178:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+1322:        "simulation_only=" + d.simulation_only +
+1323:        " | orders_enabled=" + d.orders_enabled +
+1324:        " | real_money_enabled=" + d.real_money_enabled +
+1325:        " | auto_click_enabled=" + d.auto_click_enabled +
+1326:        " | broker_login_enabled=" + d.broker_login_enabled +
+1327:        " | credentials_allowed=" + d.credentials_allowed
+2325:        "orders_enabled": False,
+2523:            "orders_enabled": False,
+2704:            "simulation_only": True,
+2706:            "orders_enabled": False,
+2707:            "auto_click_enabled": False,
+2708:            "real_money_enabled": False,
+2732:                            "simulation_only": True,
+2733:                            "orders_enabled": False,
+2765:        "simulation_only": True,
+2767:        "orders_enabled": False,
+2768:        "auto_click_enabled": False,
+2769:        "real_money_enabled": False,
+2816:            "simulation_only": True,
+2817:            "orders_enabled": False,
+2849:        "orders_enabled": False,
+2850:        "auto_click_enabled": False,
+2851:        "real_money_enabled": False,
+2852:        "broker_login_enabled": False,
+2853:        "simulation_only": True,
+2891:            "simulation_only": True,
+2892:            "orders_enabled": False,
+2893:            "auto_click_enabled": False,
+2894:            "real_money_enabled": False,
+2905:        "simulation_only": True,
+2906:        "orders_enabled": False,
+2907:        "auto_click_enabled": False,
+2908:        "real_money_enabled": False,
+3837:            "orders_enabled": False,
+5024:            "simulation_only": True,
+5025:            "orders_enabled": False,
+5026:            "real_money_enabled": False,
+5027:            "auto_click_enabled": False,
+5028:            "broker_login_enabled": False,
+5029:            "credentials_allowed": False,
+5087:                "simulation_only": True,
+5088:                "orders_enabled": False,
+5089:                "real_money_enabled": False,
+5090:                "auto_click_enabled": False,
+5091:                "broker_login_enabled": False,
+5092:                "credentials_allowed": False,
+5288:            data["simulation_only"] = True
+5289:            data["orders_enabled"] = False
+5290:            data["real_money_enabled"] = False
+5291:            data["auto_click_enabled"] = False
+5292:            data["broker_login_enabled"] = False
+5293:            data["credentials_allowed"] = False
+5584:            data["simulation_only"] = True
+5585:            data["orders_enabled"] = False
+5586:            data["real_money_enabled"] = False
+5587:            data["auto_click_enabled"] = False
+5982:                    "simulation_only": True,
+
+Validação opcional dos endpoints locais:
+/mobile HTTP 200
+WARN: servidor pode estar rodando versão antiga. Reinicie o servidor mobile e valide novamente.
+/api/mobile/state HTTP 200
+{
+    "active_reader_count": 0,
+    "active_readers": [],
+    "db_path": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db",
+    "expiration_seconds": 30,
+    "history": [
+        {
+            "asset": "Cafeina Index",
+            "confidence": 95.0,
+            "index": 608,
+            "metadata_json": null,
+            "price": 4182.1,
+            "price_value": 4182.1,
+            "session_id": "mobile_20260707_002328_eb83b451",
+            "source": "MOBILE_FIRST_SIMULATED_BRIDGE",
+            "source_ocr_text": null,
+            "status": "SIMULATED",
+            "timestamp": "2026-07-07T00:23:28.372418-03:00",
+            "window_title": null
+        }
+    ],
+    "mobile_session": {
+        "asset": "Cafeina Index",
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "confluence_result": {
+            "asset": "Cafeina Index",
+            "final_confidence": 95.0,
+            "level": "ALTA",
+            "reason": "Conflu\u00eancia aprovada por decis\u00e3o direcional v\u00e1lida e confian\u00e7a m\u00ednima atingida.",
+            "status": "APROVADO",
+            "strategy_decision": "ALTA",
+            "timestamp": "2026-07-07T03:23:28.171724+00:00"
+        },
+        "contract": {
+            "simulation_only": true,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "credentials_allowed": false,
+            "operational_mode": {
+                "key": "scalper",
+                "label": "Scalper",
+                "description": "Sess\u00e3o curta, com foco em sinais r\u00e1pidos e controle r\u00edgido."
+            },
+            "strategy": {
+                "key": "simple_confluence",
+                "label": "Conflu\u00eancia simples",
+                "risk": "baixo/m\u00e9dio",
+                "description": "S\u00f3 libera sinal quando m\u00faltiplos crit\u00e9rios t\u00e9cnicos concordam."
+            },
+            "bankroll": {
+                "currency": "BRL",
+                "initial_bankroll": 100.0,
+                "current_bankroll": 100.0,
+                "current_entry": 5.0,
+                "profit_loss": 0.0,
+                "profit_loss_percent": 0.0
+            },
+            "risk": {
+                "profile": "conservador",
+                "entry_percent_of_bankroll": 5.0,
+                "estimated_consumption_1h": 25.0,
+                "estimated_consumption_percent_1h": 25.0
+            },
+            "expiration": {
+                "seconds": 60,
+                "label": "1 minuto(s)"
+            },
+            "preview": {
+                "estimated_signals_5m": 1,
+                "estimated_signals_1h": 5,
+                "session_classification": "seletiva",
+                "recommendation": "Operar somente em modo simulado e cancelar se o pre\u00e7o fugir da zona.",
+                "general_safety_rule": "A condi\u00e7\u00e3o espec\u00edfica de cancelamento ser\u00e1 exibida junto do sinal gerado.",
+                "cancel_alert": "Cancelamento espec\u00edfico ser\u00e1 calculado no sinal conforme ativo, pre\u00e7o, hor\u00e1rio e estrat\u00e9gia."
+            },
+            "required_visual_fields": [
+                "ativo",
+                "direcao",
+                "horario_entrada",
+                "preco_referencia",
+                "tempo_expiracao",
+                "alerta_cancelamento",
+                "explicacao",
+                "confianca",
+                "status",
+                "modo_operacional",
+                "estrategia_geradora",
+                "banca_simulada",
+                "saldo_atual",
+                "entrada_simulada",
+                "risco",
+                "estimativa_sinais_5m",
+                "estimativa_sinais_1h"
+            ],
+            "security": {
+                "simulation_only": true,
+                "orders_enabled": false,
+
+===== REGISTRAR =====
+Relatório TXT: /home/leo/Documentos/GitHub/predixai-platform/reports/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.txt
+Markdown histórico: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.md
+
+===== PUBLICAR =====
+Sanity check contra arquivos sensíveis:
+OK: nenhum arquivo sensível/cache detectado no status.
