@@ -37,3 +37,9 @@
 - Markdown: `docs/history/ptp/PTP-113/PTP-113B/20260707_090703_PTP-113B.3.1B.5.2.1_finalizar_recovery_saneamento_visual_mobile_FINAL_PASS.md`
 - Arquivo técnico: `scripts/predixai_trader_mobile_server.py`
 - Resultado: FINAL PASS
+
+## 20260707_091055 — PTP-113B.3.1B.5.2.2 — corrigir_marcadores_visiveis_mobile — FIX
+- Relatório: `reports/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile_FIX.txt`
+- Markdown: `docs/history/ptp/PTP-113/PTP-113B/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile_FIX.md`
+- Arquivo técnico: `scripts/predixai_trader_mobile_server.py`
+- Resultado: FIX

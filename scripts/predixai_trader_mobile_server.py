@@ -1791,7 +1791,7 @@ a.px-btn-error {
 </script>
 
 
-/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START */
+<!-- PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START -->
 <style id="ptp113b31b51-toggle-observador-persistente-style">
   #px-observer-toggle-panel {
     margin: 12px 0;
@@ -2282,10 +2282,10 @@ a.px-btn-error {
   }
 })();
 </script>
-/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END */
+<!-- PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END -->
 
 
-/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START */
+<!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START -->
 <style id="ptp113b31b52-saneamento-visual-final-mobile-style">
   [data-ptp113b31b52-hidden="true"],
   #px-observer-state {
@@ -2452,7 +2452,7 @@ a.px-btn-error {
   }
 })();
 </script>
-/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END */
+<!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END -->
 
 </body>
 </html>

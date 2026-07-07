@@ -1,0 +1,148 @@
+PREDIXAI PTP-113B.3.1B.5.2.2 corrigir_marcadores_visiveis_mobile
+Data: 2026-07-07 09:10:55 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+
+===== OBJETIVO =====
+Corrigir marcadores visíveis no rodapé da tela /mobile.
+
+===== CONTEXTO =====
+Os marcadores das PTPs 5.1 e 5.2 foram inseridos como comentários CSS/JS:
+  /* PTP...START */
+  /* PTP...END */
+
+No HTML puro, esse formato aparece como texto visível. A correção troca esses marcadores externos por comentários HTML:
+  <!-- PTP...START -->
+  <!-- PTP...END -->
+
+===== REGRA =====
+Não alterar API.
+Não alterar lógica de sinal.
+Não alterar banca.
+Não apagar histórico.
+Não avançar para PTP-113B.3.1C.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR =====
+Git status inicial:
+?? reports/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile_FIX.txt
+
+Último commit:
+2ec0408 PTP-113B.3.1B.5.2.1 finalize visual recovery saneamento mobile
+
+Marcadores visíveis antes:
+1794:/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START */
+2285:/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END */
+2288:/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START */
+2455:/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END */
+
+===== CONSTRUIR =====
+Backup criado:
+backups/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile/predixai_trader_mobile_server.py.bak
+
+Correção aplicada:
+- Marcadores externos das PTPs 5.1 e 5.2 convertidos para comentários HTML invisíveis.
+
+===== VALIDAR =====
+py_compile:
+scripts/predixai_trader_mobile_server.py:6649: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+scripts/predixai_trader_mobile_server.py:6910: SyntaxWarning: invalid escape sequence '\d'
+  return """
+
+git diff --check:
+
+Marcadores HTML no código:
+1794:<!-- PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START -->
+2285:<!-- PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END -->
+2288:<!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START -->
+2455:<!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END -->
+
+Marcadores CSS/JS visíveis restantes no código:
+
+Servidor mobile:
+7681 .venv/bin/python scripts/predixai_trader_mobile_server.py
+
+HTML real — comentários HTML invisíveis:
+1698:<!-- PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START -->
+2189:<!-- PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END -->
+2192:<!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START -->
+2359:<!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END -->
+
+HTML real — marcadores visíveis restantes:
+
+API mobile:
+{
+    "active_reader_count": 0,
+    "active_readers": [],
+    "db_path": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db",
+    "expiration_seconds": 30,
+    "history": [
+        {
+            "asset": "Cafeina Index",
+            "confidence": 95.0,
+            "index": 614,
+            "metadata_json": null,
+            "price": 4182.1,
+            "price_value": 4182.1,
+            "session_id": "mobile_20260707_004636_594de56d",
+            "source": "MOBILE_FIRST_SIMULATED_BRIDGE",
+            "source_ocr_text": null,
+            "status": "SIMULATED",
+            "timestamp": "2026-07-07T00:46:36.450951-03:00",
+            "window_title": null
+        }
+    ],
+    "mobile_session": {
+        "asset": "Cafeina Index",
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "confluence_result": {
+            "asset": "Cafeina Index",
+            "final_confidence": 95.0,
+            "level": "ALTA",
+            "reason": "Conflu\u00eancia aprovada por decis\u00e3o direcional v\u00e1lida e confian\u00e7a m\u00ednima atingida.",
+            "status": "APROVADO",
+            "strategy_decision": "ALTA",
+            "timestamp": "2026-07-07T03:46:36.436307+00:00"
+        },
+        "contract": {
+            "simulation_only": true,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "credentials_allowed": false,
+            "operational_mode": {
+                "key": "scalper",
+                "label": "Scalper",
+                "description": "Sess\u00e3o curta, com foco em sinais r\u00e1pidos e controle r\u00edgido."
+            },
+            "strategy": {
+                "key": "simple_confluence",
+                "label": "Conflu\u00eancia simples",
+                "risk": "baixo/m\u00e9dio",
+                "description": "S\u00f3 libera sinal quando m\u00faltiplos crit\u00e9rios t\u00e9cnicos concordam."
+            },
+            "bankroll": {
+                "currency": "BRL",
+                "initial_bankroll": 100.0,
+                "current_bankroll": 100.0,
+                "current_entry": 5.0,
+                "profit_loss": 0.0,
+                "profit_loss_percent": 0.0
+            },
+
+===== REGISTRAR =====
+Relatório TXT:
+reports/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile_FIX.txt
+
+Markdown:
+docs/history/ptp/PTP-113/PTP-113B/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile_FIX.md
+
+Índice:
+docs/reports_index.md
+
+===== RESULTADO TÉCNICO =====
+FIX aplicado.
+Relatório fechado antes do commit/push.
