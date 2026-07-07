@@ -1,0 +1,1440 @@
+PREDIXAI BR — PTP-113C.1 auditoria_estado_atual
+Data: 2026-07-07 10:04:25 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Status: AUDIT
+
+===== OBJETIVO =====
+Auditar o estado real antes de implementar o ciclo sinal → resultado → saldo → histórico.
+
+===== REGRA =====
+Este script NÃO altera lógica operacional.
+Este script NÃO cria sinal, NÃO calcula resultado e NÃO altera saldo.
+Este script apenas gera auditoria, relatório, Markdown, índice, commit e push.
+
+===== TRAVAS ESPERADAS =====
+simulation_only=true
+orders_enabled=false
+real_money_enabled=false
+auto_click_enabled=false
+broker_login_enabled=false
+credentials_allowed=false
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_100425_PTP-113C.1_auditoria_estado_atual_AUDIT.txt
+
+===== INVESTIGAR — Últimos commits =====
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+62e61f8 PTP-113B.3.1B.5.2.3 ajuste visual campos críticos mobile FIX
+3ecd0b3 PTP-113B.3.1B.5.2.2 corrigir_marcadores_visiveis_mobile FIX
+2ec0408 PTP-113B.3.1B.5.2.1 finalize visual recovery saneamento mobile
+6777748 PTP-113B.3.1B.5.1.1 close toggle observer report recovery
+d76f24d PTP-113B.3.1B.5.1 toggle_observador_persistente PASS
+2a4d7cf PTP-113B.3.1B.5 add real observer state
+1a00840 PTP-113B.3.1B.4 sane mobile UI renderer
+6be04ce PTP-113B.3.1B.3 fix real contract data on mobile
+
+===== INVESTIGAR — Branch e remoto =====
+main
+origin	https://github.com/leon337/predixai-platform.git (fetch)
+origin	https://github.com/leon337/predixai-platform.git (push)
+
+===== INVESTIGAR — Arquivos principais =====
+OK: PROJECT_STATE.md existe
+OK: predixai_context.json existe
+OK: docs/reports_index.md existe
+OK: scripts/predixai_trader_mobile_server.py existe
+
+===== INVESTIGAR — Busca por sinal, histórico, saldo, sessão e endpoints =====
+45:from predixai.mobile.signal_screen import build_mobile_signal_screen
+47:from predixai.trader.mobile_session_contract import (
+48:    build_mobile_session_contract,
+49:    validate_mobile_session_contract,
+51:from predixai.trader.paper_trade import build_paper_trade_from_mobile_signal
+56:PRICE_HISTORY_PATH = RUNTIME_DIR / "live_price_history.json"
+58:SIGNALS_DB_PATH = RUNTIME_DIR / "predixai_trader_signals.db"
+59:MOBILE_SESSION_PATH = RUNTIME_DIR / "mobile_current_session.json"
+75:UNKNOWN_NO_HISTORY_REASON = "Sem preço válido entre 30s e 40s após o sinal"
+77:SIMULATED_START_ROUTES = {"/mobile/session/start", "/api/mobile/simulated-session/start"}
+183:    .signal { color: var(--yellow); }
+184:    .signal.up { color: var(--green); }
+185:    .signal.down { color: var(--red); }
+274:    .signals {
+278:    .signal-row {
+296:    .result.WIN { color: var(--green); }
+297:    .result.LOSS { color: var(--red); }
+298:    .result.DRAW, .result.PENDING, .result.WAITING_RESULT, .result.UNKNOWN { color: var(--yellow); }
+318:.ux-contract-card,
+326:.ux-contract-title {
+333:.ux-contract-grid {
+338:.ux-contract-item {
+344:.ux-contract-label {
+349:.ux-contract-value {
+400:  .ux-contract-grid {
+441:      <div id="signal" class="value signal">AGUARDAR</div>
+447:      <div id="signalInterval" class="muted">Análise de sinal: 3s</div>
+490:        <div class="metric"><span>WIN</span><strong id="statsWin">0</strong></div>
+491:        <div class="metric"><span>LOSS</span><strong id="statsLoss">0</strong></div>
+492:        <div class="metric"><span>DRAW</span><strong id="statsDraw">0</strong></div>
+496:      <div id="latestSignal" class="muted">Último sinal: -</div>
+503:      <div id="chartLegend" class="chart-note">Suporte: - / Resistência: - / Último sinal: -</div>
+508:      <div id="signals" class="signals">
+583:    function drawChart(points, support, resistance, signals) {
+606:      const signalValues = (signals || []).map(s => Number(s.entry_price ?? s.price)).filter(v => !Number.isNaN(v));
+611:      values.push(...signalValues);
+633:      function xForSignal(signal, fallbackIndex) {
+634:        const parsed = Date.parse(signal.emitted_at || signal.created_at || "");
+672:      (signals || []).slice(0, 8).forEach((signal, index) => {
+673:        const entry = Number(signal.entry_price ?? signal.price);
+675:        const x = xForSignal(signal, index);
+677:        const isUp = String(signal.direction || "").includes("ALTA");
+678:        const result = signal.result || signal.status || "WAITING_RESULT";
+684:        ctx.strokeStyle = result === "WIN" ? "#38d66b" : result === "LOSS" ? "#ff4d6d" : "#ffbf00";
+697:    function paintSignals(signals) {
+698:      const box = document.getElementById("signals");
+699:      if (!signals || signals.length === 0) {
+703:      box.innerHTML = signals.map(item => {
+711:        const unknownReason = result === "UNKNOWN" ? (item.result_reason || item.unknown_reason || "Sem preço válido entre 30s e 40s após o sinal") : "";
+712:        return `<div class="signal-row">
+714:            <strong>${item.signal || "-"} ${item.direction ? `(${item.direction})` : ""}</strong>
+729:      const latest = stats.latest_signal || null;
+739:        document.getElementById("latestSignal").textContent = "Último sinal: -";
+744:      document.getElementById("latestSignal").textContent = `Último sinal: ${latest.direction || "-"} / emitido ${fmtDateTime(latest.emitted_at || latest.created_at)} / entrada ${fmtPrice(latest.entry_price ?? latest.price)}`;
+748:      const latestReason = (latest.result || latest.status) === "UNKNOWN" ? ` / ${latest.result_reason || latest.unknown_reason || "Sem preço válido entre 30s e 40s após o sinal"}` : "";
+755:      document.getElementById("diagHistoryCount").textContent = diagnostics.history_count || 0;
+761:      document.getElementById("diagLastTimestamp").textContent = `Último timestamp: ${fmtDateTime(diagnostics.last_history_timestamp)}`;
+769:      const signal = state.signal || "AGUARDAR";
+779:      document.getElementById("signalInterval").textContent = `Análise de sinal: ${data.signal_analysis_interval || 3}s`;
+784:      const signalEl = document.getElementById("signal");
+785:      signalEl.textContent = signal;
+786:      signalEl.className = "value signal";
+787:      if (signal.includes("ALTA")) signalEl.classList.add("up");
+788:      if (signal.includes("BAIXA")) signalEl.classList.add("down");
+795:      badge.textContent = data.reader_running ? "RODANDO" : "PARADO";
+796:      badge.style.color = data.reader_running ? "#38d66b" : "#a8b5c6";
+797:      const signals = data.signals || [];
+798:      drawChart(data.price_history || data.history || [], data.support, data.resistance, signals);
+799:      paintSignals(data.signals || []);
+800:      paintStats(data.signal_stats || {});
+802:      const latest = (data.signal_stats || {}).latest_signal || signals[0] || null;
+804:        `Suporte: ${fmtPrice(data.support)} / Resistência: ${fmtPrice(data.resistance)} / preço: ${fmtPrice(state.price)} / hora: ${fmtDateTime((data.price_history || data.history || []).slice(-1)[0]?.timestamp)} / último sinal: ${latest ? `${latest.direction || "-"} ${latest.result || latest.status || "-"}` : "-"}`;
+819:      await fetch("/mobile/session/start", {
+823:          session: {
+824:            session_type: "TEST",
+825:            session_name: "PTP-113 simulated mobile-first"
+844:            max_signals: 10,
+847:          operation: {
+874:      const response = await fetch("/api/mobile/reset-session", { method: "POST" });
+1155:    const ms = state.mobile_session || {};
+1156:    const c = ms.contract || {};
+1162:      saldo: first(b.current_bankroll, b.balance, b.current_balance, ms.current_balance, state.current_balance),
+1163:      banca: first(b.initial_bankroll, b.starting_balance, b.initial_balance),
+1171:      modo: modeText(first(c.operational_mode, ms.operational_mode, ms.mode)),
+1173:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+1174:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+1175:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+1176:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+1177:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+1178:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+1198:          '<div class="px-metric"><div class="px-label">Saldo atual</div><div id="px-saldo" class="px-value big">-</div></div>' +
+1226:      "predixai-contract-card",
+1249:    const raw = state.price_ticks || state.price_history || state.ticks || state.history || [];
+1310:      set("px-saldo", brl(d.saldo));
+1322:        "simulation_only=" + d.simulation_only +
+1323:        " | orders_enabled=" + d.orders_enabled +
+1324:        " | real_money_enabled=" + d.real_money_enabled +
+1325:        " | auto_click_enabled=" + d.auto_click_enabled +
+1326:        " | broker_login_enabled=" + d.broker_login_enabled +
+1327:        " | credentials_allowed=" + d.credentials_allowed
+1515:    const lists = [state.history, state.signals, state.price_history, state.price_ticks];
+1529:      state.reader_running === true ||
+1542:  function operationalState(state) {
+1553:        signal: "Aguardando leitura atual",
+1555:        message: "Leitor/observador parado. Dados de preço e sinais exibidos abaixo devem ser tratados como histórico."
+1564:        signal: "Aguardando fonte visual",
+1575:        signal: "Aguardando nova leitura",
+1585:      signal: "Leitura atual disponível",
+1603:        '<div class="px-observer-item"><div class="px-observer-label">Sinal atual</div><div id="px-real-signal" class="px-observer-value warn">-</div></div>' +
+1631:    const d = operationalState(state);
+1636:    setText("px-real-signal", d.signal);
+1639:    setClassByLevel(el("px-real-signal"), d.level);
+1706:      const d = operationalState(state);
+1770:      setText("px-real-signal", "Aguardando");
+1913:  #px-observer-toggle-panel .px-history-grid {
+2016:    const running = Boolean(state?.reader_running || activeCount > 0 || readers.length > 0);
+2017:    const historyLast = latestItem(state?.history);
+2018:    const signalLast = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+2019:    const lastAge = ageSeconds(historyLast);
+2029:        message: "O painel atual não deve usar preço, ativo ou sinal histórico."
+2033:    if (!historyLast) {
+2053:        message: "Existe dado antigo, mas ele não será tratado como operação atual."
+2069:    const historyLast = latestItem(state?.history);
+2070:    const signal = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+2086:    const decision = signal?.decision || signal?.direction || "Aguardando leitura";
+2087:    const confidence = signal?.confidence !== undefined ? `${signal.confidence}%` : "-";
+2090:      ["Ativo atual", safeText(historyLast?.asset || state?.mobile_session?.asset)],
+2091:      ["Preço atual", brl(historyLast?.price_value ?? historyLast?.price)],
+2099:  function historyRows(state) {
+2100:    const historyLast = latestItem(state?.history);
+2101:    const signal = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+2103:    if (!historyLast && !signal) {
+2105:        ["Último histórico", "Nenhum histórico disponível"],
+2111:      ["Ativo", safeText(historyLast?.asset, "Histórico sem ativo")],
+2112:      ["Preço", historyLast ? brl(historyLast.price_value ?? historyLast.price) : "Histórico sem preço"],
+2113:      ["Horário", safeText(historyLast?.timestamp, "Sem horário")],
+2114:      ["Sinal histórico", safeText(signal?.decision || signal?.direction, "Sem sinal histórico")],
+2115:      ["Confiança histórica", signal?.confidence !== undefined ? `${signal.confidence}%` : "-"],
+2150:        O painel atual não deve usar dados históricos.
+2156:      <div class="px-section-label">Último histórico</div>
+2157:      <div class="px-history-grid" id="px-observer-history-grid"></div>
+2160:        Modo 100% simulado: sem ordem real, sem saldo real, sem login real e sem auto-click.
+2204:    const history = qs("#px-observer-history-grid", panel);
+2217:    history.innerHTML = historyRows(state).map(([a, b]) => row(a, b)).join("");
+2232:    document.querySelectorAll("section, article, .card, .panel, .metric-card, .signal-card").forEach((node) => {
+2241:        /preço|sinal|confiança|suporte|resistência|ativo/i.test(txt);
+2260:        history: [],
+2347:    "sinais abaixo sao historicos",
+2351:    "historico 1",
+2372:    if (text.includes("ultimo historico") && text.includes("historico nao operacional")) return false;
+2602:               t.includes("Último histórico") &&
+2748:          t.includes("Último histórico") &&
+2811:def _new_mobile_session() -> dict[str, Any]:
+2814:        "session_id": f"mobile_{now.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}",
+2818:        "orders_enabled": False,
+2819:        "created_by": "mobile_reset_session",
+2823:def _read_mobile_session() -> dict[str, Any]:
+2824:    session = _read_json(MOBILE_SESSION_PATH, {})
+2825:    return session if isinstance(session, dict) else {}
+2828:def _session_id(session: dict[str, Any] | None = None) -> str:
+2829:    data = session if session is not None else _read_mobile_session()
+2830:    return _as_text(data.get("session_id")) if isinstance(data, dict) else ""
+2833:def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None:
+2834:    data = session if session is not None else _read_mobile_session()
+2840:def _write_mobile_session(session: dict[str, Any]) -> None:
+2841:    _write_json(MOBILE_SESSION_PATH, session)
+2844:def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+2845:    if not session or not _is_valid_asset(asset):
+2847:    if session.get("asset") == asset:
+2849:    updated = {**session, "asset": asset, "updated_at": datetime.now().astimezone().isoformat()}
+2850:    _write_mobile_session(updated)
+2853:def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+2854:    started_at = _session_started_at(session)
+2863:def _metadata_session_id(value: Any) -> str:
+2865:    return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+2868:def _point_session_id(point: dict[str, Any]) -> str:
+2869:    return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+2872:def _point_matches_session(
+2874:    session: dict[str, Any],
+2878:    session_id = _session_id(session)
+2879:    point_session_id = _point_session_id(point)
+2880:    if session_id and point_session_id and point_session_id != session_id:
+2883:    started_at = _session_started_at(session)
+2898:def _filter_history_scope(
+2899:    history: list[dict[str, Any]],
+2900:    session: dict[str, Any],
+2906:        for point in history
+2907:        if _point_matches_session(point, session, expected_asset=asset)
+2956:def _reset_sqlite_operational_tables() -> list[str]:
+2957:    _ensure_signal_db()
+2961:        for table in ("signals", "price_ticks"):
+2975:def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]:
+2983:    planned_tables = sorted(_sqlite_tables(SIGNALS_DB_PATH) & {"signals", "price_ticks"})
+2989:            "session_id": None,
+2998:    session = _new_mobile_session()
+2999:    _write_mobile_session(session)
+3006:            "source": "mobile_reset_session",
+3007:            "session_id": session["session_id"],
+3008:            "timestamp": session["started_at"],
+3016:            "orders_enabled": False,
+3019:    reset_tables = _reset_sqlite_operational_tables()
+3023:        "session_id": session["session_id"],
+3062:def _simulated_contract_config(payload: dict[str, Any]) -> dict[str, Any]:
+3063:    session = _block(payload, "session")
+3067:    operation = _block(payload, "operation")
+3094:        "session": {
+3097:            "session_type": _safe_choice(session.get("session_type"), {"SCALPER", "DAY_TRADE", "TEST", "TRAINING"}, "TEST"),
+3100:            "session_notes": session.get("session_name") or "PTP-113 simulated mobile-first bridge",
+3122:            "max_signals": max(1, min(100, _int_number(risk.get("max_signals"), 10))),
+3124:            "payout_min": max(50, min(100, _int_number(operation.get("payout_min") or risk.get("payout_min"), 80))),
+3127:        "operation": {
+3128:            "expiration_seconds": max(30, _int_number(operation.get("expiration_seconds"), DEFAULT_EXPIRATION_SECONDS)),
+3172:def _write_simulated_history_points(
+3174:    session_id: str,
+3177:    mobile_signal: dict[str, Any],
+3180:    raw_history = _read_json(PRICE_HISTORY_PATH, [])
+3181:    if not isinstance(raw_history, list):
+3182:        raw_history = []
+3190:            "session_id": session_id,
+3194:            "confidence": mobile_signal.get("confidence"),
+3197:            "simulation_only": True,
+3199:            "orders_enabled": False,
+3200:            "auto_click_enabled": False,
+3201:            "real_money_enabled": False,
+3202:            "mobile_signal": mobile_signal,
+3203:            "paper_trade_session": paper_trade,
+3205:        raw_history.append(point)
+3208:    _write_json(PRICE_HISTORY_PATH, raw_history[-3000:])
+3209:    _ensure_signal_db()
+3224:                            "session_id": session_id,
+3225:                            "simulation_only": True,
+3226:                            "orders_enabled": False,
+3236:def _persist_paper_trade_signal(
+3238:    session_id: str,
+3241:    mobile_signal: dict[str, Any],
+3243:    contract: dict[str, Any],
+3245:    operations = paper_trade.get("operations") if isinstance(paper_trade, dict) else []
+3246:    if not operations:
+3249:    operation = operations[0]
+3250:    direction = str(operation.get("direction") or mobile_signal.get("decision") or "").upper()
+3254:    _ensure_signal_db()
+3257:        "session_id": session_id,
+3258:        "simulation_only": True,
+3260:        "orders_enabled": False,
+3261:        "auto_click_enabled": False,
+3262:        "real_money_enabled": False,
+3263:        "paper_trade_session": paper_trade,
+3264:        "mobile_signal": mobile_signal,
+3265:        "contract_version": contract.get("session", {}).get("contract_version"),
+3270:            INSERT INTO signals (
+3271:                created_at, asset, price, signal, direction, confidence,
+3273:                session_id, metadata_json, entry_price, support, resistance
+3283:                float(mobile_signal.get("confidence") or 0),
+3284:                _normalize_expiration_seconds(contract.get("operation", {}).get("expiration_seconds")),
+3285:                "PaperTradeSession simulado iniciado por /mobile/session/start.",
+3289:                session_id,
+3299:def _start_simulated_mobile_session(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+3301:    contract = build_mobile_session_contract(_simulated_contract_config(payload))
+3302:    ok, errors = validate_mobile_session_contract(contract)
+3309:            "simulation_only": True,
+
+===== INVESTIGAR — Funções/classes prováveis no mobile server =====
+2785:def _read_json(path: Path, default: Any) -> Any:
+2803:def _write_json(path: Path, payload: Any) -> None:
+2811:def _new_mobile_session() -> dict[str, Any]:
+2823:def _read_mobile_session() -> dict[str, Any]:
+2828:def _session_id(session: dict[str, Any] | None = None) -> str:
+2833:def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None:
+2840:def _write_mobile_session(session: dict[str, Any]) -> None:
+2844:def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+2853:def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+2863:def _metadata_session_id(value: Any) -> str:
+2868:def _point_session_id(point: dict[str, Any]) -> str:
+2872:def _point_matches_session(
+2898:def _filter_history_scope(
+2911:def _runtime_backup_sources() -> list[Path]:
+2927:def _create_runtime_backup(sources: list[Path]) -> Path:
+2946:def _sqlite_tables(path: Path) -> set[str]:
+2956:def _reset_sqlite_operational_tables() -> list[str]:
+2975:def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]:
+3032:def _as_bool(value: Any, default: bool = False) -> bool:
+3040:def _number(value: Any, default: float) -> float:
+3045:def _int_number(value: Any, default: int) -> int:
+3052:def _block(payload: dict[str, Any], name: str) -> dict[str, Any]:
+3057:def _safe_choice(value: Any, allowed: set[str], default: str) -> str:
+3062:def _simulated_contract_config(payload: dict[str, Any]) -> dict[str, Any]:
+3143:def _simulated_market_payload(payload: dict[str, Any]) -> tuple[str, float, float, list[float]]:
+3172:def _write_simulated_history_points(
+3236:def _persist_paper_trade_signal(
+3299:def _start_simulated_mobile_session(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+3418:def _parse_float(value: Any) -> float | None:
+3447:def _is_valid_price(value: float | None, asset: str | None = None) -> bool:
+3463:def _is_valid_asset(asset: Any) -> bool:
+3474:def _format_price_value(value: float | None) -> float | None:
+3480:def _normalize_expiration_seconds(value: Any = None) -> int:
+3490:def _stored_expiration_seconds(value: Any = None) -> int:
+3498:def _parse_dt(value: Any) -> datetime | None:
+3510:def _dt_timestamp(value: datetime) -> float:
+3516:def _now() -> datetime:
+3520:def _now_iso() -> str:
+3524:def _file_age_seconds(path: Path) -> int | None:
+3530:def _path_mtime(path: Path) -> float | None:
+3536:def _as_text(value: Any) -> str:
+3542:def _collect_texts(data: Any) -> list[str]:
+3559:def _asset_from_text(data: Any) -> str:
+3570:def _extract_value(data: Any, keys: set[str]) -> Any:
+3588:def _event_dt(data: Any) -> datetime | None:
+3592:def _latest_rejection(rejected: list[Any]) -> dict[str, Any] | None:
+3599:def _latest_event_is_rejection(last: dict[str, Any], latest_rejection: dict[str, Any] | None) -> bool:
+3613:def _collect_price_history(limit: int | None = HISTORY_LIMIT) -> list[dict[str, Any]]:
+3649:def _collect_history() -> list[dict[str, Any]]:
+3653:def _support_resistance(history: list[dict[str, Any]]) -> tuple[float | None, float | None]:
+3664:def _compute_signal(history: list[dict[str, Any]]) -> dict[str, Any]:
+3702:def _normalize_signal(value: Any) -> str:
+3717:def _ensure_signal_db() -> None:
+3772:def _metadata_from_json(value: Any) -> dict[str, Any]:
+3782:def _invalid_window_text(value: Any) -> bool:
+3805:def _point_metadata(point: dict[str, Any]) -> dict[str, Any]:
+3815:def _point_window_text(point: dict[str, Any]) -> str:
+3828:def _valid_price_point(
+3863:def _no_result_price_metadata(target_dt: datetime) -> dict[str, Any]:
+3876:def _price_from_points_near_target(
+3923:def _insert_price_tick(
+3952:def _history_price_near_target(
+3965:def _sqlite_price_tick_near_target(
+4000:def _result_price_near_target(
+4022:def _evaluate_signal_result(
+4042:def _check_pending_signals(history: list[dict[str, Any]]) -> None:
+4134:def _backfill_unknown_signals(history: list[dict[str, Any]]) -> int:
+4199:def _normalize_signal_result_consistency() -> int:
+4252:def _register_signal_if_needed(state: dict[str, Any], expiration_seconds: int) -> None:
+4370:def _decorate_signal(row: Any) -> dict[str, Any]:
+4413:def _signal_scope_where(
+4438:def _list_signals(
+4462:def _hit_rate_percent(win: int, loss: int, draw: int) -> float:
+4467:def _signal_stats(
+4524:def _price_ticks_count(
+4555:def _average_history_interval_seconds(history: list[dict[str, Any]]) -> float | None:
+4570:def _final_price_search_status(latest_signal: dict[str, Any] | None) -> str:
+4591:def _price_diagnostics(
+4616:def _reader_running() -> bool:
+4620:def _clear_reader_process_cache() -> None:
+4626:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+4634:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+4713:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+4719:def _start_reader(interval: Any) -> dict[str, Any]:
+4724:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+4827:def _stop_process_tree(pid: int) -> None:
+4844:def _stop_reader() -> dict[str, Any]:
+4871:def _local_ip() -> str:
+4886:def _build_state(
+5096:def _host_from_header(host_header: str | None) -> str:
+5103:def _port_from_header(host_header: str | None, default: int = DEFAULT_PORT) -> int:
+5112:def _json_bytes(payload: dict[str, Any]) -> bytes:
+5116:def _handle_get(
+5134:def _handle_post(
+5169:class MobileRequestHandler(BaseHTTPRequestHandler):
+5305:def predixai_visual_signal_contract():
+5332:def create_mobile_app() -> Flask:
+6113:def _run_audit_logic_smoke_test() -> bool:
+6397:def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
+6424:def smoke_test(port: int = DEFAULT_PORT) -> int:
+6524:def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+6532:def main(argv: list[str] | None = None) -> int:
+6546:def _ptp113b3151_num_v2(value, default=0.0):
+6555:def _ptp113b3151_bool_v2(value):
+6561:def _ptp113b3151_mode_v2(mode, enabled=True):
+6582:def _ptp113b3151_plan_v2(bankroll, entry, stop_loss, max_entry_limit, payout, mode, enabled, max_steps, strategy_risk="médio"):
+6672:def _ptp113b3151_enrich_dict_v2(data):
+6742:def _ptp113b3151_enhance_session_setup_html_v2(html):
+6820:def _ptp113b3151_setup_ui_block_v3():
+6843:def _ptp113b3151_force_setup_ui_v3(html):
+6911:def _ptp113b3151a_currency_controls_v1_assets():
+7186:def _ptp113b3151a_inject_currency_controls_v1(html):
+7232:def _ptp113b3151a1_currency_layout_assets_v1():
+7616:def _ptp113b3151a1_inject_currency_layout_v1(html):
+7662:def _ptp113b3151a51a6_disable_legacy_currency_controls_brl():
+
+===== INVESTIGAR — Marcadores PTP existentes no mobile server =====
+59:MOBILE_SESSION_PATH = RUNTIME_DIR / "mobile_current_session.json"
+60:MOBILE_BACKUPS_DIR = RUNTIME_DIR / "backups"
+76:SIMULATED_BRIDGE_SOURCE = "MOBILE_FIRST_SIMULATED_BRIDGE"
+97:MOBILE_HTML = r"""<!doctype html>
+317:/* PTP113B31B2_OBSERVADOR_CONTRACT_UX */
+825:            session_name: "PTP-113 simulated mobile-first"
+891:/* PTP113B31B4_SANEAMENTO_UI_MOBILE */
+1034:/* PTP113B31B4_SANEAMENTO_UI_MOBILE */
+1036:  const MARKER = "PTP113B31B4_SANEAMENTO_UI_MOBILE_RUNTIME";
+1386:/* PTP113B31B5_ESTADO_REAL_OBSERVADOR */
+1484:/* PTP113B31B5_ESTADO_REAL_OBSERVADOR */
+1486:  const MARKER = "PTP113B31B5_ESTADO_REAL_OBSERVADOR_RUNTIME";
+1794:<!-- PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START -->
+1973:  const MARKER = "PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_RUNTIME";
+2285:<!-- PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END -->
+2288:<!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START -->
+2325:  const MARKER = "PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_RUNTIME";
+2455:<!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END -->
+2457:<!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_START -->
+2550:  const MARKER = "PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_RUNTIME";
+2652:<!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_END -->
+2654:<!-- PTP113B31B524_CORRIGIR_TOPO_OBSERVADOR_MOBILE_START -->
+2679:  const MARKER = "PTP113B31B524_CORRIGIR_TOPO_OBSERVADOR_MOBILE_RUNTIME";
+2774:<!-- PTP113B31B524_CORRIGIR_TOPO_OBSERVADOR_MOBILE_END -->
+2824:    session = _read_json(MOBILE_SESSION_PATH, {})
+2841:    _write_json(MOBILE_SESSION_PATH, session)
+2919:            path.relative_to(MOBILE_BACKUPS_DIR)
+2929:    backup_dir = MOBILE_BACKUPS_DIR / f"mobile_reset_{timestamp}"
+2932:        backup_dir = MOBILE_BACKUPS_DIR / f"mobile_reset_{timestamp}_{suffix}"
+2980:        for path in (PRICE_HISTORY_PATH, LAST_READING_PATH, REJECTED_READINGS_PATH, MOBILE_SESSION_PATH)
+2981:        if path.exists() or path in {PRICE_HISTORY_PATH, LAST_READING_PATH, REJECTED_READINGS_PATH, MOBILE_SESSION_PATH}
+3100:            "session_notes": session.get("session_name") or "PTP-113 simulated mobile-first bridge",
+3102:            "start_mode": "MOBILE_SIMULATED_START",
+3410:            "mobile_session": str(MOBILE_SESSION_PATH),
+5123:        return 200, "text/html; charset=utf-8", MOBILE_HTML.encode("utf-8")
+5214:# PTP-113B.2.3 — Tela inicial e contrato visual do sinal
+5345:        return MOBILE_HTML
+5358:        return MOBILE_HTML
+5409:    # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+5592:        app.config["PTP113B31A_SESSION_CONTRACT"] = contract
+5723:        contract = app.config.get("PTP113B31A_SESSION_CONTRACT") or _ptp113b31a_build_contract(request.args)
+5731:            "version": "PTP-113B.3.1A",
+5768:            contract = app.config.get("PTP113B31A_SESSION_CONTRACT") or _ptp113b31a_build_contract({})
+5792:            response.headers["X-PTP113B31A-State-Enrich-Error"] = str(exc)[:180]
+5821:    # BEGIN PTP-113B.3.1A.3 POST SESSION SETUP FIX
+5834:    # END PTP-113B.3.1A.3 POST SESSION SETUP FIX
+5836:    # BEGIN PTP-113B.3.1A.4.1 PROFIT TARGET OVERRIDE
+5876:            app.config["PTP113B31A_SESSION_CONTRACT"] = contract
+5880:        app.config["PTP113B31A_SESSION_CONTRACT"] = contract
+6016:        contract = app.config.get("PTP113B31A_SESSION_CONTRACT") or _ptp113b31a41_build_contract(request.args)
+6018:            "version": "PTP-113B.3.1A.4.1",
+6063:            contract = app.config.get("PTP113B31A_SESSION_CONTRACT") or _ptp113b31a41_build_contract({})
+6086:            response.headers["X-PTP113B31A41-State-Enrich-Error"] = str(exc)[:180]
+6106:    # END PTP-113B.3.1A.4.1 PROFIT TARGET OVERRIDE
+6108:    # END PTP-113B.3.1A COMPLETE SESSION CONTRACT
+6426:    global REJECTED_READINGS_PATH, SIGNALS_DB_PATH, MOBILE_SESSION_PATH
+6434:        MOBILE_SESSION_PATH,
+6442:        MOBILE_SESSION_PATH = RUNTIME_DIR / "mobile_current_session.json"
+6502:            print(f"SMOKE_MOBILE_STATUS={mobile_status}")
+6511:            print(f"SMOKE_MOBILE_URL=http://{_local_ip()}:{port}/mobile")
+6520:                MOBILE_SESSION_PATH,
+6541:# PTP-113B.3.1A.5.1_SERVER_RECOVERY_RISK_HOOK_V2
+6771:    if "PTP-113B.3.1A.5.1_RECOVERY_PREVIEW_V2" not in html and "</form>" in html:
+6772:        preview = '<div class="box" id="recoveryPreview" data-ptp="PTP-113B.3.1A.5.1_RECOVERY_PREVIEW_V2"><div class="k">Gestão simulada de recuperação e risco</div><div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, risco combinado e alerta.</div></div>'
+6805:                    response.headers["X-PTP113B3151-Warning"] = str(exc)[:120]
+6816:# PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3
+6822:        '<section class="box" data-ptp="PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3">',
+6847:    if "PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3" in html:
+6899:                    response.headers["X-PTP113B3151-SetupUI-Warning"] = str(exc)[:120]
+6910:# PTP-113B.3.1A.5.1A_CURRENCY_CONTROLS_BRL_V1
+6987:    // PTP-113B.3.1A.5.1A.8_NORMALIZE_PARSE_BRL
+7179:  window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+7190:    if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+7220:                    response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+7231:# PTP-113B.3.1A.5.1A.1_CURRENCY_LAYOUT_RECOVERY_LOGIC_V1
+7311:    // PTP-113B.3.1A.5.1A.8_NORMALIZE_PARSE_BRL
+7611:  window.PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC = true;
+7620:    if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
+7650:                    response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+7661:# PTP-113B.3.1A.5.1A.6_FIX_STEPPER_GUARD
+7674:      PTP113B3151A_CURRENCY_CONTROLS_BRL.
+7675:    - Mantém o bloco mais novo PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC.
+7677:    legacy_marker = "PTP113B3151A_CURRENCY_CONTROLS_BRL"
+7720:        globals()["_PTP113B3151A51A6_DISABLED_LEGACY_CURRENCY_CONTROLS"] = tuple(disabled)
+7723:        globals()["_PTP113B3151A51A6_DISABLED_LEGACY_CURRENCY_CONTROLS_ERROR"] = str(_exc)[:200]
+
+===== INVESTIGAR — Possíveis duplicações de funções/blocos =====
+Contagem parseMoney:
+19
+Contagem formatBRL:
+7
+Contagem reader_running:
+9
+Contagem mobile_session:
+75
+Contagem signals:
+118
+Contagem history:
+146
+
+===== INVESTIGAR — Fontes de memória do projeto =====
+docs/history/ptp/PTP-113/PTP-113B/20260706_221447_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_VALIDATE.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_223719_PTP-113B.3.1A.5.1A.7_restart_validate_stepper_brl_VALIDATE.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_225941_PTP-113B.3.1A.5.1A.9_visual_pass_stepper_brl_PASS.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_232339_PTP-113B.3.1B.1_audit_observador_mobile_AUDIT.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_233221_PTP-113B.3.1B.2_contrato_observador_mobile_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_234628_PTP-113B.3.1B.2.1_publicar_observador_ux_PUBLISH.md
+docs/history/ptp/PTP-113/PTP-113B/20260706_235822_PTP-113B.3.1B.3_contrato_real_mobile_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_000718_PTP-113B.3.1B.4_saneamento_ui_mobile_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_002139_PTP-113B.3.1B.5_estado_real_observador_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_085541_PTP-113B.3.1B.5.1.1_fechar_relatorio_toggle_observador_RECOVERY_PASS.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_090703_PTP-113B.3.1B.5.2.1_finalizar_recovery_saneamento_visual_mobile_FINAL_PASS.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_093440_PTP-113B.3.1B.5.2.4_corrigir_topo_observador_mobile_FIX.md
+docs/history/ptp/PTP-113/PTP-113B/20260707_094732_PTP-113B.3.1B.5.2.5_registrar_pass_visual_pos_zoom_observador_mobile_PASS.md
+docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md
+docs/protocols/PREDIXAI_CHAT_PROTOCOL.md
+docs/protocols/PREDIXAI_CHECKPOINT_TEMPLATE.md
+docs/protocols/PREDIXAI_EXECUTION_POLICY.md
+docs/protocols/PREDIXAI_PROJECT_INSTRUCTION.md
+docs/protocols/PREDIXAI_PROJECT_SOURCE_TEMPLATE.md
+docs/protocols/PREDIXAI_PTP_HISTORY_TEMPLATE.md
+docs/protocols/PREDIXAI_SKILLS.md
+
+===== PLANEJAR — Mapa técnico esperado para PTP 113 C =====
+A PTP 113 C deve ser dividida em:
+
+1. PTP 113 C.1 — Auditoria do Estado Atual
+   Resultado esperado: mapa de reaproveitamento.
+
+2. PTP 113 C.2 — Modelo do Sinal Atual
+   Não pode usar histórico antigo como sinal atual.
+
+3. PTP 113 C.3 — Abertura Simulada da Operação
+   Deve registrar preço de abertura, horário, direção, entrada e expiração.
+
+4. PTP 113 C.4 — Fechamento Simulado WIN/LOSS/DRAW
+   Deve comparar abertura e fechamento simulados/controlados.
+
+5. PTP 113 C.5 — Atualização da Banca Simulada
+   Só altera saldo após operação simulada válida.
+
+6. PTP 113 C.6 — Histórico Operacional
+   Deve registrar ciclo auditável.
+
+Regra de reaproveitamento:
+- Se já existir função útil: reaproveitar.
+- Se existir função parecida: adaptar.
+- Se existir duplicação: consolidar.
+- Se não existir estrutura: criar bloco novo limpo em etapa futura.
+
+===== CONSTRUIR — Sem alteração de lógica =====
+Nenhuma lógica operacional foi alterada nesta auditoria.
+Nenhum arquivo Python foi modificado.
+Nenhum endpoint foi criado ou removido.
+Nenhum saldo foi alterado.
+Nenhum sinal foi gerado.
+
+===== VALIDAR — py_compile =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:6972: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:7233: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PY_COMPILE_EXIT=0
+
+===== VALIDAR — git diff check =====
+GIT_DIFF_CHECK_EXIT=0
+
+===== VALIDAR — Endpoint /mobile =====
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.8 Python/3.12.3
+Date: Tue, 07 Jul 2026 13:04:25 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 86874
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Connection: close
+
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — Endpoint /api/mobile/state =====
+CURL_STATE_EXIT=0
+{
+    "active_reader_count": 0,
+    "active_readers": [],
+    "db_path": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db",
+    "expiration_seconds": 30,
+    "history": [
+        {
+            "asset": "Cafeina Index",
+            "confidence": 95.0,
+            "index": 614,
+            "metadata_json": null,
+            "price": 4182.1,
+            "price_value": 4182.1,
+            "session_id": "mobile_20260707_004636_594de56d",
+            "source": "MOBILE_FIRST_SIMULATED_BRIDGE",
+            "source_ocr_text": null,
+            "status": "SIMULATED",
+            "timestamp": "2026-07-07T00:46:36.450951-03:00",
+            "window_title": null
+        }
+    ],
+    "mobile_session": {
+        "asset": "Cafeina Index",
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "confluence_result": {
+            "asset": "Cafeina Index",
+            "final_confidence": 95.0,
+            "level": "ALTA",
+            "reason": "Conflu\u00eancia aprovada por decis\u00e3o direcional v\u00e1lida e confian\u00e7a m\u00ednima atingida.",
+            "status": "APROVADO",
+            "strategy_decision": "ALTA",
+            "timestamp": "2026-07-07T03:46:36.436307+00:00"
+        },
+        "contract": {
+            "simulation_only": true,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "credentials_allowed": false,
+            "operational_mode": {
+                "key": "scalper",
+                "label": "Scalper",
+                "description": "Sess\u00e3o curta, com foco em sinais r\u00e1pidos e controle r\u00edgido."
+            },
+            "strategy": {
+                "key": "simple_confluence",
+                "label": "Conflu\u00eancia simples",
+                "risk": "baixo/m\u00e9dio",
+                "description": "S\u00f3 libera sinal quando m\u00faltiplos crit\u00e9rios t\u00e9cnicos concordam."
+            },
+            "bankroll": {
+                "currency": "BRL",
+                "initial_bankroll": 100.0,
+                "current_bankroll": 100.0,
+                "current_entry": 5.0,
+                "profit_loss": 0.0,
+                "profit_loss_percent": 0.0
+            },
+            "risk": {
+                "profile": "conservador",
+                "entry_percent_of_bankroll": 5.0,
+                "estimated_consumption_1h": 25.0,
+                "estimated_consumption_percent_1h": 25.0
+            },
+            "expiration": {
+                "seconds": 60,
+                "label": "1 minuto(s)"
+            },
+            "preview": {
+                "estimated_signals_5m": 1,
+                "estimated_signals_1h": 5,
+                "session_classification": "seletiva",
+                "recommendation": "Operar somente em modo simulado e cancelar se o pre\u00e7o fugir da zona.",
+                "general_safety_rule": "O cancelamento espec\u00edfico ser\u00e1 exibido junto do sinal gerado.",
+                "cancel_alert": "Cancelamento espec\u00edfico ser\u00e1 calculado no sinal conforme ativo, pre\u00e7o, hor\u00e1rio e estrat\u00e9gia."
+            },
+            "required_visual_fields": [
+                "ativo",
+                "direcao",
+                "horario_entrada",
+                "preco_referencia",
+                "tempo_expiracao",
+                "alerta_cancelamento",
+                "explicacao",
+                "confianca",
+                "status",
+                "modo_operacional",
+                "estrategia_geradora",
+                "banca_simulada",
+                "saldo_atual",
+                "entrada_simulada",
+                "risco",
+                "estimativa_sinais_5m",
+                "estimativa_sinais_1h",
+                "lucro_desejado_sessao",
+                "saldo_alvo_sessao",
+                "cancelamento_especifico_no_sinal"
+            ],
+            "security": {
+                "simulation_only": true,
+                "orders_enabled": false,
+                "real_money_enabled": false,
+                "auto_click_enabled": false,
+                "broker_login_enabled": false,
+                "credentials_allowed": false
+            },
+            "profit_target": {
+                "desired_profit": 25.0,
+                "target_bankroll": 125.0,
+                "target_profit_percent": 25.0,
+                "label": "R$ 25.00",
+                "note": "Meta de lucro apenas simulada para esta sess\u00e3o."
+            }
+        },
+        "mobile_signal": {
+            "asset": "Cafeina Index",
+            "bank_mode": "SIMULADO",
+            "confidence": 95.0,
+            "confluence_level": "ALTA",
+            "decision": "ALTA",
+            "generated_at": "2026-07-07T03:46:36.436387+00:00",
+            "session_status": "SIMULADA",
+            "status": "APROVADO"
+        },
+        "mode": "mobile_first_simulated",
+        "orders_enabled": false,
+        "paper_trade_session": {
+            "current_balance": 100.0,
+            "initial_balance": 100.0,
+            "operations": [
+                {
+                    "asset": "Cafeina Index",
+                    "closed_at": null,
+                    "confidence": 95,
+                    "direction": "ALTA",
+                    "entry_value": 5.0,
+                    "opened_at": "2026-07-07T03:46:36.436464+00:00",
+                    "operation_id": "edaed029-c6e6-469f-81e9-d855d1da0cce",
+                    "result_value": null,
+                    "source": "MOBILE_SIMULATED_SESSION",
+                    "status": "PENDING"
+                }
+            ],
+            "operations_count": 1,
+            "session_id": "mobile_20260707_004636_594de56d"
+        },
+        "real_money_enabled": false,
+        "session_id": "mobile_20260707_004636_594de56d",
+        "simulation_only": true,
+        "source": "MOBILE_FIRST_SIMULATED_BRIDGE",
+        "started_at": "2026-07-07T00:46:36.434909-03:00",
+        "strategy_decision": {
+            "asset": "Cafeina Index",
+            "confidence": 95.0,
+            "decision": "ALTA",
+            "reason": "Pre\u00e7o atual acima do pre\u00e7o anterior.",
+            "timestamp": "2026-07-07T03:46:36.436249+00:00"
+        },
+        "bankroll": {},
+        "risk": {
+            "profile": "conservador",
+            "entry_percent_of_bankroll": 5.0,
+            "estimated_consumption_1h": 25.0,
+            "estimated_consumption_percent_1h": 25.0
+        },
+        "recovery": {
+            "recovery_enabled": false,
+            "recovery_mode": "NONE",
+            "max_recovery_steps": 0,
+            "entry_sequence": [
+                5.0
+            ],
+            "next_entry": 5.0,
+            "max_entry": 5.0,
+            "exposure_max": 5.0,
+            "exposure_percent": 5.0,
+            "combined_risk": "BAIXO",
+            "risk_alert": "Risco simulado baixo.",
+            "recovery_plan": {
+                "mode": "NONE",
+                "enabled": false,
+                "max_recovery_steps": 0,
+                "entry_sequence": [
+                    5.0
+                ],
+                "next_entry": 5.0,
+                "max_entry": 5.0,
+                "exposure_max": 5.0,
+                "exposure_percent": 5.0,
+                "combined_risk": "BAIXO",
+                "risk_alert": "Risco simulado baixo.",
+                "reason": "Sem recupera\u00e7\u00e3o.",
+                "payout_reference": 80.0
+            }
+        },
+        "risk_management": {
+            "payout": 80.0,
+            "stop_loss": 20.0,
+            "max_entry_limit": 20.0,
+            "recovery_plan": {
+                "mode": "NONE",
+                "enabled": false,
+                "max_recovery_steps": 0,
+                "entry_sequence": [
+                    5.0
+                ],
+                "next_entry": 5.0,
+                "max_entry": 5.0,
+                "exposure_max": 5.0,
+                "exposure_percent": 5.0,
+                "combined_risk": "BAIXO",
+                "risk_alert": "Risco simulado baixo.",
+                "reason": "Sem recupera\u00e7\u00e3o.",
+                "payout_reference": 80.0
+            },
+            "combined_risk": "BAIXO",
+            "risk_alert": "Risco simulado baixo."
+        },
+        "profit_target": {
+            "desired_profit": 25.0,
+            "target_bankroll": 125.0,
+            "target_profit_percent": 25.0,
+            "label": "R$ 25.00",
+            "note": "Meta de lucro apenas simulada para esta sess\u00e3o."
+        },
+        "simulated_bankroll": {
+            "currency": "BRL",
+            "initial_bankroll": 100.0,
+            "current_bankroll": 100.0,
+            "current_entry": 5.0,
+            "profit_loss": 0.0,
+            "profit_loss_percent": 0.0
+        },
+        "operational_mode": {
+            "key": "scalper",
+            "label": "Scalper",
+            "description": "Sess\u00e3o curta, com foco em sinais r\u00e1pidos e controle r\u00edgido."
+        },
+        "strategy": {
+            "key": "simple_confluence",
+            "label": "Conflu\u00eancia simples",
+            "risk": "baixo/m\u00e9dio",
+            "description": "S\u00f3 libera sinal quando m\u00faltiplos crit\u00e9rios t\u00e9cnicos concordam."
+        },
+        "preview": {
+            "estimated_signals_5m": 1,
+            "estimated_signals_1h": 5,
+            "session_classification": "seletiva",
+            "recommendation": "Operar somente em modo simulado e cancelar se o pre\u00e7o fugir da zona.",
+            "general_safety_rule": "O cancelamento espec\u00edfico ser\u00e1 exibido junto do sinal gerado.",
+            "cancel_alert": "Cancelamento espec\u00edfico ser\u00e1 calculado no sinal conforme ativo, pre\u00e7o, hor\u00e1rio e estrat\u00e9gia."
+        }
+    },
+    "mobile_url": "http://192.168.10.101:8766/mobile",
+    "notice": "Modo observador. N\u00e3o \u00e9 recomenda\u00e7\u00e3o financeira.",
+    "price_diagnostics": {
+        "average_interval_seconds": null,
+        "final_price_search_status": "UNKNOWN_AFTER_MARGIN",
+        "history_count": 1,
+        "last_history_timestamp": "2026-07-07T00:46:36.450951-03:00",
+        "last_price_age_seconds": 33469,
+        "price_ticks_count": 1,
+        "waiting_result_count": 0
+    },
+    "price_history": [
+        {
+            "asset": "Cafeina Index",
+            "price": 4182.1,
+            "price_value": 4182.1,
+            "timestamp": "2026-07-07T00:46:36.450951-03:00"
+        }
+    ],
+    "reader_interval": 3,
+    "reader_running": false,
+    "reader_warning": "",
+    "recent_rejections": [],
+    "resistance": 4182.1,
+    "runtime": {
+        "last_live_reading": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/last_live_reading.json",
+        "live_price_history": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/live_price_history.json",
+        "rejected_live_readings": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/rejected_live_readings.json"
+    },
+    "signal_analysis_interval": 3,
+    "signal_stats": {
+        "closed": 1,
+        "draw": 0,
+        "hit_rate_percent": 0.0,
+        "latest_signal": {
+            "asset": "Cafeina Index",
+            "confidence": 95.0,
+            "created_at": "2026-07-07T00:46:36.576021-03:00",
+            "delta": null,
+            "direction": "ALTA",
+            "emitted_at": "2026-07-07T00:46:36.576021-03:00",
+            "entry_price": 4182.1,
+            "expiration_seconds": 30,
+            "expires_at": "2026-07-07T00:47:06.576021-03:00",
+            "id": 18,
+            "metadata_json": "{\"session_id\": \"mobile_20260707_004636_594de56d\", \"simulation_only\": true, \"observer_only\": true, \"orders_enabled\": false, \"auto_click_enabled\": false, \"real_money_enabled\": false, \"paper_trade_session\": {\"session_id\": \"mobile_20260707_004636_594de56d\", \"initial_balance\": 100.0, \"current_balance\": 100.0, \"operations\": [{\"operation_id\": \"edaed029-c6e6-469f-81e9-d855d1da0cce\", \"asset\": \"Cafeina Index\", \"direction\": \"ALTA\", \"confidence\": 95, \"entry_value\": 5.0, \"status\": \"PENDING\", \"result_value\": null, \"opened_at\": \"2026-07-07T03:46:36.436464+00:00\", \"closed_at\": null, \"source\": \"MOBILE_SIMULATED_SESSION\"}], \"operations_count\": 1}, \"mobile_signal\": {\"asset\": \"Cafeina Index\", \"decision\": \"ALTA\", \"confidence\": 95.0, \"confluence_level\": \"ALTA\", \"status\": \"APROVADO\", \"session_status\": \"SIMULADA\", \"bank_mode\": \"SIMULADO\", \"generated_at\": \"2026-07-07T03:46:36.436387+00:00\"}, \"contract_version\": \"1.1\", \"result_reason\": \"Sem pre\u00e7o v\u00e1lido entre 30s e 40s ap\u00f3s o sinal\", \"target_time\": \"2026-07-07T00:47:06.576021-03:00\", \"search_window_end\": \"2026-07-07T00:47:16.576021-03:00\", \"tolerance_seconds\": 10, \"result_price_search_status\": \"UNKNOWN_AFTER_MARGIN\", \"result_price_source\": \"none\", \"unknown_after\": \"2026-07-07T00:47:51.576021-03:00\"}",
+            "price": 4182.1,
+            "reason": "PaperTradeSession simulado iniciado por /mobile/session/start.",
+            "remaining_seconds": 0,
+            "resistance": null,
+            "result": "UNKNOWN",
+            "result_checked_at": "2026-07-07T00:47:53.132704-03:00",
+            "result_price": null,
+            "result_price_delta_seconds": null,
+            "result_price_search_status": "UNKNOWN_AFTER_MARGIN",
+            "result_price_source": "none",
+            "result_price_timestamp": null,
+            "result_reason": "Sem pre\u00e7o v\u00e1lido entre 30s e 40s ap\u00f3s o sinal",
+            "search_window_end": "2026-07-07T00:47:16.576021-03:00",
+            "session_id": "mobile_20260707_004636_594de56d",
+            "signal": "OBSERVAR ALTA",
+            "source": "MOBILE_FIRST_SIMULATED_BRIDGE",
+            "status": "UNKNOWN",
+            "support": null,
+            "target_time": "2026-07-07T00:47:06.576021-03:00",
+            "unknown_after": "2026-07-07T00:47:51.576021-03:00",
+            "unknown_reason": "Sem pre\u00e7o v\u00e1lido entre 30s e 40s ap\u00f3s o sinal"
+        },
+        "loss": 0,
+        "pending": 0,
+        "total": 1,
+        "unknown": 1,
+        "win": 0
+    },
+    "signals": [
+        {
+            "asset": "Cafeina Index",
+            "confidence": 95.0,
+            "created_at": "2026-07-07T00:46:36.576021-03:00",
+            "delta": null,
+            "direction": "ALTA",
+            "emitted_at": "2026-07-07T00:46:36.576021-03:00",
+            "entry_price": 4182.1,
+            "expiration_seconds": 30,
+            "expires_at": "2026-07-07T00:47:06.576021-03:00",
+            "id": 18,
+            "metadata_json": "{\"session_id\": \"mobile_20260707_004636_594de56d\", \"simulation_only\": true, \"observer_only\": true, \"orders_enabled\": false, \"auto_click_enabled\": false, \"real_money_enabled\": false, \"paper_trade_session\": {\"session_id\": \"mobile_20260707_004636_594de56d\", \"initial_balance\": 100.0, \"current_balance\": 100.0, \"operations\": [{\"operation_id\": \"edaed029-c6e6-469f-81e9-d855d1da0cce\", \"asset\": \"Cafeina Index\", \"direction\": \"ALTA\", \"confidence\": 95, \"entry_value\": 5.0, \"status\": \"PENDING\", \"result_value\": null, \"opened_at\": \"2026-07-07T03:46:36.436464+00:00\", \"closed_at\": null, \"source\": \"MOBILE_SIMULATED_SESSION\"}], \"operations_count\": 1}, \"mobile_signal\": {\"asset\": \"Cafeina Index\", \"decision\": \"ALTA\", \"confidence\": 95.0, \"confluence_level\": \"ALTA\", \"status\": \"APROVADO\", \"session_status\": \"SIMULADA\", \"bank_mode\": \"SIMULADO\", \"generated_at\": \"2026-07-07T03:46:36.436387+00:00\"}, \"contract_version\": \"1.1\", \"result_reason\": \"Sem pre\u00e7o v\u00e1lido entre 30s e 40s ap\u00f3s o sinal\", \"target_time\": \"2026-07-07T00:47:06.576021-03:00\", \"search_window_end\": \"2026-07-07T00:47:16.576021-03:00\", \"tolerance_seconds\": 10, \"result_price_search_status\": \"UNKNOWN_AFTER_MARGIN\", \"result_price_source\": \"none\", \"unknown_after\": \"2026-07-07T00:47:51.576021-03:00\"}",
+            "price": 4182.1,
+            "reason": "PaperTradeSession simulado iniciado por /mobile/session/start.",
+            "remaining_seconds": 0,
+            "resistance": null,
+            "result": "UNKNOWN",
+            "result_checked_at": "2026-07-07T00:47:53.132704-03:00",
+            "result_price": null,
+            "result_price_delta_seconds": null,
+            "result_price_search_status": "UNKNOWN_AFTER_MARGIN",
+            "result_price_source": "none",
+            "result_price_timestamp": null,
+            "result_reason": "Sem pre\u00e7o v\u00e1lido entre 30s e 40s ap\u00f3s o sinal",
+            "search_window_end": "2026-07-07T00:47:16.576021-03:00",
+            "session_id": "mobile_20260707_004636_594de56d",
+            "signal": "OBSERVAR ALTA",
+            "source": "MOBILE_FIRST_SIMULATED_BRIDGE",
+            "status": "UNKNOWN",
+            "support": null,
+            "target_time": "2026-07-07T00:47:06.576021-03:00",
+            "unknown_after": "2026-07-07T00:47:51.576021-03:00",
+            "unknown_reason": "Sem pre\u00e7o v\u00e1lido entre 30s e 40s ap\u00f3s o sinal"
+        }
+    ],
+    "simulation_notice": "Modo observador/simulado. N\u00e3o executa ordens.",
+    "state": {
+        "asset": "Cafeina Index",
+        "confidence": 95.0,
+        "direction": "ALTA",
+        "expiration_seconds": 30,
+        "last_reading_age_seconds": 33469,
+        "last_runtime_status": "SIMULATED_SESSION_READY",
+        "last_window_title": null,
+        "message": "Leitor parado. Sinais abaixo s\u00e3o hist\u00f3ricos.",
+        "price": 4182.1,
+        "reader_warning": "",
+        "reason": "Conflu\u00eancia aprovada por decis\u00e3o direcional v\u00e1lida e confian\u00e7a m\u00ednima atingida.",
+        "resistance": 4182.1,
+        "session_id": "mobile_20260707_004636_594de56d",
+        "signal": "OBSERVAR ALTA",
+        "status": "Parado",
+        "support": 4182.1,
+        "valid_readings": 1
+    },
+    "support": 4182.1,
+    "risk_management": {
+        "payout": 80.0,
+        "stop_loss": 20.0,
+        "max_entry_limit": 20.0,
+        "recovery_plan": {
+            "mode": "NONE",
+            "enabled": false,
+            "max_recovery_steps": 0,
+            "entry_sequence": [
+                5.0
+            ],
+            "next_entry": 5.0,
+            "max_entry": 5.0,
+            "exposure_max": 5.0,
+            "exposure_percent": 5.0,
+            "combined_risk": "BAIXO",
+            "risk_alert": "Risco simulado baixo.",
+            "reason": "Sem recupera\u00e7\u00e3o.",
+            "payout_reference": 80.0
+        },
+        "combined_risk": "BAIXO",
+        "risk_alert": "Risco simulado baixo."
+    },
+    "recovery_plan": {
+        "mode": "NONE",
+        "enabled": false,
+        "max_recovery_steps": 0,
+        "entry_sequence": [
+            5.0
+        ],
+        "next_entry": 5.0,
+        "max_entry": 5.0,
+        "exposure_max": 5.0,
+        "exposure_percent": 5.0,
+        "combined_risk": "BAIXO",
+        "risk_alert": "Risco simulado baixo.",
+        "reason": "Sem recupera\u00e7\u00e3o.",
+        "payout_reference": 80.0
+    },
+    "profit_target": {
+        "desired_profit": 25.0,
+        "target_bankroll": 125.0,
+        "target_profit_percent": 25.0,
+        "label": "R$ 25.00",
+        "note": "Meta de lucro apenas simulada para esta sess\u00e3o."
+    },
+    "simulation_only": true,
+    "orders_enabled": false,
+    "real_money_enabled": false,
+    "auto_click_enabled": false,
+    "ptp113b31a41_profit_target_ready": true,
+    "broker_login_enabled": false,
+    "credentials_allowed": false,
+    "ptp113b31a_contract_complete": true
+}
+
+===== VALIDAR — Endpoint /api/mobile/signal/contract =====
+CURL_CONTRACT_EXIT=0
+{
+    "available_operational_modes": {
+        "day_trade": "Day Trade \u2014 sinais mais seletivos",
+        "scalper": "Scalper \u2014 sinais r\u00e1pidos"
+    },
+    "available_strategies": {
+        "breakout": {
+            "description": "Busca rompimento de zona relevante com confirma\u00e7\u00e3o m\u00ednima.",
+            "label": "Rompimento",
+            "risk": "alto",
+            "signals_1h_day_trade": 3,
+            "signals_1h_scalper": 7,
+            "signals_5m_day_trade": 0,
+            "signals_5m_scalper": 1
+        },
+        "candle_reversal": {
+            "description": "Busca sinais de revers\u00e3o ap\u00f3s movimento curto ou esticado.",
+            "label": "Revers\u00e3o de vela",
+            "risk": "m\u00e9dio/alto",
+            "signals_1h_day_trade": 4,
+            "signals_1h_scalper": 10,
+            "signals_5m_day_trade": 0,
+            "signals_5m_scalper": 1
+        },
+        "moving_average_trend": {
+            "description": "Usa dire\u00e7\u00e3o das m\u00e9dias para filtrar compra, venda ou aguardar.",
+            "label": "Tend\u00eancia por m\u00e9dias",
+            "risk": "m\u00e9dio",
+            "signals_1h_day_trade": 2,
+            "signals_1h_scalper": 6,
+            "signals_5m_day_trade": 0,
+            "signals_5m_scalper": 0
+        },
+        "pullback": {
+            "description": "Aguarda retorno do pre\u00e7o para uma zona antes de sugerir entrada.",
+            "label": "Pullback",
+            "risk": "m\u00e9dio",
+            "signals_1h_day_trade": 2,
+            "signals_1h_scalper": 6,
+            "signals_5m_day_trade": 0,
+            "signals_5m_scalper": 1
+        },
+        "simple_confluence": {
+            "description": "S\u00f3 libera sinal quando m\u00faltiplos crit\u00e9rios t\u00e9cnicos concordam.",
+            "label": "Conflu\u00eancia simples",
+            "risk": "baixo/m\u00e9dio",
+            "signals_1h_day_trade": 2,
+            "signals_1h_scalper": 5,
+            "signals_5m_day_trade": 0,
+            "signals_5m_scalper": 1
+        },
+        "support_resistance": {
+            "description": "Busca zonas de suporte/resist\u00eancia e aguarda rea\u00e7\u00e3o do pre\u00e7o.",
+            "label": "Suporte e resist\u00eancia",
+            "risk": "m\u00e9dio",
+            "signals_1h_day_trade": 3,
+            "signals_1h_scalper": 8,
+            "signals_5m_day_trade": 0,
+            "signals_5m_scalper": 1
+        }
+    },
+    "contract": {
+        "auto_click_enabled": false,
+        "bankroll": {
+            "currency": "BRL",
+            "current_bankroll": 100.0,
+            "current_entry": 5.0,
+            "initial_bankroll": 100.0,
+            "profit_loss": 0.0,
+            "profit_loss_percent": 0.0
+        },
+        "broker_login_enabled": false,
+        "credentials_allowed": false,
+        "expiration": {
+            "label": "1 minuto(s)",
+            "seconds": 60
+        },
+        "operational_mode": {
+            "description": "Sess\u00e3o curta, com foco em sinais r\u00e1pidos e controle r\u00edgido.",
+            "key": "scalper",
+            "label": "Scalper"
+        },
+        "orders_enabled": false,
+        "preview": {
+            "cancel_alert": "Cancelamento espec\u00edfico ser\u00e1 calculado no sinal conforme ativo, pre\u00e7o, hor\u00e1rio e estrat\u00e9gia.",
+            "estimated_signals_1h": 5,
+            "estimated_signals_5m": 1,
+            "general_safety_rule": "O cancelamento espec\u00edfico ser\u00e1 exibido junto do sinal gerado.",
+            "recommendation": "Operar somente em modo simulado e cancelar se o pre\u00e7o fugir da zona.",
+            "session_classification": "seletiva"
+        },
+        "profit_target": {
+            "desired_profit": 25.0,
+            "label": "R$ 25.00",
+            "note": "Meta de lucro apenas simulada para esta sess\u00e3o.",
+            "target_bankroll": 125.0,
+            "target_profit_percent": 25.0
+        },
+        "real_money_enabled": false,
+        "required_visual_fields": [
+            "ativo",
+            "direcao",
+            "horario_entrada",
+            "preco_referencia",
+            "tempo_expiracao",
+            "alerta_cancelamento",
+            "explicacao",
+            "confianca",
+            "status",
+            "modo_operacional",
+            "estrategia_geradora",
+            "banca_simulada",
+            "saldo_atual",
+            "entrada_simulada",
+            "risco",
+            "estimativa_sinais_5m",
+            "estimativa_sinais_1h",
+            "lucro_desejado_sessao",
+            "saldo_alvo_sessao",
+            "cancelamento_especifico_no_sinal"
+        ],
+        "risk": {
+            "entry_percent_of_bankroll": 5.0,
+            "estimated_consumption_1h": 25.0,
+            "estimated_consumption_percent_1h": 25.0,
+            "profile": "conservador",
+            "max_entry_limit": 20.0
+        },
+        "security": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true
+        },
+        "simulation_only": true,
+        "strategy": {
+            "description": "S\u00f3 libera sinal quando m\u00faltiplos crit\u00e9rios t\u00e9cnicos concordam.",
+            "key": "simple_confluence",
+            "label": "Conflu\u00eancia simples",
+            "risk": "baixo/m\u00e9dio"
+        },
+        "recovery": {
+            "recovery_enabled": false,
+            "recovery_mode": "NONE",
+            "max_recovery_steps": 0,
+            "entry_sequence": [
+                5.0
+            ],
+            "next_entry": 5.0,
+            "max_entry": 5.0,
+            "exposure_max": 5.0,
+            "exposure_percent": 5.0,
+            "combined_risk": "BAIXO",
+            "risk_alert": "Risco simulado baixo.",
+            "recovery_plan": {
+                "mode": "NONE",
+                "enabled": false,
+                "max_recovery_steps": 0,
+                "entry_sequence": [
+                    5.0
+                ],
+                "next_entry": 5.0,
+                "max_entry": 5.0,
+                "exposure_max": 5.0,
+                "exposure_percent": 5.0,
+                "combined_risk": "BAIXO",
+                "risk_alert": "Risco simulado baixo.",
+                "reason": "Sem recupera\u00e7\u00e3o.",
+                "payout_reference": 80.0
+            }
+        },
+        "risk_management": {
+            "payout": 80.0,
+            "stop_loss": 20.0,
+            "max_entry_limit": 20.0,
+            "recovery_plan": {
+                "mode": "NONE",
+                "enabled": false,
+                "max_recovery_steps": 0,
+                "entry_sequence": [
+                    5.0
+                ],
+                "next_entry": 5.0,
+                "max_entry": 5.0,
+                "exposure_max": 5.0,
+                "exposure_percent": 5.0,
+                "combined_risk": "BAIXO",
+                "risk_alert": "Risco simulado baixo.",
+                "reason": "Sem recupera\u00e7\u00e3o.",
+                "payout_reference": 80.0
+            },
+            "combined_risk": "BAIXO",
+            "risk_alert": "Risco simulado baixo."
+        }
+    },
+    "example": {
+        "ativo": "LATAM Index",
+        "banca_simulada": 100.0,
+        "cancelamento_especifico": "Ser\u00e1 definido no sinal conforme ativo, pre\u00e7o, hor\u00e1rio de entrada e estrat\u00e9gia.",
+        "confianca": "0-100%",
+        "direcao": "COMPRA / VENDA / AGUARDAR",
+        "entrada_simulada": 5.0,
+        "estimativa_sinais_1h": 5,
+        "estimativa_sinais_5m": 1,
+        "estrategia_geradora": "Conflu\u00eancia simples",
+        "explicacao": "Motivo t\u00e9cnico conforme modo operacional e estrat\u00e9gia geradora.",
+        "horario_entrada": "HH:MM:SS",
+        "lucro_desejado_sessao": 25.0,
+        "modo_operacional": "Scalper",
+        "preco_referencia": "pre\u00e7o ou zona de entrada",
+        "risco": {
+            "entry_percent_of_bankroll": 5.0,
+            "estimated_consumption_1h": 25.0,
+            "estimated_consumption_percent_1h": 25.0,
+            "profile": "conservador"
+        },
+        "saldo_alvo_sessao": 125.0,
+        "saldo_atual": 100.0,
+        "status": "AGUARDANDO HOR\u00c1RIO DE ENTRADA",
+        "tempo_expiracao": "1 minuto(s)"
+    },
+    "required_visual_fields": [
+        "ativo",
+        "direcao",
+        "horario_entrada",
+        "preco_referencia",
+        "tempo_expiracao",
+        "alerta_cancelamento",
+        "explicacao",
+        "confianca",
+        "status",
+        "modo_operacional",
+        "estrategia_geradora",
+        "banca_simulada",
+        "saldo_atual",
+        "entrada_simulada",
+        "risco",
+        "estimativa_sinais_5m",
+        "estimativa_sinais_1h",
+        "lucro_desejado_sessao",
+        "saldo_alvo_sessao",
+        "cancelamento_especifico_no_sinal"
+    ],
+    "status": "COMPLETE_SIMULATED_CONTRACT_WITH_PROFIT_TARGET",
+    "version": "PTP-113B.3.1A.4.1",
+    "risk_management": {
+        "payout": 80.0,
+        "stop_loss": 20.0,
+        "max_entry_limit": 20.0,
+        "recovery_plan": {
+            "mode": "NONE",
+            "enabled": false,
+            "max_recovery_steps": 0,
+            "entry_sequence": [
+                5.0
+            ],
+            "next_entry": 5.0,
+            "max_entry": 5.0,
+            "exposure_max": 5.0,
+            "exposure_percent": 5.0,
+            "combined_risk": "BAIXO",
+            "risk_alert": "Risco simulado baixo.",
+            "reason": "Sem recupera\u00e7\u00e3o.",
+            "payout_reference": 80.0
+        },
+        "combined_risk": "BAIXO",
+        "risk_alert": "Risco simulado baixo."
+    },
+    "recovery_plan": {
+        "mode": "NONE",
+        "enabled": false,
+        "max_recovery_steps": 0,
+        "entry_sequence": [
+            5.0
+        ],
+        "next_entry": 5.0,
+        "max_entry": 5.0,
+        "exposure_max": 5.0,
+        "exposure_percent": 5.0,
+        "combined_risk": "BAIXO",
+        "risk_alert": "Risco simulado baixo.",
+        "reason": "Sem recupera\u00e7\u00e3o.",
+        "payout_reference": 80.0
+    }
+}
+
+===== VALIDAR — Travas simuladas no código =====
+--- simulation_only ---
+1173:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+1322:        "simulation_only=" + d.simulation_only +
+3197:            "simulation_only": True,
+3225:                            "simulation_only": True,
+3258:        "simulation_only": True,
+3309:            "simulation_only": True,
+3346:        "simulation_only": True,
+3384:            "simulation_only": True,
+3398:        "simulation_only": True,
+5517:            "simulation_only": True,
+5580:                "simulation_only": True,
+5781:            data["simulation_only"] = True
+6077:            data["simulation_only"] = True
+6475:                    "simulation_only": True,
+--- orders_enabled ---
+1174:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+1323:        " | orders_enabled=" + d.orders_enabled +
+2818:        "orders_enabled": False,
+3016:            "orders_enabled": False,
+3199:            "orders_enabled": False,
+3226:                            "orders_enabled": False,
+3260:        "orders_enabled": False,
+3310:            "orders_enabled": False,
+3342:        "orders_enabled": False,
+3385:            "orders_enabled": False,
+3399:        "orders_enabled": False,
+4330:            "orders_enabled": False,
+5518:            "orders_enabled": False,
+5581:                "orders_enabled": False,
+5782:            data["orders_enabled"] = False
+6078:            data["orders_enabled"] = False
+--- real_money_enabled ---
+1175:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+1324:        " | real_money_enabled=" + d.real_money_enabled +
+3201:            "real_money_enabled": False,
+3262:        "real_money_enabled": False,
+3344:        "real_money_enabled": False,
+3387:            "real_money_enabled": False,
+3401:        "real_money_enabled": False,
+5519:            "real_money_enabled": False,
+5582:                "real_money_enabled": False,
+5783:            data["real_money_enabled"] = False
+6079:            data["real_money_enabled"] = False
+--- auto_click_enabled ---
+1176:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+1325:        " | auto_click_enabled=" + d.auto_click_enabled +
+3200:            "auto_click_enabled": False,
+3261:        "auto_click_enabled": False,
+3343:        "auto_click_enabled": False,
+3386:            "auto_click_enabled": False,
+3400:        "auto_click_enabled": False,
+5520:            "auto_click_enabled": False,
+5583:                "auto_click_enabled": False,
+5784:            data["auto_click_enabled"] = False
+6080:            data["auto_click_enabled"] = False
+--- broker_login_enabled ---
+1177:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+1326:        " | broker_login_enabled=" + d.broker_login_enabled +
+3345:        "broker_login_enabled": False,
+5521:            "broker_login_enabled": False,
+5584:                "broker_login_enabled": False,
+5785:            data["broker_login_enabled"] = False
+--- credentials_allowed ---
+1178:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+1327:        " | credentials_allowed=" + d.credentials_allowed
+5522:            "credentials_allowed": False,
+5585:                "credentials_allowed": False,
+5786:            data["credentials_allowed"] = False
+
+===== REGISTRAR — Conclusão da auditoria =====
+Resultado: AUDIT.
+
+Esta etapa deve ser analisada no chat antes de gerar qualquer implementação.
+
+Próxima ação técnica recomendada:
+PTP 113 C.2 — Modelo do Sinal Atual.
+
+Condição para avançar:
+Leo deve colar este relatório no chat.
+O assistente deve analisar:
+- estruturas existentes;
+- pontos reaproveitáveis;
+- riscos de duplicação;
+- endpoints disponíveis;
+- estado das travas simuladas.
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+A  docs/history/ptp/PTP-113/PTP-113C/20260707_100425_PTP-113C.1_auditoria_estado_atual_AUDIT.md
+M  docs/reports_index.md
+A  reports/20260707_100425_PTP-113C.1_auditoria_estado_atual_AUDIT.txt
