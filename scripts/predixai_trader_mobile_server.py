@@ -2454,6 +2454,205 @@ a.px-btn-error {
 </script>
 <!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END -->
 
+<!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_START -->
+<style>
+  @media (max-width: 768px) {
+    .px-critical-compact-warning {
+      margin: 6px 8px 10px !important;
+      padding: 7px 10px !important;
+      border-radius: 10px !important;
+      font-size: 11px !important;
+      line-height: 1.25 !important;
+      opacity: .88 !important;
+      min-height: auto !important;
+      box-shadow: none !important;
+    }
+
+    .px-critical-compact-warning span {
+      display: inline !important;
+      font-size: 11px !important;
+      line-height: 1.25 !important;
+    }
+
+    .px-critical-observer-card {
+      margin-top: 8px !important;
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
+      border-radius: 15px !important;
+    }
+
+    .px-critical-observer-card h1,
+    .px-critical-observer-card h2,
+    .px-critical-observer-card h3 {
+      margin-bottom: 8px !important;
+      line-height: 1.15 !important;
+    }
+
+    .px-critical-observer-state-line {
+      padding: 8px 10px !important;
+      border-radius: 999px !important;
+      min-height: 42px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    .px-critical-observer-state-line * {
+      line-height: 1.15 !important;
+    }
+
+    .px-critical-off-pill {
+      transform: scale(.88) !important;
+      transform-origin: center right !important;
+      opacity: .9 !important;
+    }
+
+    .px-critical-action-grid {
+      position: static !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      z-index: auto !important;
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+      width: auto !important;
+      max-width: 430px !important;
+      margin: 10px auto 12px !important;
+      padding: 0 8px calc(6px + env(safe-area-inset-bottom)) !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+
+    .px-critical-action-grid button,
+    .px-critical-action-button {
+      width: 100% !important;
+      min-height: 44px !important;
+      height: 44px !important;
+      padding: 8px 10px !important;
+      border-radius: 8px !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      line-height: 1.1 !important;
+      box-shadow: none !important;
+    }
+
+    body {
+      padding-bottom: 12px !important;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  const MARKER = "PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_RUNTIME";
+
+  function cleanText(el) {
+    return (el && el.textContent ? el.textContent : "").replace(/\s+/g, " ").trim();
+  }
+
+  function allElements() {
+    return Array.from(document.querySelectorAll("div, section, article, aside, header, footer, nav, p, span, button"));
+  }
+
+  function findSmallTextBlock(needle, maxLen) {
+    return allElements()
+      .filter(el => {
+        const t = cleanText(el);
+        return t.includes(needle) && t.length <= maxLen;
+      })
+      .sort((a, b) => cleanText(a).length - cleanText(b).length)[0] || null;
+  }
+
+  function findButton(label) {
+    return Array.from(document.querySelectorAll("button, a, [role='button']"))
+      .find(el => cleanText(el).toLowerCase() === label.toLowerCase()) || null;
+  }
+
+  function commonAncestor(nodes) {
+    if (!nodes.length) return null;
+    let node = nodes[0].parentElement;
+    while (node && node !== document.body) {
+      if (nodes.every(n => node.contains(n))) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  function compactTopWarning() {
+    const warning =
+      findSmallTextBlock("Modo observador. Não é recomendação financeira", 260) ||
+      findSmallTextBlock("Modo observador/simulado", 260);
+
+    if (warning && !warning.dataset[MARKER]) {
+      warning.dataset[MARKER] = "1";
+      warning.classList.add("px-critical-compact-warning");
+      warning.innerHTML = "<span>Modo observador simulado — sem ordens reais.</span>";
+    }
+  }
+
+  function compactObserverCard() {
+    const candidates = allElements()
+      .filter(el => {
+        const t = cleanText(el);
+        return t.includes("Observador mobile") &&
+               t.includes("Leitura atual") &&
+               t.includes("Último histórico") &&
+               t.length < 2500;
+      })
+      .sort((a, b) => cleanText(a).length - cleanText(b).length);
+
+    const card = candidates[0];
+    if (card) card.classList.add("px-critical-observer-card");
+
+    const stateLine =
+      findSmallTextBlock("Observador desligado Sem leitura ativa", 220) ||
+      findSmallTextBlock("Observador desligado", 180);
+
+    if (stateLine) stateLine.classList.add("px-critical-observer-state-line");
+
+    const offPill = Array.from(document.querySelectorAll("span, div, button"))
+      .find(el => cleanText(el) === "OFF");
+
+    if (offPill) offPill.classList.add("px-critical-off-pill");
+  }
+
+  function compactActionButtons() {
+    const labels = ["Atualizar", "Iniciar simulado", "Parar leitor", "Dashboard"];
+    const buttons = labels.map(findButton).filter(Boolean);
+
+    if (buttons.length >= 3) {
+      const root = commonAncestor(buttons);
+      if (root) root.classList.add("px-critical-action-grid");
+
+      buttons.forEach(btn => {
+        btn.classList.add("px-critical-action-button");
+      });
+    }
+  }
+
+  function applyPatch() {
+    compactTopWarning();
+    compactObserverCard();
+    compactActionButtons();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyPatch);
+  } else {
+    applyPatch();
+  }
+
+  setTimeout(applyPatch, 400);
+  setTimeout(applyPatch, 1200);
+})();
+</script>
+<!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_END -->
+
+
+
 </body>
 </html>
 """

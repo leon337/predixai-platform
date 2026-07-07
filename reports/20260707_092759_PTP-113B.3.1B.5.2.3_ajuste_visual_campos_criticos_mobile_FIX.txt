@@ -1,0 +1,43 @@
+PREDIXAI BR — PTP-113B.3.1B.5.2.3
+Nome curto: ajuste_visual_campos_criticos_mobile
+Status: FIX
+Data: 20260707_092759
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== INVESTIGAR =====
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+Objetivo: corrigir os dois campos visuais marcados por Leo no mobile.
+- bloco superior do observador
+- barra inferior de ações
+
+Backup criado em: /tmp/predixai_backups/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile/predixai_trader_mobile_server.py.bak
+
+===== PLANEJAR =====
+Plano:
+1. Inserir patch visual com marcador HTML invisível.
+2. Compactar aviso superior do modo observador.
+3. Refinar card do observador OFF.
+4. Reorganizar botões inferiores como grade mobile mais leve.
+5. Não alterar lógica operacional.
+
+===== CONSTRUIR =====
+Patch visual inserido.
+
+===== VALIDAR =====
+✅ py_compile PASS
+✅ git diff --check PASS
+✅ /mobile HTTP 200
+✅ marcador visual novo presente no HTML real
+
+===== REGISTRAR =====
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile_FIX.md
+Índice atualizado: docs/reports_index.md
+
+===== PUBLICAR =====
+Relatório fechado antes do commit/push.
+Arquivos a versionar:
+- scripts/predixai_trader_mobile_server.py
+- reports/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile_FIX.txt
+- docs/history/ptp/PTP-113/PTP-113B/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile_FIX.md
+- docs/reports_index.md
+

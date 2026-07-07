@@ -43,3 +43,5 @@
 - Markdown: `docs/history/ptp/PTP-113/PTP-113B/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile_FIX.md`
 - Arquivo técnico: `scripts/predixai_trader_mobile_server.py`
 - Resultado: FIX
+
+- 20260707_092759 | PTP-113B.3.1B.5.2.3 | ajuste_visual_campos_criticos_mobile | FIX | reports/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile_FIX.txt | docs/history/ptp/PTP-113/PTP-113B/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile_FIX.md
