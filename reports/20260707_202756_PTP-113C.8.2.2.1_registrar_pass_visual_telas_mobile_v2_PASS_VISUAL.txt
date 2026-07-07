@@ -1,0 +1,164 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP 113 C.8.2.2.1
+Nome curto: registrar_pass_visual_telas_mobile_v2
+Data: 2026-07-07 20:27:56 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Tipo: registro formal de PASS visual
+Base visual: Tela 1 /session/setup e Tela 2 /mobile
+Servidor: Mobile V2 standalone
+Porta padrão: 5001
+Mobile legado alterado: NÃO
+Integração com mobile_server.py: NÃO
+Geração de sinal: NÃO
+Histórico operacional: NÃO
+Resultado/saldo: NÃO
+Observer real iniciado: NÃO
+Runtime JSON versionado: NÃO
+
+===== CONFIRMAÇÃO VISUAL DO LEO =====
+Leo confirmou: PASS VISUAL
+Prints enviados mostraram:
+- Tela 1 aberta no celular
+- campos de banca, entrada, meta, recuperação e ativo legíveis
+- botão Criar contrato simulado funcionando
+- contrato simulado criado
+- botão Ir para Tela 2 funcionando
+- Tela 2 aberta no celular
+- observer OFF
+- processo real NÃO
+- leitura atual Sem leitura ativa
+- sinal apenas como placeholder
+- histórico apenas como placeholder futuro
+- travas simuladas visíveis
+- sem sinal gerado
+- sem histórico operacional gerado
+- sem ordem real
+Observação do Leo: botão rosa de zoom é do telefone, não do app.
+
+===== TRAVAS OPERACIONAIS =====
+simulation_only=true
+orders_enabled=false
+real_money_enabled=false
+auto_click_enabled=false
+broker_login_enabled=false
+credentials_allowed=false
+
+===== INVESTIGAR — ESTADO INICIAL =====
+OK: git limpo antes do registro.
+Último commit antes do registro: 19a2886 PTP 113 C.8.2.2 criar telas minimas mobile v2
+
+===== últimos commits =====
+$ git log -6 --oneline
+19a2886 PTP 113 C.8.2.2 criar telas minimas mobile v2
+9106230 PTP 113 C.8.2.1 mobile v2 standalone server
+c149d20 PTP 113 C.8.2 criar rotas limpas mobile v2
+766bda6 PTP 113 C.8.1 criar base mobile v2 minima
+7738b75 PTP 113 C.8.0.1 fechar sobra local pos quarentena
+1da8948 PTP 113 C.8.0 saneamento quarentena mobile v2
+STATUS: 0
+
+===== INVESTIGAR — ARQUIVOS ESPERADOS =====
+OK: encontrado src/predixai/mobile_v2/app.py
+OK: encontrado scripts/run_mobile_v2_server.py
+OK: encontrado src/predixai/mobile_v2/templates/session_setup.html
+OK: encontrado src/predixai/mobile_v2/templates/mobile_v2_index.html
+OK: encontrado tests/test_mobile_v2_state_store.py
+OK: encontrado tests/test_mobile_v2_routes.py
+OK: encontrado tests/test_mobile_v2_standalone_app.py
+OK: encontrado tests/test_mobile_v2_html.py
+OK: hash inicial legado: af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+
+===== VALIDAR — MOBILE LEGADO INTACTO =====
+Hash inicial legado: af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+Hash atual legado:   af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+OK: scripts/predixai_trader_mobile_server.py não foi alterado.
+
+===== VALIDAR — COMPILAÇÃO =====
+
+===== py_compile app.py =====
+$ python3 -m py_compile src/predixai/mobile_v2/app.py
+
+STATUS: 0
+
+===== py_compile runner =====
+$ python3 -m py_compile scripts/run_mobile_v2_server.py
+
+STATUS: 0
+
+===== VALIDAR — TESTES =====
+
+===== unittest tests/test_mobile_v2_state_store.py =====
+$ python3 tests/test_mobile_v2_state_store.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.144s
+
+OK
+STATUS: 0
+
+===== unittest tests/test_mobile_v2_routes.py =====
+$ python3 tests/test_mobile_v2_routes.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.081s
+
+OK
+STATUS: 0
+
+===== unittest tests/test_mobile_v2_standalone_app.py =====
+$ python3 tests/test_mobile_v2_standalone_app.py
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.068s
+
+OK
+STATUS: 0
+
+===== unittest tests/test_mobile_v2_html.py =====
+$ python3 tests/test_mobile_v2_html.py
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.078s
+
+OK
+STATUS: 0
+
+===== VALIDAR — ESCOPO VISUAL =====
+OK: Tela 2 explicita que não há geração de sinal.
+OK: histórico segue como placeholder futuro.
+OK: Tela 1 exibe trava simulation_only=true.
+
+===== VALIDAR — DIFF CHECK =====
+
+===== git diff --check =====
+$ git diff --check
+
+STATUS: 0
+
+===== VALIDAR — RUNTIME NÃO VERSIONADO =====
+OK: data/runtime/mobile_v2_state.json não está rastreado.
+
+===== REGISTRAR — MARKDOWN HISTÓRICO =====
+Markdown criado: docs/history/ptp/PTP-113/PTP-113C/20260707_202756_PTP-113C.8.2.2.1_registrar_pass_visual_telas_mobile_v2_PASS_VISUAL.md
+
+===== REGISTRAR — ÍNDICE =====
+
+===== RESULTADO FINAL DO RELATÓRIO =====
+Resultado geral: PASS
+Warnings: 0
+Falhas: 0
+PASS visual confirmado por Leo: SIM
+Botão rosa de zoom: recurso do telefone, não do app
+Tela 1: PASS visual
+Tela 2: PASS visual
+Mobile legado alterado: NÃO
+Observer real iniciado: NÃO
+Runtime JSON versionado: NÃO
+Sinal gerado: NÃO
+Histórico operacional gerado: NÃO
+Relatório: reports/20260707_202756_PTP-113C.8.2.2.1_registrar_pass_visual_telas_mobile_v2_PASS_VISUAL.txt
+Markdown: docs/history/ptp/PTP-113/PTP-113C/20260707_202756_PTP-113C.8.2.2.1_registrar_pass_visual_telas_mobile_v2_PASS_VISUAL.md
+Observação: relatório fechado antes de commit/push.
