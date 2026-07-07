@@ -1,0 +1,57 @@
+PREDIXAI BR — RELATÓRIO DE EXECUÇÃO
+PTP: PTP-GOV.1
+Nome curto: protocolos_predixai
+Data: seg 06 jul 2026 21:20:52 -03
+Repo esperado: /home/leo/Documentos/GitHub/predixai-platform
+
+Objetivo:
+Instalar documentos oficiais de governança em docs/protocols/, gerar histórico,
+atualizar índice, versionar e publicar no GitHub.
+
+===== 1. INVESTIGAR =====
+
+===== Git status inicial =====
+?? reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
+RESULTADO: OK
+
+===== Últimos commits =====
+98a4a67 PTP-113B.3.1A.5.1A.2 AUDIT pause publish report
+9520510 PTP-113B.3.1A.5.1A.2 AUDIT pause money stepper state
+1461ee4 PTP-113B.3.1A.5.1A.1 PASS currency layout publish report
+f24fe10 PTP-113B.3.1A.5.1A.1 PASS currency layout recovery logic
+27ac65f PTP-113B.3.1A.5.1A PASS currency controls publish report
+6d88950 PTP-113B.3.1A.5.1A PASS currency controls BRL
+e424f11 PTP-113B.3.1A.5.1 PASS setup UI publish report
+b2449b9 PTP-113B.3.1A.5.1 PASS setup UI recovery risk
+cb26f24 PTP-113B.3.1A.5.1 FAIL setup UI recovery risk
+45d3ad0 PTP-113B.3.1A.5.1 FAIL recovery risk syntax error
+RESULTADO: OK
+
+===== 2. PLANEJAR =====
+Arquivos serão salvos em: docs/protocols/
+Relatório TXT será salvo em: reports/
+Markdown histórico será salvo em: docs/history/ptp/PTP-GOV/PTP-GOV.1/
+Índice será atualizado em: docs/reports_index.md
+
+===== 3. CONSTRUIR =====
+Arquivos de protocolo criados em docs/protocols/.
+
+===== 4. VALIDAR =====
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/protocols/PREDIXAI_PROJECT_INSTRUCTION.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/protocols/PREDIXAI_EXECUTION_POLICY.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/protocols/PREDIXAI_CHAT_PROTOCOL.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/protocols/PREDIXAI_SKILLS.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/protocols/PREDIXAI_CHECKPOINT_TEMPLATE.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/protocols/PREDIXAI_PTP_HISTORY_TEMPLATE.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/protocols/PREDIXAI_PROJECT_SOURCE_TEMPLATE.md
+
+===== Git diff check =====
+RESULTADO: OK
+
+===== 5. REGISTRAR =====
+Markdown histórico criado: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-GOV/PTP-GOV.1/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.md
+Índice atualizado: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+
+===== 6. PUBLICAR =====
+Sanity check de arquivos sensíveis:
+OK: nenhum arquivo sensível óbvio detectado no git status.
