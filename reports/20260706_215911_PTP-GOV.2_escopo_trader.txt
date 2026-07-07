@@ -1,0 +1,66 @@
+PREDIXAI BR — RELATÓRIO DE EXECUÇÃO
+PTP: PTP-GOV.2
+Nome curto: escopo_trader
+Data: seg 06 jul 2026 21:59:11 -03
+Repo esperado: /home/leo/Documentos/GitHub/predixai-platform
+
+Objetivo:
+Instalar o Escopo Mestre do PredixAI Trader no repositório,
+gerar cópia para memória do projeto, histórico Markdown, índice,
+commit, push e abrir relatório sem escrever após publicação.
+
+===== 1. INVESTIGAR =====
+
+===== Git status inicial =====
+?? reports/20260706_215911_PTP-GOV.2_escopo_trader.txt
+RESULTADO: OK
+
+===== Últimos commits =====
+217aaca PTP-GOV.1.1 close governance final report
+108108f PTP-GOV.1 install PredixAI governance protocols
+98a4a67 PTP-113B.3.1A.5.1A.2 AUDIT pause publish report
+9520510 PTP-113B.3.1A.5.1A.2 AUDIT pause money stepper state
+1461ee4 PTP-113B.3.1A.5.1A.1 PASS currency layout publish report
+f24fe10 PTP-113B.3.1A.5.1A.1 PASS currency layout recovery logic
+27ac65f PTP-113B.3.1A.5.1A PASS currency controls publish report
+6d88950 PTP-113B.3.1A.5.1A PASS currency controls BRL
+e424f11 PTP-113B.3.1A.5.1 PASS setup UI publish report
+b2449b9 PTP-113B.3.1A.5.1 PASS setup UI recovery risk
+RESULTADO: OK
+
+===== 2. PLANEJAR =====
+Escopo técnico será salvo em: docs/project_scope/PREDIXAI_TRADER_SCOPE.md
+Cópia fonte/memória será salva em: docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md
+Histórico será salvo em: docs/history/ptp/PTP-GOV/PTP-GOV.2/
+Relatório será salvo em: reports/
+Índice será atualizado em: docs/reports_index.md
+
+===== 3. CONSTRUIR =====
+Escopo criado: /home/leo/Documentos/GitHub/predixai-platform/docs/project_scope/PREDIXAI_TRADER_SCOPE.md
+Cópia de fonte/memória criada: /home/leo/Documentos/GitHub/predixai-platform/docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md
+
+===== 4. VALIDAR =====
+OK: escopo técnico criado.
+OK: cópia fonte/memória criada.
+OK: título do escopo confirmado.
+OK: próxima etapa Stepper BRL registrada.
+OK: travas de segurança registradas.
+
+===== Git diff check =====
+RESULTADO: OK
+
+===== 5. REGISTRAR =====
+Markdown histórico criado: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-GOV/PTP-GOV.2/20260706_215911_PTP-GOV.2_escopo_trader.md
+Índice atualizado: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+
+===== 6. FECHAMENTO DO RELATÓRIO =====
+Status calculado antes da publicação: PASS
+A partir deste ponto, o script não escreverá mais no relatório.
+Depois do push, o relatório será apenas aberto.
+
+Arquivos a versionar:
+ M docs/reports_index.md
+?? docs/history/ptp/PTP-GOV/PTP-GOV.2/
+?? docs/project_memory/
+?? docs/project_scope/
+?? reports/20260706_215911_PTP-GOV.2_escopo_trader.txt
