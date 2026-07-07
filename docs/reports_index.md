@@ -76,3 +76,10 @@
 - Relatório: `reports/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw_FIX.txt`
 - Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw_FIX.md`
 - Arquivo alterado: `scripts/predixai_trader_mobile_server.py`
+
+## 2026-07-07 10:24:31 -0300 — PTP 113 C.5 — Atualização da Banca Simulada
+
+- Status: FIX
+- Relatório: `reports/20260707_102431_PTP-113C.5_atualizacao_banca_simulada_FIX.txt`
+- Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_102431_PTP-113C.5_atualizacao_banca_simulada_FIX.md`
+- Arquivo alterado: `scripts/predixai_trader_mobile_server.py`

@@ -5971,6 +5971,234 @@ if "_PTP113C4_ORIGINAL_BUILD_STATE" not in globals():
 # ============================================================
 
 
+
+# ============================================================
+# PTP113C5_ATUALIZACAO_BANCA_SIMULADA_START
+# PTP 113 C.5 — Atualização da Banca Simulada
+# Objetivo: calcular saldo simulado após resultado, sem persistir saldo definitivo.
+# ============================================================
+
+def _ptp113c5_dict(value):
+    return value if isinstance(value, dict) else {}
+
+
+def _ptp113c5_float(value, default=None):
+    try:
+        if value is None or value == "":
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
+def _ptp113c5_round_money(value):
+    try:
+        return round(float(value), 2)
+    except Exception:
+        return value
+
+
+def _ptp113c5_contract(state):
+    mobile_session = _ptp113c5_dict(state.get("mobile_session"))
+    return _ptp113c5_dict(mobile_session.get("contract"))
+
+
+def _ptp113c5_payout_percent(state):
+    contract = _ptp113c5_contract(state)
+    risk_management = _ptp113c5_dict(contract.get("risk_management"))
+    recovery = _ptp113c5_dict(contract.get("recovery"))
+    state_risk = _ptp113c5_dict(state.get("risk_management"))
+
+    value = (
+        risk_management.get("payout")
+        or recovery.get("payout_reference")
+        or state_risk.get("payout")
+        or 80.0
+    )
+
+    payout = _ptp113c5_float(value, 80.0)
+    if payout is None:
+        return 80.0
+    return max(1.0, min(100.0, payout))
+
+
+def _ptp113c5_safety_ok(state, close):
+    checks = {
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+    }
+
+    for key, expected in checks.items():
+        value = close.get(key)
+        if value is None:
+            value = state.get(key)
+
+        if value is not expected:
+            return False
+
+    return True
+
+
+def _ptp113c5_profit_loss(result, entry_value, payout_percent):
+    result = str(result or "").upper()
+
+    if entry_value is None:
+        return None
+
+    if result == "WIN":
+        return _ptp113c5_round_money(entry_value * (payout_percent / 100.0))
+
+    if result == "LOSS":
+        return _ptp113c5_round_money(-entry_value)
+
+    if result == "DRAW":
+        return 0.0
+
+    return None
+
+
+def _ptp113c5_simulated_bankroll_update(state):
+    """
+    Calcula atualização simulada da banca, mas não grava saldo definitivo.
+    Persistência fica para PTP 113 C.6.
+    """
+    if not isinstance(state, dict):
+        return {
+            "version": "PTP 113 C.5",
+            "status": "blocked_invalid_state",
+            "update_calculated": False,
+            "balance_update_allowed": False,
+            "balance_persisted": False,
+            "reason": "Estado inválido.",
+            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+        }
+
+    close = _ptp113c5_dict(state.get("simulated_close_result"))
+
+    if not close:
+        return {
+            "version": "PTP 113 C.5",
+            "status": "blocked_missing_simulated_close_result",
+            "update_calculated": False,
+            "balance_update_allowed": False,
+            "balance_persisted": False,
+            "reason": "simulated_close_result ausente. Execute/valide PTP 113 C.4.",
+            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+        }
+
+    if close.get("result_calculated") is not True:
+        return {
+            "version": "PTP 113 C.5",
+            "status": "blocked_result_not_calculated",
+            "update_calculated": False,
+            "balance_update_allowed": False,
+            "balance_persisted": False,
+            "operation_id": close.get("operation_id"),
+            "result": close.get("result"),
+            "reason": close.get("reason") or "Resultado ainda não calculado.",
+            "close_status": close.get("status"),
+            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+            "next_step": "Aguardar resultado simulado válido.",
+        }
+
+    if not _ptp113c5_safety_ok(state, close):
+        return {
+            "version": "PTP 113 C.5",
+            "status": "blocked_safety",
+            "update_calculated": False,
+            "balance_update_allowed": False,
+            "balance_persisted": False,
+            "operation_id": close.get("operation_id"),
+            "reason": "Travas simuladas inconsistentes. Atualização bloqueada.",
+            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+        }
+
+    result = str(close.get("result") or "").upper()
+
+    if result not in {"WIN", "LOSS", "DRAW"}:
+        return {
+            "version": "PTP 113 C.5",
+            "status": "blocked_unknown_result",
+            "update_calculated": False,
+            "balance_update_allowed": False,
+            "balance_persisted": False,
+            "operation_id": close.get("operation_id"),
+            "result": result or "UNKNOWN",
+            "reason": "Resultado UNKNOWN ou inválido não altera banca simulada.",
+            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+            "next_step": "Aguardar resultado WIN/LOSS/DRAW.",
+        }
+
+    entry_value = _ptp113c5_float(close.get("entry_value"), 0.0)
+    saldo_before = _ptp113c5_float(close.get("saldo_before"), 0.0)
+    payout_percent = _ptp113c5_payout_percent(state)
+    profit_loss = _ptp113c5_profit_loss(result, entry_value, payout_percent)
+
+    if profit_loss is None:
+        return {
+            "version": "PTP 113 C.5",
+            "status": "blocked_invalid_profit_loss",
+            "update_calculated": False,
+            "balance_update_allowed": False,
+            "balance_persisted": False,
+            "operation_id": close.get("operation_id"),
+            "result": result,
+            "reason": "Não foi possível calcular lucro/prejuízo simulado.",
+            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+        }
+
+    saldo_after = _ptp113c5_round_money(saldo_before + profit_loss)
+
+    return {
+        "version": "PTP 113 C.5",
+        "status": "BANKROLL_UPDATE_SIMULATED",
+        "update_calculated": True,
+        "balance_update_allowed": True,
+        "balance_persisted": False,
+        "operation_id": close.get("operation_id"),
+        "asset": close.get("asset"),
+        "direction": close.get("direction"),
+        "result": result,
+        "entry_value": entry_value,
+        "payout_percent": payout_percent,
+        "profit_loss": profit_loss,
+        "saldo_before": _ptp113c5_round_money(saldo_before),
+        "saldo_after": saldo_after,
+        "open_price": close.get("open_price"),
+        "close_price": close.get("close_price"),
+        "opened_at": close.get("opened_at"),
+        "closed_at": close.get("closed_at"),
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+        "reason": "Atualização simulada calculada. Persistência bloqueada para PTP 113 C.6.",
+        "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+        "next_step": "PTP 113 C.6 — Histórico Operacional",
+    }
+
+
+if "_PTP113C5_ORIGINAL_BUILD_STATE" not in globals():
+    _PTP113C5_ORIGINAL_BUILD_STATE = _build_state
+
+    def _build_state(*args, **kwargs):
+        data = _PTP113C5_ORIGINAL_BUILD_STATE(*args, **kwargs)
+        if isinstance(data, dict):
+            data["simulated_bankroll_update"] = _ptp113c5_simulated_bankroll_update(data)
+            data["ptp113c5_simulated_bankroll_update_ready"] = True
+        return data
+
+# ============================================================
+# PTP113C5_ATUALIZACAO_BANCA_SIMULADA_END
+# ============================================================
+
+
 def _host_from_header(host_header: str | None) -> str:
     host = (host_header or "").split(":", 1)[0]
     if host in {"", "0.0.0.0", "127.0.0.1", "localhost"}:
