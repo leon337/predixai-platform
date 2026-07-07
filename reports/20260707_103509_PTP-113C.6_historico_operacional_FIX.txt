@@ -1,0 +1,149 @@
+PREDIXAI BR — PTP 113 C.6 historico_operacional
+Data: 2026-07-07 10:35:09 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+Status: FIX
+
+===== OBJETIVO =====
+Criar modelo seguro de histórico operacional para o ciclo sinal → abertura → fechamento → resultado → saldo.
+
+===== REGRA =====
+Não executar ordem real.
+Não usar saldo real.
+Não registrar operação falsa como concluída.
+Não persistir histórico operacional se o ciclo estiver bloqueado.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_103509_PTP-113C.6_historico_operacional_FIX.txt
+
+===== INVESTIGAR — Últimos commits =====
+b5acbef PTP 113 C.5 add simulated bankroll update
+64e9d81 PTP 113 C.4 add simulated close result
+e5ac227 PTP 113 C.3 add simulated open operation
+dc0e817 PTP 113 C.2 add current signal model
+5acc1bd PTP 113 C.1 audit estado atual
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+62e61f8 PTP-113B.3.1B.5.2.3 ajuste visual campos críticos mobile FIX
+
+===== INVESTIGAR — Marcadores necessários =====
+4886:def _build_state(
+5098:# PTP113C2_MODELO_SINAL_ATUAL_START
+5291:            "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5380:        "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5399:    def _build_state(*args, **kwargs):
+5407:# PTP113C2_MODELO_SINAL_ATUAL_END
+5413:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_START
+5566:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5580:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5601:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5615:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5628:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5640:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5686:        "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5694:    def _build_state(*args, **kwargs):
+5702:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_END
+5708:# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_START
+5838:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5852:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5865:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5878:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5897:                    "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5922:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5954:        "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5962:    def _build_state(*args, **kwargs):
+5970:# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_END
+5976:# PTP113C5_ATUALIZACAO_BANCA_SIMULADA_START
+6077:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6090:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6104:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6117:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6132:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6151:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6182:        "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6190:    def _build_state(*args, **kwargs):
+6198:# PTP113C5_ATUALIZACAO_BANCA_SIMULADA_END
+
+===== CONSTRUIR — Backup =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_103509_PTP-113C.6_historico_operacional/predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — Aplicar patch PTP 113 C.6 =====
+PASS: patch PTP113C6_HISTORICO_OPERACIONAL aplicado.
+PATCH_EXIT=0
+
+===== VALIDAR — py_compile =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8286: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8547: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PY_COMPILE_EXIT=0
+
+===== VALIDAR — git diff check =====
+GIT_DIFF_CHECK_EXIT=0
+
+===== VALIDAR — Marcadores PTP 113 C.6 =====
+6204:# PTP113C6_HISTORICO_OPERACIONAL_START
+6298:def _ptp113c6_operational_history_event(state):
+6314:            "source": "PTP113C6_HISTORICO_OPERACIONAL",
+6341:        "source": "PTP113C6_HISTORICO_OPERACIONAL",
+6401:            data["operational_history_event"] = _ptp113c6_operational_history_event(data)
+6402:            data["ptp113c6_operational_history_event_ready"] = True
+6406:# PTP113C6_HISTORICO_OPERACIONAL_END
+
+===== VALIDAR — Reiniciar servidor mobile =====
+Processos encontrados: 22423
+SERVER_PID=24292
+
+===== VALIDAR — Endpoint /mobile =====
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.8 Python/3.12.3
+Date: Tue, 07 Jul 2026 13:35:16 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 86874
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Connection: close
+
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — Endpoint /api/mobile/state com operational_history_event =====
+CURL_STATE_EXIT=0
+HAS_OPERATIONAL_HISTORY_EVENT= True
+PTP113C6_READY= True
+status=blocked_no_open_operation
+event_ready=False
+event_persisted=False
+event_type=AUDIT_BLOCKED
+operation_id=None
+blocked_stage=blocked_no_open_operation
+reason=Observador desligado. Histórico não pode virar sinal atual.
+source=PTP113C6_HISTORICO_OPERACIONAL
+next_step=Aguardar ciclo simulado completo antes de registrar operação operacional.
+OPERATIONAL_HISTORY_EVENT_VALIDATE=PASS
+OPERATIONAL_HISTORY_EVENT_VALIDATE_EXIT=0
+
+===== VALIDAR — Travas simuladas no endpoint =====
+simulation_only=True expected=True
+orders_enabled=False expected=False
+real_money_enabled=False expected=False
+auto_click_enabled=False expected=False
+broker_login_enabled=False expected=False
+credentials_allowed=False expected=False
+SAFETY_LOCKS_VALIDATE=PASS
+SAFETY_VALIDATE_EXIT=0
+
+===== REGISTRAR — Resultado técnico =====
+Resultado esperado:
+- operational_history_event criado em /api/mobile/state.
+- Ciclo bloqueado gera AUDIT_BLOCKED.
+- Ciclo completo gera SIMULATED_OPERATION_CYCLE.
+- Histórico falso não é registrado como operação válida.
+- event_persisted permanece false nesta etapa.
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+A  docs/history/ptp/PTP-113/PTP-113C/20260707_103509_PTP-113C.6_historico_operacional_FIX.md
+M  docs/reports_index.md
+A  reports/20260707_103509_PTP-113C.6_historico_operacional_FIX.txt
+M  scripts/predixai_trader_mobile_server.py

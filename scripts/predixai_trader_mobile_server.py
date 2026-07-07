@@ -6199,6 +6199,214 @@ if "_PTP113C5_ORIGINAL_BUILD_STATE" not in globals():
 # ============================================================
 
 
+
+# ============================================================
+# PTP113C6_HISTORICO_OPERACIONAL_START
+# PTP 113 C.6 — Histórico Operacional
+# Objetivo: montar evento auditável do ciclo sem registrar operação falsa.
+# ============================================================
+
+def _ptp113c6_dict(value):
+    return value if isinstance(value, dict) else {}
+
+
+def _ptp113c6_bool(value):
+    return bool(value is True or str(value).strip().lower() in {"true", "1", "yes", "sim", "on"})
+
+
+def _ptp113c6_text(value, fallback=""):
+    if value is None:
+        return fallback
+    value = str(value).strip()
+    return value if value else fallback
+
+
+def _ptp113c6_now_iso():
+    try:
+        if "_now_iso" in globals():
+            return _now_iso()
+    except Exception:
+        pass
+    return ""
+
+
+def _ptp113c6_safety_snapshot(state, model, open_op, close_result, bankroll_update):
+    checks = {
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+    }
+
+    safety = {}
+    model_safety = _ptp113c6_dict(model.get("safety"))
+
+    for key, expected in checks.items():
+        value = model_safety.get(key)
+
+        if value is None:
+            value = close_result.get(key)
+        if value is None:
+            value = bankroll_update.get(key)
+        if value is None:
+            value = open_op.get(key)
+        if value is None:
+            value = state.get(key)
+
+        safety[key] = value
+        safety[f"{key}_expected"] = expected
+        safety[f"{key}_ok"] = value is expected
+
+    safety["all_ok"] = all(safety.get(f"{key}_ok") is True for key in checks)
+    return safety
+
+
+def _ptp113c6_cycle_status(model, open_op, close_result, bankroll_update, safety):
+    if not model:
+        return "blocked_missing_current_signal_model", "current_signal_model ausente."
+
+    if not open_op:
+        return "blocked_missing_open_operation", "simulated_open_operation ausente."
+
+    if not close_result:
+        return "blocked_missing_close_result", "simulated_close_result ausente."
+
+    if not bankroll_update:
+        return "blocked_missing_bankroll_update", "simulated_bankroll_update ausente."
+
+    if safety.get("all_ok") is not True:
+        return "blocked_safety", "Travas simuladas inconsistentes."
+
+    if open_op.get("operation_opened") is not True:
+        return "blocked_no_open_operation", open_op.get("reason") or "Operação simulada não foi aberta."
+
+    if close_result.get("result_calculated") is not True:
+        return "blocked_result_not_calculated", close_result.get("reason") or "Resultado simulado não foi calculado."
+
+    if bankroll_update.get("update_calculated") is not True:
+        return "blocked_bankroll_not_calculated", bankroll_update.get("reason") or "Atualização da banca simulada não foi calculada."
+
+    result = _ptp113c6_text(bankroll_update.get("result") or close_result.get("result")).upper()
+    if result not in {"WIN", "LOSS", "DRAW"}:
+        return "blocked_invalid_result", "Resultado inválido para histórico operacional concluído."
+
+    return "OPERATIONAL_EVENT_READY", "Ciclo simulado completo pronto para histórico operacional."
+
+
+def _ptp113c6_operational_history_event(state):
+    """
+    Monta evento auditável do ciclo simulado.
+
+    Se o ciclo estiver bloqueado, gera evento de auditoria bloqueado.
+    Se o ciclo estiver completo, gera evento operacional pronto.
+    Esta etapa não executa ordem real e não usa saldo real.
+    """
+    if not isinstance(state, dict):
+        return {
+            "version": "PTP 113 C.6",
+            "status": "blocked_invalid_state",
+            "event_ready": False,
+            "event_persisted": False,
+            "event_type": "AUDIT_BLOCKED",
+            "reason": "Estado inválido.",
+            "source": "PTP113C6_HISTORICO_OPERACIONAL",
+        }
+
+    model = _ptp113c6_dict(state.get("current_signal_model"))
+    open_op = _ptp113c6_dict(state.get("simulated_open_operation"))
+    close_result = _ptp113c6_dict(state.get("simulated_close_result"))
+    bankroll_update = _ptp113c6_dict(state.get("simulated_bankroll_update"))
+
+    safety = _ptp113c6_safety_snapshot(state, model, open_op, close_result, bankroll_update)
+    status, reason = _ptp113c6_cycle_status(model, open_op, close_result, bankroll_update, safety)
+
+    event_ready = status == "OPERATIONAL_EVENT_READY"
+
+    base_event = {
+        "version": "PTP 113 C.6",
+        "status": status,
+        "event_ready": event_ready,
+        "event_persisted": False,
+        "event_type": "SIMULATED_OPERATION_CYCLE" if event_ready else "AUDIT_BLOCKED",
+        "reason": reason,
+        "generated_at": _ptp113c6_now_iso(),
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+        "source": "PTP113C6_HISTORICO_OPERACIONAL",
+    }
+
+    if not event_ready:
+        base_event.update({
+            "operation_id": open_op.get("operation_id") or close_result.get("operation_id") or bankroll_update.get("operation_id"),
+            "blocked_stage": status,
+            "signal_status": model.get("status"),
+            "open_operation_status": open_op.get("status"),
+            "close_result_status": close_result.get("status"),
+            "bankroll_update_status": bankroll_update.get("status"),
+            "cycle_snapshot": {
+                "current_signal_model_ready": bool(model),
+                "operation_opened": open_op.get("operation_opened"),
+                "result_calculated": close_result.get("result_calculated"),
+                "bankroll_update_calculated": bankroll_update.get("update_calculated"),
+                "balance_persisted": bankroll_update.get("balance_persisted"),
+            },
+            "safety": safety,
+            "next_step": "Aguardar ciclo simulado completo antes de registrar operação operacional.",
+        })
+        return base_event
+
+    base_event.update({
+        "operation_id": bankroll_update.get("operation_id") or close_result.get("operation_id") or open_op.get("operation_id"),
+        "asset": bankroll_update.get("asset") or close_result.get("asset") or open_op.get("asset"),
+        "direction": bankroll_update.get("direction") or close_result.get("direction") or open_op.get("direction"),
+        "strategy": open_op.get("strategy") or model.get("strategy"),
+        "confidence": open_op.get("confidence") or model.get("confidence"),
+        "entry_value": bankroll_update.get("entry_value") or close_result.get("entry_value") or open_op.get("entry_value"),
+        "open_price": bankroll_update.get("open_price") or close_result.get("open_price") or open_op.get("open_price"),
+        "close_price": bankroll_update.get("close_price") or close_result.get("close_price"),
+        "opened_at": bankroll_update.get("opened_at") or close_result.get("opened_at") or open_op.get("opened_at"),
+        "closed_at": bankroll_update.get("closed_at") or close_result.get("closed_at"),
+        "expires_at": close_result.get("expires_at") or open_op.get("expires_at"),
+        "result": bankroll_update.get("result") or close_result.get("result"),
+        "profit_loss": bankroll_update.get("profit_loss"),
+        "saldo_before": bankroll_update.get("saldo_before"),
+        "saldo_after": bankroll_update.get("saldo_after"),
+        "balance_persisted": False,
+        "history_persisted": False,
+        "safety": safety,
+        "cycle": {
+            "signal": model,
+            "open": open_op,
+            "close": close_result,
+            "bankroll_update": bankroll_update,
+        },
+        "next_step": "PTP 113 C.7 — Validação Mobile Visual",
+    })
+
+    return base_event
+
+
+if "_PTP113C6_ORIGINAL_BUILD_STATE" not in globals():
+    _PTP113C6_ORIGINAL_BUILD_STATE = _build_state
+
+    def _build_state(*args, **kwargs):
+        data = _PTP113C6_ORIGINAL_BUILD_STATE(*args, **kwargs)
+        if isinstance(data, dict):
+            data["operational_history_event"] = _ptp113c6_operational_history_event(data)
+            data["ptp113c6_operational_history_event_ready"] = True
+        return data
+
+# ============================================================
+# PTP113C6_HISTORICO_OPERACIONAL_END
+# ============================================================
+
+
 def _host_from_header(host_header: str | None) -> str:
     host = (host_header or "").split(":", 1)[0]
     if host in {"", "0.0.0.0", "127.0.0.1", "localhost"}:
