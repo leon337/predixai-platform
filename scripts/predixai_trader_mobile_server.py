@@ -2284,6 +2284,176 @@ a.px-btn-error {
 </script>
 /* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END */
 
+
+/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START */
+<style id="ptp113b31b52-saneamento-visual-final-mobile-style">
+  [data-ptp113b31b52-hidden="true"],
+  #px-observer-state {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  #px-observer-toggle-panel,
+  #px-mobile-ui {
+    max-width: 430px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  #ptp113b31b52-clean-note {
+    max-width: 430px;
+    margin: 10px auto 12px auto;
+    border-radius: 14px;
+    padding: 10px 12px;
+    background: rgba(2, 6, 23, .72);
+    border: 1px solid rgba(34, 197, 94, .25);
+    color: #bbf7d0;
+    font-size: .78rem;
+    line-height: 1.35;
+  }
+</style>
+
+<script id="ptp113b31b52-saneamento-visual-final-mobile-script">
+(function () {
+  const MARKER = "PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_RUNTIME";
+  if (window[MARKER]) return;
+  window[MARKER] = true;
+
+  function norm(text) {
+    return String(text || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
+
+  const legacyTerms = [
+    "ultimo preco valido",
+    "suporte",
+    "resistencia",
+    "aguardando leitura",
+    "expiracao simulada",
+    "ultima leitura",
+    "diagnostico do preco",
+    "leitor parado",
+    "sinais abaixo sao historicos",
+    "price_ticks sqlite",
+    "busca do preco final",
+    "ultimo timestamp",
+    "historico 1",
+    "status parado"
+  ];
+
+  function protectedNode(node) {
+    if (!node || !node.closest) return true;
+    return Boolean(
+      node.closest("#px-observer-toggle-panel") ||
+      node.closest("#px-mobile-ui") ||
+      node.closest("#ptp113b31b52-clean-note") ||
+      node.closest("script") ||
+      node.closest("style") ||
+      node.tagName === "BODY" ||
+      node.tagName === "HTML"
+    );
+  }
+
+  function looksLegacy(node) {
+    const text = norm(node.innerText || node.textContent || "");
+    if (!text) return false;
+    if (text.includes("observador mobile")) return false;
+    if (text.includes("ultimo historico") && text.includes("historico nao operacional")) return false;
+    return legacyTerms.some(term => text.includes(term));
+  }
+
+  function findSmallCard(node) {
+    let chosen = node;
+    let current = node;
+
+    while (current && current.parentElement && current.parentElement !== document.body) {
+      const parent = current.parentElement;
+      if (protectedNode(parent)) break;
+
+      const txt = norm(parent.innerText || parent.textContent || "");
+      if (!txt || txt.length > 900) break;
+
+      if (legacyTerms.some(term => txt.includes(term))) {
+        chosen = parent;
+        current = parent;
+      } else {
+        break;
+      }
+    }
+
+    return chosen;
+  }
+
+  function hideLegacyBlocks() {
+    let count = 0;
+
+    document.querySelectorAll("body *").forEach(node => {
+      if (protectedNode(node)) return;
+      if (!looksLegacy(node)) return;
+      if (node.closest('[data-ptp113b31b52-hidden="true"]')) return;
+
+      const card = findSmallCard(node);
+      if (!card || protectedNode(card)) return;
+
+      const txt = norm(card.innerText || card.textContent || "");
+      if (!txt || txt.length > 900) return;
+      if (!legacyTerms.some(term => txt.includes(term))) return;
+
+      card.setAttribute("data-ptp113b31b52-hidden", "true");
+      count++;
+    });
+
+    return count;
+  }
+
+  function addNote() {
+    if (document.querySelector("#ptp113b31b52-clean-note")) return;
+
+    const panel = document.querySelector("#px-observer-toggle-panel");
+    if (!panel) return;
+
+    const note = document.createElement("div");
+    note.id = "ptp113b31b52-clean-note";
+    note.textContent = "Saneamento visual ativo: blocos antigos fora do painel operacional foram ocultados.";
+    panel.insertAdjacentElement("afterend", note);
+  }
+
+  function cleanup() {
+    const oldState = document.querySelector("#px-observer-state");
+    if (oldState) oldState.setAttribute("data-ptp113b31b52-hidden", "true");
+
+    hideLegacyBlocks();
+    addNote();
+  }
+
+  function boot() {
+    cleanup();
+    setTimeout(cleanup, 300);
+    setTimeout(cleanup, 1000);
+    setTimeout(cleanup, 2200);
+    setInterval(cleanup, 2500);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END */
+
 </body>
 </html>
 """

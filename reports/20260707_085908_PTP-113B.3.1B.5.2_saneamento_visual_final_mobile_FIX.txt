@@ -1,0 +1,19 @@
+PREDIXAI PTP-113B.3.1B.5.2 saneamento_visual_final_mobile
+Data: 2026-07-07 08:59:08 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+
+===== OBJETIVO =====
+Ocultar/remover visualmente os blocos antigos de preço, suporte, resistência, status e diagnóstico que continuam aparecendo fora do painel novo do observador.
+
+===== REGRA =====
+Não alterar API.
+Não alterar lógica de sinal.
+Não alterar banca.
+Não avançar para PTP-113B.3.1C.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR =====
+Git status inicial:
+?? reports/20260707_085908_PTP-113B.3.1B.5.2_saneamento_visual_final_mobile_FIX.txt
+PAUSE: Git não está limpo antes da correção.

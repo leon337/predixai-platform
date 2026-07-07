@@ -1,0 +1,201 @@
+PREDIXAI PTP-113B.3.1B.5.2.1 recovery_saneamento_visual_mobile
+Data: 2026-07-07 09:01:08 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+
+===== OBJETIVO =====
+Recuperar a PTP-113B.3.1B.5.2 após PAUSE documental e aplicar o saneamento visual final da tela /mobile.
+
+===== CONTEXTO =====
+A tentativa anterior criou o próprio relatório antes de validar o Git limpo e entrou em PAUSE.
+Este recovery aceita o relatório PAUSE como arquivo esperado e aplica o patch visual.
+
+===== REGRA =====
+Não alterar API.
+Não alterar lógica de sinal.
+Não alterar banca.
+Não avançar para PTP-113B.3.1C.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR =====
+Git status inicial:
+?? reports/20260707_085908_PTP-113B.3.1B.5.2_saneamento_visual_final_mobile_FIX.txt
+?? reports/20260707_090108_PTP-113B.3.1B.5.2.1_recovery_saneamento_visual_mobile_RECOVERY_PASS.txt
+
+Últimos commits:
+6777748 PTP-113B.3.1B.5.1.1 close toggle observer report recovery
+d76f24d PTP-113B.3.1B.5.1 toggle_observador_persistente PASS
+2a4d7cf PTP-113B.3.1B.5 add real observer state
+1a00840 PTP-113B.3.1B.4 sane mobile UI renderer
+6be04ce PTP-113B.3.1B.3 fix real contract data on mobile
+
+Relatórios PAUSE detectados:
+reports/20260707_085908_PTP-113B.3.1B.5.2_saneamento_visual_final_mobile_FIX.txt
+
+Marcadores atuais:
+1188:    if (id("px-mobile-ui")) return;
+1191:    shell.id = "px-mobile-ui";
+1235:      if (!el || el.closest("#px-mobile-ui")) return;
+1387:.px-observer-state-card {
+1592:    if (el("px-observer-state")) return;
+1595:    card.id = "px-observer-state";
+1596:    card.className = "px-observer-state-card";
+1607:    const shell = el("px-mobile-ui") || document.querySelector(".predixai-mobile-shell");
+1654:      if (!node || node.closest("#px-observer-state") || node.closest("#px-mobile-ui")) return;
+1794:/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_START */
+1796:  #px-observer-toggle-panel {
+1805:  #px-observer-toggle-panel .px-toggle-head {
+1813:  #px-observer-toggle-panel .px-toggle-title {
+1820:  #px-observer-toggle-panel .px-toggle-badge {
+1829:  #px-observer-toggle-panel .px-toggle-badge.off {
+1834:  #px-observer-toggle-panel .px-toggle-badge.starting,
+1835:  #px-observer-toggle-panel .px-toggle-badge.waiting,
+1836:  #px-observer-toggle-panel .px-toggle-badge.stale {
+1841:  #px-observer-toggle-panel .px-toggle-badge.reading {
+1846:  #px-observer-toggle-panel .px-toggle-badge.error {
+1851:  #px-observer-toggle-panel .px-toggle-switch {
+1867:  #px-observer-toggle-panel .px-toggle-switch[aria-checked="true"] {
+1871:  #px-observer-toggle-panel .px-toggle-switch.px-waiting {
+1875:  #px-observer-toggle-panel .px-toggle-switch.px-error {
+1879:  #px-observer-toggle-panel .px-toggle-knob {
+1889:  #px-observer-toggle-panel .px-toggle-switch[aria-checked="true"] .px-toggle-knob {
+1894:  #px-observer-toggle-panel .px-toggle-main {
+1901:  #px-observer-toggle-panel .px-toggle-label {
+1905:  #px-observer-toggle-panel .px-toggle-sub {
+1912:  #px-observer-toggle-panel .px-current-grid,
+1913:  #px-observer-toggle-panel .px-history-grid {
+1920:  #px-observer-toggle-panel .px-data-row {
+1927:  #px-observer-toggle-panel .px-data-label {
+1936:  #px-observer-toggle-panel .px-data-value {
+1943:  #px-observer-toggle-panel .px-section-label {
+1952:  #px-observer-toggle-panel .px-muted {
+1956:  #px-observer-toggle-panel .px-warning-note {
+1963:  #px-observer-toggle-panel .px-safe-note {
+1973:  const MARKER = "PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_RUNTIME";
+2130:    let panel = qs("#px-observer-toggle-panel");
+2134:    panel.id = "px-observer-toggle-panel";
+2164:    const preferred = qs("#px-mobile-ui") || qs(".predixai-mobile-shell") || qs("main") || document.body;
+2233:      if (!node || node.closest("#px-observer-toggle-panel")) return;
+2234:      if (node.id === "px-mobile-ui") return;
+2285:/* PTP113B31B51_TOGGLE_OBSERVADOR_PERSISTENTE_END */
+
+===== PLANEJAR =====
+1. Criar backup.
+2. Aplicar saneamento visual final.
+3. Ocultar blocos legados fora do painel novo.
+4. Reiniciar servidor mobile.
+5. Validar HTML real e API.
+6. Registrar relatório, Markdown e índice.
+7. Commit/push sem escrever no relatório depois.
+
+===== CONSTRUIR =====
+Backup criado:
+backups/20260707_090108_PTP-113B.3.1B.5.2.1_recovery_saneamento_visual_mobile/predixai_trader_mobile_server.py.bak
+Patch aplicado em:
+scripts/predixai_trader_mobile_server.py
+
+===== VALIDAR =====
+py_compile:
+scripts/predixai_trader_mobile_server.py:6649: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+scripts/predixai_trader_mobile_server.py:6910: SyntaxWarning: invalid escape sequence '\d'
+  return """
+
+git diff --check:
+
+Marcador novo:
+2288:/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START */
+2325:  const MARKER = "PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_RUNTIME";
+2455:/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END */
+
+Reiniciando servidor mobile...
+Servidor mobile reiniciado.
+
+HTML real:
+/mobile HTTP 200
+2192:/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START */
+2229:  const MARKER = "PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_RUNTIME";
+2359:/* PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END */
+
+API mobile:
+/api/mobile/state HTTP 200
+{
+    "active_reader_count": 0,
+    "active_readers": [],
+    "db_path": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db",
+    "expiration_seconds": 30,
+    "history": [
+        {
+            "asset": "Cafeina Index",
+            "confidence": 95.0,
+            "index": 614,
+            "metadata_json": null,
+            "price": 4182.1,
+            "price_value": 4182.1,
+            "session_id": "mobile_20260707_004636_594de56d",
+            "source": "MOBILE_FIRST_SIMULATED_BRIDGE",
+            "source_ocr_text": null,
+            "status": "SIMULATED",
+            "timestamp": "2026-07-07T00:46:36.450951-03:00",
+            "window_title": null
+        }
+    ],
+    "mobile_session": {
+        "asset": "Cafeina Index",
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "confluence_result": {
+            "asset": "Cafeina Index",
+            "final_confidence": 95.0,
+            "level": "ALTA",
+            "reason": "Conflu\u00eancia aprovada por decis\u00e3o direcional v\u00e1lida e confian\u00e7a m\u00ednima atingida.",
+            "status": "APROVADO",
+            "strategy_decision": "ALTA",
+            "timestamp": "2026-07-07T03:46:36.436307+00:00"
+        },
+        "contract": {
+            "simulation_only": true,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "credentials_allowed": false,
+            "operational_mode": {
+                "key": "scalper",
+                "label": "Scalper",
+                "description": "Sess\u00e3o curta, com foco em sinais r\u00e1pidos e controle r\u00edgido."
+            },
+            "strategy": {
+                "key": "simple_confluence",
+                "label": "Conflu\u00eancia simples",
+                "risk": "baixo/m\u00e9dio",
+                "description": "S\u00f3 libera sinal quando m\u00faltiplos crit\u00e9rios t\u00e9cnicos concordam."
+            },
+            "bankroll": {
+                "currency": "BRL",
+                "initial_bankroll": 100.0,
+                "current_bankroll": 100.0,
+                "current_entry": 5.0,
+                "profit_loss": 0.0,
+                "profit_loss_percent": 0.0
+            },
+            "risk": {
+                "profile": "conservador",
+                "entry_percent_of_bankroll": 5.0,
+                "estimated_consumption_1h": 25.0,
+                "estimated_consumption_percent_1h": 25.0
+            },
+            "expiration": {
+                "seconds": 60,
+                "label": "1 minuto(s)"
+            },
+            "preview": {
+                "estimated_signals_5m": 1,
+                "estimated_signals_1h": 5,
+                "session_classification": "seletiva",
+                "recommendation": "Operar somente em modo simulado e cancelar se o pre\u00e7o fugir da zona.",
+                "general_safety_rule": "A condi\u00e7\u00e3o espec\u00edfica de cancelamento ser\u00e1 exibida junto do sinal gerado.",
+                "cancel_alert": "Cancelamento espec\u00edfico ser\u00e1 calculado no sinal conforme ativo, pre\u00e7o, hor\u00e1rio e estrat\u00e9gia."
+            },
+            "required_visual_fields": [
+                "ativo",
