@@ -1,0 +1,161 @@
+PREDIXAI OBSERVADOR MOBILE-FIRST AUDIT
+Data: seg 06 jul 2026 23:23:39 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+PTP: PTP-113B.3.1B.1
+Status: AUDIT
+Base URL: http://127.0.0.1:8766
+
+===== INVESTIGAR — GIT =====
+Branch:
+main
+
+HEAD:
+c6e4325 PTP-113B.3.1A.5.1A.9 record visual PASS Stepper BRL
+
+Status inicial:
+?? reports/20260706_232339_PTP-113B.3.1B.1_audit_observador_mobile_AUDIT.txt
+
+===== INVESTIGAR — ARQUIVOS BASE =====
+OK: /home/leo/Documentos/GitHub/predixai-platform/PROJECT_STATE.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/predixai_context.json
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+
+===== VALIDAR — PY_COMPILE =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:4991: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5252: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PASS: py_compile do servidor mobile
+
+===== INVESTIGAR — ROTAS E MARCADORES NO CÓDIGO =====
+Rota /mobile:                              2
+API /api/mobile/state:                     8
+API contrato/signal contract:              104
+Session setup:                             33
+Saldo/balance:                             74
+Banca inicial:                             31
+Entrada atual:                             134
+Meta lucro:                                128
+Recuperação:                             96
+Ativo observado:                           162
+Preço/ticks:                              331
+Payout:                                    10
+Gráfico/canvas/chart:                     12
+Polling/atualização:                     20
+Botão iniciar:                            69
+Botão parar:                              27
+Feedback visual botão:                    83
+Trava simulation_only:                     12
+Trava orders_enabled:                      14
+Trava real_money_enabled:                  9
+Trava auto_click_enabled:                  9
+Trava broker_login_enabled:                4
+Trava credentials_allowed:                 3
+
+===== INVESTIGAR — ENDPOINTS HTTP SE SERVIDOR ESTIVER ATIVO =====
+/mobile -> HTTP 200
+Amostra /mobile:
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PredixAI Trader Mobile</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #061018;
+      --panel: #101b28;
+      --panel-2: #0b1622;
+      --line: #00e5ff;
+      --text: #f5f7fb;
+      --muted: #a8b5c6;
+      --green: #38d66b;
+      --yellow: #ffbf00;
+      --red: #ff4d6d;
+      --border: #24364a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 14px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0;
+      color: var(--line);
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+    .badge {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 9px;
+      color: var(--muted);
+      font: 700 12px Consolas, monospace;
+      white-space: nowrap;
+    }
+    .notice {
+      border: 1px s
+/api/mobile/state -> HTTP 200
+Amostra /api/mobile/state:
+{"active_reader_count": 0, "active_readers": [], "db_path": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db", "expiration_seconds": 30, "history": [{"asset": "Cafeina Index", "confidence": 95.0, "index": 578, "metadata_json": null, "price": 4182.1, "price_value": 4182.1, "session_id": "mobile_20260706_162718_821a43a7", "source": "MOBILE_FIRST_SIMULATED_BRIDGE", "source_ocr_text": null, "status": "SIMULATED", "timestamp": "2026-07-06T16:27:18.812002-03:00", "window_title": null}], "mobile_session": {"asset": "Cafeina Index", "auto_click_enabled": false, "broker_login_enabled": false, "confluence_result": {"asset": "Cafeina Index", "final_confidence": 95.0, "level": "ALTA", "reason": "Confluência aprovada por decisão direcional válida e confiança mínima atingida.", "status": "APROVADO", "strategy_decision": "ALTA", "timestamp": "2026-07-06T19:27:18.695131+00:00"}, "contract": {"simulation_only": true, "orders_enabled": false, "real_money_enabled": false, "auto_click_enabled": false, "broker_login_enabled": false, "credentials_allowed": false, "operational_mode": {"key": "scalper", "label": "Scalper", "description": "Sessão curta, com foco 
+/api/mobile/signal/contract -> HTTP 200
+Amostra /api/mobile/signal/contract:
+{"available_operational_modes": {"day_trade": "Day Trade — sinais mais seletivos", "scalper": "Scalper — sinais rápidos"}, "available_strategies": {"breakout": {"description": "Busca rompimento de zona relevante com confirmação mínima.", "label": "Rompimento", "risk": "alto", "signals_1h_day_trade": 3, "signals_1h_scalper": 7, "signals_5m_day_trade": 0, "signals_5m_scalper": 1}, "candle_reversal": {"description": "Busca sinais de reversão após movimento curto ou esticado.", "label": "Reversão de vela", "risk": "médio/alto", "signals_1h_day_trade": 4, "signals_1h_scalper": 10, "signals_5m_day_trade": 0, "signals_5m_scalper": 1}, "moving_average_trend": {"description": "Usa direção das médias para filtrar compra, venda ou aguardar.", "label": "Tendência por médias", "risk": "médio", "signals_1h_day_trade": 2, "signals_1h_scalper": 6, "signals_5m_day_trade": 0, "signals_5m_scalper": 0}, "pullback": {"description": "Aguarda retorno do preço para uma zona antes de sugerir entrada.", "label": "Pullback", "risk": "médio", "signals_1h_day_trade": 2, "signals_1h_scalper": 6, "signals_5m_day_trade": 0, "signals_5m_scalper": 1}, "simple_confluence": {"description": "Só li
+
+===== ANÁLISE — CONTRATO DA PRIMEIRA TELA NA SEGUNDA TELA =====
+PASS: saldo_atual -> saldo, balance
+PASS: banca_inicial -> banca, initial_bankroll
+PASS: entrada_atual -> entrada, entry
+PASS: meta_lucro -> meta, profit_target, target_profit
+PASS: limite_stop -> stop, limit, limite
+PASS: recuperacao -> recuper, martingale, soros, smartgale, recovery
+PASS: proxima_entrada -> next_entry, pr[oó]xima entrada
+PASS: exposicao_maxima -> expos, entrada máxima
+PASS: grafico_atualizando -> chart, canvas, setInterval, fetch\(
+PASS: feedback_botoes -> disabled, classList
+PASS: seguranca_simulada -> simulation_only, orders_enabled, real_money_enabled, auto_click_enabled
+
+Recomendação técnica preliminar:
+1. A tela /mobile deve receber resumo do contrato da /session/setup.
+2. A tela /mobile deve exibir saldo atual, banca, entrada, meta, recuperação e exposição.
+3. O gráfico deve mostrar estado visual mesmo sem dados suficientes.
+4. Botões devem ter feedback visual: clicado, processando, ativo, parado ou erro.
+5. Nenhuma implementação real de ordem/login/autoclick deve ser desbloqueada.
+
+===== VALIDAR — SEGURANÇA DE VERSIONAMENTO =====
+PASS: nenhum arquivo sensível/cache óbvio no status inicial.
+
+===== VALIDAR — GIT DIFF CHECK =====
+PASS: git diff --check
+
+===== PLANEJAR — CONCLUSÃO DA AUDITORIA =====
+Esta auditoria NÃO alterou o servidor mobile.
+Ela apenas registrou o estado atual para planejar a PTP-113B.3.1B.
+
+Critérios que a próxima correção deverá atender:
+1. /mobile carregar contrato da primeira tela.
+2. /mobile exibir saldo atual simulado.
+3. /mobile exibir banca, entrada, meta, recuperação e exposição.
+4. /mobile manter gráfico atualizando ou com estado visual claro.
+5. Botões mostrarem feedback visual após clique.
+6. Segurança simulada preservada.
+
+===== REGISTRAR — MARKDOWN HISTÓRICO =====
+Markdown gerado: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260706_232339_PTP-113B.3.1B.1_audit_observador_mobile_AUDIT.md
+
+===== REGISTRAR — ÍNDICE =====
+
+===== PUBLICAR — GIT ADD/COMMIT/PUSH =====
