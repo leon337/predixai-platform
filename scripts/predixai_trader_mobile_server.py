@@ -2651,6 +2651,130 @@ a.px-btn-error {
 </script>
 <!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_END -->
 
+<!-- PTP113B31B524_CORRIGIR_TOPO_OBSERVADOR_MOBILE_START -->
+<style>
+  @media (max-width: 768px) {
+    .px-top-observer-banner-hidden {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      max-height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      overflow: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .px-top-observer-card-clean {
+      margin-top: 10px !important;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  const MARKER = "PTP113B31B524_CORRIGIR_TOPO_OBSERVADOR_MOBILE_RUNTIME";
+
+  function cleanText(el) {
+    return (el && el.textContent ? el.textContent : "").replace(/\s+/g, " ").trim();
+  }
+
+  function isTopArea(el) {
+    const r = el.getBoundingClientRect();
+    return r.top >= 0 && r.top < 260 && r.height > 10 && r.height < 180;
+  }
+
+  function looksLikeObserverWarning(text) {
+    const t = text.toLowerCase();
+    return t.includes("modo observador") &&
+      (
+        t.includes("sem ordens reais") ||
+        t.includes("não executa ordens") ||
+        t.includes("não é recomendação financeira") ||
+        t.includes("simulado")
+      );
+  }
+
+  function hideTopObserverBanner() {
+    const nodes = Array.from(document.querySelectorAll("div, section, article, aside, p, span"));
+    const matches = nodes.filter(el => {
+      const text = cleanText(el);
+      return text.length > 0 &&
+        text.length < 700 &&
+        looksLikeObserverWarning(text) &&
+        isTopArea(el);
+    });
+
+    matches.forEach(el => {
+      let chosen = el;
+      let node = el;
+
+      for (let i = 0; i < 5; i++) {
+        const parent = node.parentElement;
+        if (!parent || parent === document.body) break;
+
+        const parentText = cleanText(parent);
+        const rect = parent.getBoundingClientRect();
+
+        if (
+          parentText.length < 900 &&
+          looksLikeObserverWarning(parentText) &&
+          rect.top >= 0 &&
+          rect.top < 260 &&
+          rect.height < 190
+        ) {
+          chosen = parent;
+          node = parent;
+        } else {
+          break;
+        }
+      }
+
+      chosen.dataset[MARKER] = "hidden";
+      chosen.setAttribute("aria-hidden", "true");
+      chosen.classList.add("px-top-observer-banner-hidden");
+    });
+  }
+
+  function cleanObserverCardSpacing() {
+    const candidates = Array.from(document.querySelectorAll("div, section, article"))
+      .filter(el => {
+        const t = cleanText(el);
+        return t.includes("Observador mobile") &&
+          t.includes("Leitura atual") &&
+          t.includes("Último histórico") &&
+          t.length < 3000;
+      })
+      .sort((a, b) => cleanText(a).length - cleanText(b).length);
+
+    if (candidates[0]) {
+      candidates[0].classList.add("px-top-observer-card-clean");
+    }
+  }
+
+  function applyPatch() {
+    hideTopObserverBanner();
+    cleanObserverCardSpacing();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyPatch);
+  } else {
+    applyPatch();
+  }
+
+  setTimeout(applyPatch, 300);
+  setTimeout(applyPatch, 900);
+  setTimeout(applyPatch, 1600);
+})();
+</script>
+<!-- PTP113B31B524_CORRIGIR_TOPO_OBSERVADOR_MOBILE_END -->
+
+
+
 
 
 </body>

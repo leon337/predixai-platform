@@ -1,0 +1,41 @@
+PREDIXAI BR — PTP-113B.3.1B.5.2.4
+Nome curto: corrigir_topo_observador_mobile
+Status: FIX
+Data: 20260707_093440
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== INVESTIGAR =====
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+Objetivo: remover/ocultar a faixa superior duplicada do modo observador.
+Regra: não mexer na barra inferior, pois ela já foi aprovada visualmente.
+
+Backup criado em: /tmp/predixai_backups/20260707_093440_PTP-113B.3.1B.5.2.4_corrigir_topo_observador_mobile/predixai_trader_mobile_server.py.bak
+
+===== PLANEJAR =====
+Plano:
+1. Inserir patch visual específico para o topo.
+2. Ocultar banner superior duplicado do modo observador.
+3. Manter segurança simulada visível no painel operacional.
+4. Não alterar lógica, botões, saldo, sinais ou segurança.
+
+===== CONSTRUIR =====
+Patch do topo inserido.
+
+===== VALIDAR =====
+✅ py_compile PASS
+✅ git diff --check PASS
+✅ /mobile HTTP 200
+✅ marcador novo do topo presente no HTML real
+
+===== REGISTRAR =====
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260707_093440_PTP-113B.3.1B.5.2.4_corrigir_topo_observador_mobile_FIX.md
+Índice atualizado: docs/reports_index.md
+
+===== PUBLICAR =====
+Relatório fechado antes do commit/push.
+Arquivos a versionar:
+- scripts/predixai_trader_mobile_server.py
+- reports/20260707_093440_PTP-113B.3.1B.5.2.4_corrigir_topo_observador_mobile_FIX.txt
+- docs/history/ptp/PTP-113/PTP-113B/20260707_093440_PTP-113B.3.1B.5.2.4_corrigir_topo_observador_mobile_FIX.md
+- docs/reports_index.md
+
