@@ -5003,12 +5003,88 @@ def _ptp113b3151a_currency_controls_v1_assets():
   ];
 
   function parseMoney(value) {
+    // PTP-113B.3.1A.5.1A.8_NORMALIZE_PARSE_BRL
     if (value === null || value === undefined) return 0;
-    let raw = String(value).trim();
-    raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
-    raw = raw.replace(/\\./g, "").replace(",", ".");
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) ? parsed : 0;
+
+    let text = String(value).trim();
+    if (!text) return 0;
+
+    text = text
+      .replace(/\u00A0/g, " ")
+      .replace(/[^\d,.\-]/g, "")
+      .trim();
+
+    if (!text) return 0;
+
+    const negative = text.indexOf("-") !== -1;
+    text = text.replace(/-/g, "");
+
+    const hasComma = text.indexOf(",") !== -1;
+    const hasDot = text.indexOf(".") !== -1;
+    let normalized = text;
+
+    if (hasComma && hasDot) {
+      const lastComma = text.lastIndexOf(",");
+      const lastDot = text.lastIndexOf(".");
+
+      if (lastComma > lastDot) {
+        // Padrão BR: 1.234,56
+        normalized = text.replace(/\./g, "").replace(",", ".");
+      } else {
+        // Padrão internacional: 1,234.56
+        normalized = text.replace(/,/g, "");
+      }
+    } else if (hasComma) {
+      const parts = text.split(",");
+
+      if (parts.length > 2) {
+        const cents = parts.pop();
+        normalized = parts.join("") + "." + cents;
+      } else {
+        const whole = parts[0] || "0";
+        const cents = parts[1] || "";
+
+        if (cents.length === 0) {
+          normalized = whole;
+        } else if (cents.length <= 2) {
+          normalized = whole + "." + cents;
+        } else {
+          // Caso raro: 1,000 tratado como milhar.
+          normalized = whole + cents;
+        }
+      }
+    } else if (hasDot) {
+      const parts = text.split(".");
+
+      if (parts.length > 2) {
+        const last = parts[parts.length - 1] || "";
+
+        if (last.length <= 2) {
+          normalized = parts.slice(0, -1).join("") + "." + last;
+        } else {
+          normalized = parts.join("");
+        }
+      } else {
+        const whole = parts[0] || "0";
+        const tail = parts[1] || "";
+
+        if (tail.length === 0) {
+          normalized = whole;
+        } else if (tail.length <= 2) {
+          normalized = whole + "." + tail;
+        } else {
+          // Caso BR com ponto de milhar: 1.000
+          normalized = whole + tail;
+        }
+      }
+    }
+
+    let number = Number.parseFloat(normalized);
+    if (!Number.isFinite(number)) return 0;
+
+    if (negative) number = -number;
+
+    return Math.round(number * 100) / 100;
   }
 
   function toDecimal(value) {
@@ -5251,12 +5327,88 @@ def _ptp113b3151a1_currency_layout_assets_v1():
   ];
 
   function parseMoney(value) {
+    // PTP-113B.3.1A.5.1A.8_NORMALIZE_PARSE_BRL
     if (value === null || value === undefined) return 0;
-    let raw = String(value).trim();
-    raw = raw.replace(/R\\$/g, "").replace(/\\s/g, "");
-    raw = raw.replace(/\\./g, "").replace(",", ".");
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) ? parsed : 0;
+
+    let text = String(value).trim();
+    if (!text) return 0;
+
+    text = text
+      .replace(/\u00A0/g, " ")
+      .replace(/[^\d,.\-]/g, "")
+      .trim();
+
+    if (!text) return 0;
+
+    const negative = text.indexOf("-") !== -1;
+    text = text.replace(/-/g, "");
+
+    const hasComma = text.indexOf(",") !== -1;
+    const hasDot = text.indexOf(".") !== -1;
+    let normalized = text;
+
+    if (hasComma && hasDot) {
+      const lastComma = text.lastIndexOf(",");
+      const lastDot = text.lastIndexOf(".");
+
+      if (lastComma > lastDot) {
+        // Padrão BR: 1.234,56
+        normalized = text.replace(/\./g, "").replace(",", ".");
+      } else {
+        // Padrão internacional: 1,234.56
+        normalized = text.replace(/,/g, "");
+      }
+    } else if (hasComma) {
+      const parts = text.split(",");
+
+      if (parts.length > 2) {
+        const cents = parts.pop();
+        normalized = parts.join("") + "." + cents;
+      } else {
+        const whole = parts[0] || "0";
+        const cents = parts[1] || "";
+
+        if (cents.length === 0) {
+          normalized = whole;
+        } else if (cents.length <= 2) {
+          normalized = whole + "." + cents;
+        } else {
+          // Caso raro: 1,000 tratado como milhar.
+          normalized = whole + cents;
+        }
+      }
+    } else if (hasDot) {
+      const parts = text.split(".");
+
+      if (parts.length > 2) {
+        const last = parts[parts.length - 1] || "";
+
+        if (last.length <= 2) {
+          normalized = parts.slice(0, -1).join("") + "." + last;
+        } else {
+          normalized = parts.join("");
+        }
+      } else {
+        const whole = parts[0] || "0";
+        const tail = parts[1] || "";
+
+        if (tail.length === 0) {
+          normalized = whole;
+        } else if (tail.length <= 2) {
+          normalized = whole + "." + tail;
+        } else {
+          // Caso BR com ponto de milhar: 1.000
+          normalized = whole + tail;
+        }
+      }
+    }
+
+    let number = Number.parseFloat(normalized);
+    if (!Number.isFinite(number)) return 0;
+
+    if (negative) number = -number;
+
+    return Math.round(number * 100) / 100;
   }
 
   function toDecimal(value) {

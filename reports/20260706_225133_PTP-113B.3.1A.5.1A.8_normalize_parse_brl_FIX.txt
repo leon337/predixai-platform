@@ -1,0 +1,178 @@
+PREDIXAI BR — RELATÓRIO DE CORREÇÃO
+PTP: PTP-113B.3.1A.5.1A.8
+Nome curto: normalize_parse_brl
+Ação: FIX
+Data: 2026-07-06 22:51:33 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+
+===== OBJETIVO =====
+Normalizar parseMoney para BRL.
+O objetivo é aceitar com segurança:
+- R$ 100,00
+- 100,00
+- 100.00
+- 100
+- R$ 1.000,00
+- R$ 1,000.00
+
+A correção não muda dinheiro real, corretora, login, auto-click ou ordem real.
+
+===== INVESTIGAR — ESTADO DO GIT =====
+
+$ git rev-parse --show-toplevel
+/home/leo/Documentos/GitHub/predixai-platform
+exit_code=0
+
+$ git branch --show-current
+main
+exit_code=0
+
+$ git log -10 --oneline
+f51c10d PTP-113B.3.1A.5.1A.7 restart validate Stepper BRL
+198460d PTP-113B.3.1A.5.1A.6 fix Stepper BRL guard
+2c8fea5 PTP-113B.3.1A.5.1A.5 validate Stepper BRL
+6f91982 PTP-113B.3.1A.5.1A.4 unify Stepper BRL
+965bc1b PTP-113B.3.1A.5.1A.3 audit Stepper BRL
+34af941 PTP-GOV.2 add PredixAI Trader master scope
+217aaca PTP-GOV.1.1 close governance final report
+108108f PTP-GOV.1 install PredixAI governance protocols
+98a4a67 PTP-113B.3.1A.5.1A.2 AUDIT pause publish report
+9520510 PTP-113B.3.1A.5.1A.2 AUDIT pause money stepper state
+exit_code=0
+
+--- git status inicial ---
+?? __HTML_TEST_PATH__
+?? reports/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_FIX.txt
+
+===== LIMPAR SOBRA TEMPORÁRIA =====
+PASS: sobra temporária __HTML_TEST_PATH__ removida.
+
+===== INVESTIGAR — ARQUIVO ALVO =====
+OK: arquivo alvo encontrado.
+  5597 207044 scripts/predixai_trader_mobile_server.py
+478872fe723d593de8231d86ecd4e3059b496e8bfc1bcb8795ad5b18b760a879  scripts/predixai_trader_mobile_server.py
+
+===== AUDITORIA PRÉ-CORREÇÃO =====
+parseMoney_pre=2
+formatBRL_pre=2
+normalize_marker_pre=0
+
+===== CONSTRUIR — PATCH parseMoney =====
+BACKUP_CREATED: backups/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_predixai_trader_mobile_server.before.py
+PATCH_APPLIED: parseMoney substituído em 2 ocorrência(s).
+MARKER_PRESENT=True
+
+===== VALIDAR — COMPILAÇÃO E MARCADOR =====
+
+$ python -m py_compile scripts/predixai_trader_mobile_server.py
+scripts/predixai_trader_mobile_server.py:4991: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+scripts/predixai_trader_mobile_server.py:5252: SyntaxWarning: invalid escape sequence '\d'
+  return """
+exit_code=0
+PASS: py_compile aprovado.
+normalize_marker_pos=2
+PASS: marcador normalize_parse_brl encontrado.
+
+===== VALIDAR — IMPORT SMOKE =====
+
+--- import smoke output ---
+IMPORT_SMOKE_PASS
+import_smoke_exit_code=0
+PASS: import smoke aprovado.
+
+===== REINICIAR — SERVIDOR MOBILE =====
+PIDs na porta 8766:
+108965
+PID 108965: python scripts/predixai_trader_mobile_server.py --host 0.0.0.0 --port 8766
+
+$ python scripts/predixai_trader_mobile_server.py --host 0.0.0.0 --port 8766
+pid_iniciado=109681
+http_code_session_setup=200
+PASS: /session/setup respondeu HTTP 200.
+
+--- últimas 120 linhas do log do servidor ---
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:4991: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5252: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PredixAI Trader Mobile Server
+Modo observador. Não é recomendação financeira.
+Modo observador/simulado. Não executa ordens.
+Local PC: http://127.0.0.1:8766/mobile
+Celular na mesma Wi-Fi: http://192.168.10.101:8766/mobile
+Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start
+Endpoint observador legado: POST /api/mobile/stop
+ * Serving Flask app 'predixai_trader_mobile_server'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8766
+ * Running on http://192.168.10.101:8766
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [06/Jul/2026 22:51:44] "GET /session/setup HTTP/1.1" 200 -
+
+===== VALIDAR — HTML REAL =====
+html_parseMoney_definicoes=1
+html_formatBRL_definicoes=1
+html_DOMContentLoaded_ocorrencias=1
+html_money_stepper_ocorrencias=5
+html_legacy_marker_ocorrencias=0
+html_normalize_marker_ocorrencias=1
+PASS: HTML real tem 1 parseMoney.
+PASS: HTML real tem 1 formatBRL.
+PASS: HTML real contém parseMoney normalizado.
+
+===== VALIDAR — TESTES JS DO parseMoney =====
+NODE_TEST_CREATED: /tmp/20260706_225133_normalize_parse_brl_parse_test.js
+
+--- node parseMoney tests ---
+PASS | R$ 100,00 => 100 | expected=100
+PASS | 100,00 => 100 | expected=100
+PASS | 100.00 => 100 | expected=100
+PASS | 100 => 100 | expected=100
+PASS | R$ 1.000,00 => 1000 | expected=1000
+PASS | 1.000,00 => 1000 | expected=1000
+PASS | R$ 1,000.00 => 1000 | expected=1000
+PASS | R$ 9.999,00 => 9999 | expected=9999
+PASS | R$ 501,00 => 501 | expected=501
+PASS | R$ 25,00 => 25 | expected=25
+node_parse_test_exit_code=0
+PASS: testes JS do parseMoney aprovados.
+
+===== VALIDAR — SEGURANÇA SIMULADA =====
+PASS: nenhuma ativação óbvia de ordem real/auto-click/login real encontrada.
+
+===== VALIDAR — GIT DIFF CHECK =====
+
+$ git diff --check
+exit_code=0
+PASS: git diff --check aprovado.
+
+===== REGISTRAR — STATUS FINAL =====
+Status calculado: PASS
+Warnings: 0
+Erros: 0
+
+===== REGISTRAR — MARKDOWN E ÍNDICE =====
+Backup do índice criado: backups/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_reports_index.before.md
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_FIX.md
+Índice atualizado: docs/reports_index.md
+
+===== SANITY CHECK — ARQUIVOS PARA VERSIONAMENTO =====
+intended_git_add: scripts/predixai_trader_mobile_server.py
+intended_git_add: reports/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_FIX.txt
+intended_git_add: docs/history/ptp/PTP-113/PTP-113B/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_FIX.md
+intended_git_add: docs/reports_index.md
+intended_git_add: backups/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_predixai_trader_mobile_server.before.py
+intended_git_add: data/runtime/logs/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_server.log
+intended_git_add: backups/20260706_225133_PTP-113B.3.1A.5.1A.8_normalize_parse_brl_reports_index.before.md
+
+===== ENTREGAR — FECHAMENTO DO RELATÓRIO =====
+Status final: PASS
+Warnings: 0
+Erros: 0
+
+Relatório fechado antes de commit/push.
+Depois do push, o script apenas abrirá este relatório, sem escrever novas linhas nele.
