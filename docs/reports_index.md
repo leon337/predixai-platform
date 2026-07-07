@@ -104,3 +104,9 @@
 - Relatório: `reports/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual_FIX.txt`
 - Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual_FIX.md`
 - Arquivo alterado: `scripts/predixai_trader_mobile_server.py`
+
+## 2026-07-07 11:13:33 -0300 — PTP 113 C.7.3 — Debug do Reader Visual pelo VS Code
+
+- Status: AUDIT
+- Relatório: `reports/20260707_111333_PTP-113C.7.3_debug_reader_visual_vscode_AUDIT.txt`
+- Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_111333_PTP-113C.7.3_debug_reader_visual_vscode_AUDIT.md`
