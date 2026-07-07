@@ -1,0 +1,1039 @@
+
+===== PREDIXAI BR — PTP 113 C.7.5 estabilizar_reader_mobile_polling =====
+Data: 2026-07-07 11:47:40 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo server: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+Arquivo main: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/main.py
+Banco: /home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db
+Status inicial: FIX
+
+===== OBJETIVO =====
+Corrigir instabilidade do reader visual:
+1. Aplicar resiliência SQLite no processo real do reader.
+2. Reduzir polling duplicado do mobile.
+3. Ocultar bloco Último Histórico do observador mobile.
+4. Preservar modo 100% simulado.
+
+===== REGRA DE SEGURANÇA =====
+Não executar ordem real.
+Não usar saldo real.
+Não clicar em compra/venda.
+Não ativar auto-click.
+Não usar login real.
+Não usar credenciais reais.
+A corretora aberta é apenas fonte visual observada.
+
+===== INVESTIGAR — Entrar no repositório =====
+/home/leo/Documentos/GitHub/predixai-platform
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+
+===== INVESTIGAR — Últimos commits =====
+99b915d PTP 113 C.7.4 fix sqlite reader lock
+1429c53 PTP 113 C.7.3 audit reader visual debug
+0145073 PTP 113 C.7.2 fix observer visual start
+756568b PTP 113 C.7 add mobile visual validation
+f24c17d PTP 113 C.6 add operational history event
+b5acbef PTP 113 C.5 add simulated bankroll update
+64e9d81 PTP 113 C.4 add simulated close result
+e5ac227 PTP 113 C.3 add simulated open operation
+dc0e817 PTP 113 C.2 add current signal model
+5acc1bd PTP 113 C.1 audit estado atual
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+
+===== PREPARAR — Parar processos para liberar SQLite =====
+Processos após parada:
+
+===== CONSTRUIR — Backup =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling
+
+===== CONSTRUIR — Criar módulo compartilhado de resiliência SQLite =====
+Módulo criado: src/predixai/runtime/sqlite_resilience.py
+
+===== CONSTRUIR — Inserir import no caminho real do reader e no servidor =====
+PATCH: import inserido em /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+PATCH: import inserido em /home/leo/Documentos/GitHub/predixai-platform/src/predixai/main.py
+
+===== CONSTRUIR — Aplicar dedupe de polling e ocultar Último Histórico no mobile =====
+PATCH: snippet inserido antes de </body>.
+
+===== CONSTRUIR — Preparar banco SQLite com WAL depois da parada =====
+busy_timeout= (30000,)
+journal_mode= ('wal',)
+synchronous= None
+integrity_check= ('ok',)
+DB_PREP_EXIT=0
+
+===== VALIDAR — py_compile =====
+  File "/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py", line 9546
+    if "
+       ^
+SyntaxError: unterminated string literal (detected at line 9546)
+PY_COMPILE_EXIT=1
+
+===== VALIDAR — Marcadores =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:2:# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8:# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:3248:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:7181:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:7697:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8089:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:9549:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:9649:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:9748:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:10276:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:10376:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:10475:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+/home/leo/Documentos/GitHub/predixai-platform/src/predixai/main.py:2:# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
+/home/leo/Documentos/GitHub/predixai-platform/src/predixai/main.py:8:# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
+/home/leo/Documentos/GitHub/predixai-platform/src/predixai/runtime/sqlite_resilience.py:1:# PTP113C75_SQLITE_SHARED_RESILIENCE_START
+/home/leo/Documentos/GitHub/predixai-platform/src/predixai/runtime/sqlite_resilience.py:93:# PTP113C75_SQLITE_SHARED_RESILIENCE_END
+
+===== PREPARAR — Reiniciar servidor mobile =====
+SERVER_PID=41298
+
+===== VALIDAR — Servidor mobile =====
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — Parar reader anterior =====
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+
+
+===== TESTE — Iniciar reader =====
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+
+
+===== TESTE — Coleta 120 segundos =====
+Mantenha a corretora em primeiro plano. Não volte para o VS Code durante a coleta.
+
+----- AMOSTRA 1 / 24 — 11:47:56 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 2 / 24 — 11:47:59 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 3 / 24 — 11:48:03 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 4 / 24 — 11:48:06 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 5 / 24 — 11:48:09 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 6 / 24 — 11:48:12 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 7 / 24 — 11:48:15 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 8 / 24 — 11:48:18 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 9 / 24 — 11:48:21 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 10 / 24 — 11:48:24 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 11 / 24 — 11:48:27 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 12 / 24 — 11:48:30 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 13 / 24 — 11:48:33 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 14 / 24 — 11:48:36 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 15 / 24 — 11:48:39 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 16 / 24 — 11:48:42 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 17 / 24 — 11:48:45 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 18 / 24 — 11:48:48 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 19 / 24 — 11:48:51 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 20 / 24 — 11:48:54 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 21 / 24 — 11:48:57 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 22 / 24 — 11:49:00 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 23 / 24 — 11:49:03 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+----- AMOSTRA 24 / 24 — 11:49:06 -----
+CURL_STATE_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+LOCK_COUNT_TOTAL_LOG=2
+
+[tail reader log]
+2026-07-07 11:47:29,900 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:29,900 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:29,900 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:29.886071-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 312/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 313/9999...
+2026-07-07 11:47:33,312 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:33,312 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:33,312 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:33,312 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:33,313 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:33,313 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:33,313 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:33.300050-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 313/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 314/9999...
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:36,724 | INFO | predixai | Título da janela: PredixAI BR - Iniciar PTP 113 C - Brave
+2026-07-07 11:47:36,724 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:36,724 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:36,724 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:36,724 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:36,724 | INFO | predixai | Broker Window Detection finalizado: {'title': 'PredixAI BR - Iniciar PTP 113 C - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:36.714487-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: janela ativa não é corretora', 'window_kind': 'unknown', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 314/9999, status=IGNORED_WINDOW, source=live_price_tick
+Live loop reading 315/9999...
+2026-07-07 11:47:40,154 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:47:40,154 | INFO | predixai | Título da janela: index.html - predixai-platform - Visual Studio Code
+2026-07-07 11:47:40,154 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:47:40,154 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:47:40,155 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:47:40,155 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:47:40,155 | INFO | predixai | Broker Window Detection finalizado: {'title': 'index.html - predixai-platform - Visual Studio Code', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:47:40.145268-03:00', 'metadata': {'detected': True, 'broker_window_valid': False, 'ignored': True, 'ignore_reason': 'Janela ignorada: VS Code não é corretora', 'window_kind': 'VS Code', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x03600004', 'active_window_id': '0x3600004'}}
+
+===== TESTE — Estado final =====
+FINAL_CURL_EXIT=7
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+
+
+===== TESTE — Contadores finais =====
+database_locked_count_total=2
+curl_timeout_count=0
+0
+sinal_pronto_count=0
+0
+reader_running_true_count=0
+0
+
+===== VALIDAR — Processos =====
+
+===== VALIDAR — Segurança simulada =====
+
+===== DIAGNÓSTICO C.7.5 =====
+PTP113C75_RESULT=WARN_OR_FAIL_REVIEW_NEEDED
+Critério PASS: py_compile=0, sinal_pronto>=2, database_locked=0, curl_timeout=0.
+Observação: se o relatório ainda mostrar timeout sem lock, próxima etapa deve reduzir ainda mais o polling JS/server.
+
+===== REGISTRAR — Markdown histórico =====
+Markdown gerado: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.md
+
+===== REGISTRAR — Atualizar docs/reports_index.md =====
+Index atualizado: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+ M docs/reports_index.md
+ M scripts/predixai_trader_mobile_server.py
+ M src/predixai/main.py
+?? docs/history/ptp/PTP-113/PTP-113C/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.md
+?? reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+?? src/predixai/runtime/
+
+===== PUBLICAR — Commit e push =====

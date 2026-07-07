@@ -1,3 +1,12 @@
+
+# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
+try:
+    from predixai.runtime.sqlite_resilience import install_sqlite_resilience
+    install_sqlite_resilience()
+except Exception:
+    pass
+# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
+
 """PredixAI application entrypoint."""
 
 from __future__ import annotations

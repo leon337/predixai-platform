@@ -117,3 +117,5 @@
 - Relatório: `reports/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.txt`
 - Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.md`
 - Arquivo alterado: `scripts/predixai_trader_mobile_server.py`
+
+- 2026-07-07 11:49:09 — PTP-113C.7.5 — WARN_OR_FAIL_REVIEW_NEEDED — `reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt`
