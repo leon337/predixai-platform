@@ -129,3 +129,5 @@
 - 2026-07-07 12:54:26 -0300 | PTP-113C.7.6B.3 | registrar_validacao_mobile_pos_rollback | WARN_PASS_VISUAL_POS_ROLLBACK | reports/20260707_125425_PTP-113C.7.6B.3_registrar_validacao_mobile_pos_rollback_WARN_PASS_VISUAL_POS_ROLLBACK.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_125425_PTP-113C.7.6B.3_registrar_validacao_mobile_pos_rollback_WARN_PASS_VISUAL_POS_ROLLBACK.md
 
 - 2026-07-07 13:01:57 -0300 | PTP-113C.7.7 | validacao_controlada_observador_ativo | WARN_OBSERVER_NOT_RUNNING_OR_NO_SOURCE | reports/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo.md
+
+- 2026-07-07 13:08:42 -0300 | PTP-113C.7.7A | auditar_start_reader | PASS_AUDIT_START_READER_READY_FOR_FIX | reports/20260707_130832_PTP-113C.7.7A_auditar_start_reader_AUDIT.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_130832_PTP-113C.7.7A_auditar_start_reader_AUDIT.md

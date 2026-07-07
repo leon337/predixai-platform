@@ -1,0 +1,3646 @@
+PREDIXAI BR — PTP-113C.7.7A — AUDITORIA DO START DO READER
+Data: 2026-07-07 13:08:42 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+RESULTADO_FINAL: PASS_AUDIT_START_READER_READY_FOR_FIX
+ENDPOINT_MOBILE: 200
+ENDPOINT_STATE_BEFORE: 200
+START_HTTP: 200
+ENDPOINT_STATE_AFTER: 200
+STOP_HTTP: 200
+SERVER_STARTED_BY_SCRIPT: NO
+PORT_PID: 47852
+
+OBJETIVO
+Auditar por que POST /api/mobile/start retorna HTTP 200, mas reader_running permanece false e active_reader_count permanece 0.
+
+ESCOPO
+- Auditoria sem correção.
+- Nenhum código alterado.
+- Nenhuma UI alterada.
+- Nenhum patch de SQLite/polling.
+- Nenhuma operação real.
+- Nenhum saldo real.
+- Nenhum login real.
+- Nenhum auto-click.
+- Nenhum clique em compra/venda.
+
+ANÁLISE BEFORE/AFTER
+===== START_RESPONSE_BRIEF =====
+{
+  "ok": true,
+  "status": "SIMULATED_SESSION_STARTED",
+  "asset": "Cafeina Index",
+  "direction": "ALTA",
+  "confidence": 95.0
+}
+
+===== STATE_BEFORE_BRIEF =====
+{
+  "status": "aguardando_leitura",
+  "message": "Leitor parado. Sinais abaixo são históricos.",
+  "reader_running": false,
+  "active_reader_count": 0,
+  "active_readers": [],
+  "price": 4182.1,
+  "asset": "Sem leitura ativa",
+  "signal_status": "aguardando_leitura",
+  "direction": "NEUTRO"
+}
+
+===== STATE_AFTER_BRIEF =====
+{
+  "status": "aguardando_leitura",
+  "message": "Leitor parado. Sinais abaixo são históricos.",
+  "reader_running": false,
+  "active_reader_count": 0,
+  "active_readers": [],
+  "price": 4182.1,
+  "asset": "Sem leitura ativa",
+  "signal_status": "aguardando_leitura",
+  "direction": "NEUTRO"
+}
+
+===== DELTA =====
+reader_before=False
+reader_after=False
+active_before=0
+active_after=0
+EVAL_STATUS=PASS_AUDIT_START_READER_READY_FOR_FIX
+
+AUDITORIA DE CÓDIGO
+ARQUIVO: scripts/predixai_trader_mobile_server.py
+LINHAS: 9676
+
+===== OCORRÊNCIAS: /api/mobile/start =====
+6914:     if path == "/api/mobile/start":
+6916:         result["compatibility_route"] = "/api/mobile/start"
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7147:         result["compatibility_route"] = "/api/mobile/start"
+8351:     print("Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start")
+
+===== OCORRÊNCIAS: /api/mobile/stop =====
+960:       await fetch("/api/mobile/stop", { method: "POST" });
+6920:     if path == "/api/mobile/stop":
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+8352:     print("Endpoint observador legado: POST /api/mobile/stop")
+
+===== OCORRÊNCIAS: /api/mobile/state =====
+23: # reader visual e múltiplos clientes /api/mobile/state.
+905:       const response = await fetch(`/api/mobile/state?expiration=${expirationSeconds}`, { cache: "no-store" });
+1401:       const res = await fetch("/api/mobile/state?ptp113b31b4=1", { cache: "no-store" });
+1771:     const res = await fetch("/api/mobile/state?ptp113b31b5=1", { cache: "no-store" });
+2347:       const res = await fetch("/api/mobile/state", { cache: "no-store" });
+3088:         if (url.includes("/api/mobile/state")) {
+3098:       const response = await originalFetch("/api/mobile/state", { cache: "no-store" });
+3165:         const response = await fetch("/api/mobile/state", { cache: "no-store" });
+6894:     if path == "/api/mobile/state":
+7130:     @app.route("/api/mobile/state")
+7531:             if request.path != "/api/mobile/state":
+7826:             if request.path != "/api/mobile/state":
+8428:                     state_response = client.get("/api/mobile/state")
+8435:                     "/api/mobile/state",
+8743:                     if request.path in {"/api/mobile/state", "/api/mobile/signal/contract"}:
+
+===== OCORRÊNCIAS: reader_running =====
+890:       badge.textContent = data.reader_running ? "RODANDO" : "PARADO";
+891:       badge.style.color = data.reader_running ? "#38d66b" : "#a8b5c6";
+1624:       state.reader_running === true ||
+2111:     const running = Boolean(state?.reader_running || activeCount > 0 || readers.length > 0);
+3180:       if (result.ok || after.reader_running) {
+5072: def _reader_running() -> bool:
+5188:     if _reader_running():
+5305:     if _reader_running() and _reader_process is not None:
+5366:     running = _reader_running() or bool(reader_processes)
+5520:         "reader_running": running,
+5614:     if _ptp113c2_bool(state.get("reader_running")):
+5825:         "reader_running": bool(reader_active),
+8181:         running = bool(_reader_running() or processes)
+8186:         "reader_running": running,
+8236:         "ok": bool(after.get("reader_running")),
+8237:         "status": "ON" if after.get("reader_running") else "START_REQUESTED_NOT_RUNNING",
+8269:         "ok": bool(after.get("reader_running") is False),
+8270:         "status": "OFF" if after.get("reader_running") is False else "STOP_REQUESTED_STILL_RUNNING",
+
+===== OCORRÊNCIAS: active_reader_count =====
+1625:       Number(state.active_reader_count || 0) > 0 ||
+2109:     const activeCount = Number(state?.active_reader_count || 0);
+2353:         active_reader_count: 0,
+5195:             "active_reader_count": max(1, len(active_readers)),
+5207:             "active_reader_count": len(active_readers),
+5248:             "active_reader_count": 0,
+5267:             "active_reader_count": 0,
+5278:         "active_reader_count": 1,
+5522:         "active_reader_count": max(1, len(reader_processes)) if running else 0,
+5618:         if int(state.get("active_reader_count") or 0) > 0:
+8187:         "active_reader_count": len(processes) if isinstance(processes, list) else 0,
+
+===== OCORRÊNCIAS: active_readers =====
+1626:       (Array.isArray(state.active_readers) && state.active_readers.length > 0)
+1632:     const active = state.active_readers;
+2110:     const readers = Array.isArray(state?.active_readers) ? state.active_readers : [];
+2354:         active_readers: [],
+5189:         active_readers = _active_reader_processes(force_refresh=True)
+5195:             "active_reader_count": max(1, len(active_readers)),
+5196:             "active_readers": active_readers,
+5199:     active_readers = _active_reader_processes(force_refresh=True)
+5200:     if active_readers:
+5201:         _reader_interval = _reader_interval_from_processes(active_readers)
+5206:             "warning": _reader_warning(active_readers) or "Leitor live-loop ja esta ativo.",
+5207:             "active_reader_count": len(active_readers),
+5208:             "active_readers": active_readers,
+5303:     active_readers = _active_reader_processes(force_refresh=True)
+5304:     pids = {int(process["pid"]) for process in active_readers if process.get("pid")}
+5523:         "active_readers": reader_processes,
+5623:     readers = state.get("active_readers")
+8188:         "active_readers": processes if isinstance(processes, list) else [],
+
+===== OCORRÊNCIAS: start_reader =====
+5175: def _start_reader(interval: Any) -> dict[str, Any]:
+5177:         return _start_reader_locked(interval)
+5180: def _start_reader_locked(interval: Any) -> dict[str, Any]:
+8224:         result = _start_reader(interval)
+
+===== OCORRÊNCIAS: reader_thread =====
+NENHUMA
+
+===== OCORRÊNCIAS: threading.Thread =====
+NENHUMA
+
+===== OCORRÊNCIAS: visual =====
+23: # reader visual e múltiplos clientes /api/mobile/state.
+1630:   function hasVisualSource(state) {
+1639:     const source = hasVisualSource(state);
+1657:         status: "Sem fonte visual",
+1659:         signal: "Aguardando fonte visual",
+1661:         message: "Servidor ativo, mas a fonte visual não foi confirmada. Abra a tela da corretora/ativo no notebook."
+1669:         source: "Fonte visual instável",
+1679:       source: "Fonte visual ativa",
+1696:         '<div class="px-observer-item"><div class="px-observer-label">Fonte visual</div><div id="px-real-source" class="px-observer-value">-</div></div>' +
+2134:         label: "Aguardando fonte visual",
+2383: <!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START -->
+2384: <style id="ptp113b31b52-saneamento-visual-final-mobile-style">
+2418: <script id="ptp113b31b52-saneamento-visual-final-mobile-script">
+2420:   const MARKER = "PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_RUNTIME";
+2523:     note.textContent = "Saneamento visual ativo: blocos antigos fora do painel operacional foram ocultados.";
+2550: <!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END -->
+2552: <!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_START -->
+2645:   const MARKER = "PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_RUNTIME";
+2747: <!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_END -->
+2876: <!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_START -->
+2951:   const MARKER = "PTP113C7_VALIDACAO_MOBILE_VISUAL_RUNTIME";
+2999:         Validação visual mobile-first: sinal, abertura, fechamento, banca e histórico.
+3114: <!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_END -->
+3117: <!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_START -->
+3120:   const MARKER = "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_RUNTIME";
+3172:     setCommandMessage("Comando executado/encaminhado: ligar observador visual...");
+3181:         setCommandMessage("Observador visual ligado. Aguarde a primeira leitura.");
+3186:       setCommandMessage("Falha ao ligar observador visual: " + err);
+3192:     setCommandMessage("Comando executado/encaminhado: parar observador visual...");
+3197:       setCommandMessage("Parada do observador visual solicitada.");
+3199:       setCommandMessage("Falha ao parar observador visual: " + err);
+3234: <!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_END -->
+3925:     if any(token in lowered for token in ("core/", "core\\", "codex", "powershell", "visual studio code")):
+4246:         "visual studio code",
+6845:         "next_step": "PTP 113 C.7 — Validação Mobile Visual",
+6984: # PTP-113B.2.3 — Tela inicial e contrato visual do sinal
+7075: def predixai_visual_signal_contract():
+7077:         "required_visual_fields": [
+7124:         return jsonify(predixai_visual_signal_contract())
+7330:             "required_visual_fields": [
+7457:     Contrato: mobile-first, observador visual, motor lógico programado, saldo simulado e segurança travada.
+7504:             "required_visual_fields": contract["required_visual_fields"],
+7630:         fields = contract.setdefault("required_visual_fields", [])
+7747:     Contrato: mobile-first, observador visual, motor lógico programado, saldo simulado e segurança travada.
+7796:             "required_visual_fields": contract["required_visual_fields"],
+8169: # PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_START
+8170: # PTP 113 C.7.2 — Corrigir Start do Observador Visual
+8195:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8230:             "message": "Falha ao iniciar reader/observador visual.",
+8238:         "message": "Observador visual solicitado.",
+8249:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8263:             "message": "Falha ao parar reader/observador visual.",
+8271:         "message": "Parada do observador visual solicitada.",
+8281:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8339: # PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_END
+
+===== OCORRÊNCIAS: screenshot =====
+NENHUMA
+
+===== OCORRÊNCIAS: pyautogui =====
+NENHUMA
+
+===== OCORRÊNCIAS: database is locked =====
+22: # Objetivo: reduzir falhas "database is locked" entre mobile server,
+79:                     if "database is locked" not in str(exc).lower():
+92:                     if "database is locked" not in str(exc).lower():
+
+===== BLOCOS DE ROTAS MOBILE =====
+
+--- contexto rota linha 7122 ---
+7120:         return SESSION_SETUP_HTML
+7121: 
+7122:     @app.route("/api/mobile/signal/contract")
+7123:     def mobile_signal_contract():  # type: ignore[no-untyped-def]
+7124:         return jsonify(predixai_visual_signal_contract())
+7125: 
+7126:     @app.route("/mobile")
+7127:     def mobile():  # type: ignore[no-untyped-def]
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+
+--- contexto rota linha 7126 ---
+7124:         return jsonify(predixai_visual_signal_contract())
+7125: 
+7126:     @app.route("/mobile")
+7127:     def mobile():  # type: ignore[no-untyped-def]
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+
+--- contexto rota linha 7130 ---
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+
+--- contexto rota linha 7143 ---
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+7149:         status_code = 200 if result.get("ok") else 400
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+
+--- contexto rota linha 7152 ---
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+
+--- contexto rota linha 7153 ---
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+
+--- contexto rota linha 7160 ---
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+
+--- contexto rota linha 7164 ---
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+
+===== FUNÇÕES PROVÁVEIS DE START/READER =====
+
+--- função candidata linha 3267: def _new_mobile_session() -> dict[str, Any]: ---
+3265: 
+3266: 
+3267: def _new_mobile_session() -> dict[str, Any]:
+3268:     now = datetime.now().astimezone()
+3269:     return {
+3270:         "session_id": f"mobile_{now.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}",
+3271:         "started_at": now.isoformat(),
+3272:         "asset": "UNKNOWN",
+3273:         "mode": "observer_simulated",
+3274:         "orders_enabled": False,
+3275:         "created_by": "mobile_reset_session",
+3276:     }
+3277: 
+3278: 
+3279: def _read_mobile_session() -> dict[str, Any]:
+3280:     session = _read_json(MOBILE_SESSION_PATH, {})
+3281:     return session if isinstance(session, dict) else {}
+3282: 
+3283: 
+3284: def _session_id(session: dict[str, Any] | None = None) -> str:
+3285:     data = session if session is not None else _read_mobile_session()
+3286:     return _as_text(data.get("session_id")) if isinstance(data, dict) else ""
+3287: 
+3288: 
+3289: def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None:
+3290:     data = session if session is not None else _read_mobile_session()
+3291:     if not isinstance(data, dict):
+3292:         return None
+3293:     return _parse_dt(data.get("started_at"))
+3294: 
+3295: 
+3296: def _write_mobile_session(session: dict[str, Any]) -> None:
+3297:     _write_json(MOBILE_SESSION_PATH, session)
+3298: 
+3299: 
+3300: def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+3301:     if not session or not _is_valid_asset(asset):
+3302:         return
+3303:     if session.get("asset") == asset:
+3304:         return
+3305:     updated = {**session, "asset": asset, "updated_at": datetime.now().astimezone().isoformat()}
+3306:     _write_mobile_session(updated)
+3307: 
+3308: 
+3309: def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+3310:     started_at = _session_started_at(session)
+3311:     if started_at is None:
+3312:         return True
+3313:     event_dt = _event_dt(data)
+3314:     if event_dt is None:
+3315:         return False
+3316:     return _dt_timestamp(event_dt) >= _dt_timestamp(started_at)
+3317: 
+3318: 
+3319: def _metadata_session_id(value: Any) -> str:
+3320:     metadata = _metadata_from_json(value)
+3321:     return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+3322: 
+3323: 
+3324: def _point_session_id(point: dict[str, Any]) -> str:
+3325:     return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+3326: 
+3327: 
+3328: def _point_matches_session(
+3329:     point: dict[str, Any],
+
+LOG TÉCNICO
+PREDIXAI BR — PTP-113C.7.7A — auditoria do start do reader
+Data: 2026-07-07 13:08:32 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Modo: AUDIT_ONLY
+Regra: não corrigir código; não usar saldo real; não usar login real; não executar ordem real; não ativar auto-click.
+
+===== INVESTIGAR GIT =====
+
+===== git branch --show-current =====
+main
+RC=0
+
+===== git log -8 --oneline =====
+a3cdbbe PTP 113 C.7.7 validacao controlada observador ativo
+a06e7c0 PTP 113 C.7.6B.3 registrar validacao mobile pos rollback
+d33735e PTP 113 C.7.6B.2 rollback mobile server pre C75
+129df10 PTP 113 C.7.6B.1 recovery sintaxe mobile server
+1fe269a PTP 113 C.7.6B correcao cirurgica sintaxe dedup C75
+d05841b PTP 113 C.7.5 estabilizar reader mobile polling
+99b915d PTP 113 C.7.4 fix sqlite reader lock
+1429c53 PTP 113 C.7.3 audit reader visual debug
+RC=0
+
+===== git status --short --untracked-files=all =====
+ M reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+RC=0
+
+===== VALIDAR COMPILAÇÃO =====
+
+===== env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c77a_pycache python3 -m py_compile scripts/predixai_trader_mobile_server.py =====
+scripts/predixai_trader_mobile_server.py:8918: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+scripts/predixai_trader_mobile_server.py:9179: SyntaxWarning: invalid escape sequence '\d'
+  return """
+RC=0
+
+===== env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c77a_pycache python3 -m py_compile src/predixai/main.py =====
+RC=0
+
+===== AUDITAR CÓDIGO DO START/READER =====
+ARQUIVO: scripts/predixai_trader_mobile_server.py
+LINHAS: 9676
+
+===== OCORRÊNCIAS: /api/mobile/start =====
+6914:     if path == "/api/mobile/start":
+6916:         result["compatibility_route"] = "/api/mobile/start"
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7147:         result["compatibility_route"] = "/api/mobile/start"
+8351:     print("Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start")
+
+===== OCORRÊNCIAS: /api/mobile/stop =====
+960:       await fetch("/api/mobile/stop", { method: "POST" });
+6920:     if path == "/api/mobile/stop":
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+8352:     print("Endpoint observador legado: POST /api/mobile/stop")
+
+===== OCORRÊNCIAS: /api/mobile/state =====
+23: # reader visual e múltiplos clientes /api/mobile/state.
+905:       const response = await fetch(`/api/mobile/state?expiration=${expirationSeconds}`, { cache: "no-store" });
+1401:       const res = await fetch("/api/mobile/state?ptp113b31b4=1", { cache: "no-store" });
+1771:     const res = await fetch("/api/mobile/state?ptp113b31b5=1", { cache: "no-store" });
+2347:       const res = await fetch("/api/mobile/state", { cache: "no-store" });
+3088:         if (url.includes("/api/mobile/state")) {
+3098:       const response = await originalFetch("/api/mobile/state", { cache: "no-store" });
+3165:         const response = await fetch("/api/mobile/state", { cache: "no-store" });
+6894:     if path == "/api/mobile/state":
+7130:     @app.route("/api/mobile/state")
+7531:             if request.path != "/api/mobile/state":
+7826:             if request.path != "/api/mobile/state":
+8428:                     state_response = client.get("/api/mobile/state")
+8435:                     "/api/mobile/state",
+8743:                     if request.path in {"/api/mobile/state", "/api/mobile/signal/contract"}:
+
+===== OCORRÊNCIAS: reader_running =====
+890:       badge.textContent = data.reader_running ? "RODANDO" : "PARADO";
+891:       badge.style.color = data.reader_running ? "#38d66b" : "#a8b5c6";
+1624:       state.reader_running === true ||
+2111:     const running = Boolean(state?.reader_running || activeCount > 0 || readers.length > 0);
+3180:       if (result.ok || after.reader_running) {
+5072: def _reader_running() -> bool:
+5188:     if _reader_running():
+5305:     if _reader_running() and _reader_process is not None:
+5366:     running = _reader_running() or bool(reader_processes)
+5520:         "reader_running": running,
+5614:     if _ptp113c2_bool(state.get("reader_running")):
+5825:         "reader_running": bool(reader_active),
+8181:         running = bool(_reader_running() or processes)
+8186:         "reader_running": running,
+8236:         "ok": bool(after.get("reader_running")),
+8237:         "status": "ON" if after.get("reader_running") else "START_REQUESTED_NOT_RUNNING",
+8269:         "ok": bool(after.get("reader_running") is False),
+8270:         "status": "OFF" if after.get("reader_running") is False else "STOP_REQUESTED_STILL_RUNNING",
+
+===== OCORRÊNCIAS: active_reader_count =====
+1625:       Number(state.active_reader_count || 0) > 0 ||
+2109:     const activeCount = Number(state?.active_reader_count || 0);
+2353:         active_reader_count: 0,
+5195:             "active_reader_count": max(1, len(active_readers)),
+5207:             "active_reader_count": len(active_readers),
+5248:             "active_reader_count": 0,
+5267:             "active_reader_count": 0,
+5278:         "active_reader_count": 1,
+5522:         "active_reader_count": max(1, len(reader_processes)) if running else 0,
+5618:         if int(state.get("active_reader_count") or 0) > 0:
+8187:         "active_reader_count": len(processes) if isinstance(processes, list) else 0,
+
+===== OCORRÊNCIAS: active_readers =====
+1626:       (Array.isArray(state.active_readers) && state.active_readers.length > 0)
+1632:     const active = state.active_readers;
+2110:     const readers = Array.isArray(state?.active_readers) ? state.active_readers : [];
+2354:         active_readers: [],
+5189:         active_readers = _active_reader_processes(force_refresh=True)
+5195:             "active_reader_count": max(1, len(active_readers)),
+5196:             "active_readers": active_readers,
+5199:     active_readers = _active_reader_processes(force_refresh=True)
+5200:     if active_readers:
+5201:         _reader_interval = _reader_interval_from_processes(active_readers)
+5206:             "warning": _reader_warning(active_readers) or "Leitor live-loop ja esta ativo.",
+5207:             "active_reader_count": len(active_readers),
+5208:             "active_readers": active_readers,
+5303:     active_readers = _active_reader_processes(force_refresh=True)
+5304:     pids = {int(process["pid"]) for process in active_readers if process.get("pid")}
+5523:         "active_readers": reader_processes,
+5623:     readers = state.get("active_readers")
+8188:         "active_readers": processes if isinstance(processes, list) else [],
+
+===== OCORRÊNCIAS: start_reader =====
+5175: def _start_reader(interval: Any) -> dict[str, Any]:
+5177:         return _start_reader_locked(interval)
+5180: def _start_reader_locked(interval: Any) -> dict[str, Any]:
+8224:         result = _start_reader(interval)
+
+===== OCORRÊNCIAS: reader_thread =====
+NENHUMA
+
+===== OCORRÊNCIAS: threading.Thread =====
+NENHUMA
+
+===== OCORRÊNCIAS: visual =====
+23: # reader visual e múltiplos clientes /api/mobile/state.
+1630:   function hasVisualSource(state) {
+1639:     const source = hasVisualSource(state);
+1657:         status: "Sem fonte visual",
+1659:         signal: "Aguardando fonte visual",
+1661:         message: "Servidor ativo, mas a fonte visual não foi confirmada. Abra a tela da corretora/ativo no notebook."
+1669:         source: "Fonte visual instável",
+1679:       source: "Fonte visual ativa",
+1696:         '<div class="px-observer-item"><div class="px-observer-label">Fonte visual</div><div id="px-real-source" class="px-observer-value">-</div></div>' +
+2134:         label: "Aguardando fonte visual",
+2383: <!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_START -->
+2384: <style id="ptp113b31b52-saneamento-visual-final-mobile-style">
+2418: <script id="ptp113b31b52-saneamento-visual-final-mobile-script">
+2420:   const MARKER = "PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_RUNTIME";
+2523:     note.textContent = "Saneamento visual ativo: blocos antigos fora do painel operacional foram ocultados.";
+2550: <!-- PTP113B31B52_SANEAMENTO_VISUAL_FINAL_MOBILE_END -->
+2552: <!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_START -->
+2645:   const MARKER = "PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_RUNTIME";
+2747: <!-- PTP113B31B523_AJUSTE_VISUAL_CAMPOS_CRITICOS_MOBILE_END -->
+2876: <!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_START -->
+2951:   const MARKER = "PTP113C7_VALIDACAO_MOBILE_VISUAL_RUNTIME";
+2999:         Validação visual mobile-first: sinal, abertura, fechamento, banca e histórico.
+3114: <!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_END -->
+3117: <!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_START -->
+3120:   const MARKER = "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_RUNTIME";
+3172:     setCommandMessage("Comando executado/encaminhado: ligar observador visual...");
+3181:         setCommandMessage("Observador visual ligado. Aguarde a primeira leitura.");
+3186:       setCommandMessage("Falha ao ligar observador visual: " + err);
+3192:     setCommandMessage("Comando executado/encaminhado: parar observador visual...");
+3197:       setCommandMessage("Parada do observador visual solicitada.");
+3199:       setCommandMessage("Falha ao parar observador visual: " + err);
+3234: <!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_END -->
+3925:     if any(token in lowered for token in ("core/", "core\\", "codex", "powershell", "visual studio code")):
+4246:         "visual studio code",
+6845:         "next_step": "PTP 113 C.7 — Validação Mobile Visual",
+6984: # PTP-113B.2.3 — Tela inicial e contrato visual do sinal
+7075: def predixai_visual_signal_contract():
+7077:         "required_visual_fields": [
+7124:         return jsonify(predixai_visual_signal_contract())
+7330:             "required_visual_fields": [
+7457:     Contrato: mobile-first, observador visual, motor lógico programado, saldo simulado e segurança travada.
+7504:             "required_visual_fields": contract["required_visual_fields"],
+7630:         fields = contract.setdefault("required_visual_fields", [])
+7747:     Contrato: mobile-first, observador visual, motor lógico programado, saldo simulado e segurança travada.
+7796:             "required_visual_fields": contract["required_visual_fields"],
+8169: # PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_START
+8170: # PTP 113 C.7.2 — Corrigir Start do Observador Visual
+8195:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8230:             "message": "Falha ao iniciar reader/observador visual.",
+8238:         "message": "Observador visual solicitado.",
+8249:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8263:             "message": "Falha ao parar reader/observador visual.",
+8271:         "message": "Parada do observador visual solicitada.",
+8281:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8339: # PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_END
+
+===== OCORRÊNCIAS: screenshot =====
+NENHUMA
+
+===== OCORRÊNCIAS: pyautogui =====
+NENHUMA
+
+===== OCORRÊNCIAS: database is locked =====
+22: # Objetivo: reduzir falhas "database is locked" entre mobile server,
+79:                     if "database is locked" not in str(exc).lower():
+92:                     if "database is locked" not in str(exc).lower():
+
+===== BLOCOS DE ROTAS MOBILE =====
+
+--- contexto rota linha 7122 ---
+7120:         return SESSION_SETUP_HTML
+7121: 
+7122:     @app.route("/api/mobile/signal/contract")
+7123:     def mobile_signal_contract():  # type: ignore[no-untyped-def]
+7124:         return jsonify(predixai_visual_signal_contract())
+7125: 
+7126:     @app.route("/mobile")
+7127:     def mobile():  # type: ignore[no-untyped-def]
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+
+--- contexto rota linha 7126 ---
+7124:         return jsonify(predixai_visual_signal_contract())
+7125: 
+7126:     @app.route("/mobile")
+7127:     def mobile():  # type: ignore[no-untyped-def]
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+
+--- contexto rota linha 7130 ---
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+
+--- contexto rota linha 7143 ---
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+7149:         status_code = 200 if result.get("ok") else 400
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+
+--- contexto rota linha 7152 ---
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+
+--- contexto rota linha 7153 ---
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+
+--- contexto rota linha 7160 ---
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+
+--- contexto rota linha 7164 ---
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+
+===== FUNÇÕES PROVÁVEIS DE START/READER =====
+
+--- função candidata linha 3267: def _new_mobile_session() -> dict[str, Any]: ---
+3265: 
+3266: 
+3267: def _new_mobile_session() -> dict[str, Any]:
+3268:     now = datetime.now().astimezone()
+3269:     return {
+3270:         "session_id": f"mobile_{now.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}",
+3271:         "started_at": now.isoformat(),
+3272:         "asset": "UNKNOWN",
+3273:         "mode": "observer_simulated",
+3274:         "orders_enabled": False,
+3275:         "created_by": "mobile_reset_session",
+3276:     }
+3277: 
+3278: 
+3279: def _read_mobile_session() -> dict[str, Any]:
+3280:     session = _read_json(MOBILE_SESSION_PATH, {})
+3281:     return session if isinstance(session, dict) else {}
+3282: 
+3283: 
+3284: def _session_id(session: dict[str, Any] | None = None) -> str:
+3285:     data = session if session is not None else _read_mobile_session()
+3286:     return _as_text(data.get("session_id")) if isinstance(data, dict) else ""
+3287: 
+3288: 
+3289: def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None:
+3290:     data = session if session is not None else _read_mobile_session()
+3291:     if not isinstance(data, dict):
+3292:         return None
+3293:     return _parse_dt(data.get("started_at"))
+3294: 
+3295: 
+3296: def _write_mobile_session(session: dict[str, Any]) -> None:
+3297:     _write_json(MOBILE_SESSION_PATH, session)
+3298: 
+3299: 
+3300: def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+3301:     if not session or not _is_valid_asset(asset):
+3302:         return
+3303:     if session.get("asset") == asset:
+3304:         return
+3305:     updated = {**session, "asset": asset, "updated_at": datetime.now().astimezone().isoformat()}
+3306:     _write_mobile_session(updated)
+3307: 
+3308: 
+3309: def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+3310:     started_at = _session_started_at(session)
+3311:     if started_at is None:
+3312:         return True
+3313:     event_dt = _event_dt(data)
+3314:     if event_dt is None:
+3315:         return False
+3316:     return _dt_timestamp(event_dt) >= _dt_timestamp(started_at)
+3317: 
+3318: 
+3319: def _metadata_session_id(value: Any) -> str:
+3320:     metadata = _metadata_from_json(value)
+3321:     return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+3322: 
+3323: 
+3324: def _point_session_id(point: dict[str, Any]) -> str:
+3325:     return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+3326: 
+3327: 
+3328: def _point_matches_session(
+3329:     point: dict[str, Any],
+3330:     session: dict[str, Any],
+3331:     *,
+3332:     expected_asset: Any = None,
+3333: ) -> bool:
+3334:     session_id = _session_id(session)
+3335:     point_session_id = _point_session_id(point)
+3336:     if session_id and point_session_id and point_session_id != session_id:
+3337:         return False
+
+--- função candidata linha 3279: def _read_mobile_session() -> dict[str, Any]: ---
+3277: 
+3278: 
+3279: def _read_mobile_session() -> dict[str, Any]:
+3280:     session = _read_json(MOBILE_SESSION_PATH, {})
+3281:     return session if isinstance(session, dict) else {}
+3282: 
+3283: 
+3284: def _session_id(session: dict[str, Any] | None = None) -> str:
+3285:     data = session if session is not None else _read_mobile_session()
+3286:     return _as_text(data.get("session_id")) if isinstance(data, dict) else ""
+3287: 
+3288: 
+3289: def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None:
+3290:     data = session if session is not None else _read_mobile_session()
+3291:     if not isinstance(data, dict):
+3292:         return None
+3293:     return _parse_dt(data.get("started_at"))
+3294: 
+3295: 
+3296: def _write_mobile_session(session: dict[str, Any]) -> None:
+3297:     _write_json(MOBILE_SESSION_PATH, session)
+3298: 
+3299: 
+3300: def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+3301:     if not session or not _is_valid_asset(asset):
+3302:         return
+3303:     if session.get("asset") == asset:
+3304:         return
+3305:     updated = {**session, "asset": asset, "updated_at": datetime.now().astimezone().isoformat()}
+3306:     _write_mobile_session(updated)
+3307: 
+3308: 
+3309: def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+3310:     started_at = _session_started_at(session)
+3311:     if started_at is None:
+3312:         return True
+3313:     event_dt = _event_dt(data)
+3314:     if event_dt is None:
+3315:         return False
+3316:     return _dt_timestamp(event_dt) >= _dt_timestamp(started_at)
+3317: 
+3318: 
+3319: def _metadata_session_id(value: Any) -> str:
+3320:     metadata = _metadata_from_json(value)
+3321:     return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+3322: 
+3323: 
+3324: def _point_session_id(point: dict[str, Any]) -> str:
+3325:     return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+3326: 
+3327: 
+3328: def _point_matches_session(
+3329:     point: dict[str, Any],
+3330:     session: dict[str, Any],
+3331:     *,
+3332:     expected_asset: Any = None,
+3333: ) -> bool:
+3334:     session_id = _session_id(session)
+3335:     point_session_id = _point_session_id(point)
+3336:     if session_id and point_session_id and point_session_id != session_id:
+3337:         return False
+3338: 
+3339:     started_at = _session_started_at(session)
+3340:     if started_at is not None:
+3341:         point_dt = _parse_dt(point.get("timestamp") or point.get("created_at"))
+3342:         if point_dt is None or _dt_timestamp(point_dt) < _dt_timestamp(started_at):
+3343:             return False
+3344: 
+3345:     expected_asset_text = _as_text(expected_asset)
+3346:     if _is_valid_asset(expected_asset_text):
+3347:         point_asset = _as_text(point.get("asset"))
+3348:         if not _is_valid_asset(point_asset) or point_asset.lower() != expected_asset_text.lower():
+3349:             return False
+
+--- função candidata linha 3289: def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None: ---
+3287: 
+3288: 
+3289: def _session_started_at(session: dict[str, Any] | None = None) -> datetime | None:
+3290:     data = session if session is not None else _read_mobile_session()
+3291:     if not isinstance(data, dict):
+3292:         return None
+3293:     return _parse_dt(data.get("started_at"))
+3294: 
+3295: 
+3296: def _write_mobile_session(session: dict[str, Any]) -> None:
+3297:     _write_json(MOBILE_SESSION_PATH, session)
+3298: 
+3299: 
+3300: def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+3301:     if not session or not _is_valid_asset(asset):
+3302:         return
+3303:     if session.get("asset") == asset:
+3304:         return
+3305:     updated = {**session, "asset": asset, "updated_at": datetime.now().astimezone().isoformat()}
+3306:     _write_mobile_session(updated)
+3307: 
+3308: 
+3309: def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+3310:     started_at = _session_started_at(session)
+3311:     if started_at is None:
+3312:         return True
+3313:     event_dt = _event_dt(data)
+3314:     if event_dt is None:
+3315:         return False
+3316:     return _dt_timestamp(event_dt) >= _dt_timestamp(started_at)
+3317: 
+3318: 
+3319: def _metadata_session_id(value: Any) -> str:
+3320:     metadata = _metadata_from_json(value)
+3321:     return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+3322: 
+3323: 
+3324: def _point_session_id(point: dict[str, Any]) -> str:
+3325:     return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+3326: 
+3327: 
+3328: def _point_matches_session(
+3329:     point: dict[str, Any],
+3330:     session: dict[str, Any],
+3331:     *,
+3332:     expected_asset: Any = None,
+3333: ) -> bool:
+3334:     session_id = _session_id(session)
+3335:     point_session_id = _point_session_id(point)
+3336:     if session_id and point_session_id and point_session_id != session_id:
+3337:         return False
+3338: 
+3339:     started_at = _session_started_at(session)
+3340:     if started_at is not None:
+3341:         point_dt = _parse_dt(point.get("timestamp") or point.get("created_at"))
+3342:         if point_dt is None or _dt_timestamp(point_dt) < _dt_timestamp(started_at):
+3343:             return False
+3344: 
+3345:     expected_asset_text = _as_text(expected_asset)
+3346:     if _is_valid_asset(expected_asset_text):
+3347:         point_asset = _as_text(point.get("asset"))
+3348:         if not _is_valid_asset(point_asset) or point_asset.lower() != expected_asset_text.lower():
+3349:             return False
+3350: 
+3351:     return True
+3352: 
+3353: 
+3354: def _filter_history_scope(
+3355:     history: list[dict[str, Any]],
+3356:     session: dict[str, Any],
+3357:     *,
+3358:     asset: Any = None,
+3359: ) -> list[dict[str, Any]]:
+
+--- função candidata linha 3296: def _write_mobile_session(session: dict[str, Any]) -> None: ---
+3294: 
+3295: 
+3296: def _write_mobile_session(session: dict[str, Any]) -> None:
+3297:     _write_json(MOBILE_SESSION_PATH, session)
+3298: 
+3299: 
+3300: def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+3301:     if not session or not _is_valid_asset(asset):
+3302:         return
+3303:     if session.get("asset") == asset:
+3304:         return
+3305:     updated = {**session, "asset": asset, "updated_at": datetime.now().astimezone().isoformat()}
+3306:     _write_mobile_session(updated)
+3307: 
+3308: 
+3309: def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+3310:     started_at = _session_started_at(session)
+3311:     if started_at is None:
+3312:         return True
+3313:     event_dt = _event_dt(data)
+3314:     if event_dt is None:
+3315:         return False
+3316:     return _dt_timestamp(event_dt) >= _dt_timestamp(started_at)
+3317: 
+3318: 
+3319: def _metadata_session_id(value: Any) -> str:
+3320:     metadata = _metadata_from_json(value)
+3321:     return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+3322: 
+3323: 
+3324: def _point_session_id(point: dict[str, Any]) -> str:
+3325:     return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+3326: 
+3327: 
+3328: def _point_matches_session(
+3329:     point: dict[str, Any],
+3330:     session: dict[str, Any],
+3331:     *,
+3332:     expected_asset: Any = None,
+3333: ) -> bool:
+3334:     session_id = _session_id(session)
+3335:     point_session_id = _point_session_id(point)
+3336:     if session_id and point_session_id and point_session_id != session_id:
+3337:         return False
+3338: 
+3339:     started_at = _session_started_at(session)
+3340:     if started_at is not None:
+3341:         point_dt = _parse_dt(point.get("timestamp") or point.get("created_at"))
+3342:         if point_dt is None or _dt_timestamp(point_dt) < _dt_timestamp(started_at):
+3343:             return False
+3344: 
+3345:     expected_asset_text = _as_text(expected_asset)
+3346:     if _is_valid_asset(expected_asset_text):
+3347:         point_asset = _as_text(point.get("asset"))
+3348:         if not _is_valid_asset(point_asset) or point_asset.lower() != expected_asset_text.lower():
+3349:             return False
+3350: 
+3351:     return True
+3352: 
+3353: 
+3354: def _filter_history_scope(
+3355:     history: list[dict[str, Any]],
+3356:     session: dict[str, Any],
+3357:     *,
+3358:     asset: Any = None,
+3359: ) -> list[dict[str, Any]]:
+3360:     return [
+3361:         point
+3362:         for point in history
+3363:         if _point_matches_session(point, session, expected_asset=asset)
+3364:     ]
+3365: 
+3366: 
+
+--- função candidata linha 3300: def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None: ---
+3298: 
+3299: 
+3300: def _update_mobile_session_asset(session: dict[str, Any], asset: str) -> None:
+3301:     if not session or not _is_valid_asset(asset):
+3302:         return
+3303:     if session.get("asset") == asset:
+3304:         return
+3305:     updated = {**session, "asset": asset, "updated_at": datetime.now().astimezone().isoformat()}
+3306:     _write_mobile_session(updated)
+3307: 
+3308: 
+3309: def _event_in_session(data: dict[str, Any], session: dict[str, Any]) -> bool:
+3310:     started_at = _session_started_at(session)
+3311:     if started_at is None:
+3312:         return True
+3313:     event_dt = _event_dt(data)
+3314:     if event_dt is None:
+3315:         return False
+3316:     return _dt_timestamp(event_dt) >= _dt_timestamp(started_at)
+3317: 
+3318: 
+3319: def _metadata_session_id(value: Any) -> str:
+3320:     metadata = _metadata_from_json(value)
+3321:     return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+3322: 
+3323: 
+3324: def _point_session_id(point: dict[str, Any]) -> str:
+3325:     return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+3326: 
+3327: 
+3328: def _point_matches_session(
+3329:     point: dict[str, Any],
+3330:     session: dict[str, Any],
+3331:     *,
+3332:     expected_asset: Any = None,
+3333: ) -> bool:
+3334:     session_id = _session_id(session)
+3335:     point_session_id = _point_session_id(point)
+3336:     if session_id and point_session_id and point_session_id != session_id:
+3337:         return False
+3338: 
+3339:     started_at = _session_started_at(session)
+3340:     if started_at is not None:
+3341:         point_dt = _parse_dt(point.get("timestamp") or point.get("created_at"))
+3342:         if point_dt is None or _dt_timestamp(point_dt) < _dt_timestamp(started_at):
+3343:             return False
+3344: 
+3345:     expected_asset_text = _as_text(expected_asset)
+3346:     if _is_valid_asset(expected_asset_text):
+3347:         point_asset = _as_text(point.get("asset"))
+3348:         if not _is_valid_asset(point_asset) or point_asset.lower() != expected_asset_text.lower():
+3349:             return False
+3350: 
+3351:     return True
+3352: 
+3353: 
+3354: def _filter_history_scope(
+3355:     history: list[dict[str, Any]],
+3356:     session: dict[str, Any],
+3357:     *,
+3358:     asset: Any = None,
+3359: ) -> list[dict[str, Any]]:
+3360:     return [
+3361:         point
+3362:         for point in history
+3363:         if _point_matches_session(point, session, expected_asset=asset)
+3364:     ]
+3365: 
+3366: 
+3367: def _runtime_backup_sources() -> list[Path]:
+3368:     if not RUNTIME_DIR.exists():
+3369:         return []
+3370:     sources: list[Path] = []
+
+--- função candidata linha 3431: def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]: ---
+3429: 
+3430: 
+3431: def _reset_mobile_session(*, dry_run: bool = False) -> dict[str, Any]:
+3432:     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+3433:     sources = _runtime_backup_sources()
+3434:     planned_files = [
+3435:         str(path)
+3436:         for path in (PRICE_HISTORY_PATH, LAST_READING_PATH, REJECTED_READINGS_PATH, MOBILE_SESSION_PATH)
+3437:         if path.exists() or path in {PRICE_HISTORY_PATH, LAST_READING_PATH, REJECTED_READINGS_PATH, MOBILE_SESSION_PATH}
+3438:     ]
+3439:     planned_tables = sorted(_sqlite_tables(SIGNALS_DB_PATH) & {"signals", "price_ticks"})
+3440: 
+3441:     if dry_run:
+3442:         return {
+3443:             "status": "DRY_RUN",
+3444:             "backup_path": None,
+3445:             "session_id": None,
+3446:             "files_to_backup": [str(path) for path in sources],
+3447:             "files_to_clear": planned_files,
+3448:             "tables_to_clear": planned_tables,
+3449:             "message": "Rota registrada; nenhum dado real foi limpo.",
+3450:             "observer_only": True,
+3451:         }
+3452: 
+3453:     backup_dir = _create_runtime_backup(sources)
+3454:     session = _new_mobile_session()
+3455:     _write_mobile_session(session)
+3456:     _write_json(PRICE_HISTORY_PATH, [])
+3457:     _write_json(REJECTED_READINGS_PATH, [])
+3458:     _write_json(
+3459:         LAST_READING_PATH,
+3460:         {
+3461:             "status": "SESSION_RESET",
+3462:             "source": "mobile_reset_session",
+3463:             "session_id": session["session_id"],
+3464:             "timestamp": session["started_at"],
+3465:             "asset": "UNKNOWN",
+3466:             "price": "UNKNOWN",
+3467:             "price_value": None,
+3468:             "confidence": 0.0,
+3469:             "unknown_fields": [],
+3470:             "message": "Sessão limpa criada com backup; aguardando nova leitura.",
+3471:             "observer_only": True,
+3472:             "orders_enabled": False,
+3473:         },
+3474:     )
+3475:     reset_tables = _reset_sqlite_operational_tables()
+3476:     return {
+3477:         "status": "RESET_OK",
+3478:         "backup_path": str(backup_dir),
+3479:         "session_id": session["session_id"],
+3480:         "files_backed_up": [str(path) for path in sources],
+3481:         "files_cleared": planned_files,
+3482:         "tables_cleared": reset_tables,
+3483:         "message": "Sessão limpa criada com backup.",
+3484:         "observer_only": True,
+3485:     }
+3486: 
+3487: 
+3488: def _as_bool(value: Any, default: bool = False) -> bool:
+3489:     if isinstance(value, bool):
+3490:         return value
+3491:     if value is None:
+3492:         return default
+3493:     return str(value).strip().lower() in {"1", "true", "yes", "sim", "on"}
+3494: 
+3495: 
+3496: def _number(value: Any, default: float) -> float:
+3497:     parsed = _parse_float(value)
+3498:     return default if parsed is None else float(parsed)
+3499: 
+3500: 
+3501: def _int_number(value: Any, default: int) -> int:
+
+--- função candidata linha 3755: def _start_simulated_mobile_session(payload: dict[str, Any] | None = None) -> dict[str, Any]: ---
+3753: 
+3754: 
+3755: def _start_simulated_mobile_session(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+3756:     payload = payload if isinstance(payload, dict) else {}
+3757:     contract = build_mobile_session_contract(_simulated_contract_config(payload))
+3758:     ok, errors = validate_mobile_session_contract(contract)
+3759:     if not ok:
+3760:         return {
+3761:             "ok": False,
+3762:             "status": "VALIDATION_FAILED",
+3763:             "errors": errors,
+3764:             "observer_only": True,
+3765:             "simulation_only": True,
+3766:             "orders_enabled": False,
+3767:         }
+3768: 
+3769:     asset, previous_price, current_price, recent_prices = _simulated_market_payload(payload)
+3770:     strategy_input = StrategyInput(
+3771:         asset=asset,
+3772:         current_price=current_price,
+3773:         previous_price=previous_price,
+3774:         recent_prices=recent_prices,
+3775:     )
+3776:     strategy_decision = MinimalStrategyEngine().analyze(strategy_input)
+3777:     minimum_confidence = float(contract.get("strategy", {}).get("min_confidence", 70))
+3778:     confluence_result = ConfluenceEngine(minimum_confidence=minimum_confidence).evaluate(strategy_decision)
+3779:     mobile_screen = build_mobile_signal_screen(confluence_result)
+3780:     entry_value = float(contract.get("bankroll", {}).get("current_entry", 5.0))
+3781:     initial_balance = float(contract.get("bankroll", {}).get("initial_bankroll", 100.0))
+3782:     session_id = str(contract["session"]["session_id"])
+3783:     paper_session = build_paper_trade_from_mobile_signal(
+3784:         mobile_screen,
+3785:         session_id=session_id,
+3786:         entry_value=entry_value,
+3787:         initial_balance=initial_balance,
+3788:     )
+3789: 
+3790:     mobile_signal = mobile_screen.to_dict()
+3791:     paper_trade = paper_session.to_dict()
+3792:     session_payload = {
+3793:         "session_id": session_id,
+3794:         "started_at": contract["session"]["started_at"],
+3795:         "asset": asset,
+3796:         "mode": "mobile_first_simulated",
+3797:         "source": SIMULATED_BRIDGE_SOURCE,
+3798:         "orders_enabled": False,
+3799:         "auto_click_enabled": False,
+3800:         "real_money_enabled": False,
+3801:         "broker_login_enabled": False,
+3802:         "simulation_only": True,
+3803:         "contract": contract,
+3804:         "strategy_decision": strategy_decision.to_dict(),
+3805:         "confluence_result": confluence_result.to_dict(),
+3806:         "mobile_signal": mobile_signal,
+3807:         "paper_trade_session": paper_trade,
+3808:     }
+3809:     _write_mobile_session(session_payload)
+3810:     history_points = _write_simulated_history_points(
+3811:         session_id=session_id,
+3812:         asset=asset,
+3813:         recent_prices=recent_prices,
+3814:         mobile_signal=mobile_signal,
+3815:         paper_trade=paper_trade,
+3816:     )
+3817:     _persist_paper_trade_signal(
+3818:         session_id=session_id,
+3819:         asset=asset,
+3820:         price=current_price,
+3821:         mobile_signal=mobile_signal,
+3822:         paper_trade=paper_trade,
+3823:         contract=contract,
+3824:     )
+3825:     _write_json(
+
+--- função candidata linha 5072: def _reader_running() -> bool: ---
+5070: 
+5071: 
+5072: def _reader_running() -> bool:
+5073:     return _reader_process is not None and _reader_process.poll() is None
+5074: 
+5075: 
+5076: def _clear_reader_process_cache() -> None:
+5077:     global _reader_process_cache_at, _reader_process_cache
+5078:     _reader_process_cache_at = 0.0
+5079:     _reader_process_cache = []
+5080: 
+5081: 
+5082: def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+5083:     for process in processes:
+5084:         match = re.search(r"--loop-interval\s+(\d+)", str(process.get("command_line") or ""))
+5085:         if match:
+5086:             return max(1, int(match.group(1)))
+5087:     return DEFAULT_READER_INTERVAL_SECONDS
+5088: 
+5089: 
+5090: def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+5091:     global _reader_process_cache_at, _reader_process_cache
+5092: 
+5093:     now = time.time()
+5094:     if not force_refresh and now - _reader_process_cache_at < 2:
+5095:         return _reader_process_cache
+5096: 
+5097:     if os.name != "nt":
+5098:         _reader_process_cache_at = now
+5099:         _reader_process_cache = []
+5100:         return []
+5101: 
+5102:     script = (
+5103:         "Get-CimInstance Win32_Process | "
+5104:         "Where-Object { ($_.Name -like 'python*' -or $_.Name -like 'py*') -and "
+5105:         "$_.CommandLine -like '*predixai.main*' -and "
+5106:         "$_.CommandLine -like '*--live-loop*' -and "
+5107:         "$_.CommandLine -like '*--price-only*' } | "
+5108:         "ForEach-Object { \"$($_.ProcessId)|$($_.ParentProcessId)|$($_.ExecutablePath)|$($_.CommandLine)\" }"
+5109:     )
+5110:     try:
+5111:         completed = subprocess.run(
+5112:             ["powershell", "-NoProfile", "-Command", script],
+5113:             cwd=str(ROOT_DIR),
+5114:             capture_output=True,
+5115:             text=True,
+5116:             timeout=2,
+5117:             check=False,
+5118:         )
+5119:     except Exception:
+5120:         _reader_process_cache_at = now
+5121:         _reader_process_cache = []
+5122:         return []
+5123: 
+5124:     processes: list[dict[str, Any]] = []
+5125:     for line in completed.stdout.splitlines():
+5126:         if "|" not in line:
+5127:             continue
+5128:         parts = line.split("|", 3)
+5129:         if len(parts) == 2:
+5130:             pid_text, command_line = parts
+5131:             parent_pid_text = ""
+5132:             executable = ""
+5133:         elif len(parts) == 3:
+5134:             pid_text, parent_pid_text, command_line = parts
+5135:             executable = ""
+5136:         elif len(parts) == 4:
+5137:             pid_text, parent_pid_text, executable, command_line = parts
+5138:         else:
+5139:             continue
+5140:         try:
+5141:             pid = int(pid_text.strip())
+5142:         except ValueError:
+
+--- função candidata linha 5076: def _clear_reader_process_cache() -> None: ---
+5074: 
+5075: 
+5076: def _clear_reader_process_cache() -> None:
+5077:     global _reader_process_cache_at, _reader_process_cache
+5078:     _reader_process_cache_at = 0.0
+5079:     _reader_process_cache = []
+5080: 
+5081: 
+5082: def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+5083:     for process in processes:
+5084:         match = re.search(r"--loop-interval\s+(\d+)", str(process.get("command_line") or ""))
+5085:         if match:
+5086:             return max(1, int(match.group(1)))
+5087:     return DEFAULT_READER_INTERVAL_SECONDS
+5088: 
+5089: 
+5090: def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+5091:     global _reader_process_cache_at, _reader_process_cache
+5092: 
+5093:     now = time.time()
+5094:     if not force_refresh and now - _reader_process_cache_at < 2:
+5095:         return _reader_process_cache
+5096: 
+5097:     if os.name != "nt":
+5098:         _reader_process_cache_at = now
+5099:         _reader_process_cache = []
+5100:         return []
+5101: 
+5102:     script = (
+5103:         "Get-CimInstance Win32_Process | "
+5104:         "Where-Object { ($_.Name -like 'python*' -or $_.Name -like 'py*') -and "
+5105:         "$_.CommandLine -like '*predixai.main*' -and "
+5106:         "$_.CommandLine -like '*--live-loop*' -and "
+5107:         "$_.CommandLine -like '*--price-only*' } | "
+5108:         "ForEach-Object { \"$($_.ProcessId)|$($_.ParentProcessId)|$($_.ExecutablePath)|$($_.CommandLine)\" }"
+5109:     )
+5110:     try:
+5111:         completed = subprocess.run(
+5112:             ["powershell", "-NoProfile", "-Command", script],
+5113:             cwd=str(ROOT_DIR),
+5114:             capture_output=True,
+5115:             text=True,
+5116:             timeout=2,
+5117:             check=False,
+5118:         )
+5119:     except Exception:
+5120:         _reader_process_cache_at = now
+5121:         _reader_process_cache = []
+5122:         return []
+5123: 
+5124:     processes: list[dict[str, Any]] = []
+5125:     for line in completed.stdout.splitlines():
+5126:         if "|" not in line:
+5127:             continue
+5128:         parts = line.split("|", 3)
+5129:         if len(parts) == 2:
+5130:             pid_text, command_line = parts
+5131:             parent_pid_text = ""
+5132:             executable = ""
+5133:         elif len(parts) == 3:
+5134:             pid_text, parent_pid_text, command_line = parts
+5135:             executable = ""
+5136:         elif len(parts) == 4:
+5137:             pid_text, parent_pid_text, executable, command_line = parts
+5138:         else:
+5139:             continue
+5140:         try:
+5141:             pid = int(pid_text.strip())
+5142:         except ValueError:
+5143:             continue
+5144:         try:
+5145:             parent_pid = int(parent_pid_text.strip()) if parent_pid_text.strip() else None
+5146:         except ValueError:
+
+--- função candidata linha 5082: def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int: ---
+5080: 
+5081: 
+5082: def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+5083:     for process in processes:
+5084:         match = re.search(r"--loop-interval\s+(\d+)", str(process.get("command_line") or ""))
+5085:         if match:
+5086:             return max(1, int(match.group(1)))
+5087:     return DEFAULT_READER_INTERVAL_SECONDS
+5088: 
+5089: 
+5090: def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+5091:     global _reader_process_cache_at, _reader_process_cache
+5092: 
+5093:     now = time.time()
+5094:     if not force_refresh and now - _reader_process_cache_at < 2:
+5095:         return _reader_process_cache
+5096: 
+5097:     if os.name != "nt":
+5098:         _reader_process_cache_at = now
+5099:         _reader_process_cache = []
+5100:         return []
+5101: 
+5102:     script = (
+5103:         "Get-CimInstance Win32_Process | "
+5104:         "Where-Object { ($_.Name -like 'python*' -or $_.Name -like 'py*') -and "
+5105:         "$_.CommandLine -like '*predixai.main*' -and "
+5106:         "$_.CommandLine -like '*--live-loop*' -and "
+5107:         "$_.CommandLine -like '*--price-only*' } | "
+5108:         "ForEach-Object { \"$($_.ProcessId)|$($_.ParentProcessId)|$($_.ExecutablePath)|$($_.CommandLine)\" }"
+5109:     )
+5110:     try:
+5111:         completed = subprocess.run(
+5112:             ["powershell", "-NoProfile", "-Command", script],
+5113:             cwd=str(ROOT_DIR),
+5114:             capture_output=True,
+5115:             text=True,
+5116:             timeout=2,
+5117:             check=False,
+5118:         )
+5119:     except Exception:
+5120:         _reader_process_cache_at = now
+5121:         _reader_process_cache = []
+5122:         return []
+5123: 
+5124:     processes: list[dict[str, Any]] = []
+5125:     for line in completed.stdout.splitlines():
+5126:         if "|" not in line:
+5127:             continue
+5128:         parts = line.split("|", 3)
+5129:         if len(parts) == 2:
+5130:             pid_text, command_line = parts
+5131:             parent_pid_text = ""
+5132:             executable = ""
+5133:         elif len(parts) == 3:
+5134:             pid_text, parent_pid_text, command_line = parts
+5135:             executable = ""
+5136:         elif len(parts) == 4:
+5137:             pid_text, parent_pid_text, executable, command_line = parts
+5138:         else:
+5139:             continue
+5140:         try:
+5141:             pid = int(pid_text.strip())
+5142:         except ValueError:
+5143:             continue
+5144:         try:
+5145:             parent_pid = int(parent_pid_text.strip()) if parent_pid_text.strip() else None
+5146:         except ValueError:
+5147:             parent_pid = None
+5148:         processes.append(
+5149:             {
+5150:                 "pid": pid,
+5151:                 "parent_pid": parent_pid,
+5152:                 "executable": executable.strip(),
+
+--- função candidata linha 5090: def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]: ---
+5088: 
+5089: 
+5090: def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+5091:     global _reader_process_cache_at, _reader_process_cache
+5092: 
+5093:     now = time.time()
+5094:     if not force_refresh and now - _reader_process_cache_at < 2:
+5095:         return _reader_process_cache
+5096: 
+5097:     if os.name != "nt":
+5098:         _reader_process_cache_at = now
+5099:         _reader_process_cache = []
+5100:         return []
+5101: 
+5102:     script = (
+5103:         "Get-CimInstance Win32_Process | "
+5104:         "Where-Object { ($_.Name -like 'python*' -or $_.Name -like 'py*') -and "
+5105:         "$_.CommandLine -like '*predixai.main*' -and "
+5106:         "$_.CommandLine -like '*--live-loop*' -and "
+5107:         "$_.CommandLine -like '*--price-only*' } | "
+5108:         "ForEach-Object { \"$($_.ProcessId)|$($_.ParentProcessId)|$($_.ExecutablePath)|$($_.CommandLine)\" }"
+5109:     )
+5110:     try:
+5111:         completed = subprocess.run(
+5112:             ["powershell", "-NoProfile", "-Command", script],
+5113:             cwd=str(ROOT_DIR),
+5114:             capture_output=True,
+5115:             text=True,
+5116:             timeout=2,
+5117:             check=False,
+5118:         )
+5119:     except Exception:
+5120:         _reader_process_cache_at = now
+5121:         _reader_process_cache = []
+5122:         return []
+5123: 
+5124:     processes: list[dict[str, Any]] = []
+5125:     for line in completed.stdout.splitlines():
+5126:         if "|" not in line:
+5127:             continue
+5128:         parts = line.split("|", 3)
+5129:         if len(parts) == 2:
+5130:             pid_text, command_line = parts
+5131:             parent_pid_text = ""
+5132:             executable = ""
+5133:         elif len(parts) == 3:
+5134:             pid_text, parent_pid_text, command_line = parts
+5135:             executable = ""
+5136:         elif len(parts) == 4:
+5137:             pid_text, parent_pid_text, executable, command_line = parts
+5138:         else:
+5139:             continue
+5140:         try:
+5141:             pid = int(pid_text.strip())
+5142:         except ValueError:
+5143:             continue
+5144:         try:
+5145:             parent_pid = int(parent_pid_text.strip()) if parent_pid_text.strip() else None
+5146:         except ValueError:
+5147:             parent_pid = None
+5148:         processes.append(
+5149:             {
+5150:                 "pid": pid,
+5151:                 "parent_pid": parent_pid,
+5152:                 "executable": executable.strip(),
+5153:                 "command_line": command_line.strip(),
+5154:             }
+5155:         )
+5156: 
+5157:     matching_pids = {int(process["pid"]) for process in processes if process.get("pid")}
+5158:     processes = [
+5159:         process
+5160:         for process in processes
+
+--- função candidata linha 5169: def _reader_warning(processes: list[dict[str, Any]]) -> str: ---
+5167: 
+5168: 
+5169: def _reader_warning(processes: list[dict[str, Any]]) -> str:
+5170:     if len(processes) <= 1:
+5171:         return ""
+5172:     return f"Aviso: {len(processes)} leitores live-loop ativos detectados."
+5173: 
+5174: 
+5175: def _start_reader(interval: Any) -> dict[str, Any]:
+5176:     with _reader_start_lock:
+5177:         return _start_reader_locked(interval)
+5178: 
+5179: 
+5180: def _start_reader_locked(interval: Any) -> dict[str, Any]:
+5181:     global _reader_interval, _reader_process
+5182: 
+5183:     try:
+5184:         interval = max(1, int(interval))
+5185:     except (TypeError, ValueError):
+5186:         interval = DEFAULT_READER_INTERVAL_SECONDS
+5187: 
+5188:     if _reader_running():
+5189:         active_readers = _active_reader_processes(force_refresh=True)
+5190:         return {
+5191:             "status": "ALREADY_RUNNING",
+5192:             "interval": _reader_interval,
+5193:             "pid": _reader_process.pid if _reader_process else None,
+5194:             "observer_only": True,
+5195:             "active_reader_count": max(1, len(active_readers)),
+5196:             "active_readers": active_readers,
+5197:         }
+5198: 
+5199:     active_readers = _active_reader_processes(force_refresh=True)
+5200:     if active_readers:
+5201:         _reader_interval = _reader_interval_from_processes(active_readers)
+5202:         return {
+5203:             "status": "ALREADY_RUNNING",
+5204:             "interval": _reader_interval,
+5205:             "observer_only": True,
+5206:             "warning": _reader_warning(active_readers) or "Leitor live-loop ja esta ativo.",
+5207:             "active_reader_count": len(active_readers),
+5208:             "active_readers": active_readers,
+5209:         }
+5210: 
+5211:     env = os.environ.copy()
+5212:     env["PYTHONPATH"] = str(SRC_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+5213:     cmd = [
+5214:         sys.executable,
+5215:         "-m",
+5216:         "predixai.main",
+5217:         "--live-loop",
+5218:         "--price-only",
+5219:         "--loop-count",
+5220:         "9999",
+5221:         "--loop-interval",
+5222:         str(interval),
+5223:     ]
+5224:     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+5225:     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+5226:     reader_log_path = RUNTIME_DIR / "mobile_reader.log"
+5227:     reader_log = None
+5228:     try:
+5229:         reader_log = reader_log_path.open("ab")
+5230:         _reader_process = subprocess.Popen(
+5231:             cmd,
+5232:             cwd=str(ROOT_DIR),
+5233:             env=env,
+5234:             stdout=reader_log,
+5235:             stderr=subprocess.STDOUT,
+5236:             creationflags=flags,
+5237:         )
+5238:     except Exception as exc:
+5239:         _reader_process = None
+
+--- função candidata linha 5175: def _start_reader(interval: Any) -> dict[str, Any]: ---
+5173: 
+5174: 
+5175: def _start_reader(interval: Any) -> dict[str, Any]:
+5176:     with _reader_start_lock:
+5177:         return _start_reader_locked(interval)
+5178: 
+5179: 
+5180: def _start_reader_locked(interval: Any) -> dict[str, Any]:
+5181:     global _reader_interval, _reader_process
+5182: 
+5183:     try:
+5184:         interval = max(1, int(interval))
+5185:     except (TypeError, ValueError):
+5186:         interval = DEFAULT_READER_INTERVAL_SECONDS
+5187: 
+5188:     if _reader_running():
+5189:         active_readers = _active_reader_processes(force_refresh=True)
+5190:         return {
+5191:             "status": "ALREADY_RUNNING",
+5192:             "interval": _reader_interval,
+5193:             "pid": _reader_process.pid if _reader_process else None,
+5194:             "observer_only": True,
+5195:             "active_reader_count": max(1, len(active_readers)),
+5196:             "active_readers": active_readers,
+5197:         }
+5198: 
+5199:     active_readers = _active_reader_processes(force_refresh=True)
+5200:     if active_readers:
+5201:         _reader_interval = _reader_interval_from_processes(active_readers)
+5202:         return {
+5203:             "status": "ALREADY_RUNNING",
+5204:             "interval": _reader_interval,
+5205:             "observer_only": True,
+5206:             "warning": _reader_warning(active_readers) or "Leitor live-loop ja esta ativo.",
+5207:             "active_reader_count": len(active_readers),
+5208:             "active_readers": active_readers,
+5209:         }
+5210: 
+5211:     env = os.environ.copy()
+5212:     env["PYTHONPATH"] = str(SRC_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+5213:     cmd = [
+5214:         sys.executable,
+5215:         "-m",
+5216:         "predixai.main",
+5217:         "--live-loop",
+5218:         "--price-only",
+5219:         "--loop-count",
+5220:         "9999",
+5221:         "--loop-interval",
+5222:         str(interval),
+5223:     ]
+5224:     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+5225:     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+5226:     reader_log_path = RUNTIME_DIR / "mobile_reader.log"
+5227:     reader_log = None
+5228:     try:
+5229:         reader_log = reader_log_path.open("ab")
+5230:         _reader_process = subprocess.Popen(
+5231:             cmd,
+5232:             cwd=str(ROOT_DIR),
+5233:             env=env,
+5234:             stdout=reader_log,
+5235:             stderr=subprocess.STDOUT,
+5236:             creationflags=flags,
+5237:         )
+5238:     except Exception as exc:
+5239:         _reader_process = None
+5240:         _reader_interval = None
+5241:         _clear_reader_process_cache()
+5242:         return {
+5243:             "status": "START_FAILED",
+5244:             "message": "Falha ao iniciar leitor live-loop.",
+5245:             "error": str(exc),
+
+--- função candidata linha 5180: def _start_reader_locked(interval: Any) -> dict[str, Any]: ---
+5178: 
+5179: 
+5180: def _start_reader_locked(interval: Any) -> dict[str, Any]:
+5181:     global _reader_interval, _reader_process
+5182: 
+5183:     try:
+5184:         interval = max(1, int(interval))
+5185:     except (TypeError, ValueError):
+5186:         interval = DEFAULT_READER_INTERVAL_SECONDS
+5187: 
+5188:     if _reader_running():
+5189:         active_readers = _active_reader_processes(force_refresh=True)
+5190:         return {
+5191:             "status": "ALREADY_RUNNING",
+5192:             "interval": _reader_interval,
+5193:             "pid": _reader_process.pid if _reader_process else None,
+5194:             "observer_only": True,
+5195:             "active_reader_count": max(1, len(active_readers)),
+5196:             "active_readers": active_readers,
+5197:         }
+5198: 
+5199:     active_readers = _active_reader_processes(force_refresh=True)
+5200:     if active_readers:
+5201:         _reader_interval = _reader_interval_from_processes(active_readers)
+5202:         return {
+5203:             "status": "ALREADY_RUNNING",
+5204:             "interval": _reader_interval,
+5205:             "observer_only": True,
+5206:             "warning": _reader_warning(active_readers) or "Leitor live-loop ja esta ativo.",
+5207:             "active_reader_count": len(active_readers),
+5208:             "active_readers": active_readers,
+5209:         }
+5210: 
+5211:     env = os.environ.copy()
+5212:     env["PYTHONPATH"] = str(SRC_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+5213:     cmd = [
+5214:         sys.executable,
+5215:         "-m",
+5216:         "predixai.main",
+5217:         "--live-loop",
+5218:         "--price-only",
+5219:         "--loop-count",
+5220:         "9999",
+5221:         "--loop-interval",
+5222:         str(interval),
+5223:     ]
+5224:     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+5225:     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+5226:     reader_log_path = RUNTIME_DIR / "mobile_reader.log"
+5227:     reader_log = None
+5228:     try:
+5229:         reader_log = reader_log_path.open("ab")
+5230:         _reader_process = subprocess.Popen(
+5231:             cmd,
+5232:             cwd=str(ROOT_DIR),
+5233:             env=env,
+5234:             stdout=reader_log,
+5235:             stderr=subprocess.STDOUT,
+5236:             creationflags=flags,
+5237:         )
+5238:     except Exception as exc:
+5239:         _reader_process = None
+5240:         _reader_interval = None
+5241:         _clear_reader_process_cache()
+5242:         return {
+5243:             "status": "START_FAILED",
+5244:             "message": "Falha ao iniciar leitor live-loop.",
+5245:             "error": str(exc),
+5246:             "interval": interval,
+5247:             "observer_only": True,
+5248:             "active_reader_count": 0,
+5249:             "log_path": str(reader_log_path),
+5250:         }
+
+--- função candidata linha 5300: def _stop_reader() -> dict[str, Any]: ---
+5298: 
+5299: 
+5300: def _stop_reader() -> dict[str, Any]:
+5301:     global _reader_interval, _reader_process
+5302: 
+5303:     active_readers = _active_reader_processes(force_refresh=True)
+5304:     pids = {int(process["pid"]) for process in active_readers if process.get("pid")}
+5305:     if _reader_running() and _reader_process is not None:
+5306:         pids.add(int(_reader_process.pid))
+5307: 
+5308:     if not pids:
+5309:         _reader_process = None
+5310:         _reader_interval = None
+5311:         _clear_reader_process_cache()
+5312:         return {"status": "NOT_RUNNING", "observer_only": True}
+5313: 
+5314:     for pid in sorted(pids):
+5315:         _stop_process_tree(pid)
+5316:     _reader_process = None
+5317:     _reader_interval = None
+5318:     _clear_reader_process_cache()
+5319:     return {
+5320:         "status": "STOPPED",
+5321:         "pids": sorted(pids),
+5322:         "stopped_count": len(pids),
+5323:         "observer_only": True,
+5324:     }
+5325: 
+5326: 
+5327: def _local_ip() -> str:
+5328:     try:
+5329:         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+5330:             sock.connect(("10.255.255.255", 1))
+5331:             ip = sock.getsockname()[0]
+5332:             if ip and not ip.startswith("127."):
+5333:                 return ip
+5334:     except OSError:
+5335:         pass
+5336:     try:
+5337:         return socket.gethostbyname(socket.gethostname())
+5338:     except OSError:
+5339:         return "127.0.0.1"
+5340: 
+5341: 
+5342: def _build_state(
+5343:     host_for_url: str | None = None,
+5344:     port: int = DEFAULT_PORT,
+5345:     expiration_seconds: int = DEFAULT_EXPIRATION_SECONDS,
+5346: ) -> dict[str, Any]:
+5347:     expiration_seconds = _normalize_expiration_seconds(expiration_seconds)
+5348:     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+5349:     last = _read_json(LAST_READING_PATH, {})
+5350:     if not isinstance(last, dict):
+5351:         last = {}
+5352:     mobile_session = _read_mobile_session()
+5353:     scoped_last = last if _event_in_session(last, mobile_session) else {}
+5354:     raw_history = _collect_price_history(limit=None)
+5355:     session_history = _filter_history_scope(raw_history, mobile_session)
+5356:     rejected = _read_json(REJECTED_READINGS_PATH, [])
+5357:     if not isinstance(rejected, list):
+5358:         rejected = []
+5359:     rejected = [
+5360:         item
+5361:         for item in rejected
+5362:         if isinstance(item, dict) and _event_in_session(item, mobile_session)
+5363:     ]
+5364: 
+5365:     reader_processes = _active_reader_processes()
+5366:     running = _reader_running() or bool(reader_processes)
+5367:     effective_reader_interval = _reader_interval or _reader_interval_from_processes(reader_processes)
+5368:     duplicate_reader_warning = _reader_warning(reader_processes)
+5369: 
+5370:     latest_session_history = session_history[-1] if session_history else {}
+
+--- função candidata linha 5610: def _ptp113c2_reader_is_active(state): ---
+5608: 
+5609: 
+5610: def _ptp113c2_reader_is_active(state):
+5611:     if not isinstance(state, dict):
+5612:         return False
+5613: 
+5614:     if _ptp113c2_bool(state.get("reader_running")):
+5615:         return True
+5616: 
+5617:     try:
+5618:         if int(state.get("active_reader_count") or 0) > 0:
+5619:             return True
+5620:     except Exception:
+5621:         pass
+5622: 
+5623:     readers = state.get("active_readers")
+5624:     if isinstance(readers, list) and readers:
+5625:         return True
+5626: 
+5627:     return False
+5628: 
+5629: 
+5630: def _ptp113c2_max_current_age_seconds(state):
+5631:     interval = state.get("reader_interval") or state.get("signal_analysis_interval") or 3
+5632:     try:
+5633:         interval = int(float(interval))
+5634:     except Exception:
+5635:         interval = 3
+5636: 
+5637:     return max(15, interval * 4)
+5638: 
+5639: 
+5640: def _ptp113c2_latest_history_point(state):
+5641:     if not isinstance(state, dict):
+5642:         return {}
+5643: 
+5644:     for key in ("price_history", "history", "price_ticks", "ticks"):
+5645:         item = _ptp113c2_latest_item(state.get(key))
+5646:         if isinstance(item, dict):
+5647:             return item
+5648: 
+5649:     return {}
+5650: 
+5651: 
+5652: def _ptp113c2_latest_signal(state):
+5653:     if not isinstance(state, dict):
+5654:         return {}
+5655: 
+5656:     mobile_session = state.get("mobile_session")
+5657:     if isinstance(mobile_session, dict):
+5658:         mobile_signal = mobile_session.get("mobile_signal")
+5659:         if isinstance(mobile_signal, dict):
+5660:             return mobile_signal
+5661: 
+5662:     stats = state.get("signal_stats")
+5663:     if isinstance(stats, dict) and isinstance(stats.get("latest_signal"), dict):
+5664:         return stats.get("latest_signal")
+5665: 
+5666:     signals = state.get("signals")
+5667:     if isinstance(signals, list) and signals and isinstance(signals[0], dict):
+5668:         return signals[0]
+5669: 
+5670:     nested_state = state.get("state")
+5671:     if isinstance(nested_state, dict):
+5672:         return nested_state
+5673: 
+5674:     return {}
+5675: 
+5676: 
+5677: def _ptp113c2_contract(state):
+5678:     mobile_session = state.get("mobile_session") if isinstance(state, dict) else {}
+5679:     if isinstance(mobile_session, dict):
+5680:         contract = mobile_session.get("contract")
+
+--- função candidata linha 7102: def create_mobile_app() -> Flask: ---
+7100: 
+7101: 
+7102: def create_mobile_app() -> Flask:
+7103:     if not HAS_FLASK:
+7104:         raise RuntimeError("Flask nao esta disponivel; usando servidor http.server.")
+7105: 
+7106:     app = Flask(__name__)
+7107: 
+7108:     @app.after_request
+7109:     def add_no_cache_headers(response):  # type: ignore[no-untyped-def]
+7110:         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+7111:         return response
+7112: 
+7113:     @app.route("/")
+7114:     def root():  # type: ignore[no-untyped-def]
+7115:         return MOBILE_HTML
+7116: 
+7117: 
+7118:     @app.route("/session/setup")
+7119:     def session_setup():  # type: ignore[no-untyped-def]
+7120:         return SESSION_SETUP_HTML
+7121: 
+7122:     @app.route("/api/mobile/signal/contract")
+7123:     def mobile_signal_contract():  # type: ignore[no-untyped-def]
+7124:         return jsonify(predixai_visual_signal_contract())
+7125: 
+7126:     @app.route("/mobile")
+7127:     def mobile():  # type: ignore[no-untyped-def]
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+7149:         status_code = 200 if result.get("ok") else 400
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+
+--- função candidata linha 7123: def mobile_signal_contract():  # type: ignore[no-untyped-def] ---
+7121: 
+7122:     @app.route("/api/mobile/signal/contract")
+7123:     def mobile_signal_contract():  # type: ignore[no-untyped-def]
+7124:         return jsonify(predixai_visual_signal_contract())
+7125: 
+7126:     @app.route("/mobile")
+7127:     def mobile():  # type: ignore[no-untyped-def]
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+7149:         status_code = 200 if result.get("ok") else 400
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+7183:                 "label": "Suporte e resistência",
+7184:                 "signals_5m_scalper": 1,
+7185:                 "signals_1h_scalper": 8,
+7186:                 "signals_5m_day_trade": 0,
+7187:                 "signals_1h_day_trade": 3,
+7188:                 "risk": "médio",
+7189:                 "description": "Busca zonas de suporte/resistência e aguarda reação do preço.",
+7190:             },
+7191:             "candle_reversal": {
+7192:                 "label": "Reversão de vela",
+7193:                 "signals_5m_scalper": 1,
+
+--- função candidata linha 7127: def mobile():  # type: ignore[no-untyped-def] ---
+7125: 
+7126:     @app.route("/mobile")
+7127:     def mobile():  # type: ignore[no-untyped-def]
+7128:         return MOBILE_HTML
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+7149:         status_code = 200 if result.get("ok") else 400
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+7183:                 "label": "Suporte e resistência",
+7184:                 "signals_5m_scalper": 1,
+7185:                 "signals_1h_scalper": 8,
+7186:                 "signals_5m_day_trade": 0,
+7187:                 "signals_1h_day_trade": 3,
+7188:                 "risk": "médio",
+7189:                 "description": "Busca zonas de suporte/resistência e aguarda reação do preço.",
+7190:             },
+7191:             "candle_reversal": {
+7192:                 "label": "Reversão de vela",
+7193:                 "signals_5m_scalper": 1,
+7194:                 "signals_1h_scalper": 10,
+7195:                 "signals_5m_day_trade": 0,
+7196:                 "signals_1h_day_trade": 4,
+7197:                 "risk": "médio/alto",
+
+--- função candidata linha 7131: def mobile_state():  # type: ignore[no-untyped-def] ---
+7129: 
+7130:     @app.route("/api/mobile/state")
+7131:     def mobile_state():  # type: ignore[no-untyped-def]
+7132:         host = _host_from_header(request.host)
+7133:         port = _port_from_header(request.host)
+7134:         expiration_seconds = _normalize_expiration_seconds(request.args.get("expiration"))
+7135:         return jsonify(
+7136:             _build_state(
+7137:                 host_for_url=host,
+7138:                 port=port,
+7139:                 expiration_seconds=expiration_seconds,
+7140:             )
+7141:         )
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+7149:         status_code = 200 if result.get("ok") else 400
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+7183:                 "label": "Suporte e resistência",
+7184:                 "signals_5m_scalper": 1,
+7185:                 "signals_1h_scalper": 8,
+7186:                 "signals_5m_day_trade": 0,
+7187:                 "signals_1h_day_trade": 3,
+7188:                 "risk": "médio",
+7189:                 "description": "Busca zonas de suporte/resistência e aguarda reação do preço.",
+7190:             },
+7191:             "candle_reversal": {
+7192:                 "label": "Reversão de vela",
+7193:                 "signals_5m_scalper": 1,
+7194:                 "signals_1h_scalper": 10,
+7195:                 "signals_5m_day_trade": 0,
+7196:                 "signals_1h_day_trade": 4,
+7197:                 "risk": "médio/alto",
+7198:                 "description": "Busca sinais de reversão após movimento curto ou esticado.",
+7199:             },
+7200:             "breakout": {
+7201:                 "label": "Rompimento",
+
+--- função candidata linha 7144: def mobile_start():  # type: ignore[no-untyped-def] ---
+7142: 
+7143:     @app.route("/api/mobile/start", methods=["POST"])
+7144:     def mobile_start():  # type: ignore[no-untyped-def]
+7145:         payload = request.get_json(silent=True) or {}
+7146:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7147:         result["compatibility_route"] = "/api/mobile/start"
+7148:         result["legacy_live_loop_disabled"] = True
+7149:         status_code = 200 if result.get("ok") else 400
+7150:         return jsonify(result), status_code
+7151: 
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+7183:                 "label": "Suporte e resistência",
+7184:                 "signals_5m_scalper": 1,
+7185:                 "signals_1h_scalper": 8,
+7186:                 "signals_5m_day_trade": 0,
+7187:                 "signals_1h_day_trade": 3,
+7188:                 "risk": "médio",
+7189:                 "description": "Busca zonas de suporte/resistência e aguarda reação do preço.",
+7190:             },
+7191:             "candle_reversal": {
+7192:                 "label": "Reversão de vela",
+7193:                 "signals_5m_scalper": 1,
+7194:                 "signals_1h_scalper": 10,
+7195:                 "signals_5m_day_trade": 0,
+7196:                 "signals_1h_day_trade": 4,
+7197:                 "risk": "médio/alto",
+7198:                 "description": "Busca sinais de reversão após movimento curto ou esticado.",
+7199:             },
+7200:             "breakout": {
+7201:                 "label": "Rompimento",
+7202:                 "signals_5m_scalper": 1,
+7203:                 "signals_1h_scalper": 7,
+7204:                 "signals_5m_day_trade": 0,
+7205:                 "signals_1h_day_trade": 3,
+7206:                 "risk": "alto",
+7207:                 "description": "Busca rompimento de zona relevante com confirmação mínima.",
+7208:             },
+7209:             "moving_average_trend": {
+7210:                 "label": "Tendência por médias",
+7211:                 "signals_5m_scalper": 0,
+7212:                 "signals_1h_scalper": 6,
+7213:                 "signals_5m_day_trade": 0,
+7214:                 "signals_1h_day_trade": 2,
+
+--- função candidata linha 7154: def mobile_simulated_session_start():  # type: ignore[no-untyped-def] ---
+7152:     @app.route("/mobile/session/start", methods=["POST"])
+7153:     @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+7154:     def mobile_simulated_session_start():  # type: ignore[no-untyped-def]
+7155:         payload = request.get_json(silent=True) or {}
+7156:         result = _start_simulated_mobile_session(payload if isinstance(payload, dict) else {})
+7157:         status_code = 200 if result.get("ok") else 400
+7158:         return jsonify(result), status_code
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+7183:                 "label": "Suporte e resistência",
+7184:                 "signals_5m_scalper": 1,
+7185:                 "signals_1h_scalper": 8,
+7186:                 "signals_5m_day_trade": 0,
+7187:                 "signals_1h_day_trade": 3,
+7188:                 "risk": "médio",
+7189:                 "description": "Busca zonas de suporte/resistência e aguarda reação do preço.",
+7190:             },
+7191:             "candle_reversal": {
+7192:                 "label": "Reversão de vela",
+7193:                 "signals_5m_scalper": 1,
+7194:                 "signals_1h_scalper": 10,
+7195:                 "signals_5m_day_trade": 0,
+7196:                 "signals_1h_day_trade": 4,
+7197:                 "risk": "médio/alto",
+7198:                 "description": "Busca sinais de reversão após movimento curto ou esticado.",
+7199:             },
+7200:             "breakout": {
+7201:                 "label": "Rompimento",
+7202:                 "signals_5m_scalper": 1,
+7203:                 "signals_1h_scalper": 7,
+7204:                 "signals_5m_day_trade": 0,
+7205:                 "signals_1h_day_trade": 3,
+7206:                 "risk": "alto",
+7207:                 "description": "Busca rompimento de zona relevante com confirmação mínima.",
+7208:             },
+7209:             "moving_average_trend": {
+7210:                 "label": "Tendência por médias",
+7211:                 "signals_5m_scalper": 0,
+7212:                 "signals_1h_scalper": 6,
+7213:                 "signals_5m_day_trade": 0,
+7214:                 "signals_1h_day_trade": 2,
+7215:                 "risk": "médio",
+7216:                 "description": "Usa direção das médias para filtrar compra, venda ou aguardar.",
+7217:             },
+7218:             "pullback": {
+7219:                 "label": "Pullback",
+7220:                 "signals_5m_scalper": 1,
+7221:                 "signals_1h_scalper": 6,
+7222:                 "signals_5m_day_trade": 0,
+7223:                 "signals_1h_day_trade": 2,
+7224:                 "risk": "médio",
+
+--- função candidata linha 7161: def mobile_stop():  # type: ignore[no-untyped-def] ---
+7159: 
+7160:     @app.route("/api/mobile/stop", methods=["POST"])
+7161:     def mobile_stop():  # type: ignore[no-untyped-def]
+7162:         return jsonify(_stop_reader())
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+7183:                 "label": "Suporte e resistência",
+7184:                 "signals_5m_scalper": 1,
+7185:                 "signals_1h_scalper": 8,
+7186:                 "signals_5m_day_trade": 0,
+7187:                 "signals_1h_day_trade": 3,
+7188:                 "risk": "médio",
+7189:                 "description": "Busca zonas de suporte/resistência e aguarda reação do preço.",
+7190:             },
+7191:             "candle_reversal": {
+7192:                 "label": "Reversão de vela",
+7193:                 "signals_5m_scalper": 1,
+7194:                 "signals_1h_scalper": 10,
+7195:                 "signals_5m_day_trade": 0,
+7196:                 "signals_1h_day_trade": 4,
+7197:                 "risk": "médio/alto",
+7198:                 "description": "Busca sinais de reversão após movimento curto ou esticado.",
+7199:             },
+7200:             "breakout": {
+7201:                 "label": "Rompimento",
+7202:                 "signals_5m_scalper": 1,
+7203:                 "signals_1h_scalper": 7,
+7204:                 "signals_5m_day_trade": 0,
+7205:                 "signals_1h_day_trade": 3,
+7206:                 "risk": "alto",
+7207:                 "description": "Busca rompimento de zona relevante com confirmação mínima.",
+7208:             },
+7209:             "moving_average_trend": {
+7210:                 "label": "Tendência por médias",
+7211:                 "signals_5m_scalper": 0,
+7212:                 "signals_1h_scalper": 6,
+7213:                 "signals_5m_day_trade": 0,
+7214:                 "signals_1h_day_trade": 2,
+7215:                 "risk": "médio",
+7216:                 "description": "Usa direção das médias para filtrar compra, venda ou aguardar.",
+7217:             },
+7218:             "pullback": {
+7219:                 "label": "Pullback",
+7220:                 "signals_5m_scalper": 1,
+7221:                 "signals_1h_scalper": 6,
+7222:                 "signals_5m_day_trade": 0,
+7223:                 "signals_1h_day_trade": 2,
+7224:                 "risk": "médio",
+7225:                 "description": "Aguarda retorno do preço para uma zona antes de sugerir entrada.",
+7226:             },
+7227:             "simple_confluence": {
+7228:                 "label": "Confluência simples",
+7229:                 "signals_5m_scalper": 1,
+7230:                 "signals_1h_scalper": 5,
+7231:                 "signals_5m_day_trade": 0,
+
+--- função candidata linha 7165: def mobile_reset_session():  # type: ignore[no-untyped-def] ---
+7163: 
+7164:     @app.route("/api/mobile/reset-session", methods=["POST"])
+7165:     def mobile_reset_session():  # type: ignore[no-untyped-def]
+7166:         dry_run = str(request.args.get("dry_run", "0")).lower() in {"1", "true", "yes"}
+7167:         try:
+7168:             return jsonify(_reset_mobile_session(dry_run=dry_run))
+7169:         except Exception as exc:
+7170:             return jsonify(
+7171:                 {
+7172:                     "status": "RESET_FAILED",
+7173:                     "message": "Falha ao criar backup/limpar sessão.",
+7174:                     "error": str(exc),
+7175:                     "observer_only": True,
+7176:                 }
+7177:             ), 500
+7178: 
+7179:     # BEGIN PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7180:     def _ptp113b31a_strategy_catalog():
+7181:         return {
+7182:             "support_resistance": {
+7183:                 "label": "Suporte e resistência",
+7184:                 "signals_5m_scalper": 1,
+7185:                 "signals_1h_scalper": 8,
+7186:                 "signals_5m_day_trade": 0,
+7187:                 "signals_1h_day_trade": 3,
+7188:                 "risk": "médio",
+7189:                 "description": "Busca zonas de suporte/resistência e aguarda reação do preço.",
+7190:             },
+7191:             "candle_reversal": {
+7192:                 "label": "Reversão de vela",
+7193:                 "signals_5m_scalper": 1,
+7194:                 "signals_1h_scalper": 10,
+7195:                 "signals_5m_day_trade": 0,
+7196:                 "signals_1h_day_trade": 4,
+7197:                 "risk": "médio/alto",
+7198:                 "description": "Busca sinais de reversão após movimento curto ou esticado.",
+7199:             },
+7200:             "breakout": {
+7201:                 "label": "Rompimento",
+7202:                 "signals_5m_scalper": 1,
+7203:                 "signals_1h_scalper": 7,
+7204:                 "signals_5m_day_trade": 0,
+7205:                 "signals_1h_day_trade": 3,
+7206:                 "risk": "alto",
+7207:                 "description": "Busca rompimento de zona relevante com confirmação mínima.",
+7208:             },
+7209:             "moving_average_trend": {
+7210:                 "label": "Tendência por médias",
+7211:                 "signals_5m_scalper": 0,
+7212:                 "signals_1h_scalper": 6,
+7213:                 "signals_5m_day_trade": 0,
+7214:                 "signals_1h_day_trade": 2,
+7215:                 "risk": "médio",
+7216:                 "description": "Usa direção das médias para filtrar compra, venda ou aguardar.",
+7217:             },
+7218:             "pullback": {
+7219:                 "label": "Pullback",
+7220:                 "signals_5m_scalper": 1,
+7221:                 "signals_1h_scalper": 6,
+7222:                 "signals_5m_day_trade": 0,
+7223:                 "signals_1h_day_trade": 2,
+7224:                 "risk": "médio",
+7225:                 "description": "Aguarda retorno do preço para uma zona antes de sugerir entrada.",
+7226:             },
+7227:             "simple_confluence": {
+7228:                 "label": "Confluência simples",
+7229:                 "signals_5m_scalper": 1,
+7230:                 "signals_1h_scalper": 5,
+7231:                 "signals_5m_day_trade": 0,
+7232:                 "signals_1h_day_trade": 2,
+7233:                 "risk": "baixo/médio",
+7234:                 "description": "Só libera sinal quando múltiplos critérios técnicos concordam.",
+7235:             },
+
+--- função candidata linha 7527: def _ptp113b31a_enrich_mobile_state(response): ---
+7525: 
+7526:     @app.after_request
+7527:     def _ptp113b31a_enrich_mobile_state(response):
+7528:         try:
+7529:             from flask import request
+7530:             import json as _json
+7531:             if request.path != "/api/mobile/state":
+7532:                 return response
+7533: 
+7534:             data = response.get_json(silent=True)
+7535:             if not isinstance(data, dict):
+7536:                 return response
+7537: 
+7538:             contract = app.config.get("PTP113B31A_SESSION_CONTRACT") or _ptp113b31a_build_contract({})
+7539:             mobile_session = data.get("mobile_session")
+7540:             if not isinstance(mobile_session, dict):
+7541:                 mobile_session = {}
+7542: 
+7543:             mobile_session["contract"] = contract
+7544:             mobile_session["operational_mode"] = contract["operational_mode"]
+7545:             mobile_session["strategy"] = contract["strategy"]
+7546:             mobile_session["simulated_bankroll"] = contract["bankroll"]
+7547:             mobile_session["risk"] = contract["risk"]
+7548:             mobile_session["preview"] = contract["preview"]
+7549: 
+7550:             data["mobile_session"] = mobile_session
+7551:             data["simulation_only"] = True
+7552:             data["orders_enabled"] = False
+7553:             data["real_money_enabled"] = False
+7554:             data["auto_click_enabled"] = False
+7555:             data["broker_login_enabled"] = False
+7556:             data["credentials_allowed"] = False
+7557:             data["ptp113b31a_contract_complete"] = True
+7558: 
+7559:             response.set_data(_json.dumps(data, ensure_ascii=False, default=str).encode("utf-8"))
+7560:             response.headers["Content-Type"] = "application/json; charset=utf-8"
+7561:         except Exception as exc:
+7562:             response.headers["X-PTP113B31A-State-Enrich-Error"] = str(exc)[:180]
+7563:         return response
+7564: 
+7565:     _found_session_setup = False
+7566:     _found_signal_contract = False
+7567:     for _rule in list(app.url_map.iter_rules()):
+7568:         if _rule.rule == "/session/setup":
+7569:             app.view_functions[_rule.endpoint] = _ptp113b31a_session_setup_override
+7570:             _found_session_setup = True
+7571:         if _rule.rule == "/api/mobile/signal/contract":
+7572:             app.view_functions[_rule.endpoint] = _ptp113b31a_signal_contract_override
+7573:             _found_signal_contract = True
+7574: 
+7575:     if not _found_session_setup:
+7576:         app.add_url_rule(
+7577:             "/session/setup",
+7578:             "ptp113b31a_session_setup",
+7579:             _ptp113b31a_session_setup_override,
+7580:             methods=["GET", "POST"],
+7581:         )
+7582: 
+7583:     if not _found_signal_contract:
+7584:         app.add_url_rule(
+7585:             "/api/mobile/signal/contract",
+7586:             "ptp113b31a_signal_contract",
+7587:             _ptp113b31a_signal_contract_override,
+7588:             methods=["GET"],
+7589:         )
+7590: 
+7591:     # BEGIN PTP-113B.3.1A.3 POST SESSION SETUP FIX
+7592:     _ptp113b31a_has_post_session_setup = False
+7593:     for _rule in list(app.url_map.iter_rules()):
+7594:         if _rule.rule == "/session/setup" and "POST" in _rule.methods:
+7595:             _ptp113b31a_has_post_session_setup = True
+7596: 
+7597:     if not _ptp113b31a_has_post_session_setup:
+
+--- função candidata linha 7821: def _ptp113b31a41_enrich_mobile_state(response): ---
+7819: 
+7820:     @app.after_request
+7821:     def _ptp113b31a41_enrich_mobile_state(response):
+7822:         try:
+7823:             from flask import request
+7824:             import json as _json
+7825: 
+7826:             if request.path != "/api/mobile/state":
+7827:                 return response
+7828: 
+7829:             data = response.get_json(silent=True)
+7830:             if not isinstance(data, dict):
+7831:                 return response
+7832: 
+7833:             contract = app.config.get("PTP113B31A_SESSION_CONTRACT") or _ptp113b31a41_build_contract({})
+7834:             mobile_session = data.get("mobile_session")
+7835:             if not isinstance(mobile_session, dict):
+7836:                 mobile_session = {}
+7837: 
+7838:             mobile_session["contract"] = contract
+7839:             mobile_session["profit_target"] = contract["profit_target"]
+7840:             mobile_session["simulated_bankroll"] = contract["bankroll"]
+7841:             mobile_session["operational_mode"] = contract["operational_mode"]
+7842:             mobile_session["strategy"] = contract["strategy"]
+7843:             mobile_session["preview"] = contract["preview"]
+7844: 
+7845:             data["mobile_session"] = mobile_session
+7846:             data["profit_target"] = contract["profit_target"]
+7847:             data["simulation_only"] = True
+7848:             data["orders_enabled"] = False
+7849:             data["real_money_enabled"] = False
+7850:             data["auto_click_enabled"] = False
+7851:             data["ptp113b31a41_profit_target_ready"] = True
+7852: 
+7853:             response.set_data(_json.dumps(data, ensure_ascii=False, default=str).encode("utf-8"))
+7854:             response.headers["Content-Type"] = "application/json; charset=utf-8"
+7855:         except Exception as exc:
+7856:             response.headers["X-PTP113B31A41-State-Enrich-Error"] = str(exc)[:180]
+7857:         return response
+7858: 
+7859:     _ptp113b31a41_has_post = False
+7860:     for _rule in list(app.url_map.iter_rules()):
+7861:         if _rule.rule == "/session/setup":
+7862:             app.view_functions[_rule.endpoint] = _ptp113b31a41_session_setup_override
+7863:             if "POST" in _rule.methods:
+7864:                 _ptp113b31a41_has_post = True
+7865: 
+7866:         if _rule.rule == "/api/mobile/signal/contract":
+7867:             app.view_functions[_rule.endpoint] = _ptp113b31a41_signal_contract_override
+7868: 
+7869:     if not _ptp113b31a41_has_post:
+7870:         app.add_url_rule(
+7871:             "/session/setup",
+7872:             "ptp113b31a41_session_setup_post",
+7873:             _ptp113b31a41_session_setup_override,
+7874:             methods=["POST"],
+7875:         )
+7876:     # END PTP-113B.3.1A.4.1 PROFIT TARGET OVERRIDE
+7877: 
+7878:     # END PTP-113B.3.1A COMPLETE SESSION CONTRACT
+7879: 
+7880:     return app
+7881: 
+7882: 
+7883: def _run_audit_logic_smoke_test() -> bool:
+7884:     def insert_signal(
+7885:         *,
+7886:         created_at: datetime,
+7887:         direction: str = "ALTA",
+7888:         entry_price: float = 4182.00,
+7889:         expiration_seconds: int = DEFAULT_EXPIRATION_SECONDS,
+7890:         status: str = WAITING_RESULT_STATUS,
+7891:     ) -> int:
+
+--- função candidata linha 8174: def _ptp113c72_reader_snapshot(force_refresh=True): ---
+8172: # ============================================================
+8173: 
+8174: def _ptp113c72_reader_snapshot(force_refresh=True):
+8175:     try:
+8176:         processes = _active_reader_processes(force_refresh=force_refresh)
+8177:     except Exception:
+8178:         processes = []
+8179: 
+8180:     try:
+8181:         running = bool(_reader_running() or processes)
+8182:     except Exception:
+8183:         running = bool(processes)
+8184: 
+8185:     return {
+8186:         "reader_running": running,
+8187:         "active_reader_count": len(processes) if isinstance(processes, list) else 0,
+8188:         "active_readers": processes if isinstance(processes, list) else [],
+8189:         "simulation_only": True,
+8190:         "orders_enabled": False,
+8191:         "real_money_enabled": False,
+8192:         "auto_click_enabled": False,
+8193:         "broker_login_enabled": False,
+8194:         "credentials_allowed": False,
+8195:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8196:     }
+8197: 
+8198: 
+8199: def _ptp113c72_payload():
+8200:     try:
+8201:         from flask import request as _ptp113c72_request
+8202:         data = _ptp113c72_request.get_json(silent=True)
+8203:         return data if isinstance(data, dict) else {}
+8204:     except Exception:
+8205:         return {}
+8206: 
+8207: 
+8208: def _ptp113c72_interval(payload):
+8209:     value = payload.get("interval") or payload.get("reader_interval") or payload.get("seconds") or 3
+8210:     try:
+8211:         value = int(float(value))
+8212:     except Exception:
+8213:         value = 3
+8214:     return max(1, min(30, value))
+8215: 
+8216: 
+8217: def _ptp113c72_start_observer_payload():
+8218:     payload = _ptp113c72_payload()
+8219:     interval = _ptp113c72_interval(payload)
+8220: 
+8221:     before = _ptp113c72_reader_snapshot(force_refresh=True)
+8222: 
+8223:     try:
+8224:         result = _start_reader(interval)
+8225:     except Exception as exc:
+8226:         result = {
+8227:             "ok": False,
+8228:             "status": "ERROR",
+8229:             "error": str(exc),
+8230:             "message": "Falha ao iniciar reader/observador visual.",
+8231:         }
+8232: 
+8233:     after = _ptp113c72_reader_snapshot(force_refresh=True)
+8234: 
+8235:     return {
+8236:         "ok": bool(after.get("reader_running")),
+8237:         "status": "ON" if after.get("reader_running") else "START_REQUESTED_NOT_RUNNING",
+8238:         "message": "Observador visual solicitado.",
+8239:         "interval": interval,
+8240:         "start_result": result,
+8241:         "before": before,
+8242:         "after": after,
+8243:         "simulation_only": True,
+8244:         "orders_enabled": False,
+
+--- função candidata linha 8217: def _ptp113c72_start_observer_payload(): ---
+8215: 
+8216: 
+8217: def _ptp113c72_start_observer_payload():
+8218:     payload = _ptp113c72_payload()
+8219:     interval = _ptp113c72_interval(payload)
+8220: 
+8221:     before = _ptp113c72_reader_snapshot(force_refresh=True)
+8222: 
+8223:     try:
+8224:         result = _start_reader(interval)
+8225:     except Exception as exc:
+8226:         result = {
+8227:             "ok": False,
+8228:             "status": "ERROR",
+8229:             "error": str(exc),
+8230:             "message": "Falha ao iniciar reader/observador visual.",
+8231:         }
+8232: 
+8233:     after = _ptp113c72_reader_snapshot(force_refresh=True)
+8234: 
+8235:     return {
+8236:         "ok": bool(after.get("reader_running")),
+8237:         "status": "ON" if after.get("reader_running") else "START_REQUESTED_NOT_RUNNING",
+8238:         "message": "Observador visual solicitado.",
+8239:         "interval": interval,
+8240:         "start_result": result,
+8241:         "before": before,
+8242:         "after": after,
+8243:         "simulation_only": True,
+8244:         "orders_enabled": False,
+8245:         "real_money_enabled": False,
+8246:         "auto_click_enabled": False,
+8247:         "broker_login_enabled": False,
+8248:         "credentials_allowed": False,
+8249:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8250:     }
+8251: 
+8252: 
+8253: def _ptp113c72_stop_observer_payload():
+8254:     before = _ptp113c72_reader_snapshot(force_refresh=True)
+8255: 
+8256:     try:
+8257:         result = _stop_reader()
+8258:     except Exception as exc:
+8259:         result = {
+8260:             "ok": False,
+8261:             "status": "ERROR",
+8262:             "error": str(exc),
+8263:             "message": "Falha ao parar reader/observador visual.",
+8264:         }
+8265: 
+8266:     after = _ptp113c72_reader_snapshot(force_refresh=True)
+8267: 
+8268:     return {
+8269:         "ok": bool(after.get("reader_running") is False),
+8270:         "status": "OFF" if after.get("reader_running") is False else "STOP_REQUESTED_STILL_RUNNING",
+8271:         "message": "Parada do observador visual solicitada.",
+8272:         "stop_result": result,
+8273:         "before": before,
+8274:         "after": after,
+8275:         "simulation_only": True,
+8276:         "orders_enabled": False,
+8277:         "real_money_enabled": False,
+8278:         "auto_click_enabled": False,
+8279:         "broker_login_enabled": False,
+8280:         "credentials_allowed": False,
+8281:         "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8282:     }
+8283: 
+8284: 
+8285: if "_PTP113C72_ORIGINAL_CREATE_MOBILE_APP" not in globals() and "create_mobile_app" in globals():
+8286:     _PTP113C72_ORIGINAL_CREATE_MOBILE_APP = create_mobile_app
+8287: 
+
+--- função candidata linha 8288: def create_mobile_app(*args, **kwargs): ---
+8286:     _PTP113C72_ORIGINAL_CREATE_MOBILE_APP = create_mobile_app
+8287: 
+8288:     def create_mobile_app(*args, **kwargs):
+8289:         app = _PTP113C72_ORIGINAL_CREATE_MOBILE_APP(*args, **kwargs)
+8290: 
+8291:         if not getattr(app, "_ptp113c72_observer_routes_registered", False):
+8292:             def ptp113c72_observer_start():
+8293:                 return _ptp113c72_start_observer_payload()
+8294: 
+8295:             def ptp113c72_observer_stop():
+8296:                 return _ptp113c72_stop_observer_payload()
+8297: 
+8298:             def ptp113c72_observer_status():
+8299:                 return _ptp113c72_reader_snapshot(force_refresh=True)
+8300: 
+8301:             for rule in ("/api/mobile/observer/start", "/api/mobile/reader/start", "/mobile/reader/start"):
+8302:                 try:
+8303:                     app.add_url_rule(
+8304:                         rule,
+8305:                         f"ptp113c72_observer_start_{rule.replace('/', '_')}",
+8306:                         ptp113c72_observer_start,
+8307:                         methods=["POST"],
+8308:                     )
+8309:                 except Exception:
+8310:                     pass
+8311: 
+8312:             for rule in ("/api/mobile/observer/stop", "/api/mobile/reader/stop", "/mobile/reader/stop"):
+8313:                 try:
+8314:                     app.add_url_rule(
+8315:                         rule,
+8316:                         f"ptp113c72_observer_stop_{rule.replace('/', '_')}",
+8317:                         ptp113c72_observer_stop,
+8318:                         methods=["POST"],
+8319:                     )
+8320:                 except Exception:
+8321:                     pass
+8322: 
+8323:             for rule in ("/api/mobile/observer/status", "/api/mobile/reader/status"):
+8324:                 try:
+8325:                     app.add_url_rule(
+8326:                         rule,
+8327:                         f"ptp113c72_observer_status_{rule.replace('/', '_')}",
+8328:                         ptp113c72_observer_status,
+8329:                         methods=["GET"],
+8330:                     )
+8331:                 except Exception:
+8332:                     pass
+8333: 
+8334:             app._ptp113c72_observer_routes_registered = True
+8335: 
+8336:         return app
+8337: 
+8338: # ============================================================
+8339: # PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_END
+8340: # ============================================================
+8341: 
+8342: 
+8343: def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
+8344:     _ensure_signal_db()
+8345:     local_ip = _local_ip()
+8346:     print("PredixAI Trader Mobile Server")
+8347:     print(OBSERVATION_NOTICE)
+8348:     print(SIMULATION_NOTICE)
+8349:     print(f"Local PC: http://127.0.0.1:{port}/mobile")
+8350:     print(f"Celular na mesma Wi-Fi: http://{local_ip}:{port}/mobile")
+8351:     print("Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start")
+8352:     print("Endpoint observador legado: POST /api/mobile/stop")
+8353:     reader_warning = _reader_warning(_active_reader_processes())
+8354:     if reader_warning:
+8355:         print(reader_warning)
+8356:     if HAS_FLASK:
+8357:         create_mobile_app().run(host=host, port=port, debug=False, use_reloader=False, threaded=True)
+8358:         return
+
+--- função candidata linha 8292: def ptp113c72_observer_start(): ---
+8290: 
+8291:         if not getattr(app, "_ptp113c72_observer_routes_registered", False):
+8292:             def ptp113c72_observer_start():
+8293:                 return _ptp113c72_start_observer_payload()
+8294: 
+8295:             def ptp113c72_observer_stop():
+8296:                 return _ptp113c72_stop_observer_payload()
+8297: 
+8298:             def ptp113c72_observer_status():
+8299:                 return _ptp113c72_reader_snapshot(force_refresh=True)
+8300: 
+8301:             for rule in ("/api/mobile/observer/start", "/api/mobile/reader/start", "/mobile/reader/start"):
+8302:                 try:
+8303:                     app.add_url_rule(
+8304:                         rule,
+8305:                         f"ptp113c72_observer_start_{rule.replace('/', '_')}",
+8306:                         ptp113c72_observer_start,
+8307:                         methods=["POST"],
+8308:                     )
+8309:                 except Exception:
+8310:                     pass
+8311: 
+8312:             for rule in ("/api/mobile/observer/stop", "/api/mobile/reader/stop", "/mobile/reader/stop"):
+8313:                 try:
+8314:                     app.add_url_rule(
+8315:                         rule,
+8316:                         f"ptp113c72_observer_stop_{rule.replace('/', '_')}",
+8317:                         ptp113c72_observer_stop,
+8318:                         methods=["POST"],
+8319:                     )
+8320:                 except Exception:
+8321:                     pass
+8322: 
+8323:             for rule in ("/api/mobile/observer/status", "/api/mobile/reader/status"):
+8324:                 try:
+8325:                     app.add_url_rule(
+8326:                         rule,
+8327:                         f"ptp113c72_observer_status_{rule.replace('/', '_')}",
+8328:                         ptp113c72_observer_status,
+8329:                         methods=["GET"],
+8330:                     )
+8331:                 except Exception:
+8332:                     pass
+8333: 
+8334:             app._ptp113c72_observer_routes_registered = True
+8335: 
+8336:         return app
+8337: 
+8338: # ============================================================
+8339: # PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_END
+8340: # ============================================================
+8341: 
+8342: 
+8343: def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
+8344:     _ensure_signal_db()
+8345:     local_ip = _local_ip()
+8346:     print("PredixAI Trader Mobile Server")
+8347:     print(OBSERVATION_NOTICE)
+8348:     print(SIMULATION_NOTICE)
+8349:     print(f"Local PC: http://127.0.0.1:{port}/mobile")
+8350:     print(f"Celular na mesma Wi-Fi: http://{local_ip}:{port}/mobile")
+8351:     print("Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start")
+8352:     print("Endpoint observador legado: POST /api/mobile/stop")
+8353:     reader_warning = _reader_warning(_active_reader_processes())
+8354:     if reader_warning:
+8355:         print(reader_warning)
+8356:     if HAS_FLASK:
+8357:         create_mobile_app().run(host=host, port=port, debug=False, use_reloader=False, threaded=True)
+8358:         return
+8359: 
+8360:     print("Flask nao encontrado; usando http.server local da biblioteca padrao.")
+8361:     server = ThreadingHTTPServer((host, port), MobileRequestHandler)
+8362:     try:
+
+--- função candidata linha 8727: def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef] ---
+8725:     _ptp113b3151_original_create_mobile_app_v2 = create_mobile_app
+8726: 
+8727:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+8728:         app = _ptp113b3151_original_create_mobile_app_v2(*args, **kwargs)
+8729: 
+8730:         if not getattr(app, "_ptp113b3151_recovery_risk_hook_v2", False):
+8731:             @app.after_request
+8732:             def _ptp113b3151_after_request_v2(response):
+8733:                 try:
+8734:                     if request.path == "/session/setup":
+8735:                         content_type = str(response.headers.get("Content-Type", ""))
+8736:                         if "text/html" in content_type:
+8737:                             html = response.get_data(as_text=True)
+8738:                             html = _ptp113b3151_enhance_session_setup_html_v2(html)
+8739:                             response.set_data(html)
+8740:                             response.headers["Content-Length"] = str(len(response.get_data()))
+8741:                         return response
+8742: 
+8743:                     if request.path in {"/api/mobile/state", "/api/mobile/signal/contract"}:
+8744:                         data = response.get_json(silent=True)
+8745:                         if isinstance(data, dict):
+8746:                             data = _ptp113b3151_enrich_dict_v2(data)
+8747:                             response.set_data(_ptp113b3151_json_v2.dumps(data, ensure_ascii=False, default=str))
+8748:                             response.mimetype = "application/json"
+8749:                     return response
+8750:                 except Exception as exc:
+8751:                     response.headers["X-PTP113B3151-Warning"] = str(exc)[:120]
+8752:                     return response
+8753: 
+8754:             app._ptp113b3151_recovery_risk_hook_v2 = True
+8755: 
+8756:         return app
+8757: except NameError:
+8758:     pass
+8759: 
+8760: 
+8761: 
+8762: # PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3
+8763: import re as _ptp113b3151_setup_re_v3
+8764: 
+8765: 
+8766: def _ptp113b3151_setup_ui_block_v3():
+8767:     return "\n".join([
+8768:         '<section class="box" data-ptp="PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3">',
+8769:         '  <h2>Recuperação e risco simulados</h2>',
+8770:         '  <label>Recuperação simulada</label>',
+8771:         '  <select name="recovery_mode" id="recovery_mode">',
+8772:         '    <option value="NONE">Sem recuperação</option>',
+8773:         '    <option value="MAO_FIXA">Mão fixa / entrada fixa</option>',
+8774:         '    <option value="SOROS">Soros / anti-martingale</option>',
+8775:         '    <option value="MARTINGALE_1">1 Martingale</option>',
+8776:         '    <option value="MARTINGALE_2">2 Martingales</option>',
+8777:         '    <option value="SMARTGALE">SmartGale simulado</option>',
+8778:         '  </select>',
+8779:         '  <label>Limite máximo de entrada simulada</label>',
+8780:         '  <input name="max_entry_limit" id="max_entry_limit" type="number" min="1" step="0.01" value="20.00"/>',
+8781:         '  <div class="box">',
+8782:         '    <div class="k">Prévia de risco</div>',
+8783:         '    <div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, percentual da banca exposto, risco combinado e alerta.</div>',
+8784:         '  </div>',
+8785:         '</section>',
+8786:     ])
+8787: 
+8788: 
+8789: def _ptp113b3151_force_setup_ui_v3(html):
+8790:     if not isinstance(html, str):
+8791:         return html
+8792: 
+8793:     if "PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3" in html:
+8794:         return html
+8795: 
+8796:     block = _ptp113b3151_setup_ui_block_v3()
+8797: 
+
+--- função candidata linha 8829: def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef] ---
+8827:     _ptp113b3151_original_create_mobile_app_v3 = create_mobile_app
+8828: 
+8829:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+8830:         app = _ptp113b3151_original_create_mobile_app_v3(*args, **kwargs)
+8831: 
+8832:         if not getattr(app, "_ptp113b3151_setup_ui_force_hook_v3", False):
+8833:             @app.after_request
+8834:             def _ptp113b3151_setup_ui_after_request_v3(response):
+8835:                 try:
+8836:                     if request.path == "/session/setup":
+8837:                         content_type = str(response.headers.get("Content-Type", ""))
+8838:                         if "text/html" in content_type:
+8839:                             html = response.get_data(as_text=True)
+8840:                             html = _ptp113b3151_force_setup_ui_v3(html)
+8841:                             response.set_data(html)
+8842:                             response.headers["Content-Length"] = str(len(response.get_data()))
+8843:                     return response
+8844:                 except Exception as exc:
+8845:                     response.headers["X-PTP113B3151-SetupUI-Warning"] = str(exc)[:120]
+8846:                     return response
+8847: 
+8848:             app._ptp113b3151_setup_ui_force_hook_v3 = True
+8849: 
+8850:         return app
+8851: except NameError:
+8852:     pass
+8853: 
+8854: 
+8855: 
+8856: # PTP-113B.3.1A.5.1A_CURRENCY_CONTROLS_BRL_V1
+8857: def _ptp113b3151a_currency_controls_v1_assets():
+8858:     css = """
+8859: <style id="ptp113b3151a-currency-style">
+8860:   input[type=number]::-webkit-outer-spin-button,
+8861:   input[type=number]::-webkit-inner-spin-button {
+8862:     -webkit-appearance: none;
+8863:     margin: 0;
+8864:   }
+8865: 
+8866:   input[type=number] {
+8867:     -moz-appearance: textfield;
+8868:   }
+8869: 
+8870:   .money-stepper {
+8871:     display: grid;
+8872:     grid-template-columns: 52px 1fr 52px;
+8873:     gap: 8px;
+8874:     align-items: center;
+8875:     margin: 6px 0 14px 0;
+8876:   }
+8877: 
+8878:   .money-stepper button {
+8879:     min-height: 44px;
+8880:     border-radius: 12px;
+8881:     border: 1px solid #31516f;
+8882:     background: #102239;
+8883:     color: #f5c542;
+8884:     font-size: 24px;
+8885:     font-weight: 800;
+8886:     cursor: pointer;
+8887:   }
+8888: 
+8889:   .money-stepper button:active {
+8890:     transform: scale(0.98);
+8891:   }
+8892: 
+8893:   .money-stepper input {
+8894:     width: 100%;
+8895:     min-height: 44px;
+8896:     border-radius: 12px;
+8897:     border: 1px solid #31516f;
+8898:     background: #061423;
+8899:     color: #ffffff;
+
+--- função candidata linha 9150: def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef] ---
+9148:     _ptp113b3151a_original_create_mobile_app_v1 = create_mobile_app
+9149: 
+9150:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+9151:         app = _ptp113b3151a_original_create_mobile_app_v1(*args, **kwargs)
+9152: 
+9153:         if not getattr(app, "_ptp113b3151a_currency_controls_v1", False):
+9154:             @app.after_request
+9155:             def _ptp113b3151a_currency_after_request_v1(response):
+9156:                 try:
+9157:                     if request.path == "/session/setup":
+9158:                         content_type = str(response.headers.get("Content-Type", ""))
+9159:                         if "text/html" in content_type:
+9160:                             html = response.get_data(as_text=True)
+9161:                             html = _ptp113b3151a_inject_currency_controls_v1(html)
+9162:                             response.set_data(html)
+9163:                             response.headers["Content-Length"] = str(len(response.get_data()))
+9164:                     return response
+9165:                 except Exception as exc:
+9166:                     response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+9167:                     return response
+9168: 
+9169:             app._ptp113b3151a_currency_controls_v1 = True
+9170: 
+9171:         return app
+9172: except NameError:
+9173:     pass
+9174: 
+9175: 
+9176: 
+9177: # PTP-113B.3.1A.5.1A.1_CURRENCY_LAYOUT_RECOVERY_LOGIC_V1
+9178: def _ptp113b3151a1_currency_layout_assets_v1():
+9179:     return """
+9180: <style id="ptp113b3151a1-currency-layout-style">
+9181:   input[type=number]::-webkit-outer-spin-button,
+9182:   input[type=number]::-webkit-inner-spin-button {
+9183:     -webkit-appearance: none;
+9184:     margin: 0;
+9185:   }
+9186: 
+9187:   input[type=number] {
+9188:     -moz-appearance: textfield;
+9189:   }
+9190: 
+9191:   .money-stepper {
+9192:     display: grid !important;
+9193:     grid-template-columns: 42px minmax(0, 1fr) 42px !important;
+9194:     gap: 8px !important;
+9195:     align-items: center !important;
+9196:     width: 100% !important;
+9197:     margin: 6px 0 8px 0 !important;
+9198:   }
+9199: 
+9200:   .money-stepper button {
+9201:     width: 42px !important;
+9202:     height: 42px !important;
+9203:     min-height: 42px !important;
+9204:     border-radius: 10px !important;
+9205:     border: 1px solid #31516f !important;
+9206:     background: #102239 !important;
+9207:     color: #f5c542 !important;
+9208:     font-size: 22px !important;
+9209:     line-height: 1 !important;
+9210:     font-weight: 800 !important;
+9211:     display: flex !important;
+9212:     align-items: center !important;
+9213:     justify-content: center !important;
+9214:     padding: 0 !important;
+9215:   }
+9216: 
+9217:   .money-stepper input {
+9218:     width: 100% !important;
+9219:     height: 42px !important;
+9220:     min-height: 42px !important;
+
+--- função candidata linha 9580: def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef] ---
+9578:     _ptp113b3151a1_original_create_mobile_app_v1 = create_mobile_app
+9579: 
+9580:     def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+9581:         app = _ptp113b3151a1_original_create_mobile_app_v1(*args, **kwargs)
+9582: 
+9583:         if not getattr(app, "_ptp113b3151a1_currency_layout_v1", False):
+9584:             @app.after_request
+9585:             def _ptp113b3151a1_currency_layout_after_request_v1(response):
+9586:                 try:
+9587:                     if request.path == "/session/setup":
+9588:                         content_type = str(response.headers.get("Content-Type", ""))
+9589:                         if "text/html" in content_type:
+9590:                             html = response.get_data(as_text=True)
+9591:                             html = _ptp113b3151a1_inject_currency_layout_v1(html)
+9592:                             response.set_data(html)
+9593:                             response.headers["Content-Length"] = str(len(response.get_data()))
+9594:                     return response
+9595:                 except Exception as exc:
+9596:                     response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+9597:                     return response
+9598: 
+9599:             app._ptp113b3151a1_currency_layout_v1 = True
+9600: 
+9601:         return app
+9602: except NameError:
+9603:     pass
+9604: 
+9605: 
+9606: 
+9607: # PTP-113B.3.1A.5.1A.6_FIX_STEPPER_GUARD
+9608: def _ptp113b3151a51a6_disable_legacy_currency_controls_brl():
+9609:     """
+9610:     Desativa a injeção monetária legada V1 sem usar app global.
+9611: 
+9612:     Motivo:
+9613:     - A auditoria encontrou dois blocos monetários em /session/setup.
+9614:     - O bloco legado V1 injeta parseMoney/formatBRL duplicados.
+9615:     - A correção anterior usou @app.after_request fora de create_mobile_app e quebrou import.
+9616: 
+9617:     Estratégia segura:
+9618:     - Não remove fisicamente o código antigo.
+9619:     - Substitui apenas funções legadas que carregam o marcador exato
+9620:       PTP113B3151A_CURRENCY_CONTROLS_BRL.
+9621:     - Mantém o bloco mais novo PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC.
+9622:     """
+9623:     legacy_marker = "PTP113B3151A_CURRENCY_CONTROLS_BRL"
+9624:     disabled = []
+9625: 
+9626:     def _noop_html(html, *args, **kwargs):
+9627:         return html
+9628: 
+9629:     def _noop_assets(*args, **kwargs):
+9630:         return ""
+9631: 
+9632:     try:
+9633:         import inspect as _inspect
+9634: 
+9635:         for _name, _obj in list(globals().items()):
+9636:             if not callable(_obj):
+9637:                 continue
+9638: 
+9639:             if not _name.startswith("_ptp113b3151a"):
+9640:                 continue
+9641: 
+9642:             if _name.startswith("_ptp113b3151a1"):
+9643:                 continue
+9644: 
+9645:             if _name.startswith("_ptp113b3151a51a6"):
+9646:                 continue
+9647: 
+9648:             try:
+9649:                 _source = _inspect.getsource(_obj)
+9650:             except Exception:
+
+===== GARANTIR SERVIDOR PARA AUDITORIA =====
+
+===== ss -ltnp 'sport = :8766' || true =====
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+LISTEN 0      128          0.0.0.0:8766      0.0.0.0:*    users:(("python3",pid=47852,fd=3))
+RC=0
+Servidor já ativo na porta 8766.
+PID da porta 8766: 47852
+
+===== VALIDAR ENDPOINTS ANTES DO START =====
+HTTP /mobile: 200
+HTTP /api/mobile/state antes: 200
+
+===== PROCESSOS ANTES DO START =====
+
+===== pgrep -af 'predixai|reader|mobile|flask|python3' || true =====
+1557 /usr/bin/python3 /usr/bin/blueman-applet
+1588 /usr/bin/python3 /usr/share/system-config-printer/applet.py
+47699 /usr/bin/xed /home/leo/Documentos/GitHub/predixai-platform/reports/20260707_124136_PTP-113C.7.6B.2_rollback_mobile_server_pre_C75_RECOVERY_ROLLBACK.txt
+47852 python3 scripts/predixai_trader_mobile_server.py
+55780 bash /tmp/predixai_ptp113c77a_auditar_start_reader.sh
+55934 bash -lc pgrep -af 'predixai|reader|mobile|flask|python3' || true
+RC=0
+
+===== ps -p 47852 -o pid,ppid,pmem,rss,cmd || true =====
+    PID    PPID %MEM   RSS CMD
+  47852    3336  6.8 550576 python3 scripts/predixai_trader_mobile_server.py
+RC=0
+
+===== ps -T -p 47852 -o pid,tid,comm,stat,pcpu,pmem || true =====
+    PID     TID COMMAND         STAT %CPU %MEM
+  47852   47852 python3         Sl+   0.2  6.8
+  47852   55951 python3         Sl+  44.4  6.8
+  47852   55953 python3         Sl+   120  6.8
+  47852   55954 python3         Sl+   100  6.8
+  47852   55955 python3         Rl+  20.0  6.8
+RC=0
+
+===== ACIONAR START DO READER =====
+POST /api/mobile/start: 200
+Resposta start:
+{"asset":"Cafeina Index","auto_click_enabled":false,"compatibility_route":"/api/mobile/start","confluence_result":{"asset":"Cafeina Index","final_confidence":95.0,"level":"ALTA","reason":"Conflu\u00eancia aprovada por decis\u00e3o direcional v\u00e1lida e confian\u00e7a m\u00ednima atingida.","status":"APROVADO","strategy_decision":"ALTA","timestamp":"2026-07-07T16:08:33.980359+00:00"},"history_points":6,"legacy_live_loop_disabled":true,"mobile_signal":{"asset":"Cafeina Index","bank_mode":"SIMULADO","confidence":95.0,"confluence_level":"ALTA","decision":"ALTA","generated_at":"2026-07-07T16:08:33.980419+00:00","session_status":"SIMULADA","status":"APROVADO"},"observer_only":true,"ok":true,"orders_enabled":false,"paper_trade_session":{"current_balance":100.0,"initial_balance":100.0,"operations":[{"asset":"Cafeina Index","closed_at":null,"confidence":95,"direction":"ALTA","entry_value":5.0,"opened_at":"2026-07-07T16:08:33.980517+00:00","operation_id":"fafc07c7-540a-43ea-ba3f-e28e51fef48f","result_value":null,"source":"MOBILE_SIMULATED_SESSION","status":"PENDING"}],"operations_count":1,"session_id":"mobile_20260707_130833_f2d10324"},"real_money_enabled":false,"runtime":{"last_live_reading":"/home/leo/Documentos/GitHub/predixai-platform/data/runtime/last_live_reading.json","live_price_history":"/home/leo/Documentos/GitHub/predixai-platform/data/runtime/live_price_history.json","mobile_session":"/home/leo/Documentos/GitHub/predixai-platform/data/runtime/mobile_current_session.json","signals_db":"/home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db"},"session_id":"mobile_20260707_130833_f2d10324","simulation_only":true,"source":"MOBILE_FIRST_SIMULATED_BRIDGE","status":"SIMULATED_SESSION_STARTED","strategy_decision":{"asset":"Cafeina Index","confidence":95.0,"decision":"ALTA","reason":"Pre\u00e7o atual acima do pre\u00e7o anterior.","timestamp":"2026-07-07T16:08:33.980287+00:00"}}
+HTTP /api/mobile/state depois: 200
+
+===== PROCESSOS DEPOIS DO START =====
+
+===== pgrep -af 'predixai|reader|mobile|flask|python3' || true =====
+1557 /usr/bin/python3 /usr/bin/blueman-applet
+1588 /usr/bin/python3 /usr/share/system-config-printer/applet.py
+47699 /usr/bin/xed /home/leo/Documentos/GitHub/predixai-platform/reports/20260707_124136_PTP-113C.7.6B.2_rollback_mobile_server_pre_C75_RECOVERY_ROLLBACK.txt
+47852 python3 scripts/predixai_trader_mobile_server.py
+55780 bash /tmp/predixai_ptp113c77a_auditar_start_reader.sh
+56070 bash -lc pgrep -af 'predixai|reader|mobile|flask|python3' || true
+RC=0
+
+===== ps -p 47852 -o pid,ppid,pmem,rss,cmd || true =====
+    PID    PPID %MEM   RSS CMD
+  47852    3336  6.8 550616 python3 scripts/predixai_trader_mobile_server.py
+RC=0
+
+===== ps -T -p 47852 -o pid,tid,comm,stat,pcpu,pmem || true =====
+    PID     TID COMMAND         STAT %CPU %MEM
+  47852   47852 python3         Sl+   0.2  7.0
+  47852   56075 python3         Rl+  58.3  7.0
+  47852   56077 python3         Sl+  45.4  7.0
+  47852   56078 python3         Sl+  40.0  7.0
+RC=0
+
+===== ANALISAR ESTADOS BEFORE/AFTER =====
+===== START_RESPONSE_BRIEF =====
+{
+  "ok": true,
+  "status": "SIMULATED_SESSION_STARTED",
+  "asset": "Cafeina Index",
+  "direction": "ALTA",
+  "confidence": 95.0
+}
+
+===== STATE_BEFORE_BRIEF =====
+{
+  "status": "aguardando_leitura",
+  "message": "Leitor parado. Sinais abaixo são históricos.",
+  "reader_running": false,
+  "active_reader_count": 0,
+  "active_readers": [],
+  "price": 4182.1,
+  "asset": "Sem leitura ativa",
+  "signal_status": "aguardando_leitura",
+  "direction": "NEUTRO"
+}
+
+===== STATE_AFTER_BRIEF =====
+{
+  "status": "aguardando_leitura",
+  "message": "Leitor parado. Sinais abaixo são históricos.",
+  "reader_running": false,
+  "active_reader_count": 0,
+  "active_readers": [],
+  "price": 4182.1,
+  "asset": "Sem leitura ativa",
+  "signal_status": "aguardando_leitura",
+  "direction": "NEUTRO"
+}
+
+===== DELTA =====
+reader_before=False
+reader_after=False
+active_before=0
+active_after=0
+EVAL_STATUS=PASS_AUDIT_START_READER_READY_FOR_FIX
+
+===== PARAR READER APÓS AUDITORIA =====
+POST /api/mobile/stop: 200
+
+===== SEGURANÇA SIMULADA =====
+
+===== grep -n 'simulation_only\|orders_enabled\|real_money_enabled\|auto_click_enabled\|broker_login_enabled\|credentials_allowed' scripts/predixai_trader_mobile_server.py | head -80 || true =====
+1268:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+1269:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+1270:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+1271:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+1272:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+1273:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+1417:        "simulation_only=" + d.simulation_only +
+1418:        " | orders_enabled=" + d.orders_enabled +
+1419:        " | real_money_enabled=" + d.real_money_enabled +
+1420:        " | auto_click_enabled=" + d.auto_click_enabled +
+1421:        " | broker_login_enabled=" + d.broker_login_enabled +
+1422:        " | credentials_allowed=" + d.credentials_allowed
+3035:      data.simulation_only === true &&
+3036:      data.orders_enabled === false &&
+3037:      data.real_money_enabled === false &&
+3038:      data.auto_click_enabled === false &&
+3039:      data.broker_login_enabled === false &&
+3040:      data.credentials_allowed === false;
+3076:        `simulation_only=${text(data.simulation_only)} · orders_enabled=${text(data.orders_enabled)} · real_money_enabled=${text(data.real_money_enabled)}`,
+3274:        "orders_enabled": False,
+3472:            "orders_enabled": False,
+3653:            "simulation_only": True,
+3655:            "orders_enabled": False,
+3656:            "auto_click_enabled": False,
+3657:            "real_money_enabled": False,
+3681:                            "simulation_only": True,
+3682:                            "orders_enabled": False,
+3714:        "simulation_only": True,
+3716:        "orders_enabled": False,
+3717:        "auto_click_enabled": False,
+3718:        "real_money_enabled": False,
+3765:            "simulation_only": True,
+3766:            "orders_enabled": False,
+3798:        "orders_enabled": False,
+3799:        "auto_click_enabled": False,
+3800:        "real_money_enabled": False,
+3801:        "broker_login_enabled": False,
+3802:        "simulation_only": True,
+3840:            "simulation_only": True,
+3841:            "orders_enabled": False,
+3842:            "auto_click_enabled": False,
+3843:            "real_money_enabled": False,
+3854:        "simulation_only": True,
+3855:        "orders_enabled": False,
+3856:        "auto_click_enabled": False,
+3857:        "real_money_enabled": False,
+4786:            "orders_enabled": False,
+5723:        "simulation_only": bool(pick("simulation_only", True)),
+5724:        "orders_enabled": bool(pick("orders_enabled", False)),
+5725:        "real_money_enabled": bool(pick("real_money_enabled", False)),
+5726:        "auto_click_enabled": bool(pick("auto_click_enabled", False)),
+5727:        "broker_login_enabled": bool(pick("broker_login_enabled", False)),
+5728:        "credentials_allowed": bool(pick("credentials_allowed", False)),
+5781:        safety.get("simulation_only") is not True
+5782:        or safety.get("orders_enabled") is not False
+5783:        or safety.get("real_money_enabled") is not False
+5784:        or safety.get("auto_click_enabled") is not False
+5785:        or safety.get("broker_login_enabled") is not False
+5786:        or safety.get("credentials_allowed") is not False
+6000:        safety.get("simulation_only") is True
+6001:        and safety.get("orders_enabled") is False
+6002:        and safety.get("real_money_enabled") is False
+6003:        and safety.get("auto_click_enabled") is False
+6004:        and safety.get("broker_login_enabled") is False
+6005:        and safety.get("credentials_allowed") is False
+6136:        "simulation_only": True,
+6137:        "orders_enabled": False,
+6138:        "real_money_enabled": False,
+6139:        "auto_click_enabled": False,
+6140:        "broker_login_enabled": False,
+6141:        "credentials_allowed": False,
+6229:        "simulation_only": True,
+6230:        "orders_enabled": False,
+6231:        "real_money_enabled": False,
+6232:        "auto_click_enabled": False,
+6233:        "broker_login_enabled": False,
+6234:        "credentials_allowed": False,
+6403:        "simulation_only": True,
+6404:        "orders_enabled": False,
+6405:        "real_money_enabled": False,
+RC=0
+
+===== REGISTRAR RELATÓRIO E MARKDOWN =====
+
+CONCLUSÃO OPERACIONAL
+Se o START_HTTP foi 200 e reader_after continuou false, então o endpoint de start está respondendo, mas não está ativando o reader operacional, ou o reader falha antes de atualizar o estado.
+
+PRÓXIMA AÇÃO
+Se RESULTADO_FINAL indicar READY_FOR_FIX:
+- preparar PTP 113 C.7.7B para correção mínima do start do reader.
+Se RESULTADO_FINAL for inconclusivo:
+- auditar logs internos/funções específicas antes de corrigir.
