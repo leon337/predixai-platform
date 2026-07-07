@@ -1,0 +1,123 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP 113 C.8.2
+Nome curto: rotas_limpas_mobile_v2
+Data: 2026-07-07 19:33:32 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Tipo: BUILD controlado / integração mínima
+Mobile antigo substituído: NÃO
+Observer real iniciado: NÃO
+Runtime JSON versionado: NÃO
+
+===== TRAVAS OPERACIONAIS =====
+simulation_only=true
+orders_enabled=false
+real_money_enabled=false
+auto_click_enabled=false
+broker_login_enabled=false
+credentials_allowed=false
+
+===== INVESTIGAR — STATUS INICIAL =====
+?? reports/20260707_193332_PTP-113C.8.2_rotas_limpas_mobile_v2_BUILD_CONTROLADO.txt
+WARN: havia alterações antes do script. O commit só adicionará arquivos da C.8.2.
+
+===== últimos commits =====
+$ git log -6 --oneline
+766bda6 PTP 113 C.8.1 criar base mobile v2 minima
+7738b75 PTP 113 C.8.0.1 fechar sobra local pos quarentena
+1da8948 PTP 113 C.8.0 saneamento quarentena mobile v2
+8b72aff PTP 113 C.7.7A auditar start reader
+a3cdbbe PTP 113 C.7.7 validacao controlada observador ativo
+a06e7c0 PTP 113 C.7.6B.3 registrar validacao mobile pos rollback
+STATUS: 0
+
+===== INVESTIGAR — ARQUIVOS BASE =====
+
+===== CONSTRUIR — REFORÇAR .gitignore =====
+OK: .gitignore reforçado.
+
+===== CONSTRUIR — ROTAS MOBILE V2 =====
+OK: routes.py e __init__.py atualizados.
+
+===== CONSTRUIR — TESTES DAS ROTAS =====
+OK: teste de rotas criado.
+
+===== CONSTRUIR — PATCH MÍNIMO NO SERVIDOR LEGADO =====
+OK: patch mínimo aplicado no servidor legado.
+
+===== VALIDAR — COMPILAÇÃO =====
+
+===== py_compile routes.py =====
+$ python3 -m py_compile src/predixai/mobile_v2/routes.py
+
+STATUS: 0
+
+===== py_compile state_store.py =====
+$ python3 -m py_compile src/predixai/mobile_v2/state_store.py
+
+STATUS: 0
+
+===== py_compile mobile server =====
+$ python3 -m py_compile scripts/predixai_trader_mobile_server.py
+scripts/predixai_trader_mobile_server.py:8918: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+scripts/predixai_trader_mobile_server.py:9179: SyntaxWarning: invalid escape sequence '\d'
+  return """
+  File "scripts/predixai_trader_mobile_server.py", line 9612
+    return app
+    ^^^^^^^^^^
+SyntaxError: 'return' outside function
+STATUS: 1
+FAIL: mobile server quebrou após patch. Restaurando backup.
+
+===== VALIDAR — TESTES =====
+
+===== unittest state store =====
+$ python3 tests/test_mobile_v2_state_store.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.100s
+
+OK
+STATUS: 0
+
+===== unittest mobile v2 routes =====
+$ python3 tests/test_mobile_v2_routes.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.067s
+
+OK
+STATUS: 0
+
+===== VALIDAR — DIFF CHECK =====
+
+===== git diff --check =====
+$ git diff --check
+
+STATUS: 0
+
+===== VALIDAR — RUNTIME NÃO VERSIONADO =====
+OK: data/runtime/mobile_v2_state.json não está rastreado.
+
+===== VALIDAR — CURL OPCIONAL =====
+INFO: servidor local não parece ativo. Curl de /state/current pulado.
+
+===== REGISTRAR — MARKDOWN HISTÓRICO =====
+Markdown criado: docs/history/ptp/PTP-113/PTP-113C/20260707_193332_PTP-113C.8.2_rotas_limpas_mobile_v2_BUILD_CONTROLADO.md
+
+===== REGISTRAR — ÍNDICE =====
+
+===== RESULTADO FINAL DO RELATÓRIO =====
+Resultado geral: FAIL
+Warnings: 2
+Falhas: 1
+Patch servidor legado: ROLLED_BACK
+Runtime JSON versionado: NÃO
+Observer real iniciado: NÃO
+Mobile antigo substituído: NÃO
+Relatório: reports/20260707_193332_PTP-113C.8.2_rotas_limpas_mobile_v2_BUILD_CONTROLADO.txt
+Markdown: docs/history/ptp/PTP-113/PTP-113C/20260707_193332_PTP-113C.8.2_rotas_limpas_mobile_v2_BUILD_CONTROLADO.md
+Observação: relatório fechado antes de commit/push.
