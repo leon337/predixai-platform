@@ -256,3 +256,5 @@ data/runtime/*.lock
 data/runtime/*.log
 logs/
 backups/quarantine/
+data/runtime/*
+!data/runtime/.gitkeep
