@@ -5703,6 +5703,274 @@ if "_PTP113C3_ORIGINAL_BUILD_STATE" not in globals():
 # ============================================================
 
 
+
+# ============================================================
+# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_START
+# PTP 113 C.4 — Fechamento Simulado WIN/LOSS/DRAW
+# Objetivo: calcular resultado simulado sem alterar saldo.
+# ============================================================
+
+def _ptp113c4_dict(value):
+    return value if isinstance(value, dict) else {}
+
+
+def _ptp113c4_float(value, default=None):
+    try:
+        if value is None or value == "":
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
+def _ptp113c4_text(value, fallback=""):
+    if value is None:
+        return fallback
+    value = str(value).strip()
+    return value if value else fallback
+
+
+def _ptp113c4_parse_dt(value):
+    try:
+        if "_parse_dt" in globals():
+            parsed = _parse_dt(value)
+            if parsed is not None:
+                return parsed
+    except Exception:
+        pass
+    return None
+
+
+def _ptp113c4_now():
+    try:
+        if "_now" in globals():
+            return _now()
+    except Exception:
+        pass
+    return None
+
+
+def _ptp113c4_iso(dt):
+    try:
+        if dt is not None:
+            return dt.isoformat()
+    except Exception:
+        pass
+
+    try:
+        if "_now_iso" in globals():
+            return _now_iso()
+    except Exception:
+        pass
+
+    return ""
+
+
+def _ptp113c4_safety_ok(state, model, operation):
+    safety = _ptp113c4_dict(model.get("safety"))
+
+    checks = {
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+    }
+
+    for key, expected in checks.items():
+        value = safety.get(key)
+        if value is None:
+            value = operation.get(key)
+        if value is None:
+            value = state.get(key)
+
+        if value is not expected:
+            return False
+
+    return True
+
+
+def _ptp113c4_close_price_from_current_model(model):
+    if not isinstance(model, dict):
+        return None
+
+    if model.get("operation_allowed") is not True:
+        return None
+
+    if model.get("status") != "sinal_pronto":
+        return None
+
+    return _ptp113c4_float(model.get("reference_price"))
+
+
+def _ptp113c4_result(direction, open_price, close_price):
+    direction = _ptp113c4_text(direction).upper()
+
+    if open_price is None or close_price is None:
+        return "UNKNOWN"
+
+    if close_price == open_price:
+        return "DRAW"
+
+    if direction == "CALL":
+        return "WIN" if close_price > open_price else "LOSS"
+
+    if direction == "PUT":
+        return "WIN" if close_price < open_price else "LOSS"
+
+    return "UNKNOWN"
+
+
+def _ptp113c4_simulated_close_result(state):
+    """
+    Calcula fechamento simulado, mas não atualiza banca.
+    A atualização de saldo fica bloqueada para PTP 113 C.5.
+    """
+    if not isinstance(state, dict):
+        return {
+            "version": "PTP 113 C.4",
+            "status": "blocked_invalid_state",
+            "result_calculated": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": "Estado inválido.",
+            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+        }
+
+    model = _ptp113c4_dict(state.get("current_signal_model"))
+    operation = _ptp113c4_dict(state.get("simulated_open_operation"))
+
+    if not operation:
+        return {
+            "version": "PTP 113 C.4",
+            "status": "blocked_missing_simulated_open_operation",
+            "result_calculated": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": "simulated_open_operation ausente. Execute/valide PTP 113 C.3.",
+            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+        }
+
+    if operation.get("operation_opened") is not True:
+        return {
+            "version": "PTP 113 C.4",
+            "status": "blocked_no_open_operation",
+            "result_calculated": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "operation_id": operation.get("operation_id"),
+            "reason": operation.get("reason") or "Não existe operação simulada aberta.",
+            "open_operation_status": operation.get("status"),
+            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+            "next_step": "Aguardar operação simulada válida.",
+        }
+
+    if not _ptp113c4_safety_ok(state, model, operation):
+        return {
+            "version": "PTP 113 C.4",
+            "status": "blocked_safety",
+            "result_calculated": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "operation_id": operation.get("operation_id"),
+            "reason": "Travas simuladas inconsistentes. Resultado bloqueado.",
+            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+        }
+
+    expires_at = _ptp113c4_parse_dt(operation.get("expires_at"))
+    now = _ptp113c4_now()
+
+    if expires_at is not None and now is not None:
+        try:
+            if now < expires_at:
+                return {
+                    "version": "PTP 113 C.4",
+                    "status": "waiting_expiration",
+                    "result_calculated": False,
+                    "result_allowed": False,
+                    "balance_update_allowed": False,
+                    "operation_id": operation.get("operation_id"),
+                    "reason": "Operação simulada ainda não chegou ao horário de fechamento.",
+                    "opened_at": operation.get("opened_at"),
+                    "expires_at": operation.get("expires_at"),
+                    "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+                }
+        except Exception:
+            pass
+
+    open_price = _ptp113c4_float(operation.get("open_price"))
+    close_price = _ptp113c4_close_price_from_current_model(model)
+
+    if close_price is None:
+        return {
+            "version": "PTP 113 C.4",
+            "status": "UNKNOWN",
+            "result_calculated": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "operation_id": operation.get("operation_id"),
+            "asset": operation.get("asset"),
+            "direction": operation.get("direction"),
+            "open_price": open_price,
+            "close_price": None,
+            "result": "UNKNOWN",
+            "reason": "Preço de fechamento atual válido ausente.",
+            "opened_at": operation.get("opened_at"),
+            "expires_at": operation.get("expires_at"),
+            "closed_at": _ptp113c4_iso(now),
+            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+            "next_step": "Aguardar preço de fechamento válido.",
+        }
+
+    result = _ptp113c4_result(operation.get("direction"), open_price, close_price)
+
+    return {
+        "version": "PTP 113 C.4",
+        "status": "CLOSED_SIMULATED",
+        "result_calculated": True,
+        "result_allowed": True,
+        "balance_update_allowed": False,
+        "operation_id": operation.get("operation_id"),
+        "asset": operation.get("asset"),
+        "direction": operation.get("direction"),
+        "entry_value": operation.get("entry_value"),
+        "open_price": open_price,
+        "close_price": close_price,
+        "opened_at": operation.get("opened_at"),
+        "expires_at": operation.get("expires_at"),
+        "closed_at": _ptp113c4_iso(now),
+        "result": result,
+        "saldo_before": operation.get("saldo_before"),
+        "saldo_after": None,
+        "profit_loss": None,
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+        "reason": "Resultado simulado calculado. Saldo ainda bloqueado para PTP 113 C.5.",
+        "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+        "next_step": "PTP 113 C.5 — Atualização da Banca Simulada",
+    }
+
+
+if "_PTP113C4_ORIGINAL_BUILD_STATE" not in globals():
+    _PTP113C4_ORIGINAL_BUILD_STATE = _build_state
+
+    def _build_state(*args, **kwargs):
+        data = _PTP113C4_ORIGINAL_BUILD_STATE(*args, **kwargs)
+        if isinstance(data, dict):
+            data["simulated_close_result"] = _ptp113c4_simulated_close_result(data)
+            data["ptp113c4_simulated_close_result_ready"] = True
+        return data
+
+# ============================================================
+# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_END
+# ============================================================
+
+
 def _host_from_header(host_header: str | None) -> str:
     host = (host_header or "").split(":", 1)[0]
     if host in {"", "0.0.0.0", "127.0.0.1", "localhost"}:

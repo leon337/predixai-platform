@@ -69,3 +69,10 @@
 - Relatório: `reports/20260707_101816_PTP-113C.3_abertura_simulada_operacao_FIX.txt`
 - Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_101816_PTP-113C.3_abertura_simulada_operacao_FIX.md`
 - Arquivo alterado: `scripts/predixai_trader_mobile_server.py`
+
+## 2026-07-07 10:21:22 -0300 — PTP 113 C.4 — Fechamento Simulado WIN/LOSS/DRAW
+
+- Status: FIX
+- Relatório: `reports/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw_FIX.txt`
+- Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw_FIX.md`
+- Arquivo alterado: `scripts/predixai_trader_mobile_server.py`

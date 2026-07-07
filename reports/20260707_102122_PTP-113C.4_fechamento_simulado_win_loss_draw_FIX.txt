@@ -1,0 +1,145 @@
+PREDIXAI BR — PTP 113 C.4 fechamento_simulado_win_loss_draw
+Data: 2026-07-07 10:21:22 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+Status: FIX
+
+===== OBJETIVO =====
+Criar camada segura de fechamento simulado WIN/LOSS/DRAW.
+
+===== REGRA =====
+Não executar ordem real.
+Não alterar saldo nesta etapa.
+Não atualizar banca nesta etapa.
+Não calcular resultado sem operação simulada aberta.
+Não calcular resultado sem preço de fechamento válido.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw_FIX.txt
+
+===== INVESTIGAR — Últimos commits =====
+e5ac227 PTP 113 C.3 add simulated open operation
+dc0e817 PTP 113 C.2 add current signal model
+5acc1bd PTP 113 C.1 audit estado atual
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+62e61f8 PTP-113B.3.1B.5.2.3 ajuste visual campos críticos mobile FIX
+3ecd0b3 PTP-113B.3.1B.5.2.2 corrigir_marcadores_visiveis_mobile FIX
+2ec0408 PTP-113B.3.1B.5.2.1 finalize visual recovery saneamento mobile
+
+===== INVESTIGAR — Marcadores necessários =====
+4886:def _build_state(
+5098:# PTP113C2_MODELO_SINAL_ATUAL_START
+5276:def _ptp113c2_current_signal_model(state):
+5291:            "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5380:        "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5399:    def _build_state(*args, **kwargs):
+5402:            data["current_signal_model"] = _ptp113c2_current_signal_model(data)
+5403:            data["ptp113c2_current_signal_model_ready"] = True
+5407:# PTP113C2_MODELO_SINAL_ATUAL_END
+5413:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_START
+5553:def _ptp113c3_simulated_open_operation(state):
+5566:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5569:    model = _ptp113c3_dict(state.get("current_signal_model"))
+5574:            "status": "blocked_missing_current_signal_model",
+5579:            "reason": "current_signal_model ausente. Execute/valide PTP 113 C.2.",
+5580:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5601:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5615:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5628:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5640:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5686:        "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5694:    def _build_state(*args, **kwargs):
+5697:            data["simulated_open_operation"] = _ptp113c3_simulated_open_operation(data)
+5698:            data["ptp113c3_simulated_open_operation_ready"] = True
+5702:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_END
+
+===== CONSTRUIR — Backup =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw/predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — Aplicar patch PTP 113 C.4 =====
+PASS: patch PTP113C4_FECHAMENTO_SIMULADO_RESULTADO aplicado.
+PATCH_EXIT=0
+
+===== VALIDAR — py_compile =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:7850: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8111: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PY_COMPILE_EXIT=0
+
+===== VALIDAR — git diff check =====
+GIT_DIFF_CHECK_EXIT=0
+
+===== VALIDAR — Marcadores PTP 113 C.4 =====
+5708:# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_START
+5825:def _ptp113c4_simulated_close_result(state):
+5838:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5852:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5865:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5878:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5897:                    "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5922:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5954:        "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5965:            data["simulated_close_result"] = _ptp113c4_simulated_close_result(data)
+5966:            data["ptp113c4_simulated_close_result_ready"] = True
+5970:# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_END
+
+===== VALIDAR — Reiniciar servidor mobile =====
+Processos encontrados: 21856
+SERVER_PID=22146
+
+===== VALIDAR — Endpoint /mobile =====
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.8 Python/3.12.3
+Date: Tue, 07 Jul 2026 13:21:28 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 86874
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Connection: close
+
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — Endpoint /api/mobile/state com simulated_close_result =====
+CURL_STATE_EXIT=0
+HAS_CURRENT_SIGNAL_MODEL= True
+HAS_SIMULATED_OPEN_OPERATION= True
+HAS_SIMULATED_CLOSE_RESULT= True
+PTP113C4_READY= True
+status=blocked_no_open_operation
+result_calculated=False
+result_allowed=False
+balance_update_allowed=False
+operation_id=None
+reason=Observador desligado. Histórico não pode virar sinal atual.
+source=PTP113C4_FECHAMENTO_SIMULADO_RESULTADO
+next_step=Aguardar operação simulada válida.
+SIMULATED_CLOSE_RESULT_VALIDATE=PASS
+SIMULATED_CLOSE_RESULT_VALIDATE_EXIT=0
+
+===== VALIDAR — Travas simuladas no endpoint =====
+simulation_only=True expected=True
+orders_enabled=False expected=False
+real_money_enabled=False expected=False
+auto_click_enabled=False expected=False
+broker_login_enabled=False expected=False
+credentials_allowed=False expected=False
+SAFETY_LOCKS_VALIDATE=PASS
+SAFETY_VALIDATE_EXIT=0
+
+===== REGISTRAR — Resultado técnico =====
+Resultado esperado:
+- simulated_close_result criado em /api/mobile/state.
+- Se não houver operação aberta, fechamento fica bloqueado.
+- Se operação estiver aberta mas não vencida, fechamento fica aguardando expiração.
+- Se houver operação vencida e preço de fechamento válido, calcula WIN/LOSS/DRAW.
+- Saldo ainda não é alterado.
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+A  docs/history/ptp/PTP-113/PTP-113C/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw_FIX.md
+M  docs/reports_index.md
+A  reports/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw_FIX.txt
+M  scripts/predixai_trader_mobile_server.py
