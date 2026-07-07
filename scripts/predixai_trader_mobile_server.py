@@ -1381,6 +1381,415 @@ body {
 })();
 </script>
 
+
+<style>
+/* PTP113B31B5_ESTADO_REAL_OBSERVADOR */
+.px-observer-state-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #081421;
+  padding: 12px;
+  margin: 10px 0;
+}
+.px-observer-title {
+  color: var(--line);
+  font: 900 13px Consolas, monospace;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.px-observer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.px-observer-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #061018;
+  padding: 10px;
+}
+.px-observer-label {
+  color: var(--muted);
+  font: 800 11px Consolas, monospace;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.px-observer-value {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.px-observer-value.ok { color: var(--green); }
+.px-observer-value.warn { color: var(--yellow); }
+.px-observer-value.error { color: var(--red); }
+.px-observer-message {
+  margin-top: 10px;
+  border-radius: 10px;
+  padding: 10px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+.px-msg-ok {
+  background: rgba(56, 214, 107, .14);
+  border: 1px solid rgba(56, 214, 107, .6);
+  color: var(--green);
+}
+.px-msg-warn {
+  background: rgba(255, 191, 0, .14);
+  border: 1px solid rgba(255, 191, 0, .6);
+  color: var(--yellow);
+}
+.px-msg-error {
+  background: rgba(255, 77, 109, .14);
+  border: 1px solid rgba(255, 77, 109, .6);
+  color: var(--red);
+}
+button.px-btn-processing,
+a.px-btn-processing {
+  background: var(--yellow) !important;
+  color: #061018 !important;
+  border-color: var(--yellow) !important;
+  outline: none !important;
+  box-shadow: 0 0 18px rgba(255, 191, 0, .55) !important;
+}
+button.px-btn-ok,
+a.px-btn-ok {
+  background: var(--green) !important;
+  color: #061018 !important;
+  border-color: var(--green) !important;
+  outline: none !important;
+  box-shadow: 0 0 18px rgba(56, 214, 107, .55) !important;
+}
+button.px-btn-error,
+a.px-btn-error {
+  background: var(--red) !important;
+  color: white !important;
+  border-color: var(--red) !important;
+  outline: none !important;
+  box-shadow: 0 0 18px rgba(255, 77, 109, .55) !important;
+}
+.px-historic-tag {
+  color: var(--yellow) !important;
+}
+@media (max-width: 430px) {
+  .px-observer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+/* PTP113B31B5_ESTADO_REAL_OBSERVADOR */
+(function () {
+  const MARKER = "PTP113B31B5_ESTADO_REAL_OBSERVADOR_RUNTIME";
+
+  function el(id) { return document.getElementById(id); }
+
+  function first() {
+    for (const v of arguments) {
+      if (v !== undefined && v !== null && v !== "") return v;
+    }
+    return undefined;
+  }
+
+  function isObj(v) {
+    return v && typeof v === "object" && !Array.isArray(v);
+  }
+
+  function parseTime(value) {
+    if (!value) return null;
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return null;
+    return d;
+  }
+
+  function ageSeconds(value) {
+    const d = parseTime(value);
+    if (!d) return null;
+    return Math.max(0, Math.round((Date.now() - d.getTime()) / 1000));
+  }
+
+  function latestTimestamp(state) {
+    const lists = [state.history, state.signals, state.price_history, state.price_ticks];
+    for (const list of lists) {
+      if (!Array.isArray(list) || !list.length) continue;
+      const last = list[list.length - 1] || list[0];
+      if (last && typeof last === "object") {
+        const ts = first(last.timestamp, last.created_at, last.time, last.emitted_at);
+        if (ts) return ts;
+      }
+    }
+    return null;
+  }
+
+  function readerRunning(state) {
+    return Boolean(
+      state.reader_running === true ||
+      Number(state.active_reader_count || 0) > 0 ||
+      (Array.isArray(state.active_readers) && state.active_readers.length > 0)
+    );
+  }
+
+  function hasVisualSource(state) {
+    if (readerRunning(state)) return true;
+    const active = state.active_readers;
+    if (Array.isArray(active) && active.length > 0) return true;
+    return false;
+  }
+
+  function operationalState(state) {
+    const running = readerRunning(state);
+    const source = hasVisualSource(state);
+    const ts = latestTimestamp(state);
+    const age = ageSeconds(ts);
+
+    if (!running) {
+      return {
+        level: "error",
+        status: "Parado",
+        source: "Não detectada",
+        signal: "Aguardando leitura atual",
+        ageText: age === null ? "-" : age + "s",
+        message: "Leitor/observador parado. Dados de preço e sinais exibidos abaixo devem ser tratados como histórico."
+      };
+    }
+
+    if (!source) {
+      return {
+        level: "warn",
+        status: "Sem fonte visual",
+        source: "Corretora/tela não detectada",
+        signal: "Aguardando fonte visual",
+        ageText: age === null ? "-" : age + "s",
+        message: "Servidor ativo, mas a fonte visual não foi confirmada. Abra a tela da corretora/ativo no notebook."
+      };
+    }
+
+    if (age !== null && age > 20) {
+      return {
+        level: "warn",
+        status: "Leitura atrasada",
+        source: "Fonte visual instável",
+        signal: "Aguardando nova leitura",
+        ageText: age + "s",
+        message: "Observador ativo, mas a leitura está antiga. Verifique se a tela da corretora está visível."
+      };
+    }
+
+    return {
+      level: "ok",
+      status: "Observando",
+      source: "Fonte visual ativa",
+      signal: "Leitura atual disponível",
+      ageText: age === null ? "agora" : age + "s",
+      message: "Observador ativo. Leituras atuais podem ser usadas no modo simulado."
+    };
+  }
+
+  function ensureStateCard() {
+    if (el("px-observer-state")) return;
+
+    const card = document.createElement("section");
+    card.id = "px-observer-state";
+    card.className = "px-observer-state-card";
+    card.innerHTML =
+      '<div class="px-observer-title">Estado real do observador</div>' +
+      '<div class="px-observer-grid">' +
+        '<div class="px-observer-item"><div class="px-observer-label">Estado</div><div id="px-real-status" class="px-observer-value warn">-</div></div>' +
+        '<div class="px-observer-item"><div class="px-observer-label">Fonte visual</div><div id="px-real-source" class="px-observer-value">-</div></div>' +
+        '<div class="px-observer-item"><div class="px-observer-label">Leitura</div><div id="px-real-age" class="px-observer-value">-</div></div>' +
+        '<div class="px-observer-item"><div class="px-observer-label">Sinal atual</div><div id="px-real-signal" class="px-observer-value warn">-</div></div>' +
+      '</div>' +
+      '<div id="px-real-message" class="px-observer-message px-msg-warn">Carregando estado...</div>';
+
+    const shell = el("px-mobile-ui") || document.querySelector(".predixai-mobile-shell");
+    if (shell) {
+      shell.insertBefore(card, shell.firstChild);
+    } else {
+      const notice = document.querySelector(".notice") || document.querySelector("header") || document.body.firstElementChild;
+      if (notice && notice.parentNode) notice.parentNode.insertBefore(card, notice.nextSibling);
+      else document.body.insertBefore(card, document.body.firstChild);
+    }
+  }
+
+  function setText(id, text) {
+    const node = el(id);
+    if (node) node.textContent = text;
+  }
+
+  function setClassByLevel(node, level) {
+    if (!node) return;
+    node.classList.remove("ok", "warn", "error");
+    node.classList.add(level === "ok" ? "ok" : level === "error" ? "error" : "warn");
+  }
+
+  function updateStateCard(state) {
+    ensureStateCard();
+
+    const d = operationalState(state);
+
+    setText("px-real-status", d.status);
+    setText("px-real-source", d.source);
+    setText("px-real-age", d.ageText);
+    setText("px-real-signal", d.signal);
+
+    setClassByLevel(el("px-real-status"), d.level);
+    setClassByLevel(el("px-real-signal"), d.level);
+
+    const msg = el("px-real-message");
+    if (msg) {
+      msg.textContent = d.message;
+      msg.className = "px-observer-message " + (d.level === "ok" ? "px-msg-ok" : d.level === "error" ? "px-msg-error" : "px-msg-warn");
+    }
+
+    markLegacyAsHistoric(d);
+  }
+
+  function markLegacyAsHistoric(d) {
+    const inactive = d.level !== "ok";
+
+    document.querySelectorAll("div, section").forEach(function (node) {
+      if (!node || node.closest("#px-observer-state") || node.closest("#px-mobile-ui")) return;
+
+      const text = (node.textContent || "").trim();
+      if (!text) return;
+
+      if (inactive && text.includes("SINAL SIMULADO") && text.length < 350) {
+        node.classList.add("px-historic-tag");
+        node.dataset.predixaiHistoricSignal = "1";
+      }
+
+      if (inactive && text.includes("OBSERVAR ALTA") && text.length < 120) {
+        node.textContent = "AGUARDANDO LEITURA";
+        node.classList.add("px-historic-tag");
+      }
+
+      if (inactive && text.includes("ÚLTIMO PREÇO VÁLIDO") && text.length < 250) {
+        node.dataset.predixaiHistoricPrice = "1";
+      }
+    });
+  }
+
+  async function fetchState() {
+    const res = await fetch("/api/mobile/state?ptp113b31b5=1", { cache: "no-store" });
+    return await res.json();
+  }
+
+  function clearButtonState(button) {
+    button.classList.remove("px-btn-processing", "px-btn-ok", "px-btn-error");
+  }
+
+  function setButtonState(button, mode) {
+    clearButtonState(button);
+    if (mode === "processing") button.classList.add("px-btn-processing");
+    if (mode === "ok") button.classList.add("px-btn-ok");
+    if (mode === "error") button.classList.add("px-btn-error");
+  }
+
+  function showButtonMessage(text, level) {
+    ensureStateCard();
+    const msg = el("px-real-message");
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = "px-observer-message " + (level === "ok" ? "px-msg-ok" : level === "error" ? "px-msg-error" : "px-msg-warn");
+  }
+
+  function normalizeButtonLabel(text) {
+    return String(text || "").trim().toLowerCase();
+  }
+
+  async function evaluateButtonAction(button, label) {
+    try {
+      const state = await fetchState();
+      const d = operationalState(state);
+
+      if (label.includes("iniciar")) {
+        if (d.level === "ok") {
+          setButtonState(button, "ok");
+          showButtonMessage("Observador ativo. Leitura atual confirmada.", "ok");
+        } else if (d.status === "Parado") {
+          setButtonState(button, "error");
+          showButtonMessage("Servidor/leitor observador não confirmou inicialização. Verifique o servidor no notebook.", "error");
+        } else {
+          setButtonState(button, "error");
+          showButtonMessage(d.message, "error");
+        }
+      } else if (label.includes("parar")) {
+        if (d.status === "Parado") {
+          setButtonState(button, "ok");
+          showButtonMessage("Leitor parado confirmado.", "ok");
+        } else {
+          setButtonState(button, "warn");
+          showButtonMessage("Comando enviado, mas o leitor ainda não confirmou parada.", "warn");
+        }
+      } else if (label.includes("atualizar")) {
+        setButtonState(button, d.level === "ok" ? "ok" : "error");
+        showButtonMessage(d.level === "ok" ? "Atualização concluída com leitura ativa." : d.message, d.level === "ok" ? "ok" : "error");
+      } else {
+        setButtonState(button, "ok");
+        showButtonMessage("Comando encaminhado: " + button.textContent.trim(), "ok");
+      }
+
+      updateStateCard(state);
+      setTimeout(function () { clearButtonState(button); }, 2600);
+    } catch (err) {
+      setButtonState(button, "error");
+      showButtonMessage("Falha ao consultar estado do observador: " + err.message, "error");
+      setTimeout(function () { clearButtonState(button); }, 3000);
+    }
+  }
+
+  function bindRealButtons() {
+    document.querySelectorAll("button, a").forEach(function (button) {
+      if (button.dataset.pxRealObserverBound === "1") return;
+      button.dataset.pxRealObserverBound = "1";
+
+      button.addEventListener("click", function () {
+        const label = normalizeButtonLabel(button.textContent || button.value || "");
+        setButtonState(button, "processing");
+        showButtonMessage("Processando comando: " + (button.textContent || "ação").trim(), "warn");
+
+        setTimeout(function () {
+          evaluateButtonAction(button, label);
+        }, 900);
+      }, { capture: true });
+    });
+  }
+
+  async function refreshRealObserver() {
+    try {
+      const state = await fetchState();
+      updateStateCard(state);
+    } catch (err) {
+      ensureStateCard();
+      setText("px-real-status", "Erro");
+      setText("px-real-source", "Indefinida");
+      setText("px-real-age", "-");
+      setText("px-real-signal", "Aguardando");
+      showButtonMessage("Servidor mobile respondeu com erro ao consultar estado: " + err.message, "error");
+    }
+  }
+
+  function boot() {
+    if (document.body.dataset[MARKER] === "1") return;
+    document.body.dataset[MARKER] = "1";
+    ensureStateCard();
+    bindRealButtons();
+    refreshRealObserver();
+    setInterval(refreshRealObserver, 2000);
+    setInterval(bindRealButtons, 3000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
 </body>
 </html>
 """

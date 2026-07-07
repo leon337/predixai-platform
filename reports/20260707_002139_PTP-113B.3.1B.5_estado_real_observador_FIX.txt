@@ -1,0 +1,95 @@
+PREDIXAI ESTADO REAL DO OBSERVADOR
+Data: ter 07 jul 2026 00:21:39 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+PTP: PTP-113B.3.1B.5
+Status: FIX
+Objetivo: corrigir estado real do observador, sinais históricos e feedback completo dos botões
+
+===== INVESTIGAR — GIT =====
+HEAD:
+1a00840 PTP-113B.3.1B.4 sane mobile UI renderer
+
+Status inicial:
+?? reports/20260707_002139_PTP-113B.3.1B.5_estado_real_observador_FIX.txt
+
+===== INVESTIGAR — HTTP ATUAL =====
+/api/mobile/state -> HTTP 200
+/mobile -> HTTP 200
+
+Resumo do estado atual:
+reader_running: False
+active_reader_count: 0
+active_readers: []
+history_len: 1
+signals_len: 1
+reader_warning: 
+price_diagnostics: {'average_interval_seconds': None, 'final_price_search_status': 'UNKNOWN_AFTER_MARGIN', 'history_count': 1, 'last_history_timestamp': '2026-07-07T00:16:05.095564-03:00', 'last_price_age_seconds': 334, 'price_ticks_count': 1, 'waiting_result_count': 0}
+
+===== PLANEJAR — BACKUP =====
+Backup técnico fora do Git: /tmp/predixai_backups/PTP-113B.3.1B.5_20260707_002139_predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — PATCH ESTADO REAL DO OBSERVADOR =====
+PASS: patch PTP113B31B5 inserido.
+
+===== VALIDAR — PY_COMPILE =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5985: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:6246: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PASS: py_compile
+
+===== VALIDAR — MARCADORES =====
+PASS: marcador encontrado: PTP113B31B5_ESTADO_REAL_OBSERVADOR
+PASS: marcador encontrado: px-observer-state
+PASS: marcador encontrado: operationalState
+PASS: marcador encontrado: px-btn-processing
+PASS: marcador encontrado: px-btn-ok
+PASS: marcador encontrado: px-btn-error
+PASS: marcador encontrado: AGUARDANDO LEITURA
+
+===== VALIDAR — RESTART SERVIDOR =====
+PASS: servidor reiniciado. PID=116881
+
+===== VALIDAR — HTTP FINAL =====
+/mobile -> HTTP 200
+/api/mobile/state -> HTTP 200
+PASS: HTML real contém Estado Real do Observador.
+
+===== VALIDAR — SEGURANÇA =====
+PASS: simulation_only=True esperado=True
+PASS: orders_enabled=False esperado=False
+PASS: real_money_enabled=False esperado=False
+PASS: auto_click_enabled=False esperado=False
+PASS: broker_login_enabled=False esperado=False
+PASS: credentials_allowed=False esperado=False
+
+===== VALIDAR — GIT DIFF CHECK =====
+PASS: git diff --check
+
+===== REGISTRAR — RESULTADO =====
+Resultado técnico antes do commit: PASS
+
+Critérios da PTP:
+1. Botão muda a cor inteira, não só a borda.
+2. Iniciar simulado valida estado real após o clique.
+3. Se leitor/servidor não confirmar, mostrar erro claro.
+4. Se fonte visual não for detectada, avisar o usuário.
+5. Sinal antigo não deve parecer sinal atual.
+6. Dados históricos devem ser tratados como históricos.
+7. Segurança simulada preservada.
+
+Backup técnico fora do Git:
+/tmp/predixai_backups/PTP-113B.3.1B.5_20260707_002139_predixai_trader_mobile_server.py.bak
+
+===== REGISTRAR — MARKDOWN =====
+
+===== REGISTRAR — ÍNDICE =====
+
+===== PUBLICAR — PREPARAÇÃO =====
+Relatório fechado antes do commit/push.
+Backups não serão versionados.
+Arquivos permitidos:
+- /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+- /home/leo/Documentos/GitHub/predixai-platform/reports/20260707_002139_PTP-113B.3.1B.5_estado_real_observador_FIX.txt
+- /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260707_002139_PTP-113B.3.1B.5_estado_real_observador_FIX.md
+- /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
