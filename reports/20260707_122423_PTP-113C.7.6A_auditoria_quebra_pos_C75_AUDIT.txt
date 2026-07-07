@@ -1,0 +1,478 @@
+PREDIXAI BR — PTP 113 C.7.6A — AUDITORIA DE QUEBRA POS C.7.5
+Gerado em: 2026-07-07 12:24:23 -0300
+Repositorio: /home/leo/Documentos/GitHub/predixai-platform
+
+STATUS: AUDIT_ONLY
+RESULTADO_FINAL: PASS_AUDIT_READY_FOR_FIX
+
+ESCOPO E GARANTIAS
+- Auditoria somente leitura, exceto pela criacao deste TXT em reports/.
+- Nao foi aplicado patch de codigo.
+- Nao foi feito commit.
+- Nao foi feito push.
+- Nao foi iniciado reader.
+- Nao foi aberta corretora.
+- Nao foi iniciado servidor mobile.
+- Nao foi executada ordem real, auto-click ou interacao com saldo real.
+- O relatorio nao foi aberto automaticamente.
+
+1. ESTADO ATUAL DO GIT
+
+Snapshot coletado antes da criacao deste TXT:
+
+Branch:
+- main
+
+Ultimo commit:
+- hash: d05841b8affa5ca57059acaf397aed35ea13e400
+- autor: Leandro Carlos
+- data: 2026-07-07T11:49:09-03:00
+- mensagem: PTP 113 C.7.5 estabilizar reader mobile polling
+
+Status de trabalho antes deste TXT:
+- Arquivos modificados:
+  M reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+- Arquivos untracked:
+  nenhum no snapshot inicial da auditoria
+- Observacao: apos a geracao desta auditoria, este arquivo TXT passa a aparecer como untracked por regra de nao commit.
+
+C.7.5 no historico:
+- SIM. O commit C.7.5 esta em HEAD, origin/main e origin/HEAD.
+- git log encontrou: d05841b (HEAD -> main, origin/main, origin/HEAD) PTP 113 C.7.5 estabilizar reader mobile polling
+
+Arquivos alterados pelo commit C.7.5 segundo git show HEAD:
+- A docs/history/ptp/PTP-113/PTP-113C/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.md
+- M docs/reports_index.md
+- A reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+- M scripts/predixai_trader_mobile_server.py
+- M src/predixai/main.py
+- A src/predixai/runtime/__init__.py
+- A src/predixai/runtime/sqlite_resilience.py
+
+Historico recente:
+- d05841b PTP 113 C.7.5 estabilizar reader mobile polling
+- 99b915d PTP 113 C.7.4 fix sqlite reader lock
+- 1429c53 PTP 113 C.7.3 audit reader visual debug
+- 0145073 PTP 113 C.7.2 fix observer visual start
+- 756568b PTP 113 C.7 add mobile visual validation
+
+2. ESTADO DOS ARQUIVOS CRITICOS
+
+Todos os arquivos criticos abaixo estavam limpos no working tree em relacao ao HEAD no momento da auditoria.
+Nao havia diff local neles.
+
+- scripts/predixai_trader_mobile_server.py
+  - tamanho: 364206 bytes
+  - linhas: 10675
+  - sha256: 736d7e9f0e6c20fea8ad5bbce7f7ab8a950629a1edfb0ed7f388ecf8620349f5
+  - estado: tracked, limpo no working tree
+  - py_compile: FAIL
+
+- src/predixai/main.py
+  - tamanho: 5243 bytes
+  - linhas: 160
+  - sha256: ad20407758123d13d7b4f43a29adb7b818849ce3b52a17c82bbc2aa5458102e0
+  - estado: tracked, limpo no working tree
+  - py_compile: FAIL
+
+- src/predixai/runtime/sqlite_resilience.py
+  - tamanho: 2660 bytes
+  - linhas: 93
+  - sha256: 1747b2dbd621a76658d7a927234dde653166c1d0c517f295aca2b363ef9cda9c
+  - estado: tracked, limpo no working tree
+  - py_compile: PASS
+
+- src/predixai/runtime/__init__.py
+  - tamanho: 0 bytes
+  - linhas: 0
+  - sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - estado: tracked, limpo no working tree
+  - py_compile: PASS
+
+- docs/reports_index.md
+  - tamanho: 11038 bytes
+  - linhas: 121
+  - sha256: 229736d011e96826b79ab6bd76ffe6784d506d333e7df46a572f846dd21b563b
+  - estado: tracked, limpo no working tree
+  - contem entrada C.7.5 com WARN_OR_FAIL_REVIEW_NEEDED na linha 121
+
+3. PY_COMPILE E ERROS DE SINTAXE
+
+Comando usado, com bytecode redirecionado para /tmp para nao criar __pycache__ no repositorio:
+- env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c76a_pycache python3 -m py_compile <arquivo>
+
+Resultado por arquivo:
+- scripts/predixai_trader_mobile_server.py: FAIL
+  File "scripts/predixai_trader_mobile_server.py", line 9546
+      if "
+         ^
+  SyntaxError: unterminated string literal (detected at line 9546)
+
+- src/predixai/main.py: FAIL
+  File "src/predixai/main.py", line 12
+      from __future__ import annotations
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  SyntaxError: from __future__ imports must occur at the beginning of the file
+
+- src/predixai/runtime/sqlite_resilience.py: PASS
+- src/predixai/runtime/__init__.py: PASS
+
+3.1 Contexto do erro principal em scripts/predixai_trader_mobile_server.py
+40 linhas antes e 40 linhas depois da linha 9546:
+
+  9506	
+  9507	    source.parentNode.insertBefore(wrapper, source.nextSibling);
+  9508	
+  9509	    const help = document.createElement("div");
+  9510	    help.className = "money-help";
+  9511	    help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+  9512	    wrapper.parentNode.insertBefore(help, wrapper.nextSibling);
+  9513	  }
+  9514	
+  9515	  function applyMoneyControls() {
+  9516	    MONEY_FIELDS.forEach(function (name) {
+  9517	      document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+  9518	    });
+  9519	  }
+  9520	
+  9521	  document.addEventListener("DOMContentLoaded", applyMoneyControls);
+  9522	  setTimeout(applyMoneyControls, 250);
+  9523	
+  9524	  document.addEventListener("submit", function () {
+  9525	    document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+  9526	      source.value = toDecimal(parseMoney(source.value));
+  9527	    });
+  9528	  }, true);
+  9529	
+  9530	  window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+  9531	})();
+  9532	</script>
+  9533	"""
+  9534	    return css + "
+" + js
+  9535	
+  9536	
+  9537	def _ptp113b3151a_inject_currency_controls_v1(html):
+  9538	    if not isinstance(html, str):
+  9539	        return html
+  9540	
+  9541	    if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+  9542	        return html
+  9543	
+  9544	    assets = _ptp113b3151a_currency_controls_v1_assets()
+  9545	
+  9546	    if "
+  9547	<script>
+  9548	(function () {
+  9549	  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+  9550	  if (window[MARKER]) return;
+  9551	  window[MARKER] = true;
+  9552	
+  9553	  const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+  9554	  if (!originalFetch) return;
+  9555	
+  9556	  let stateInflight = null;
+  9557	  let stateCache = null;
+  9558	  let stateCacheAt = 0;
+  9559	  const CACHE_TTL_MS = 1200;
+  9560	
+  9561	  function isMobileStateRequest(input) {
+  9562	    try {
+  9563	      const raw = typeof input === "string" ? input : input.url;
+  9564	      return raw && String(raw).includes("/api/mobile/state");
+  9565	    } catch (err) {
+  9566	      return false;
+  9567	    }
+  9568	  }
+  9569	
+  9570	  function responseFromCache(cache) {
+  9571	    return new Response(cache.body, {
+  9572	      status: cache.status,
+  9573	      statusText: cache.statusText,
+  9574	      headers: cache.headers
+  9575	    });
+  9576	  }
+  9577	
+  9578	  window.fetch = function (input, init) {
+  9579	    if (!isMobileStateRequest(input)) {
+  9580	      return originalFetch(input, init);
+  9581	    }
+  9582	
+  9583	    const now = Date.now();
+  9584	
+  9585	    if (stateInflight) {
+  9586	      return stateInflight.then(function (resp) { return resp.clone(); });
+
+Explicacao tecnica:
+- A linha 9546 abre um literal Python com aspas duplas simples: if "
+- Em seguida foi colado um bloco HTML/JavaScript bruto, com quebras de linha e aspas internas, sem aspas triplas e sem escapes.
+- O Python considera a string aberta na linha 9546 e encontra quebra de linha antes de fechar o literal, gerando "unterminated string literal".
+- O bloco parece ter sido uma tentativa de inserir/deduplicar o script PTP113C75_MOBILE_STATE_FETCH_DEDUP dentro de _ptp113b3151a_inject_currency_controls_v1(html).
+- O trecho posterior mostra que a intencao era comparar/substituir algo antes de </body>, mas a sintaxe ficou como texto JS solto dentro de um if Python.
+
+Trecho imediatamente posterior que confirma o bloco incompleto:
+- linha 9645: </body>" in html:
+- linha 9646: return html.replace("
+- linhas 9647-9748: novo bloco <script> PTP113C75_MOBILE_STATE_FETCH_DEDUP repetido
+- ha padrao semelhante novamente em _ptp113b3151a1_inject_currency_layout_v1(html), com inicio quebrado na linha 10273 e replace quebrado em 10373/10472.
+
+3.2 Contexto do erro em src/predixai/main.py
+Inicio do arquivo, equivalente a 40 linhas depois do ponto quebrado:
+
+     1	
+     2	# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
+     3	try:
+     4	    from predixai.runtime.sqlite_resilience import install_sqlite_resilience
+     5	    install_sqlite_resilience()
+     6	except Exception:
+     7	    pass
+     8	# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
+     9	
+    10	"""PredixAI application entrypoint."""
+    11	
+    12	from __future__ import annotations
+    13	
+    14	import time
+    15	
+    16	import argparse
+    17	import sys
+    18	from collections.abc import Sequence
+    19	
+    20	from predixai.init import create_application
+    21	
+    22	
+    23	def main(argv: Sequence[str] | None = None) -> int:
+    24	    """Run PredixAI foundation commands."""
+    25	    args = _parse_args(argv)
+    26	
+    27	    try:
+    28	        app = create_application()
+    29	        report = app.bootstrap()
+    30	        print(
+    31	            f"{report.app_name} {report.version} initialized "
+    32	            f"in {report.mode} mode."
+    33	        )
+    34	        if args.capture:
+    35	            metadata = app.capture_snapshot()
+    36	            print(f"Manual capture saved: {metadata.file_path}")
+    37	        if args.live_calibrate:
+    38	            result = app.live_calibrate()
+    39	            print(
+    40	                "Live calibration completed: "
+    41	                f"{len(result.field_results)} fields, status=READY"
+    42	            )
+    43	        if args.live_once:
+    44	            result = app.live_once()
+    45	            report = result["report"] if isinstance(result, dict) else result
+    46	            print(
+    47	                "Live validation completed: "
+    48	                f"{report.total_captures} captures, status={report.status}"
+    49	            )
+    50	        if args.live_price_tick:
+    51	            result = app.live_price_tick()
+    52	            print(
+
+Explicacao tecnica:
+- O bloco C.7.5 das linhas 2-8 executa codigo antes do docstring e antes de from __future__.
+- Em Python, imports de __future__ precisam vir no inicio do arquivo, depois apenas de comentario, linha em branco e docstring de modulo.
+- Por isso src/predixai/main.py nao compila.
+
+3.3 Problema latente igual no servidor mobile
+Topo de scripts/predixai_trader_mobile_server.py:
+
+     1	
+     2	# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
+     3	try:
+     4	    from predixai.runtime.sqlite_resilience import install_sqlite_resilience
+     5	    install_sqlite_resilience()
+     6	except Exception:
+     7	    pass
+     8	# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
+     9	
+    10	# -*- coding: utf-8 -*-
+    11	"""
+    12	PredixAI Trader Mobile Server.
+    13	
+    14	Servidor local observador/simulado para acompanhar o Trader pelo celular.
+    15	Nao clica, nao executa ordens e nao interage com conta real.
+    16	"""
+    17	
+    18	from __future__ import annotations
+
+Inferencia:
+- O py_compile do servidor parou primeiro na string quebrada da linha 9546.
+- Depois que a string for corrigida, e provavel que o servidor acuse o mesmo erro de ordem do from __future__ na linha 18, pois ha try/except executavel nas linhas 3-7 antes dele.
+
+4. MARCADORES E DUPLICACOES
+
+Contagem por marcador em scripts/src/docs/reports:
+
+PTP113C75:
+- total: 35
+- reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt: 18
+- scripts/predixai_trader_mobile_server.py: 12
+- src/predixai/main.py: 2
+- src/predixai/runtime/sqlite_resilience.py: 2
+- docs/history/ptp/PTP-113/PTP-113C/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.md: 1
+
+PTP113C74:
+- total: 8
+- reports/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.txt: 4
+- scripts/predixai_trader_mobile_server.py: 4
+
+PTP113C72:
+- total: 40
+- scripts/predixai_trader_mobile_server.py: 13
+- reports/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual_FIX.txt: 15
+- reports/20260707_111333_PTP-113C.7.3_debug_reader_visual_vscode_AUDIT.txt: 6
+- reports/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.txt: 6
+
+MOBILE_STATE_FETCH_DEDUP:
+- total: 20
+- scripts/predixai_trader_mobile_server.py: 10
+- reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt: 10
+
+SQLITE_LOCK_RESILIENCE:
+- total: 5
+- scripts/predixai_trader_mobile_server.py: 2
+- reports/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.txt: 3
+
+Ocorrencias de PTP113C75_MOBILE_STATE_FETCH_DEDUP em scripts/predixai_trader_mobile_server.py:
+- linha 3248
+- linha 7181
+- linha 7697
+- linha 8089
+- linha 9549
+- linha 9649
+- linha 9748
+- linha 10276
+- linha 10376
+- linha 10475
+
+Diagnostico dos marcadores:
+- MOBILE_STATE_FETCH_DEDUP esta duplicado de forma suspeita dentro do servidor: 10 ocorrencias do mesmo marcador.
+- As linhas 3248, 7181, 7697 e 8089 parecem estar dentro de blocos <script> ja presentes em HTML/template.
+- As linhas 9549, 9649, 9748, 10276, 10376 e 10475 aparecem dentro de funcoes Python de injecao, incluindo blocos raw quebrados.
+- Ha evidencia de patch repetido, com o mesmo script de fetch/cache e ocultacao de "ULTIMO HISTORICO" colado varias vezes.
+- Ha evidencia de bloco incompleto: if " na linha 9546 e if " na linha 10273; return html.replace(" nas linhas 9646 e 10373; montagem assets + "
+ quebrada perto da linha 10472.
+- O marcador SQLITE_LOCK_RESILIENCE de C.7.4 aparece como um bloco start/end unico no servidor; nao foi a causa sintatica atual.
+- A camada compartilhada C.7.5 de SQLite compila, mas a forma como foi importada no topo de main.py e do servidor quebra a regra de from __future__.
+
+5. SERVIDOR MOBILE
+
+Regra aplicada:
+- O arquivo scripts/predixai_trader_mobile_server.py foi compilado antes de qualquer tentativa de subida.
+- Como py_compile falhou, o servidor NAO foi iniciado.
+- Como py_compile falhou, import seguro do servidor NAO foi testado.
+
+Resultado:
+- py_compile falhou na linha 9546.
+- Porta 8766: sem processo escutando.
+  Saida de ss -ltnp 'sport = :8766': apenas cabecalho, nenhum listener.
+- pgrep para predixai_trader_mobile_server, reader, mobile_server, flask, uvicorn, 8766: nenhum servidor/reader PredixAI encontrado.
+- Sintoma ERR_CONNECTION_REFUSED em http://192.168.10.101:8766/mobile e coerente com ausencia de listener e arquivo servidor sem compilacao.
+
+6. BANCO SQLITE
+
+Nenhuma alteracao foi feita nos bancos.
+
+Arquivos encontrados:
+- ./data/runtime/backups/mobile_reset_20260704_093600/predixai_trader_signals.db
+  - tamanho: 2191360 bytes
+  - mtime: 2026-07-04 09:36:00.3715045120
+- ./data/runtime/predixai_trader_signals.db
+  - tamanho: 2191360 bytes
+  - mtime: 2026-07-07 11:47:43.6727068270
+
+Arquivos .db-wal e .db-shm:
+- nenhum encontrado pelo find no repositorio.
+
+Processos segurando banco:
+- lsof nos dois arquivos .db retornou sem saida e exit code 1.
+- Interpretacao: nenhum processo real identificado segurando esses arquivos no momento da auditoria.
+
+Observacao:
+- O lock SQLite foi um problema anterior e continua sendo uma area de risco, mas nao e a causa imediata do servidor recusando conexao nesta auditoria.
+
+7. MEMORIA E PROCESSOS
+
+Top 15 processos por RSS no host:
+
+1. PID 5198  brave  RSS 1333180 KiB  %MEM 16.5  renderer Brave
+2. PID 5073  brave  RSS 421424 KiB   %MEM 5.2   processo principal Brave
+3. PID 3225  code   RSS 407104 KiB   %MEM 5.0   VS Code NodeService
+4. PID 28824 brave  RSS 362936 KiB   %MEM 4.5   renderer Brave
+5. PID 4287  code   RSS 345308 KiB   %MEM 4.2   Pylance server
+6. PID 3181  code   RSS 318648 KiB   %MEM 3.9   VS Code renderer
+7. PID 3290  code   RSS 273584 KiB   %MEM 3.4   VS Code renderer
+8. PID 3090  code   RSS 234216 KiB   %MEM 2.9   VS Code principal
+9. PID 5107  brave  RSS 225748 KiB   %MEM 2.8   Brave GPU
+10. PID 3352 codex  RSS 194064 KiB   %MEM 2.4   Codex app-server
+11. PID 3124 code   RSS 167692 KiB   %MEM 2.0   VS Code GPU
+12. PID 5111 brave  RSS 139324 KiB   %MEM 1.7   Brave NetworkService
+13. PID 38969 xed   RSS 138648 KiB   %MEM 1.7   xed report C.7.4 aberto
+14. PID 3362 code   RSS 128524 KiB   %MEM 1.5   VS Code HTML server
+15. PID 3249 code   RSS 124968 KiB   %MEM 1.5   VS Code NodeService
+
+Destaques:
+- Brave esta consumindo memoria alta, com renderer de ~1.33 GiB RSS.
+- VS Code tambem esta pesado, especialmente NodeService/Pylance/renderers.
+- Python ativo no host: apenas applets de sistema detectados no filtro amplo (/usr/bin/blueman-applet e system-config-printer/applet.py); nenhum processo PredixAI reader/mobile server foi identificado.
+- xed esta aberto com: /home/leo/Documentos/GitHub/predixai-platform/reports/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.txt
+- Nao foi visto xed com o relatorio C.7.5 no momento da auditoria, mas ha um editor de relatorio antigo aberto e isso confirma o risco operacional de janela de relatorio atrapalhando a corretora.
+- Nenhum processo foi encerrado.
+
+8. DIAGNOSTICO FINAL
+
+Causa provavel principal:
+- SyntaxError em scripts/predixai_trader_mobile_server.py, linha 9546, causado por string literal quebrada ao colar o bloco HTML/JS PTP113C75_MOBILE_STATE_FETCH_DEDUP diretamente dentro de um if Python.
+- Como o arquivo do servidor nao compila, o servidor mobile nao consegue subir. Isso explica o ERR_CONNECTION_REFUSED em http://192.168.10.101:8766/mobile.
+
+Causas secundarias:
+- Duplicacao excessiva do marcador PTP113C75_MOBILE_STATE_FETCH_DEDUP no servidor: 10 ocorrencias.
+- Patch C.7.5 repetido/aninhado em blocos de injecao HTML, incluindo blocos incompletos nas regioes 9546-9748 e 10273-10475.
+- src/predixai/main.py tambem nao compila porque o bloco PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT foi inserido antes do docstring e do from __future__.
+- scripts/predixai_trader_mobile_server.py provavelmente tem o mesmo problema latente de from __future__ na linha 18, oculto pelo primeiro SyntaxError da linha 9546.
+- Pressao de memoria alta em Brave/VS Code pode piorar timeouts, congelamentos e coleta visual, mas nao e a causa primaria da recusa de conexao.
+- Relatorio/editor aberto na area operacional continua sendo risco de interferencia visual; atualmente foi detectado xed com relatorio C.7.4.
+- SQLite lock nao aparece ativo agora: nao ha .db-wal/.db-shm e lsof nao encontrou processos segurando os bancos.
+
+Arquivos que precisam de correcao na proxima etapa:
+- scripts/predixai_trader_mobile_server.py
+  - remover/corrigir blocos raw quebrados C.7.5;
+  - eliminar duplicacao de MOBILE_STATE_FETCH_DEDUP;
+  - preservar comportamento simulado e nao tocar em ordem real;
+  - corrigir import C.7.5 antes do from __future__.
+- src/predixai/main.py
+  - mover/remodelar bloco de install_sqlite_resilience sem violar from __future__.
+- src/predixai/runtime/sqlite_resilience.py
+  - compila, mas deve ser revisado apenas para garantir idempotencia apos reposicionar imports.
+- docs/reports_index.md
+  - nao atualizar na C.7.6A; somente considerar em etapa posterior se houver publicacao controlada.
+- reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+  - esta modificado no working tree; nao e causa do servidor, mas deve ser preservado/avaliado antes de qualquer commit futuro.
+
+Risco de corrigir:
+- ALTO se a correcao for feita por substituicao ampla no arquivo de 10675 linhas.
+- MEDIO se a correcao for cirurgica, com py_compile apos cada mudanca e sem iniciar reader/corretora.
+- Risco especifico: remover o bloco errado pode quebrar templates mobile existentes; manter duplicacao pode esconder bugs de polling/cache; mexer no topo do arquivo pode afetar bootstrap de SQLite.
+
+Plano cirurgico recomendado para PTP 113 C.7.6B:
+1. Criar backup dos arquivos a editar antes de qualquer patch.
+2. Corrigir primeiro a ordem de from __future__ em src/predixai/main.py de forma minima.
+3. Corrigir a ordem de from __future__ em scripts/predixai_trader_mobile_server.py, preservando a instalacao SQLite C.7.5 em ponto valido.
+4. Remover/corrigir apenas os blocos C.7.5 malformados em _ptp113b3151a_inject_currency_controls_v1 e _ptp113b3151a1_inject_currency_layout_v1.
+5. Deduplicar MOBILE_STATE_FETCH_DEDUP para uma unica estrategia de injecao segura, sem alterar logica operacional de compra/venda.
+6. Rodar py_compile nos quatro Python criticos com PYTHONPYCACHEPREFIX=/tmp.
+7. Se e somente se py_compile passar, fazer import seguro do servidor sem iniciar reader e sem abrir corretora.
+8. Validar porta/mobile apenas em modo servidor local controlado, sem coleta longa, sem auto-click e sem saldo real.
+9. Gerar relatorio FIX separado; so depois considerar historico Markdown, index, commit e push.
+
+CONCLUSAO
+- A auditoria esta completa.
+- A causa primaria e sintatica e impede o servidor mobile de subir.
+- O estado esta pronto para uma etapa C.7.6B de correcao cirurgica.
+
+RESULTADO_FINAL: PASS_AUDIT_READY_FOR_FIX
+PROXIMA_ACAO_RECOMENDADA: PTP 113 C.7.6B — correcao cirurgica de sintaxe/deduplicacao, com py_compile antes de qualquer subida de servidor.

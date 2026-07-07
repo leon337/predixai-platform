@@ -8,15 +8,6 @@ Nao clica, nao executa ordens e nao interage com conta real.
 
 from __future__ import annotations
 
-# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
-try:
-    from predixai.runtime.sqlite_resilience import install_sqlite_resilience
-    install_sqlite_resilience()
-except Exception:
-    pass
-# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
-
-
 import argparse
 import json
 import os
@@ -3241,105 +3232,6 @@ a.px-btn-error {
 })();
 </script>
 <!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_END -->
-
-
-<script>
-(function () {
-  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
-  if (window[MARKER]) return;
-  window[MARKER] = true;
-
-  const originalFetch = window.fetch ? window.fetch.bind(window) : null;
-  if (!originalFetch) return;
-
-  let stateInflight = null;
-  let stateCache = null;
-  let stateCacheAt = 0;
-  const CACHE_TTL_MS = 1200;
-
-  function isMobileStateRequest(input) {
-    try {
-      const raw = typeof input === "string" ? input : input.url;
-      return raw && String(raw).includes("/api/mobile/state");
-    } catch (err) {
-      return false;
-    }
-  }
-
-  function responseFromCache(cache) {
-    return new Response(cache.body, {
-      status: cache.status,
-      statusText: cache.statusText,
-      headers: cache.headers
-    });
-  }
-
-  window.fetch = function (input, init) {
-    if (!isMobileStateRequest(input)) {
-      return originalFetch(input, init);
-    }
-
-    const now = Date.now();
-
-    if (stateInflight) {
-      return stateInflight.then(function (resp) { return resp.clone(); });
-    }
-
-    if (stateCache && (now - stateCacheAt) < CACHE_TTL_MS) {
-      return Promise.resolve(responseFromCache(stateCache));
-    }
-
-    stateInflight = originalFetch(input, init).then(async function (resp) {
-      try {
-        const clone = resp.clone();
-        const body = await clone.text();
-        stateCache = {
-          body: body,
-          status: resp.status,
-          statusText: resp.statusText,
-          headers: Array.from(resp.headers.entries())
-        };
-        stateCacheAt = Date.now();
-      } catch (err) {}
-      return resp;
-    }).finally(function () {
-      setTimeout(function () { stateInflight = null; }, 250);
-    });
-
-    return stateInflight.then(function (resp) { return resp.clone(); });
-  };
-
-  function hideUltimoHistorico() {
-    const nodes = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6,div,p,span,strong"));
-    for (const el of nodes) {
-      const txt = (el.textContent || "").trim().toUpperCase();
-      if (txt === "ÚLTIMO HISTÓRICO" || txt === "ULTIMO HISTORICO") {
-        el.style.display = "none";
-        let cursor = el.nextElementSibling;
-        let count = 0;
-        while (cursor && count < 8) {
-          const t = (cursor.textContent || "").trim().toUpperCase();
-          if (
-            t.includes("PAINEL OPERACIONAL") ||
-            t.includes("PTP 113 C") ||
-            t.includes("GRÁFICO DA SESSÃO") ||
-            t.includes("GRAFICO DA SESSAO") ||
-            t.includes("TRAVAS SIMULADAS")
-          ) {
-            break;
-          }
-          cursor.style.display = "none";
-          cursor = cursor.nextElementSibling;
-          count++;
-        }
-      }
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", hideUltimoHistorico);
-  setInterval(hideUltimoHistorico, 2000);
-})();
-</script>
 
 </body>
 </html>
@@ -7175,105 +7067,6 @@ async function startSession(){
   window.location.href = "/mobile";
 }
 </script>
-
-<script>
-(function () {
-  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
-  if (window[MARKER]) return;
-  window[MARKER] = true;
-
-  const originalFetch = window.fetch ? window.fetch.bind(window) : null;
-  if (!originalFetch) return;
-
-  let stateInflight = null;
-  let stateCache = null;
-  let stateCacheAt = 0;
-  const CACHE_TTL_MS = 1200;
-
-  function isMobileStateRequest(input) {
-    try {
-      const raw = typeof input === "string" ? input : input.url;
-      return raw && String(raw).includes("/api/mobile/state");
-    } catch (err) {
-      return false;
-    }
-  }
-
-  function responseFromCache(cache) {
-    return new Response(cache.body, {
-      status: cache.status,
-      statusText: cache.statusText,
-      headers: cache.headers
-    });
-  }
-
-  window.fetch = function (input, init) {
-    if (!isMobileStateRequest(input)) {
-      return originalFetch(input, init);
-    }
-
-    const now = Date.now();
-
-    if (stateInflight) {
-      return stateInflight.then(function (resp) { return resp.clone(); });
-    }
-
-    if (stateCache && (now - stateCacheAt) < CACHE_TTL_MS) {
-      return Promise.resolve(responseFromCache(stateCache));
-    }
-
-    stateInflight = originalFetch(input, init).then(async function (resp) {
-      try {
-        const clone = resp.clone();
-        const body = await clone.text();
-        stateCache = {
-          body: body,
-          status: resp.status,
-          statusText: resp.statusText,
-          headers: Array.from(resp.headers.entries())
-        };
-        stateCacheAt = Date.now();
-      } catch (err) {}
-      return resp;
-    }).finally(function () {
-      setTimeout(function () { stateInflight = null; }, 250);
-    });
-
-    return stateInflight.then(function (resp) { return resp.clone(); });
-  };
-
-  function hideUltimoHistorico() {
-    const nodes = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6,div,p,span,strong"));
-    for (const el of nodes) {
-      const txt = (el.textContent || "").trim().toUpperCase();
-      if (txt === "ÚLTIMO HISTÓRICO" || txt === "ULTIMO HISTORICO") {
-        el.style.display = "none";
-        let cursor = el.nextElementSibling;
-        let count = 0;
-        while (cursor && count < 8) {
-          const t = (cursor.textContent || "").trim().toUpperCase();
-          if (
-            t.includes("PAINEL OPERACIONAL") ||
-            t.includes("PTP 113 C") ||
-            t.includes("GRÁFICO DA SESSÃO") ||
-            t.includes("GRAFICO DA SESSAO") ||
-            t.includes("TRAVAS SIMULADAS")
-          ) {
-            break;
-          }
-          cursor.style.display = "none";
-          cursor = cursor.nextElementSibling;
-          count++;
-        }
-      }
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", hideUltimoHistorico);
-  setInterval(hideUltimoHistorico, 2000);
-})();
-</script>
-
 </body>
 </html>
 """
@@ -7691,106 +7484,7 @@ def create_mobile_app() -> Flask:
     }}
     updatePreview();
     </script>
-    
-<script>
-(function () {
-  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
-  if (window[MARKER]) return;
-  window[MARKER] = true;
-
-  const originalFetch = window.fetch ? window.fetch.bind(window) : null;
-  if (!originalFetch) return;
-
-  let stateInflight = null;
-  let stateCache = null;
-  let stateCacheAt = 0;
-  const CACHE_TTL_MS = 1200;
-
-  function isMobileStateRequest(input) {
-    try {
-      const raw = typeof input === "string" ? input : input.url;
-      return raw && String(raw).includes("/api/mobile/state");
-    } catch (err) {
-      return false;
-    }
-  }
-
-  function responseFromCache(cache) {
-    return new Response(cache.body, {
-      status: cache.status,
-      statusText: cache.statusText,
-      headers: cache.headers
-    });
-  }
-
-  window.fetch = function (input, init) {
-    if (!isMobileStateRequest(input)) {
-      return originalFetch(input, init);
-    }
-
-    const now = Date.now();
-
-    if (stateInflight) {
-      return stateInflight.then(function (resp) { return resp.clone(); });
-    }
-
-    if (stateCache && (now - stateCacheAt) < CACHE_TTL_MS) {
-      return Promise.resolve(responseFromCache(stateCache));
-    }
-
-    stateInflight = originalFetch(input, init).then(async function (resp) {
-      try {
-        const clone = resp.clone();
-        const body = await clone.text();
-        stateCache = {
-          body: body,
-          status: resp.status,
-          statusText: resp.statusText,
-          headers: Array.from(resp.headers.entries())
-        };
-        stateCacheAt = Date.now();
-      } catch (err) {}
-      return resp;
-    }).finally(function () {
-      setTimeout(function () { stateInflight = null; }, 250);
-    });
-
-    return stateInflight.then(function (resp) { return resp.clone(); });
-  };
-
-  function hideUltimoHistorico() {
-    const nodes = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6,div,p,span,strong"));
-    for (const el of nodes) {
-      const txt = (el.textContent || "").trim().toUpperCase();
-      if (txt === "ÚLTIMO HISTÓRICO" || txt === "ULTIMO HISTORICO") {
-        el.style.display = "none";
-        let cursor = el.nextElementSibling;
-        let count = 0;
-        while (cursor && count < 8) {
-          const t = (cursor.textContent || "").trim().toUpperCase();
-          if (
-            t.includes("PAINEL OPERACIONAL") ||
-            t.includes("PTP 113 C") ||
-            t.includes("GRÁFICO DA SESSÃO") ||
-            t.includes("GRAFICO DA SESSAO") ||
-            t.includes("TRAVAS SIMULADAS")
-          ) {
-            break;
-          }
-          cursor.style.display = "none";
-          cursor = cursor.nextElementSibling;
-          count++;
-        }
-      }
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", hideUltimoHistorico);
-  setInterval(hideUltimoHistorico, 2000);
-})();
-</script>
-
-</body>
+    </body>
     </html>"""
         return Response(html, mimetype="text/html; charset=utf-8")
 
@@ -8083,106 +7777,7 @@ def create_mobile_app() -> Flask:
     }
     updatePreview();
     </script>
-    
-<script>
-(function () {
-  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
-  if (window[MARKER]) return;
-  window[MARKER] = true;
-
-  const originalFetch = window.fetch ? window.fetch.bind(window) : null;
-  if (!originalFetch) return;
-
-  let stateInflight = null;
-  let stateCache = null;
-  let stateCacheAt = 0;
-  const CACHE_TTL_MS = 1200;
-
-  function isMobileStateRequest(input) {
-    try {
-      const raw = typeof input === "string" ? input : input.url;
-      return raw && String(raw).includes("/api/mobile/state");
-    } catch (err) {
-      return false;
-    }
-  }
-
-  function responseFromCache(cache) {
-    return new Response(cache.body, {
-      status: cache.status,
-      statusText: cache.statusText,
-      headers: cache.headers
-    });
-  }
-
-  window.fetch = function (input, init) {
-    if (!isMobileStateRequest(input)) {
-      return originalFetch(input, init);
-    }
-
-    const now = Date.now();
-
-    if (stateInflight) {
-      return stateInflight.then(function (resp) { return resp.clone(); });
-    }
-
-    if (stateCache && (now - stateCacheAt) < CACHE_TTL_MS) {
-      return Promise.resolve(responseFromCache(stateCache));
-    }
-
-    stateInflight = originalFetch(input, init).then(async function (resp) {
-      try {
-        const clone = resp.clone();
-        const body = await clone.text();
-        stateCache = {
-          body: body,
-          status: resp.status,
-          statusText: resp.statusText,
-          headers: Array.from(resp.headers.entries())
-        };
-        stateCacheAt = Date.now();
-      } catch (err) {}
-      return resp;
-    }).finally(function () {
-      setTimeout(function () { stateInflight = null; }, 250);
-    });
-
-    return stateInflight.then(function (resp) { return resp.clone(); });
-  };
-
-  function hideUltimoHistorico() {
-    const nodes = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6,div,p,span,strong"));
-    for (const el of nodes) {
-      const txt = (el.textContent || "").trim().toUpperCase();
-      if (txt === "ÚLTIMO HISTÓRICO" || txt === "ULTIMO HISTORICO") {
-        el.style.display = "none";
-        let cursor = el.nextElementSibling;
-        let count = 0;
-        while (cursor && count < 8) {
-          const t = (cursor.textContent || "").trim().toUpperCase();
-          if (
-            t.includes("PAINEL OPERACIONAL") ||
-            t.includes("PTP 113 C") ||
-            t.includes("GRÁFICO DA SESSÃO") ||
-            t.includes("GRAFICO DA SESSAO") ||
-            t.includes("TRAVAS SIMULADAS")
-          ) {
-            break;
-          }
-          cursor.style.display = "none";
-          cursor = cursor.nextElementSibling;
-          count++;
-        }
-      }
-    }
-  }
-
-  document.addEventListener("DOMContentLoaded", hideUltimoHistorico);
-  setInterval(hideUltimoHistorico, 2000);
-})();
-</script>
-
-</body>
+    </body>
     </html>"""
         return Response(html, mimetype="text/html; charset=utf-8")
 
@@ -9534,31 +9129,52 @@ def _ptp113b3151a_currency_controls_v1_assets():
     return css + "\n" + js
 
 
-
 def _ptp113b3151a_inject_currency_controls_v1(html):
-    """Inject BRL currency controls safely.
-
-    PTP 113 C.7.6B:
-    - remove bloco C.7.5 malformado colado como JS cru dentro de Python;
-    - preserva apenas a injeção dos controles BRL;
-    - não toca em ordem real, saldo real, login real ou auto-click.
-    """
     if not isinstance(html, str):
         return html
 
-    marker = "PTP113B3151A_CURRENCY_CONTROLS_BRL"
-    if marker in html:
+    if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
         return html
 
     assets = _ptp113b3151a_currency_controls_v1_assets()
 
     if "</body>" in html:
-        return html.replace("</body>", assets + "
-</body>", 1)
+        return html.replace("</body>", assets + "\n</body>", 1)
 
-    return html + "
-" + assets
+    return html + "\n" + assets
 
+
+try:
+    _ptp113b3151a_original_create_mobile_app_v1 = create_mobile_app
+
+    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+        app = _ptp113b3151a_original_create_mobile_app_v1(*args, **kwargs)
+
+        if not getattr(app, "_ptp113b3151a_currency_controls_v1", False):
+            @app.after_request
+            def _ptp113b3151a_currency_after_request_v1(response):
+                try:
+                    if request.path == "/session/setup":
+                        content_type = str(response.headers.get("Content-Type", ""))
+                        if "text/html" in content_type:
+                            html = response.get_data(as_text=True)
+                            html = _ptp113b3151a_inject_currency_controls_v1(html)
+                            response.set_data(html)
+                            response.headers["Content-Length"] = str(len(response.get_data()))
+                    return response
+                except Exception as exc:
+                    response.headers["X-PTP113B3151A-Currency-Warning"] = str(exc)[:120]
+                    return response
+
+            app._ptp113b3151a_currency_controls_v1 = True
+
+        return app
+except NameError:
+    pass
+
+
+
+# PTP-113B.3.1A.5.1A.1_CURRENCY_LAYOUT_RECOVERY_LOGIC_V1
 def _ptp113b3151a1_currency_layout_assets_v1():
     return """
 <style id="ptp113b3151a1-currency-layout-style">
@@ -9943,34 +9559,52 @@ def _ptp113b3151a1_currency_layout_assets_v1():
 </script>
 """
 
-
 def _ptp113b3151a1_inject_currency_layout_v1(html):
-    """Inject BRL layout safely.
-
-    PTP 113 C.7.6B:
-    - remove bloco C.7.5 duplicado/malformado;
-    - mantém fallback simples e compilável;
-    - evita reintroduzir MOBILE_STATE_FETCH_DEDUP dentro de função Python.
-    """
     if not isinstance(html, str):
         return html
 
-    marker = "PTP113B3151A1_CURRENCY_LAYOUT_V1"
-    if marker in html:
+    if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
         return html
 
-    try:
-        assets = _ptp113b3151a1_currency_layout_v1_assets()
-    except NameError:
-        return html
+    assets = _ptp113b3151a1_currency_layout_assets_v1()
 
     if "</body>" in html:
-        return html.replace("</body>", assets + "
-</body>", 1)
+        return html.replace("</body>", assets + "\n</body>", 1)
 
-    return html + "
-" + assets
+    return html + "\n" + assets
 
+
+try:
+    _ptp113b3151a1_original_create_mobile_app_v1 = create_mobile_app
+
+    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+        app = _ptp113b3151a1_original_create_mobile_app_v1(*args, **kwargs)
+
+        if not getattr(app, "_ptp113b3151a1_currency_layout_v1", False):
+            @app.after_request
+            def _ptp113b3151a1_currency_layout_after_request_v1(response):
+                try:
+                    if request.path == "/session/setup":
+                        content_type = str(response.headers.get("Content-Type", ""))
+                        if "text/html" in content_type:
+                            html = response.get_data(as_text=True)
+                            html = _ptp113b3151a1_inject_currency_layout_v1(html)
+                            response.set_data(html)
+                            response.headers["Content-Length"] = str(len(response.get_data()))
+                    return response
+                except Exception as exc:
+                    response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+                    return response
+
+            app._ptp113b3151a1_currency_layout_v1 = True
+
+        return app
+except NameError:
+    pass
+
+
+
+# PTP-113B.3.1A.5.1A.6_FIX_STEPPER_GUARD
 def _ptp113b3151a51a6_disable_legacy_currency_controls_brl():
     """
     Desativa a injeção monetária legada V1 sem usar app global.

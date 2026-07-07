@@ -123,3 +123,5 @@
 - 2026-07-07 12:33:07 -0300 | PTP-113C.7.6B | correcao_cirurgica_sintaxe_dedup_C75 | FAIL_PY_COMPILE_SERVER | reports/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75_FIX.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75_FIX.md
 
 - 2026-07-07 12:38:15 -0300 | PTP-113C.7.6B.1 | recovery_sintaxe_mobile_server | FAIL_PY_COMPILE_SERVER_AFTER_RECOVERY | reports/20260707_123814_PTP-113C.7.6B.1_recovery_sintaxe_mobile_server_RECOVERY.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_123814_PTP-113C.7.6B.1_recovery_sintaxe_mobile_server_RECOVERY.md
+
+- 2026-07-07 12:41:44 -0300 | PTP-113C.7.6B.2 | rollback_mobile_server_pre_C75 | PASS_ROLLBACK_HTTP_200 | reports/20260707_124136_PTP-113C.7.6B.2_rollback_mobile_server_pre_C75_RECOVERY_ROLLBACK.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_124136_PTP-113C.7.6B.2_rollback_mobile_server_pre_C75_RECOVERY_ROLLBACK.md
