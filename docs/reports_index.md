@@ -121,3 +121,5 @@
 - 2026-07-07 11:49:09 — PTP-113C.7.5 — WARN_OR_FAIL_REVIEW_NEEDED — `reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt`
 
 - 2026-07-07 12:33:07 -0300 | PTP-113C.7.6B | correcao_cirurgica_sintaxe_dedup_C75 | FAIL_PY_COMPILE_SERVER | reports/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75_FIX.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75_FIX.md
+
+- 2026-07-07 12:38:15 -0300 | PTP-113C.7.6B.1 | recovery_sintaxe_mobile_server | FAIL_PY_COMPILE_SERVER_AFTER_RECOVERY | reports/20260707_123814_PTP-113C.7.6B.1_recovery_sintaxe_mobile_server_RECOVERY.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_123814_PTP-113C.7.6B.1_recovery_sintaxe_mobile_server_RECOVERY.md
