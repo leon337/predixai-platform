@@ -110,3 +110,10 @@
 - Status: AUDIT
 - Relatório: `reports/20260707_111333_PTP-113C.7.3_debug_reader_visual_vscode_AUDIT.txt`
 - Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_111333_PTP-113C.7.3_debug_reader_visual_vscode_AUDIT.md`
+
+## 2026-07-07 11:29:13 -0300 — PTP 113 C.7.4 — Corrigir Lock SQLite do Reader
+
+- Status: FIX
+- Relatório: `reports/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.txt`
+- Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.md`
+- Arquivo alterado: `scripts/predixai_trader_mobile_server.py`

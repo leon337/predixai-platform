@@ -1,0 +1,1551 @@
+PREDIXAI BR — PTP 113 C.7.4 corrigir_lock_sqlite_reader
+Data: 2026-07-07 11:29:13 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+Banco alvo: /home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db
+Status: FIX
+
+===== OBJETIVO =====
+Corrigir queda do reader por SQLite database is locked durante leitura visual da corretora.
+
+===== REGRA =====
+Não executar ordem real.
+Não usar saldo real.
+Não clicar em compra/venda.
+Não ativar auto-click.
+A corretora aberta é apenas fonte visual observada.
+Manter tudo 100% simulado.
+
+===== ACHADO DA C.7.3 =====
+Reader capturou LATAM Index e preço real da janela, gerou sinal_pronto e operation_allowed=true.
+Depois caiu por: database is locked.
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.txt
+
+===== INVESTIGAR — Últimos commits =====
+1429c53 PTP 113 C.7.3 audit reader visual debug
+0145073 PTP 113 C.7.2 fix observer visual start
+756568b PTP 113 C.7 add mobile visual validation
+f24c17d PTP 113 C.6 add operational history event
+b5acbef PTP 113 C.5 add simulated bankroll update
+64e9d81 PTP 113 C.4 add simulated close result
+e5ac227 PTP 113 C.3 add simulated open operation
+dc0e817 PTP 113 C.2 add current signal model
+5acc1bd PTP 113 C.1 audit estado atual
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+62e61f8 PTP-113B.3.1B.5.2.3 ajuste visual campos críticos mobile FIX
+
+===== INVESTIGAR — SQLite/conexões no arquivo =====
+17:import sqlite3
+46:from predixai.trader.confluence_engine import ConfluenceEngine
+52:from predixai.trader.strategy_engine import MinimalStrategyEngine, StrategyInput
+58:SIGNALS_DB_PATH = RUNTIME_DIR / "predixai_trader_signals.db"
+479:        <button type="button" onclick="resetSession()">Limpar sessão</button>
+516:    <button type="button" onclick="startSimulatedSession()">Iniciar simulado</button>
+815:      await startSimulatedSession();
+818:    async function startSimulatedSession() {
+869:    async function resetSession() {
+3310:    with sqlite3.connect(path) as conn:
+3321:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+3571:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+3628:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+3646:                "PaperTradeSession simulado iniciado por /mobile/session/start.",
+4080:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4119:            for row in conn.execute("PRAGMA table_info(signals)").fetchall()
+4293:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4332:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4333:        conn.row_factory = sqlite3.Row
+4406:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4407:        conn.row_factory = sqlite3.Row
+4498:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4499:        conn.row_factory = sqlite3.Row
+4563:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4564:        conn.row_factory = sqlite3.Row
+4631:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4632:        conn.row_factory = sqlite3.Row
+4805:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4806:        conn.row_factory = sqlite3.Row
+4834:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4835:        conn.row_factory = sqlite3.Row
+4894:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+4895:        conn.row_factory = sqlite3.Row
+5021:            timeout=2,
+5235:            sock.connect(("10.255.255.255", 1))
+6943:<button onclick="startSession()">Iniciar sessão simulada</button>
+6952:async function startSession(){
+7798:        with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+7824:        with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+7825:            conn.row_factory = sqlite3.Row
+7834:        with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+7880:    with sqlite3.connect(SIGNALS_DB_PATH) as conn:
+8292:        SIGNALS_DB_PATH = RUNTIME_DIR / "predixai_trader_signals.db"
+
+===== INVESTIGAR — Logs recentes de lock =====
+grep: /home/leo/Documentos/GitHub/predixai-platform/data/runtime/mobile_reader.log: arquivo binário coincide com o padrão
+
+===== CONSTRUIR — Backup =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader/predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — Aplicar camada SQLite C.7.4 =====
+PASS: camada PTP113C74_SQLITE_LOCK_RESILIENCE aplicada.
+PATCH_EXIT=0
+
+===== CONSTRUIR — Preparar banco com WAL/busy_timeout =====
+db_path= /home/leo/Documentos/GitHub/predixai-platform/data/runtime/predixai_trader_signals.db
+busy_timeout= (30000,)
+Traceback (most recent call last):
+  File "<stdin>", line 12, in <module>
+sqlite3.OperationalError: database is locked
+DB_PREP_EXIT=1
+
+===== VALIDAR — py_compile =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8918: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:9179: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PY_COMPILE_EXIT=0
+
+===== VALIDAR — git diff check =====
+GIT_DIFF_CHECK_EXIT=0
+
+===== VALIDAR — Marcadores C.7.4 =====
+20:# PTP113C74_SQLITE_LOCK_RESILIENCE_START
+47:                conn.execute("PRAGMA busy_timeout=30000")
+53:                    conn.execute("PRAGMA journal_mode=WAL")
+69:        def _ptp113c74_connect(database, *args, **kwargs):
+97:        _ptp113c74_sqlite3.connect = _ptp113c74_connect
+109:# PTP113C74_SQLITE_LOCK_RESILIENCE_END
+
+===== PREPARAR — Reiniciar servidor mobile =====
+Processos encontrados: 33543
+SERVER_PID=37670
+
+===== VALIDAR — Servidor mobile =====
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.8 Python/3.12.3
+Date: Tue, 07 Jul 2026 14:29:49 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 98156
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Connection: close
+
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — Parar reader anterior =====
+{
+    "after": {
+        "active_reader_count": 0,
+        "active_readers": [],
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "credentials_allowed": false,
+        "orders_enabled": false,
+        "reader_running": false,
+        "real_money_enabled": false,
+        "simulation_only": true,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL"
+    },
+    "auto_click_enabled": false,
+    "before": {
+        "active_reader_count": 0,
+        "active_readers": [],
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "credentials_allowed": false,
+        "orders_enabled": false,
+        "reader_running": false,
+        "real_money_enabled": false,
+        "simulation_only": true,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL"
+    },
+    "broker_login_enabled": false,
+    "credentials_allowed": false,
+    "message": "Parada do observador visual solicitada.",
+    "ok": true,
+    "orders_enabled": false,
+    "real_money_enabled": false,
+    "simulation_only": true,
+    "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+    "status": "OFF",
+    "stop_result": {
+        "observer_only": true,
+        "status": "NOT_RUNNING"
+    }
+}
+
+===== TESTE — POST observer/start =====
+{
+    "after": {
+        "active_reader_count": 0,
+        "active_readers": [],
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "credentials_allowed": false,
+        "orders_enabled": false,
+        "reader_running": true,
+        "real_money_enabled": false,
+        "simulation_only": true,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL"
+    },
+    "auto_click_enabled": false,
+    "before": {
+        "active_reader_count": 0,
+        "active_readers": [],
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "credentials_allowed": false,
+        "orders_enabled": false,
+        "reader_running": false,
+        "real_money_enabled": false,
+        "simulation_only": true,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL"
+    },
+    "broker_login_enabled": false,
+    "credentials_allowed": false,
+    "interval": 3,
+    "message": "Observador visual solicitado.",
+    "ok": true,
+    "orders_enabled": false,
+    "real_money_enabled": false,
+    "simulation_only": true,
+    "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+    "start_result": {
+        "active_reader_count": 1,
+        "interval": 3,
+        "log_path": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/mobile_reader.log",
+        "observer_only": true,
+        "pid": 37772,
+        "status": "STARTED"
+    },
+    "status": "ON"
+}
+
+===== TESTE — Coleta de 120 segundos =====
+A corretora precisa permanecer em primeiro plano.
+
+----- AMOSTRA 1 / 24 — 11:30:00 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando — aguardando preço
+state_message=Leitor ativo; aguardando nova leitura de preço.
+asset=LATAM Index
+price=948.72
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=aguardando_leitura_valida
+operation_allowed=False
+model_reason=Leitura ausente ou antiga demais para abrir operação simulada.
+last_price_age_seconds=952
+price_ticks_count=5
+average_interval_seconds=3.153
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:30:00,638 | INFO | predixai | Application: PredixAI Platform
+2026-07-07 11:30:00,638 | INFO | predixai | Version: 0.1.0-foundation
+2026-07-07 11:30:00,638 | INFO | predixai | Mode: Observador
+2026-07-07 11:30:00,639 | INFO | predixai | Environment: development
+2026-07-07 11:30:00,639 | INFO | predixai | Date/time: 2026-07-07T11:30:00.639151-03:00
+2026-07-07 11:30:00,641 | INFO | predixai | Operating system: Linux-6.14.0-37-generic-x86_64-with-glibc2.39
+2026-07-07 11:30:00,641 | INFO | predixai | Python: 3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]
+2026-07-07 11:30:00,642 | INFO | predixai | Loaded modules: Core, Security, Vision, Auditor, Strategy, AI Provider, Dashboard, Broker Adapter, Trader
+2026-07-07 11:30:00,642 | INFO | predixai | PredixAI initialization finished.
+2026-07-07 11:30:00,643 | INFO | predixai | Screen resolution: 0x0
+2026-07-07 11:30:00,643 | INFO | predixai | Screen scale: 100%
+2026-07-07 11:30:00,643 | INFO | predixai | Screen operating system: Linux-6.14.0-37-generic-x86_64-with-glibc2.39
+2026-07-07 11:30:00,643 | INFO | predixai | Monitor count: 0
+2026-07-07 11:30:00,643 | INFO | predixai | Primary monitor: unknown
+2026-07-07 11:30:00,643 | INFO | predixai | Screen work area: x=0 y=0 width=0 height=0
+2026-07-07 11:30:00,644 | INFO | predixai | Windows found: 0
+2026-07-07 11:30:00,644 | INFO | predixai | Active window: none
+2026-07-07 11:30:00,644 | INFO | predixai | Capture Engine iniciado.
+2026-07-07 11:30:00,645 | INFO | predixai | Diretório das capturas: /home/leo/Documentos/GitHub/predixai-platform/captures
+2026-07-07 11:30:00,645 | INFO | predixai | Formato: PNG
+2026-07-07 11:30:00,645 | INFO | predixai | Compressão: 6
+PredixAI Platform 0.1.0-foundation initialized in Observador mode.
+Live loop reading 1/9999...
+2026-07-07 11:30:00,665 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:00,665 | INFO | predixai | Título da janela: ▲ 949.63 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:00,665 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:00,665 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:00,665 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:00,666 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:00,666 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.63 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:00.646667-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 2 / 24 — 11:30:08 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.62
+signal=OBSERVAR ALTA
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=2
+price_ticks_count=8
+average_interval_seconds=138.833
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:30:00,665 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:00,666 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:00,666 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.63 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:00.646667-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 1/9999, status=READY, source=window_title
+Live loop reading 2/9999...
+2026-07-07 11:30:03,844 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:03,844 | INFO | predixai | Título da janela: ▲ 949.65 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:03,844 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:03,845 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:03,845 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:03,845 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:03,845 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.65 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:03.834060-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 2/9999, status=READY, source=window_title
+Live loop reading 3/9999...
+2026-07-07 11:30:06,993 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:06,993 | INFO | predixai | Título da janela: ▼ 949.62 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:06,993 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:06,993 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:06,993 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:06,993 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:06,993 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.62 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:06.983213-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 3/9999, status=READY, source=window_title
+Live loop reading 4/9999...
+2026-07-07 11:30:10,120 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:10,120 | INFO | predixai | Título da janela: ▼ 949.61 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:10,120 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:10,120 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:10,121 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:10,121 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:10,121 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.61 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:10.107769-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 3 / 24 — 11:30:16 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.53
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=3
+price_ticks_count=12
+average_interval_seconds=98.124
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:30:10,121 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:10,121 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:10,121 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.61 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:10.107769-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 4/9999, status=READY, source=window_title
+Live loop reading 5/9999...
+2026-07-07 11:30:13,278 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:13,278 | INFO | predixai | Título da janela: ▲ 949.61 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:13,278 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:13,279 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:13,279 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:13,279 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:13,279 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.61 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:13.266608-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 5/9999, status=READY, source=window_title
+Live loop reading 6/9999...
+2026-07-07 11:30:16,434 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:16,435 | INFO | predixai | Título da janela: ▼ 949.53 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:16,435 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:16,436 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:16,436 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:16,436 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:16,437 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.53 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:16.396187-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 6/9999, status=READY, source=window_title
+Live loop reading 7/9999...
+2026-07-07 11:30:19,656 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:19,656 | INFO | predixai | Título da janela: ▼ 949.46 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:19,656 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:19,656 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:19,656 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:19,657 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:19,657 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.46 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:19.633111-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 4 / 24 — 11:30:27 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.41
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=3
+price_ticks_count=15
+average_interval_seconds=76.223
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:30:19,656 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:19,657 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:19,657 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.46 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:19.633111-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 7/9999, status=READY, source=window_title
+Live loop reading 8/9999...
+2026-07-07 11:30:22,890 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:22,890 | INFO | predixai | Título da janela: ▲ 949.40 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:22,891 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:22,891 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:22,891 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:22,891 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:22,891 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.40 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:22.876726-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 8/9999, status=READY, source=window_title
+Live loop reading 9/9999...
+2026-07-07 11:30:26,068 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:26,068 | INFO | predixai | Título da janela: ▼ 949.41 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:26,069 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:26,069 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:26,069 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:26,069 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:26,069 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.41 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:26.054613-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 9/9999, status=READY, source=window_title
+Live loop reading 10/9999...
+2026-07-07 11:30:29,249 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:29,249 | INFO | predixai | Título da janela: ▲ 949.41 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:29,249 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:29,249 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:29,249 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:29,249 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:29,249 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.41 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:29.238529-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 5 / 24 — 11:30:36 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.27
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=2
+price_ticks_count=17
+average_interval_seconds=62.526
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:30:29,249 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:29,249 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:29,249 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.41 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:29.238529-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 10/9999, status=READY, source=window_title
+Live loop reading 11/9999...
+2026-07-07 11:30:32,381 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:32,381 | INFO | predixai | Título da janela: ▲ 949.27 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:32,381 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:32,381 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:32,382 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:32,382 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:32,382 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.27 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:32.364529-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 11/9999, status=READY, source=window_title
+Live loop reading 12/9999...
+2026-07-07 11:30:35,575 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:35,575 | INFO | predixai | Título da janela: ▼ 949.27 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:35,575 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:35,575 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:35,575 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:35,575 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:35,575 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.27 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:35.563207-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 12/9999, status=READY, source=window_title
+Live loop reading 13/9999...
+2026-07-07 11:30:38,740 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:38,740 | INFO | predixai | Título da janela: ▲ 949.18 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:38,741 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:38,741 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:38,741 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:38,741 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:38,741 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.18 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:38.727431-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 6 / 24 — 11:30:46 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.25
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=1
+price_ticks_count=20
+average_interval_seconds=53.16
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:30:38,741 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:38,741 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:38,741 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.18 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:38.727431-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 13/9999, status=READY, source=window_title
+Live loop reading 14/9999...
+2026-07-07 11:30:42,034 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:42,034 | INFO | predixai | Título da janela: ▲ 949.20 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:42,034 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:42,035 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:42,035 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:42,035 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:42,035 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.20 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:42.013027-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 14/9999, status=READY, source=window_title
+Live loop reading 15/9999...
+2026-07-07 11:30:45,214 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:45,215 | INFO | predixai | Título da janela: ▼ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:45,215 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:45,215 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:45,215 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:45,215 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:45,216 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:45.194478-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 15/9999, status=READY, source=window_title
+Live loop reading 16/9999...
+2026-07-07 11:30:48,433 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:48,439 | INFO | predixai | Título da janela: ▼ 949.24 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:48,440 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:48,440 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:48,440 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:48,441 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:48,442 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.24 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:48.401199-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 7 / 24 — 11:30:56 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.25
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=3
+price_ticks_count=24
+average_interval_seconds=46.356
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:30:51,660 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:51,661 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:51,661 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.21 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:51.634415-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 17/9999, status=READY, source=window_title
+Live loop reading 18/9999...
+2026-07-07 11:30:55,004 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:55,004 | INFO | predixai | Título da janela: ▼ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:55,005 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:55,005 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:55,005 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:55,005 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:55,005 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:54.989777-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 18/9999, status=READY, source=window_title
+Live loop reading 19/9999...
+2026-07-07 11:30:58,166 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:30:58,167 | INFO | predixai | Título da janela: ▲ 949.28 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:30:58,173 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:30:58,173 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:30:58,173 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:30:58,173 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:30:58,174 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.28 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:30:58.154997-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 19/9999, status=READY, source=window_title
+Live loop reading 20/9999...
+2026-07-07 11:31:01,360 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:01,361 | INFO | predixai | Título da janela: ▲ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:01,361 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:01,361 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:01,361 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:01,361 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:01,361 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:01.342418-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 8 / 24 — 11:31:06 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.26
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=4
+price_ticks_count=27
+average_interval_seconds=41.178
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:31:01,361 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:01,361 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:01,361 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:01.342418-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 20/9999, status=READY, source=window_title
+Live loop reading 21/9999...
+2026-07-07 11:31:04,635 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:04,635 | INFO | predixai | Título da janela: ▼ 949.26 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:04,635 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:04,635 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:04,636 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:04,636 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:04,636 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.26 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:04.602211-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 21/9999, status=READY, source=window_title
+Live loop reading 22/9999...
+2026-07-07 11:31:07,858 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:07,859 | INFO | predixai | Título da janela: ▲ 949.30 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:07,859 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:07,859 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:07,860 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:07,860 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:07,860 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.30 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:07.828633-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 22/9999, status=READY, source=window_title
+Live loop reading 23/9999...
+2026-07-07 11:31:11,108 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:11,108 | INFO | predixai | Título da janela: ▼ 949.32 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:11,108 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:11,108 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:11,108 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:11,109 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:11,109 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.32 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:11.091198-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 9 / 24 — 11:31:17 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.25
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=1
+price_ticks_count=30
+average_interval_seconds=35.95
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:31:11,108 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:11,109 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:11,109 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.32 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:11.091198-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 23/9999, status=READY, source=window_title
+Live loop reading 24/9999...
+2026-07-07 11:31:14,470 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:14,471 | INFO | predixai | Título da janela: ▼ 949.28 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:14,471 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:14,472 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:14,472 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:14,472 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:14,473 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.28 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:14.422884-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 24/9999, status=READY, source=window_title
+Live loop reading 25/9999...
+2026-07-07 11:31:17,724 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:17,725 | INFO | predixai | Título da janela: ▼ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:17,725 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:17,725 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:17,725 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:17,726 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:17,726 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.25 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:17.707291-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 25/9999, status=READY, source=window_title
+Live loop reading 26/9999...
+2026-07-07 11:31:20,881 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:20,882 | INFO | predixai | Título da janela: ▼ 949.24 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:20,882 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:20,882 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:20,882 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:20,882 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:20,882 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.24 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:20.865459-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 10 / 24 — 11:31:28 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.09
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=2
+price_ticks_count=33
+average_interval_seconds=32.878
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:31:20,882 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:20,882 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:20,882 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.24 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:20.865459-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 26/9999, status=READY, source=window_title
+Live loop reading 27/9999...
+2026-07-07 11:31:24,112 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:24,112 | INFO | predixai | Título da janela: ▲ 949.22 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:24,112 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:24,112 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:24,113 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:24,113 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:24,113 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.22 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:24.094256-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 27/9999, status=READY, source=window_title
+Live loop reading 28/9999...
+2026-07-07 11:31:27,272 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:27,272 | INFO | predixai | Título da janela: ▼ 949.09 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:27,272 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:27,272 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:27,272 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:27,273 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:27,273 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.09 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:27.261327-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 28/9999, status=READY, source=window_title
+Live loop reading 29/9999...
+2026-07-07 11:31:30,505 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:30,506 | INFO | predixai | Título da janela: ▼ 949.09 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:30,506 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:30,506 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:30,506 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:30,506 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:30,506 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.09 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:30.495210-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 11 / 24 — 11:31:37 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.05
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=2
+price_ticks_count=36
+average_interval_seconds=30.334
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:31:33,681 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:33,682 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:33,682 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.09 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:33.669788-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 30/9999, status=READY, source=window_title
+Live loop reading 31/9999...
+2026-07-07 11:31:36,872 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:36,872 | INFO | predixai | Título da janela: ▲ 949.05 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:36,872 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:36,872 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:36,872 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:36,872 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:36,872 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.05 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:36.854011-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 31/9999, status=READY, source=window_title
+Live loop reading 32/9999...
+2026-07-07 11:31:40,227 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:40,228 | INFO | predixai | Título da janela: ▲ 949.04 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:40,228 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:40,229 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:40,229 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:40,230 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:40,230 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.04 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:40.154339-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 32/9999, status=READY, source=window_title
+Live loop reading 33/9999...
+2026-07-07 11:31:43,477 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:43,477 | INFO | predixai | Título da janela: ▼ 949.07 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:43,477 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:43,477 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:43,477 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:43,478 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:43,478 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.07 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:43.464121-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 12 / 24 — 11:31:48 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.08
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=3
+price_ticks_count=40
+average_interval_seconds=28.2
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:31:43,477 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:43,478 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:43,478 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.07 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:43.464121-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 33/9999, status=READY, source=window_title
+Live loop reading 34/9999...
+2026-07-07 11:31:46,778 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:46,778 | INFO | predixai | Título da janela: ▼ 949.08 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:46,778 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:46,779 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:46,779 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:46,779 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:46,779 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.08 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:46.761001-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 34/9999, status=READY, source=window_title
+Live loop reading 35/9999...
+2026-07-07 11:31:50,021 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:50,022 | INFO | predixai | Título da janela: ▲ 949.10 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:50,022 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:50,022 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:50,023 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:50,023 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:50,023 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.10 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:49.981251-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 35/9999, status=READY, source=window_title
+Live loop reading 36/9999...
+2026-07-07 11:31:53,255 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:53,255 | INFO | predixai | Título da janela: ▼ 949.09 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:53,255 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:53,255 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:53,255 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:53,255 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:53,256 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.09 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:53.241583-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 13 / 24 — 11:31:59 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.07
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=4
+price_ticks_count=43
+average_interval_seconds=26.376
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:31:53,255 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:53,255 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:53,256 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.09 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:53.241583-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 36/9999, status=READY, source=window_title
+Live loop reading 37/9999...
+2026-07-07 11:31:56,594 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:56,594 | INFO | predixai | Título da janela: ▼ 949.08 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:56,594 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:56,594 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:56,595 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:56,595 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:56,595 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.08 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:56.583607-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 37/9999, status=READY, source=window_title
+Live loop reading 38/9999...
+2026-07-07 11:31:59,805 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:31:59,806 | INFO | predixai | Título da janela: ▼ 949.07 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:31:59,806 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:31:59,806 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:31:59,807 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:31:59,807 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:31:59,807 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.07 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:31:59.772816-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 38/9999, status=READY, source=window_title
+Live loop reading 39/9999...
+2026-07-07 11:32:03,043 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:03,044 | INFO | predixai | Título da janela: ▲ 949.04 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:03,044 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:03,044 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:03,045 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:03,045 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:03,046 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.04 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:03.018032-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 14 / 24 — 11:32:09 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.1
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=4
+price_ticks_count=47
+average_interval_seconds=24.32
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:32:06,291 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:06,292 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:06,292 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.15 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:06.279762-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 40/9999, status=READY, source=window_title
+Live loop reading 41/9999...
+2026-07-07 11:32:09,565 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:09,565 | INFO | predixai | Título da janela: ▲ 949.10 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:09,566 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:09,566 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:09,566 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:09,566 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:09,566 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.10 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:09.547605-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 41/9999, status=READY, source=window_title
+Live loop reading 42/9999...
+2026-07-07 11:32:12,766 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:12,766 | INFO | predixai | Título da janela: ▼ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:12,766 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:12,767 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:12,767 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:12,767 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:12,768 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:12.727597-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 42/9999, status=READY, source=window_title
+Live loop reading 43/9999...
+2026-07-07 11:32:15,999 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:15,999 | INFO | predixai | Título da janela: ▼ 948.98 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:15,999 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:16,000 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:16,000 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:16,000 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:16,000 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.98 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:15.977562-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 15 / 24 — 11:32:21 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=948.94
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=2
+price_ticks_count=50
+average_interval_seconds=23.0
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:32:16,000 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:16,000 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:16,000 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.98 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:15.977562-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 43/9999, status=READY, source=window_title
+Live loop reading 44/9999...
+2026-07-07 11:32:19,168 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:19,168 | INFO | predixai | Título da janela: ▼ 948.94 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:19,169 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:19,169 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:19,169 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:19,169 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:19,169 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.94 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:19.154278-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 44/9999, status=READY, source=window_title
+Live loop reading 45/9999...
+2026-07-07 11:32:22,359 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:22,359 | INFO | predixai | Título da janela: ▼ 948.89 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:22,359 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:22,359 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:22,359 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:22,359 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:22,360 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.89 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:22.341650-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 45/9999, status=READY, source=window_title
+Live loop reading 46/9999...
+2026-07-07 11:32:25,645 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:25,646 | INFO | predixai | Título da janela: ▲ 948.93 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:25,646 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:25,646 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:25,647 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:25,647 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:25,647 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.93 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:25.626180-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 16 / 24 — 11:32:31 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=948.89
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=1
+price_ticks_count=53
+average_interval_seconds=21.48
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:32:25,647 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:25,647 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:25,647 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.93 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:25.626180-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 46/9999, status=READY, source=window_title
+Live loop reading 47/9999...
+2026-07-07 11:32:28,879 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:28,879 | INFO | predixai | Título da janela: ▼ 948.89 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:28,879 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:28,879 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:28,880 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:28,880 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:28,880 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.89 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:28.867050-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 47/9999, status=READY, source=window_title
+Live loop reading 48/9999...
+2026-07-07 11:32:32,126 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:32,126 | INFO | predixai | Título da janela: ▼ 948.91 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:32,126 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:32,127 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:32,133 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:32,133 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:32,133 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.91 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:32.110293-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 48/9999, status=READY, source=window_title
+Live loop reading 49/9999...
+2026-07-07 11:32:35,378 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:35,379 | INFO | predixai | Título da janela: ▼ 948.90 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:35,379 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:35,379 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:35,379 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:35,379 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:35,379 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.90 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:35.358161-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 17 / 24 — 11:32:43 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=948.88
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=2
+price_ticks_count=57
+average_interval_seconds=20.486
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:32:38,599 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:38,599 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:38,599 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.85 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:38.581159-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 50/9999, status=READY, source=window_title
+Live loop reading 51/9999...
+2026-07-07 11:32:41,912 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:41,912 | INFO | predixai | Título da janela: ▼ 948.88 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:41,912 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:41,913 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:41,913 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:41,913 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:41,913 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.88 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:41.893719-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 51/9999, status=READY, source=window_title
+Live loop reading 52/9999...
+2026-07-07 11:32:45,199 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:45,199 | INFO | predixai | Título da janela: ▼ 948.78 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:45,199 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:45,199 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:45,200 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:45,200 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:45,200 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.78 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:45.164124-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 52/9999, status=READY, source=window_title
+Live loop reading 53/9999...
+2026-07-07 11:32:48,448 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:48,448 | INFO | predixai | Título da janela: ▲ 948.85 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:48,448 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:48,448 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:48,448 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:48,449 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:48,449 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.85 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:48.428282-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 18 / 24 — 11:32:54 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=948.88
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=3
+price_ticks_count=60
+average_interval_seconds=19.595
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:32:48,448 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:48,449 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:48,449 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.85 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:48.428282-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 53/9999, status=READY, source=window_title
+Live loop reading 54/9999...
+2026-07-07 11:32:51,648 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:51,648 | INFO | predixai | Título da janela: ▼ 948.88 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:51,648 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:51,649 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:51,649 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:51,649 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:51,649 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.88 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:51.636451-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 54/9999, status=READY, source=window_title
+Live loop reading 55/9999...
+2026-07-07 11:32:55,001 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:55,002 | INFO | predixai | Título da janela: ▲ 948.82 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:55,002 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:55,002 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:55,002 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:55,002 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:55,002 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.82 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:54.980949-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 55/9999, status=READY, source=window_title
+Live loop reading 56/9999...
+2026-07-07 11:32:58,316 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:32:58,316 | INFO | predixai | Título da janela: ▲ 948.83 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:32:58,316 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:32:58,316 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:32:58,316 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:58,316 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:58,316 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.83 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:58.302765-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 19 / 24 — 11:33:04 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=948.86
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=4
+price_ticks_count=63
+average_interval_seconds=18.792
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:32:58,316 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:32:58,316 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:32:58,316 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.83 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:32:58.302765-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 56/9999, status=READY, source=window_title
+Live loop reading 57/9999...
+2026-07-07 11:33:01,562 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:01,563 | INFO | predixai | Título da janela: ▲ 948.86 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:01,564 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:01,565 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:01,565 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:01,566 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:01,566 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.86 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:01.487295-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 57/9999, status=READY, source=window_title
+Live loop reading 58/9999...
+2026-07-07 11:33:04,844 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:04,844 | INFO | predixai | Título da janela: ▲ 948.83 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:04,844 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:04,845 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:04,845 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:04,845 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:04,845 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.83 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:04.826813-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 58/9999, status=READY, source=window_title
+Live loop reading 59/9999...
+2026-07-07 11:33:08,295 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:08,295 | INFO | predixai | Título da janela: ▲ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:08,296 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:08,296 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:08,297 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:08,297 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:08,297 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:08.241275-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 20 / 24 — 11:33:14 -----
+CURL_STATE_EXIT=28
+curl: (28) Operation timed out after 7001 milliseconds with 0 bytes received
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:33:11,574 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:11,574 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:11,575 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.98 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:11.563427-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 60/9999, status=READY, source=window_title
+Live loop reading 61/9999...
+2026-07-07 11:33:14,925 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:14,925 | INFO | predixai | Título da janela: ▲ 948.94 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:14,926 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:14,926 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:14,926 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:14,926 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:14,927 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.94 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:14.895470-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 61/9999, status=READY, source=window_title
+Live loop reading 62/9999...
+2026-07-07 11:33:18,179 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:18,179 | INFO | predixai | Título da janela: ▼ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:18,179 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:18,179 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:18,179 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:18,180 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:18,180 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:18.165735-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 62/9999, status=READY, source=window_title
+Live loop reading 63/9999...
+2026-07-07 11:33:21,375 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:21,375 | INFO | predixai | Título da janela: ▲ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:21,382 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:21,382 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:21,382 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:21,382 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:21,382 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:21.365879-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 21 / 24 — 11:33:26 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=948.92
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=4
+price_ticks_count=70
+average_interval_seconds=17.199
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:33:21,382 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:21,382 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:21,382 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:21.365879-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 63/9999, status=READY, source=window_title
+Live loop reading 64/9999...
+2026-07-07 11:33:24,683 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:24,683 | INFO | predixai | Título da janela: ▲ 948.92 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:24,683 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:24,683 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:24,684 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:24,684 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:24,684 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 948.92 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:24.669443-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 64/9999, status=READY, source=window_title
+Live loop reading 65/9999...
+2026-07-07 11:33:27,974 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:27,974 | INFO | predixai | Título da janela: ▼ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:27,974 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:27,974 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:27,975 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:27,975 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:27,975 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.96 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:27.963842-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 65/9999, status=READY, source=window_title
+Live loop reading 66/9999...
+2026-07-07 11:33:31,351 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:31,351 | INFO | predixai | Título da janela: ▼ 948.97 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:31,351 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:31,351 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:31,352 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:31,352 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:31,352 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.97 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:31.340271-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 22 / 24 — 11:33:37 -----
+reader_running=True
+active_reader_count=1
+state_status=Rodando
+state_message=Leitor ativo. Acompanhe apenas em modo simulado.
+asset=LATAM Index
+price=949.01
+signal=AGUARDAR
+confidence=100.0
+current_signal_status=sinal_pronto
+operation_allowed=True
+model_reason=Leitura atual válida disponível para etapa futura de abertura simulada.
+last_price_age_seconds=5
+price_ticks_count=73
+average_interval_seconds=16.611
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:33:31,352 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:31,352 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:31,352 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 948.97 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:31.340271-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 66/9999, status=READY, source=window_title
+Live loop reading 67/9999...
+2026-07-07 11:33:34,591 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:34,591 | INFO | predixai | Título da janela: ▲ 949.01 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:34,592 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:34,592 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:34,593 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:34,593 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:34,594 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.01 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:34.542563-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 67/9999, status=READY, source=window_title
+Live loop reading 68/9999...
+2026-07-07 11:33:37,877 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:37,877 | INFO | predixai | Título da janela: ▼ 949.02 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:37,877 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:37,877 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:37,878 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:37,878 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:37,878 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.02 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:37.856660-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 68/9999, status=READY, source=window_title
+Live loop reading 69/9999...
+2026-07-07 11:33:41,155 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:41,155 | INFO | predixai | Título da janela: ▲ 949.11 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:41,155 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:41,156 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:41,156 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:41,156 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:41,156 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.11 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:41.086862-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 23 / 24 — 11:33:48 -----
+CURL_STATE_EXIT=28
+curl: (28) Operation timed out after 7004 milliseconds with 0 bytes received
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:33:44,436 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:44,436 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:44,436 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.14 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:44.418193-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 70/9999, status=READY, source=window_title
+Live loop reading 71/9999...
+2026-07-07 11:33:47,703 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:47,703 | INFO | predixai | Título da janela: ▼ 949.18 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:47,703 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:47,703 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:47,704 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:47,710 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:47,710 | INFO | predixai | Broker Window Detection finalizado: {'title': '▼ 949.18 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:47.684352-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 71/9999, status=READY, source=window_title
+Live loop reading 72/9999...
+2026-07-07 11:33:51,058 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:51,058 | INFO | predixai | Título da janela: ▲ 949.22 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:51,058 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:51,059 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:51,059 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:51,059 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:51,059 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.22 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:51.021197-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 72/9999, status=READY, source=window_title
+Live loop reading 73/9999...
+2026-07-07 11:33:54,448 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:54,449 | INFO | predixai | Título da janela: ▲ 949.21 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:54,449 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:54,450 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:54,450 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:54,450 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:54,451 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.21 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:54.367234-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+----- AMOSTRA 24 / 24 — 11:34:00 -----
+CURL_STATE_EXIT=28
+curl: (28) Operation timed out after 7002 milliseconds with 0 bytes received
+
+[locks recentes após início da C.7.4]
+
+[tail reader log]
+2026-07-07 11:33:54,450 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:54,450 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:54,451 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.21 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:54.367234-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 73/9999, status=READY, source=window_title
+Live loop reading 74/9999...
+2026-07-07 11:33:57,832 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:33:57,832 | INFO | predixai | Título da janela: ▲ 949.14 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:33:57,833 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:33:57,833 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:33:57,833 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:33:57,839 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:33:57,839 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.14 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:33:57.808386-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 74/9999, status=READY, source=window_title
+Live loop reading 75/9999...
+2026-07-07 11:34:01,170 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:34:01,170 | INFO | predixai | Título da janela: ▲ 949.05 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:34:01,170 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:34:01,170 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:34:01,171 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:34:01,171 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:34:01,171 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.05 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:34:01.137553-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+Live loop price tick completed: 75/9999, status=READY, source=window_title
+Live loop reading 76/9999...
+2026-07-07 11:34:04,517 | INFO | predixai | Broker Window Detection iniciado
+2026-07-07 11:34:04,517 | INFO | predixai | Título da janela: ▲ 949.06 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave
+2026-07-07 11:34:04,518 | INFO | predixai | Resolução da janela: 1366x735
+2026-07-07 11:34:04,518 | INFO | predixai | Posição da janela: x=0 y=0
+2026-07-07 11:34:04,518 | INFO | predixai | Janela maximizada: False
+2026-07-07 11:34:04,518 | INFO | predixai | Janela em primeiro plano: True
+2026-07-07 11:34:04,518 | INFO | predixai | Broker Window Detection finalizado: {'title': '▲ 949.06 LATAM Index | Plataforma de negociação para traders online – Olymptrade - Brave', 'resolution_width': 1366, 'resolution_height': 735, 'left': 0, 'top': 0, 'maximized': False, 'foreground': True, 'detected_at': '2026-07-07T11:34:04.492903-03:00', 'metadata': {'detected': True, 'broker_window_valid': True, 'ignored': False, 'ignore_reason': 'Janela válida de corretora detectada', 'window_kind': 'broker', 'platform': 'linux', 'detector': 'linux_wmctrl', 'window_id': '0x04600004', 'active_window_id': '0x4600004'}}
+
+===== TESTE — Estado final =====
+FINAL_CURL_EXIT=28
+curl: (28) Operation timed out after 7002 milliseconds with 0 bytes received
+
+===== TESTE — Locks após patch =====
+
+===== TESTE — Processos =====
+37670 /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py --host 0.0.0.0 --port 8766
+37772 /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python -m predixai.main --live-loop --price-only --loop-count 9999 --loop-interval 3
+
+===== TESTE — Log servidor recente =====
+192.168.10.100 - - [07/Jul/2026 11:33:14] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:16] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:16] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:18] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:18] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:19] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:19] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:20] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:21] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:21] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:21] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jul/2026 11:33:21] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:22] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:22] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:23] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:23] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:24] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:24] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:24] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:24] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:24] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:24] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:25] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:25] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:25] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:26] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:26] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:27] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:27] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:28] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:28] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:28] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:29] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:29] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:30] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:31] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:31] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jul/2026 11:33:31] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:32] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:32] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:32] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:32] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:33] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:33] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:33] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:34] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:35] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:35] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:36] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:36] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:37] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:37] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:37] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:38] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:38] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:39] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:39] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:39] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:40] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:41] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:41] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:42] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jul/2026 11:33:42] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:43] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:43] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:43] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:43] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:44] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:45] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:45] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:45] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:46] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:47] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:47] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:49] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:49] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:50] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:50] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:50] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:51] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:52] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:53] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:53] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:54] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:54] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:55] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jul/2026 11:33:55] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:56] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:57] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:57] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:57] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:33:58] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:58] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:33:59] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:01] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:01] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:02] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:02] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:03] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:04] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:04] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:05] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:05] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:06] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:06] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jul/2026 11:34:07] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:08] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:08] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:08] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:10] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:10] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:10] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:11] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:13] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:13] "GET /api/mobile/state?ptp113b31b4=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:13] "GET /api/mobile/state?ptp113b31b5=1 HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:13] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:14] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+192.168.10.101 - - [07/Jul/2026 11:34:16] "GET /api/mobile/state HTTP/1.1" 200 -
+192.168.10.100 - - [07/Jul/2026 11:34:16] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+
+===== DIAGNÓSTICO C.7.4 =====
+database_locked_count_after_patch= 3
+reader_running_true_count= 21
+sinal_pronto_count= 20
+curl_timeout_count= 4
+latam_detected= True
+reader_ready_log_detected= True
+final_reader_running= None
+final_active_reader_count= None
+final_current_signal_status= None
+final_operation_allowed= None
+final_model_reason= None
+PTP113C74_RESULT=FAIL_LOCK_STILL_PRESENT
+
+===== REGISTRAR — Resultado esperado =====
+- Reader não deve cair por database is locked.
+- Banco deve aceitar concorrência com busy_timeout/WAL.
+- Corretora deve continuar apenas como fonte visual observada.
+- Nenhuma ordem real é executada.
+- Nenhum saldo real é usado.
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+A  docs/history/ptp/PTP-113/PTP-113C/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.md
+M  docs/reports_index.md
+A  reports/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader_FIX.txt
+M  scripts/predixai_trader_mobile_server.py

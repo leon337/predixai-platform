@@ -15,6 +15,101 @@ import re
 import shutil
 import socket
 import sqlite3
+
+# ============================================================
+# PTP113C74_SQLITE_LOCK_RESILIENCE_START
+# PTP 113 C.7.4 — Corrigir lock SQLite do reader
+# Objetivo: reduzir falhas "database is locked" entre mobile server,
+# reader visual e múltiplos clientes /api/mobile/state.
+# ============================================================
+
+try:
+    import sqlite3 as _ptp113c74_sqlite3
+    import time as _ptp113c74_time
+    import os as _ptp113c74_os
+
+    if not getattr(_ptp113c74_sqlite3, "_ptp113c74_lock_resilience", False):
+        _PTP113C74_ORIGINAL_SQLITE_CONNECT = _ptp113c74_sqlite3.connect
+
+        def _ptp113c74_is_runtime_db(target):
+            try:
+                value = str(target)
+            except Exception:
+                return False
+            return (
+                value.endswith(".db")
+                or "predixai_trader_signals" in value
+                or "/data/runtime/" in value
+            )
+
+        def _ptp113c74_configure_sqlite_connection(conn, database=None):
+            try:
+                conn.execute("PRAGMA busy_timeout=30000")
+            except Exception:
+                pass
+
+            if _ptp113c74_is_runtime_db(database):
+                try:
+                    conn.execute("PRAGMA journal_mode=WAL")
+                except Exception:
+                    pass
+
+                try:
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                except Exception:
+                    pass
+
+                try:
+                    conn.execute("PRAGMA temp_store=MEMORY")
+                except Exception:
+                    pass
+
+            return conn
+
+        def _ptp113c74_connect(database, *args, **kwargs):
+            kwargs.setdefault("timeout", 30.0)
+
+            last_error = None
+            for attempt in range(8):
+                try:
+                    conn = _PTP113C74_ORIGINAL_SQLITE_CONNECT(database, *args, **kwargs)
+                    return _ptp113c74_configure_sqlite_connection(conn, database)
+                except _ptp113c74_sqlite3.OperationalError as exc:
+                    last_error = exc
+                    if "database is locked" not in str(exc).lower():
+                        raise
+                    _ptp113c74_time.sleep(min(0.25 * (attempt + 1), 2.0))
+
+            raise last_error
+
+        def _ptp113c74_sqlite_retry(operation, *args, **kwargs):
+            last_error = None
+            for attempt in range(8):
+                try:
+                    return operation(*args, **kwargs)
+                except _ptp113c74_sqlite3.OperationalError as exc:
+                    last_error = exc
+                    if "database is locked" not in str(exc).lower():
+                        raise
+                    _ptp113c74_time.sleep(min(0.25 * (attempt + 1), 2.0))
+            raise last_error
+
+        _ptp113c74_sqlite3.connect = _ptp113c74_connect
+        _ptp113c74_sqlite3._ptp113c74_lock_resilience = True
+
+        try:
+            sqlite3 = _ptp113c74_sqlite3
+        except Exception:
+            pass
+
+except Exception:
+    pass
+
+# ============================================================
+# PTP113C74_SQLITE_LOCK_RESILIENCE_END
+# ============================================================
+
+
 import subprocess
 import sys
 import tempfile
