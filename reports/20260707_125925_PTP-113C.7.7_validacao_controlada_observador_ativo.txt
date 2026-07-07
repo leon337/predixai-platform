@@ -1,0 +1,251 @@
+PREDIXAI BR — PTP-113C.7.7 — VALIDAÇÃO CONTROLADA DO OBSERVADOR ATIVO
+Data: 2026-07-07 13:01:57 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+RESULTADO_FINAL: WARN_OBSERVER_NOT_RUNNING_OR_NO_SOURCE
+ENDPOINT_MOBILE: 200
+ENDPOINT_STATE: 200
+START_HTTP: 200
+STOP_HTTP: 200
+SERVER_STARTED_BY_SCRIPT: NO
+SAMPLES: 18
+INTERVAL_SECONDS: 5
+
+OBJETIVO
+Validar de forma controlada se o observador ativo volta a ler estado atual após o rollback C.7.6B.2 e o registro C.7.6B.3.
+
+REGRAS
+- Não usar saldo real.
+- Não usar login real.
+- Não executar ordem real.
+- Não clicar em compra/venda.
+- Não ativar auto-click.
+- Corretora, se aberta no notebook, é apenas fonte visual observada.
+- O script aciona apenas endpoint local de observação e encerra o observador ao final da validação.
+
+VALIDAÇÕES
+- py_compile do mobile_server.
+- py_compile do main.py.
+- /mobile.
+- /api/mobile/state.
+- travas simuladas.
+- coleta curta de 18 amostras.
+
+ANÁLISE DAS AMOSTRAS
+TOTAL_SAMPLES=18
+READER_RUNNING_TRUE_COUNT=0
+ACTIVE_READER_MAX=0
+ASSET_NONEMPTY_COUNT=18
+PRICE_NONEMPTY_COUNT=18
+SIGNAL_READY_COUNT=0
+DATABASE_LOCKED_COUNT=0
+TIMEOUT_COUNT=0
+EVAL_STATUS=WARN_OBSERVER_NOT_RUNNING_OR_NO_SOURCE
+
+ÚLTIMAS AMOSTRAS RESUMIDAS:
+{"file": "sample_2.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_3.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_4.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_5.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_6.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_7.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_8.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_9.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+
+LOG TÉCNICO
+PREDIXAI BR — PTP-113C.7.7 — validação controlada do observador ativo
+Data: 2026-07-07 12:59:25 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Regra: 100% simulado; sem saldo real, login real, ordem real, auto-click ou clique em compra/venda.
+Duração da coleta: 90 segundos
+
+===== INVESTIGAR =====
+
+===== git branch --show-current =====
+main
+RC=0
+
+===== git log -6 --oneline =====
+a06e7c0 PTP 113 C.7.6B.3 registrar validacao mobile pos rollback
+d33735e PTP 113 C.7.6B.2 rollback mobile server pre C75
+129df10 PTP 113 C.7.6B.1 recovery sintaxe mobile server
+1fe269a PTP 113 C.7.6B correcao cirurgica sintaxe dedup C75
+d05841b PTP 113 C.7.5 estabilizar reader mobile polling
+99b915d PTP 113 C.7.4 fix sqlite reader lock
+RC=0
+
+===== git status --short --untracked-files=all =====
+ M reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+RC=0
+
+===== ss -ltnp 'sport = :8766' || true =====
+State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+LISTEN 0      128          0.0.0.0:8766      0.0.0.0:*    users:(("python3",pid=47852,fd=3))
+RC=0
+
+===== VALIDAR COMPILAÇÃO BASE =====
+
+===== env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c77_pycache python3 -m py_compile scripts/predixai_trader_mobile_server.py =====
+scripts/predixai_trader_mobile_server.py:8918: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+scripts/predixai_trader_mobile_server.py:9179: SyntaxWarning: invalid escape sequence '\d'
+  return """
+RC=0
+
+===== env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c77_pycache python3 -m py_compile src/predixai/main.py =====
+RC=0
+
+===== GARANTIR SERVIDOR MOBILE =====
+Servidor já está ativo na porta 8766. Usando processo existente.
+
+===== VALIDAR ENDPOINTS INICIAIS =====
+HTTP /mobile: 200
+HTTP /api/mobile/state: 200
+
+===== VALIDAR TRAVAS SIMULADAS =====
+simulation_only=True
+orders_enabled=False
+real_money_enabled=False
+auto_click_enabled=False
+broker_login_enabled=False
+credentials_allowed=False
+SAFETY_OK=YES
+
+===== ACIONAR OBSERVADOR CONTROLADO =====
+POST /api/mobile/start: 200
+
+===== COLETAR AMOSTRAS CONTROLADAS =====
+12:59:33 sample=1 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_1.json
+12:59:40 sample=2 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_2.json
+12:59:46 sample=3 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_3.json
+12:59:52 sample=4 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_4.json
+12:59:57 sample=5 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_5.json
+13:00:06 sample=6 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_6.json
+13:00:13 sample=7 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_7.json
+13:00:22 sample=8 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_8.json
+13:00:30 sample=9 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_9.json
+13:00:38 sample=10 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_10.json
+13:00:46 sample=11 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_11.json
+13:00:57 sample=12 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_12.json
+13:01:06 sample=13 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_13.json
+13:01:15 sample=14 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_14.json
+13:01:26 sample=15 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_15.json
+13:01:34 sample=16 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_16.json
+13:01:44 sample=17 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_17.json
+13:01:56 sample=18 http=200 file=/tmp/20260707_125925_PTP-113C.7.7_validacao_controlada_observador_ativo_samples/sample_18.json
+
+===== ANALISAR AMOSTRAS =====
+TOTAL_SAMPLES=18
+READER_RUNNING_TRUE_COUNT=0
+ACTIVE_READER_MAX=0
+ASSET_NONEMPTY_COUNT=18
+PRICE_NONEMPTY_COUNT=18
+SIGNAL_READY_COUNT=0
+DATABASE_LOCKED_COUNT=0
+TIMEOUT_COUNT=0
+EVAL_STATUS=WARN_OBSERVER_NOT_RUNNING_OR_NO_SOURCE
+
+ÚLTIMAS AMOSTRAS RESUMIDAS:
+{"file": "sample_2.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_3.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_4.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_5.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_6.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_7.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_8.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+{"file": "sample_9.json", "reader_running": false, "active_reader_count": 0, "asset": "Sem leitura ativa", "price": 4182.1, "signal_status": "aguardando_leitura", "direction": "NEUTRO", "confidence": 95.0}
+
+===== ENCERRAR OBSERVADOR APÓS VALIDAÇÃO CONTROLADA =====
+POST /api/mobile/stop: 200
+
+===== SEGURANÇA SIMULADA FINAL =====
+
+===== grep -n 'simulation_only\|orders_enabled\|real_money_enabled\|auto_click_enabled\|broker_login_enabled\|credentials_allowed' scripts/predixai_trader_mobile_server.py | head -80 || true =====
+1268:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+1269:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+1270:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+1271:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+1272:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+1273:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+1417:        "simulation_only=" + d.simulation_only +
+1418:        " | orders_enabled=" + d.orders_enabled +
+1419:        " | real_money_enabled=" + d.real_money_enabled +
+1420:        " | auto_click_enabled=" + d.auto_click_enabled +
+1421:        " | broker_login_enabled=" + d.broker_login_enabled +
+1422:        " | credentials_allowed=" + d.credentials_allowed
+3035:      data.simulation_only === true &&
+3036:      data.orders_enabled === false &&
+3037:      data.real_money_enabled === false &&
+3038:      data.auto_click_enabled === false &&
+3039:      data.broker_login_enabled === false &&
+3040:      data.credentials_allowed === false;
+3076:        `simulation_only=${text(data.simulation_only)} · orders_enabled=${text(data.orders_enabled)} · real_money_enabled=${text(data.real_money_enabled)}`,
+3274:        "orders_enabled": False,
+3472:            "orders_enabled": False,
+3653:            "simulation_only": True,
+3655:            "orders_enabled": False,
+3656:            "auto_click_enabled": False,
+3657:            "real_money_enabled": False,
+3681:                            "simulation_only": True,
+3682:                            "orders_enabled": False,
+3714:        "simulation_only": True,
+3716:        "orders_enabled": False,
+3717:        "auto_click_enabled": False,
+3718:        "real_money_enabled": False,
+3765:            "simulation_only": True,
+3766:            "orders_enabled": False,
+3798:        "orders_enabled": False,
+3799:        "auto_click_enabled": False,
+3800:        "real_money_enabled": False,
+3801:        "broker_login_enabled": False,
+3802:        "simulation_only": True,
+3840:            "simulation_only": True,
+3841:            "orders_enabled": False,
+3842:            "auto_click_enabled": False,
+3843:            "real_money_enabled": False,
+3854:        "simulation_only": True,
+3855:        "orders_enabled": False,
+3856:        "auto_click_enabled": False,
+3857:        "real_money_enabled": False,
+4786:            "orders_enabled": False,
+5723:        "simulation_only": bool(pick("simulation_only", True)),
+5724:        "orders_enabled": bool(pick("orders_enabled", False)),
+5725:        "real_money_enabled": bool(pick("real_money_enabled", False)),
+5726:        "auto_click_enabled": bool(pick("auto_click_enabled", False)),
+5727:        "broker_login_enabled": bool(pick("broker_login_enabled", False)),
+5728:        "credentials_allowed": bool(pick("credentials_allowed", False)),
+5781:        safety.get("simulation_only") is not True
+5782:        or safety.get("orders_enabled") is not False
+5783:        or safety.get("real_money_enabled") is not False
+5784:        or safety.get("auto_click_enabled") is not False
+5785:        or safety.get("broker_login_enabled") is not False
+5786:        or safety.get("credentials_allowed") is not False
+6000:        safety.get("simulation_only") is True
+6001:        and safety.get("orders_enabled") is False
+6002:        and safety.get("real_money_enabled") is False
+6003:        and safety.get("auto_click_enabled") is False
+6004:        and safety.get("broker_login_enabled") is False
+6005:        and safety.get("credentials_allowed") is False
+6136:        "simulation_only": True,
+6137:        "orders_enabled": False,
+6138:        "real_money_enabled": False,
+6139:        "auto_click_enabled": False,
+6140:        "broker_login_enabled": False,
+6141:        "credentials_allowed": False,
+6229:        "simulation_only": True,
+6230:        "orders_enabled": False,
+6231:        "real_money_enabled": False,
+6232:        "auto_click_enabled": False,
+6233:        "broker_login_enabled": False,
+6234:        "credentials_allowed": False,
+6403:        "simulation_only": True,
+6404:        "orders_enabled": False,
+6405:        "real_money_enabled": False,
+RC=0
+
+===== REGISTRAR RELATÓRIO E MARKDOWN =====
+
+PRÓXIMA AÇÃO
+- Se RESULTADO_FINAL = PASS_OBSERVER_ACTIVE_CONTROLLED: validar print no celular e decidir C.7.8/C.8.
+- Se RESULTADO_FINAL iniciar com WARN: colar relatório no chat e replanejar sem mexer em C.7.5 ampla.
+- Se RESULTADO_FINAL iniciar com FAIL: não avançar; corrigir causa crítica.
