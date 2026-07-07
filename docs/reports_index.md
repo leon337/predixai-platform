@@ -125,3 +125,5 @@
 - 2026-07-07 12:38:15 -0300 | PTP-113C.7.6B.1 | recovery_sintaxe_mobile_server | FAIL_PY_COMPILE_SERVER_AFTER_RECOVERY | reports/20260707_123814_PTP-113C.7.6B.1_recovery_sintaxe_mobile_server_RECOVERY.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_123814_PTP-113C.7.6B.1_recovery_sintaxe_mobile_server_RECOVERY.md
 
 - 2026-07-07 12:41:44 -0300 | PTP-113C.7.6B.2 | rollback_mobile_server_pre_C75 | PASS_ROLLBACK_HTTP_200 | reports/20260707_124136_PTP-113C.7.6B.2_rollback_mobile_server_pre_C75_RECOVERY_ROLLBACK.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_124136_PTP-113C.7.6B.2_rollback_mobile_server_pre_C75_RECOVERY_ROLLBACK.md
+
+- 2026-07-07 12:54:26 -0300 | PTP-113C.7.6B.3 | registrar_validacao_mobile_pos_rollback | WARN_PASS_VISUAL_POS_ROLLBACK | reports/20260707_125425_PTP-113C.7.6B.3_registrar_validacao_mobile_pos_rollback_WARN_PASS_VISUAL_POS_ROLLBACK.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_125425_PTP-113C.7.6B.3_registrar_validacao_mobile_pos_rollback_WARN_PASS_VISUAL_POS_ROLLBACK.md
