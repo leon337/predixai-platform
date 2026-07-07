@@ -1,0 +1,143 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP 113 C.8.2.1
+Nome curto: mobile_v2_standalone_server
+Data: 2026-07-07 19:51:01 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Tipo: servidor Flask independente
+Porta padrão: 5001
+Mobile legado alterado: NÃO
+Integração com mobile_server.py: NÃO
+Observer real iniciado: NÃO
+Runtime JSON versionado: NÃO
+
+===== TRAVAS OPERACIONAIS =====
+simulation_only=true
+orders_enabled=false
+real_money_enabled=false
+auto_click_enabled=false
+broker_login_enabled=false
+credentials_allowed=false
+
+===== INVESTIGAR — STATUS INICIAL =====
+?? reports/20260707_195101_PTP-113C.8.2.1_mobile_v2_standalone_server_BUILD_STANDALONE.txt
+WARN: havia alterações antes do script. O commit só adicionará arquivos da C.8.2.1.
+
+===== últimos commits =====
+$ git log -6 --oneline
+c149d20 PTP 113 C.8.2 criar rotas limpas mobile v2
+766bda6 PTP 113 C.8.1 criar base mobile v2 minima
+7738b75 PTP 113 C.8.0.1 fechar sobra local pos quarentena
+1da8948 PTP 113 C.8.0 saneamento quarentena mobile v2
+8b72aff PTP 113 C.7.7A auditar start reader
+a3cdbbe PTP 113 C.7.7 validacao controlada observador ativo
+STATUS: 0
+
+===== INVESTIGAR — DEPENDÊNCIAS BASE =====
+OK: encontrado src/predixai/mobile_v2/state_store.py
+OK: encontrado src/predixai/mobile_v2/routes.py
+OK: hash inicial do legado: af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+
+===== CONSTRUIR — REFORÇAR .gitignore =====
+OK: .gitignore reforçado.
+
+===== CONSTRUIR — APP FLASK STANDALONE =====
+
+===== CONSTRUIR — RUNNER STANDALONE =====
+
+===== CONSTRUIR — ATUALIZAR __init__.py =====
+OK: app.py, runner e __init__.py criados.
+
+===== CONSTRUIR — TESTE STANDALONE =====
+OK: teste standalone criado.
+
+===== VALIDAR — MOBILE LEGADO NÃO ALTERADO =====
+Hash inicial legado: af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+Hash atual legado:   af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+OK: scripts/predixai_trader_mobile_server.py não foi alterado.
+
+===== VALIDAR — COMPILAÇÃO =====
+
+===== py_compile app.py =====
+$ python3 -m py_compile src/predixai/mobile_v2/app.py
+
+STATUS: 0
+
+===== py_compile runner =====
+$ python3 -m py_compile scripts/run_mobile_v2_server.py
+
+STATUS: 0
+
+===== py_compile routes.py =====
+$ python3 -m py_compile src/predixai/mobile_v2/routes.py
+
+STATUS: 0
+
+===== py_compile state_store.py =====
+$ python3 -m py_compile src/predixai/mobile_v2/state_store.py
+
+STATUS: 0
+
+===== VALIDAR — TESTES =====
+
+===== unittest state store =====
+$ python3 tests/test_mobile_v2_state_store.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.139s
+
+OK
+STATUS: 0
+
+===== unittest routes =====
+$ python3 tests/test_mobile_v2_routes.py
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.063s
+
+OK
+STATUS: 0
+
+===== unittest standalone app =====
+$ python3 tests/test_mobile_v2_standalone_app.py
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.058s
+
+OK
+STATUS: 0
+
+===== VALIDAR — DIFF CHECK =====
+
+===== git diff --check =====
+$ git diff --check
+
+STATUS: 0
+
+===== VALIDAR — RUNTIME NÃO VERSIONADO =====
+OK: data/runtime/mobile_v2_state.json não está rastreado.
+
+===== VALIDAR — SMOKE TEST SERVIDOR STANDALONE =====
+OK: servidor standalone iniciou temporariamente. PID=24671
+{"legacy_mobile_server":false,"mobile_v2":true,"observer_real_started":false,"ok":true,"simulation_only":true,"standalone":true}
+OK: /health respondeu.
+{"mobile_v2":true,"note":"reading.age_seconds is calculated at response time and is not persisted.","ok":true,"route":"/state/current","runtime_persisted":false,"state":{"history":{"count":0,"last_event_id":null},"observer":{"last_error":null,"pid":null,"running":false,"started_at":null,"status":"OFF","stopped_at":null},"operation":{"operation_id":null,"result":null,"status":"none"},"reading":{"age_seconds":null,"asset":null,"captured_at":null,"price":null,"source":"none","status":"no_active_reading"},"schema_version":"mobile_v2_state_v1","session":{"auto_click_enabled":false,"broker_login_enabled":false,"credentials_allowed":false,"orders_enabled":false,"real_money_enabled":false,"simulation_only":true,"status":"not_created"},"signal":{"confidence":null,"direction":"NEUTRO","reason":null,"status":"aguardando_leitura","strategy":null},"status":"idle","updated_at":"2026-07-07T22:51:04.795513+00:00"}}
+OK: servidor standalone temporário encerrado.
+
+===== REGISTRAR — MARKDOWN HISTÓRICO =====
+Markdown criado: docs/history/ptp/PTP-113/PTP-113C/20260707_195101_PTP-113C.8.2.1_mobile_v2_standalone_server_BUILD_STANDALONE.md
+
+===== REGISTRAR — ÍNDICE =====
+
+===== RESULTADO FINAL DO RELATÓRIO =====
+Resultado geral: WARN_PASS
+Warnings: 1
+Falhas: 0
+Mobile legado alterado: NÃO
+Observer real iniciado: NÃO
+Runtime JSON versionado: NÃO
+Relatório: reports/20260707_195101_PTP-113C.8.2.1_mobile_v2_standalone_server_BUILD_STANDALONE.txt
+Markdown: docs/history/ptp/PTP-113/PTP-113C/20260707_195101_PTP-113C.8.2.1_mobile_v2_standalone_server_BUILD_STANDALONE.md
+Observação: relatório fechado antes de commit/push.
