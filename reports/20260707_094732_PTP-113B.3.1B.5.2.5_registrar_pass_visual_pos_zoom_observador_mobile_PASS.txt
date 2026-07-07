@@ -1,0 +1,72 @@
+PREDIXAI BR — PTP-113B.3.1B.5.2.5
+Nome curto: registrar_pass_visual_pos_zoom_observador_mobile
+Status: PASS
+Data: 20260707_094732
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== INVESTIGAR =====
+Objetivo: registrar formalmente o PASS visual do Observador Mobile após correção dos campos críticos e identificação do problema de zoom.
+Este script é documental. Não altera código do app.
+
+===== ESTADO DO GIT ANTES =====
+⚠️ Git tinha pendências antes do registro:
+?? reports/20260707_094732_PTP-113B.3.1B.5.2.5_registrar_pass_visual_pos_zoom_observador_mobile_PASS.txt
+
+===== ÚLTIMOS COMMITS =====
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+62e61f8 PTP-113B.3.1B.5.2.3 ajuste visual campos críticos mobile FIX
+3ecd0b3 PTP-113B.3.1B.5.2.2 corrigir_marcadores_visiveis_mobile FIX
+2ec0408 PTP-113B.3.1B.5.2.1 finalize visual recovery saneamento mobile
+6777748 PTP-113B.3.1B.5.1.1 close toggle observer report recovery
+
+===== VALIDAR =====
+✅ py_compile PASS
+✅ git diff --check PASS
+✅ /mobile HTTP 200
+✅ Marcador da correção visual dos campos críticos encontrado no código.
+✅ Marcador da correção do topo encontrado no código.
+
+===== PASS VISUAL CONFIRMADO POR LEO =====
+Leo aprovou visualmente a tela /mobile após:
+- correção da barra inferior de ações;
+- correção parcial do topo;
+- identificação de que parte da distorção vinha do zoom/escala;
+- validação final pelo celular;
+- confirmação textual: PASS.
+
+===== CRITÉRIOS VISUAIS APROVADOS =====
+✅ Observador mobile aparece como OFF.
+✅ Observador desligado aparece com 'Sem leitura ativa'.
+✅ Leitura atual não usa preço, ativo ou sinal histórico.
+✅ Último histórico permanece separado.
+✅ Painel operacional simulado está legível.
+✅ Gráfico da sessão está visível.
+✅ Botões inferiores ficaram organizados em grade mobile.
+✅ Travas simuladas permanecem visíveis.
+✅ Problema visual restante foi classificado como zoom/escala, não falha principal do app.
+
+===== SEGURANÇA =====
+Travas preservadas:
+simulation_only=true
+orders_enabled=false
+real_money_enabled=false
+auto_click_enabled=false
+broker_login_enabled=false
+credentials_allowed=false
+
+Nenhuma operação real foi liberada.
+Nenhum saldo real foi usado.
+Nenhum login real foi usado.
+Nenhum auto-click foi ativado.
+
+===== REGISTRAR =====
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260707_094732_PTP-113B.3.1B.5.2.5_registrar_pass_visual_pos_zoom_observador_mobile_PASS.md
+Índice atualizado: docs/reports_index.md
+
+===== PUBLICAR =====
+Relatório fechado antes do commit/push.
+Arquivos a versionar:
+- reports/20260707_094732_PTP-113B.3.1B.5.2.5_registrar_pass_visual_pos_zoom_observador_mobile_PASS.txt
+- docs/history/ptp/PTP-113/PTP-113B/20260707_094732_PTP-113B.3.1B.5.2.5_registrar_pass_visual_pos_zoom_observador_mobile_PASS.md
+- docs/reports_index.md
+

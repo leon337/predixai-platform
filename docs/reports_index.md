@@ -47,3 +47,5 @@
 - 20260707_092759 | PTP-113B.3.1B.5.2.3 | ajuste_visual_campos_criticos_mobile | FIX | reports/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile_FIX.txt | docs/history/ptp/PTP-113/PTP-113B/20260707_092759_PTP-113B.3.1B.5.2.3_ajuste_visual_campos_criticos_mobile_FIX.md
 
 - 20260707_093440 | PTP-113B.3.1B.5.2.4 | corrigir_topo_observador_mobile | FIX | reports/20260707_093440_PTP-113B.3.1B.5.2.4_corrigir_topo_observador_mobile_FIX.txt | docs/history/ptp/PTP-113/PTP-113B/20260707_093440_PTP-113B.3.1B.5.2.4_corrigir_topo_observador_mobile_FIX.md
+
+- 20260707_094732 | PTP-113B.3.1B.5.2.5 | registrar_pass_visual_pos_zoom_observador_mobile | PASS | reports/20260707_094732_PTP-113B.3.1B.5.2.5_registrar_pass_visual_pos_zoom_observador_mobile_PASS.txt | docs/history/ptp/PTP-113/PTP-113B/20260707_094732_PTP-113B.3.1B.5.2.5_registrar_pass_visual_pos_zoom_observador_mobile_PASS.md
