@@ -1,3 +1,6 @@
+"""PredixAI application entrypoint."""
+
+from __future__ import annotations
 
 # PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
 try:
@@ -7,9 +10,6 @@ except Exception:
     pass
 # PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
 
-"""PredixAI application entrypoint."""
-
-from __future__ import annotations
 
 import time
 

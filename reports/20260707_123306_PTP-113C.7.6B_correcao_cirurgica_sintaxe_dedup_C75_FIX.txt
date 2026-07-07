@@ -1,0 +1,429 @@
+PREDIXAI BR — PTP-113C.7.6B — CORREÇÃO CIRÚRGICA DE SINTAXE/DEDUP C.7.5
+Data: 2026-07-07 12:33:07 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+RESULTADO_FINAL: FAIL_PY_COMPILE_SERVER
+ENDPOINT_STATUS: NOT_TESTED
+SERVER_STARTED_FOR_TEST: NO
+
+OBJETIVO
+Corrigir a quebra pós PTP 113 C.7.5 sem mexer em lógica real de operação:
+- corrigir string literal quebrada no mobile server;
+- corrigir ordem inválida de from __future__;
+- remover blocos C.7.5 malformados dentro de funções Python;
+- validar compilação antes de qualquer subida controlada do servidor.
+
+ARQUIVOS ALTERADOS
+- scripts/predixai_trader_mobile_server.py
+- src/predixai/main.py
+
+ARQUIVOS REGISTRADOS
+- /home/leo/Documentos/GitHub/predixai-platform/reports/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75_FIX.txt
+- /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75_FIX.md
+
+BACKUP
+- /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75
+
+REGRAS DE SEGURANÇA
+- Não usar saldo real.
+- Não usar login real.
+- Não executar ordem real.
+- Não clicar em compra/venda.
+- Não ativar auto-click.
+- Corretora continua apenas como fonte visual observada.
+
+LOG TÉCNICO
+PREDIXAI BR — PTP-113C.7.6B — correção cirúrgica pós C.7.5
+Data: 2026-07-07 12:33:06 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Modo: 100% simulado
+Regra: não usar saldo real, login real, ordem real, auto-click ou clique em compra/venda.
+
+===== INVESTIGAR =====
+
+===== git branch --show-current =====
+main
+RC=0
+
+===== git log -3 --oneline =====
+d05841b PTP 113 C.7.5 estabilizar reader mobile polling
+99b915d PTP 113 C.7.4 fix sqlite reader lock
+1429c53 PTP 113 C.7.3 audit reader visual debug
+RC=0
+
+===== git status --short --untracked-files=all =====
+ M reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+?? reports/20260707_122423_PTP-113C.7.6A_auditoria_quebra_pos_C75_AUDIT.txt
+RC=0
+
+===== ss -ltnp 'sport = :8766' || true =====
+State Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+RC=0
+
+===== BACKUP =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75
+
+===== CONSTRUIR: PATCH CIRÚRGICO =====
+PATCH_RESULT=OK
+changed_main=True
+changed_server_top=True
+changed_server_funcs=True
+
+===== VALIDAR: PY_COMPILE =====
+
+===== env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c76b_pycache python3 -m py_compile scripts/predixai_trader_mobile_server.py =====
+  File "scripts/predixai_trader_mobile_server.py", line 9556
+    return html.replace("</body>", assets + "
+                                            ^
+SyntaxError: unterminated string literal (detected at line 9556)
+RC=1
+
+===== env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c76b_pycache python3 -m py_compile src/predixai/main.py =====
+RC=0
+
+===== env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c76b_pycache python3 -m py_compile src/predixai/runtime/sqlite_resilience.py =====
+RC=0
+
+===== env PYTHONPYCACHEPREFIX=/tmp/predixai_ptp113c76b_pycache python3 -m py_compile src/predixai/runtime/__init__.py =====
+RC=0
+
+===== VALIDAR: DIFF E MARCADORES =====
+
+===== git diff --check =====
+RC=0
+
+===== grep -n 'PTP113C75_MOBILE_STATE_FETCH_DEDUP' scripts/predixai_trader_mobile_server.py | head -80 || true =====
+3248:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+7181:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+7697:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+8089:  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+RC=0
+
+===== grep -n 'PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT' scripts/predixai_trader_mobile_server.py src/predixai/main.py || true =====
+scripts/predixai_trader_mobile_server.py:11:# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
+scripts/predixai_trader_mobile_server.py:17:# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
+src/predixai/main.py:5:# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
+src/predixai/main.py:11:# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
+RC=0
+
+===== git diff -- scripts/predixai_trader_mobile_server.py src/predixai/main.py | sed -n '1,220p' =====
+diff --git a/scripts/predixai_trader_mobile_server.py b/scripts/predixai_trader_mobile_server.py
+index 4e7712b..67d40d4 100644
+--- a/scripts/predixai_trader_mobile_server.py
++++ b/scripts/predixai_trader_mobile_server.py
+@@ -1,12 +1,3 @@
+-
+-# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
+-try:
+-    from predixai.runtime.sqlite_resilience import install_sqlite_resilience
+-    install_sqlite_resilience()
+-except Exception:
+-    pass
+-# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
+-
+ # -*- coding: utf-8 -*-
+ """
+ PredixAI Trader Mobile Server.
+@@ -17,6 +8,15 @@ Nao clica, nao executa ordens e nao interage com conta real.
+ 
+ from __future__ import annotations
+ 
++# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_START
++try:
++    from predixai.runtime.sqlite_resilience import install_sqlite_resilience
++    install_sqlite_resilience()
++except Exception:
++    pass
++# PTP113C75_SQLITE_SHARED_RESILIENCE_IMPORT_END
++
++
+ import argparse
+ import json
+ import os
+@@ -9534,1076 +9534,443 @@ def _ptp113b3151a_currency_controls_v1_assets():
+     return css + "\n" + js
+ 
+ 
++
+ def _ptp113b3151a_inject_currency_controls_v1(html):
++    """Inject BRL currency controls safely.
++
++    PTP 113 C.7.6B:
++    - remove bloco C.7.5 malformado colado como JS cru dentro de Python;
++    - preserva apenas a injeção dos controles BRL;
++    - não toca em ordem real, saldo real, login real ou auto-click.
++    """
+     if not isinstance(html, str):
+         return html
+ 
+-    if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
++    marker = "PTP113B3151A_CURRENCY_CONTROLS_BRL"
++    if marker in html:
+         return html
+ 
+     assets = _ptp113b3151a_currency_controls_v1_assets()
+ 
+-    if "
+-<script>
+-(function () {
+-  const MARKER = "PTP113C75_MOBILE_STATE_FETCH_DEDUP";
+-  if (window[MARKER]) return;
+-  window[MARKER] = true;
++    if "</body>" in html:
++        return html.replace("</body>", assets + "
++</body>", 1)
+ 
+-  const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+-  if (!originalFetch) return;
++    return html + "
++" + assets
+ 
+-  let stateInflight = null;
+-  let stateCache = null;
+-  let stateCacheAt = 0;
+-  const CACHE_TTL_MS = 1200;
++def _ptp113b3151a1_currency_layout_assets_v1():
++    return """
++<style id="ptp113b3151a1-currency-layout-style">
++  input[type=number]::-webkit-outer-spin-button,
++  input[type=number]::-webkit-inner-spin-button {
++    -webkit-appearance: none;
++    margin: 0;
++  }
+ 
+-  function isMobileStateRequest(input) {
+-    try {
+-      const raw = typeof input === "string" ? input : input.url;
+-      return raw && String(raw).includes("/api/mobile/state");
+-    } catch (err) {
+-      return false;
+-    }
++  input[type=number] {
++    -moz-appearance: textfield;
+   }
+ 
+-  function responseFromCache(cache) {
+-    return new Response(cache.body, {
+-      status: cache.status,
+-      statusText: cache.statusText,
+-      headers: cache.headers
+-    });
++  .money-stepper {
++    display: grid !important;
++    grid-template-columns: 42px minmax(0, 1fr) 42px !important;
++    gap: 8px !important;
++    align-items: center !important;
++    width: 100% !important;
++    margin: 6px 0 8px 0 !important;
+   }
+ 
+-  window.fetch = function (input, init) {
+-    if (!isMobileStateRequest(input)) {
+-      return originalFetch(input, init);
+-    }
++  .money-stepper button {
++    width: 42px !important;
++    height: 42px !important;
++    min-height: 42px !important;
++    border-radius: 10px !important;
++    border: 1px solid #31516f !important;
++    background: #102239 !important;
++    color: #f5c542 !important;
++    font-size: 22px !important;
++    line-height: 1 !important;
++    font-weight: 800 !important;
++    display: flex !important;
++    align-items: center !important;
++    justify-content: center !important;
++    padding: 0 !important;
++  }
+ 
+-    const now = Date.now();
++  .money-stepper input {
++    width: 100% !important;
++    height: 42px !important;
++    min-height: 42px !important;
++    border-radius: 10px !important;
++    border: 1px solid #31516f !important;
++    background: #061423 !important;
++    color: #ffffff !important;
++    padding: 0 12px !important;
++    font-size: 15px !important;
++    font-weight: 700 !important;
++    box-sizing: border-box !important;
++  }
+ 
+-    if (stateInflight) {
+-      return stateInflight.then(function (resp) { return resp.clone(); });
+-    }
++  .money-hidden-source {
++    display: none !important;
++  }
+ 
+-    if (stateCache && (now - stateCacheAt) < CACHE_TTL_MS) {
+-      return Promise.resolve(responseFromCache(stateCache));
+-    }
++  .money-help {
++    color: #8ea4b9 !important;
++    font-size: 11px !important;
++    line-height: 1.35 !important;
++    margin: 0 0 12px 0 !important;
++  }
+ 
+-    stateInflight = originalFetch(input, init).then(async function (resp) {
+-      try {
+-        const clone = resp.clone();
+-        const body = await clone.text();
+-        stateCache = {
+-          body: body,
+-          status: resp.status,
+-          statusText: resp.statusText,
+-          headers: Array.from(resp.headers.entries())
+-        };
+-        stateCacheAt = Date.now();
+-      } catch (err) {}
+-      return resp;
+-    }).finally(function () {
+-      setTimeout(function () { stateInflight = null; }, 250);
+-    });
++  .money-recovery-limit-hidden {
++    display: none !important;
++  }
++</style>
+ 
+-    return stateInflight.then(function (resp) { return resp.clone(); });
+-  };
++<script id="ptp113b3151a1-currency-layout-script">
++(function () {
++  const LABEL_TARGETS = [
++    "Banca simulada inicial",
++    "Valor da entrada simulada",
++    "Lucro desejado da sessão",
++    "Limite máximo de entrada simulada"
++  ];
+ 
+-  function hideUltimoHistorico() {
+-    const nodes = Array.from(document.querySelectorAll("h1,h2,h3,h4,h5,h6,div,p,span,strong"));
+-    for (const el of nodes) {
+-      const txt = (el.textContent || "").trim().toUpperCase();
+-      if (txt === "ÚLTIMO HISTÓRICO" || txt === "ULTIMO HISTORICO") {
+-        el.style.display = "none";
+-        let cursor = el.nextElementSibling;
+-        let count = 0;
+-        while (cursor && count < 8) {
+-          const t = (cursor.textContent || "").trim().toUpperCase();
+-          if (
+-            t.includes("PAINEL OPERACIONAL") ||
+-            t.includes("PTP 113 C") ||
+-            t.includes("GRÁFICO DA SESSÃO") ||
+-            t.includes("GRAFICO DA SESSAO") ||
+-            t.includes("TRAVAS SIMULADAS")
+-          ) {
+-            break;
+-          }
+-          cursor.style.display = "none";
+-          cursor = cursor.nextElementSibling;
+-          count++;
+-        }
+-      }
+-    }
+RC=0
+
+===== VALIDAR: SERVIDOR LOCAL CONTROLADO =====
+
+===== SEGURANÇA SIMULADA =====
+
+===== grep -n 'simulation_only\|orders_enabled\|real_money_enabled\|auto_click_enabled\|broker_login_enabled\|credentials_allowed' scripts/predixai_trader_mobile_server.py | head -80 || true =====
+1277:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+1278:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+1279:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+1280:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+1281:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+1282:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+1426:        "simulation_only=" + d.simulation_only +
+1427:        " | orders_enabled=" + d.orders_enabled +
+1428:        " | real_money_enabled=" + d.real_money_enabled +
+1429:        " | auto_click_enabled=" + d.auto_click_enabled +
+1430:        " | broker_login_enabled=" + d.broker_login_enabled +
+1431:        " | credentials_allowed=" + d.credentials_allowed
+3044:      data.simulation_only === true &&
+3045:      data.orders_enabled === false &&
+3046:      data.real_money_enabled === false &&
+3047:      data.auto_click_enabled === false &&
+3048:      data.broker_login_enabled === false &&
+3049:      data.credentials_allowed === false;
+3085:        `simulation_only=${text(data.simulation_only)} · orders_enabled=${text(data.orders_enabled)} · real_money_enabled=${text(data.real_money_enabled)}`,
+3382:        "orders_enabled": False,
+3580:            "orders_enabled": False,
+3761:            "simulation_only": True,
+3763:            "orders_enabled": False,
+3764:            "auto_click_enabled": False,
+3765:            "real_money_enabled": False,
+3789:                            "simulation_only": True,
+3790:                            "orders_enabled": False,
+3822:        "simulation_only": True,
+3824:        "orders_enabled": False,
+3825:        "auto_click_enabled": False,
+3826:        "real_money_enabled": False,
+3873:            "simulation_only": True,
+3874:            "orders_enabled": False,
+3906:        "orders_enabled": False,
+3907:        "auto_click_enabled": False,
+3908:        "real_money_enabled": False,
+3909:        "broker_login_enabled": False,
+3910:        "simulation_only": True,
+3948:            "simulation_only": True,
+3949:            "orders_enabled": False,
+3950:            "auto_click_enabled": False,
+3951:            "real_money_enabled": False,
+3962:        "simulation_only": True,
+3963:        "orders_enabled": False,
+3964:        "auto_click_enabled": False,
+3965:        "real_money_enabled": False,
+4894:            "orders_enabled": False,
+5831:        "simulation_only": bool(pick("simulation_only", True)),
+5832:        "orders_enabled": bool(pick("orders_enabled", False)),
+5833:        "real_money_enabled": bool(pick("real_money_enabled", False)),
+5834:        "auto_click_enabled": bool(pick("auto_click_enabled", False)),
+5835:        "broker_login_enabled": bool(pick("broker_login_enabled", False)),
+5836:        "credentials_allowed": bool(pick("credentials_allowed", False)),
+5889:        safety.get("simulation_only") is not True
+5890:        or safety.get("orders_enabled") is not False
+5891:        or safety.get("real_money_enabled") is not False
+5892:        or safety.get("auto_click_enabled") is not False
+5893:        or safety.get("broker_login_enabled") is not False
+5894:        or safety.get("credentials_allowed") is not False
+6108:        safety.get("simulation_only") is True
+6109:        and safety.get("orders_enabled") is False
+6110:        and safety.get("real_money_enabled") is False
+6111:        and safety.get("auto_click_enabled") is False
+6112:        and safety.get("broker_login_enabled") is False
+6113:        and safety.get("credentials_allowed") is False
+6244:        "simulation_only": True,
+6245:        "orders_enabled": False,
+6246:        "real_money_enabled": False,
+6247:        "auto_click_enabled": False,
+6248:        "broker_login_enabled": False,
+6249:        "credentials_allowed": False,
+6337:        "simulation_only": True,
+6338:        "orders_enabled": False,
+6339:        "real_money_enabled": False,
+6340:        "auto_click_enabled": False,
+6341:        "broker_login_enabled": False,
+6342:        "credentials_allowed": False,
+6511:        "simulation_only": True,
+6512:        "orders_enabled": False,
+6513:        "real_money_enabled": False,
+RC=0
+
+===== REGISTRAR =====
+
+PRÓXIMA AÇÃO
+Se RESULTADO_FINAL iniciar com PASS:
+- Leo deve colar este relatório no chat.
+- Depois validar visualmente /mobile no celular.
+- Só então seguir para PTP 113 C.7.7 ou C.8 conforme estado do ciclo.
+
+Se RESULTADO_FINAL iniciar com WARN ou FAIL:
+- colar este relatório no chat.
+- não avançar etapa.
