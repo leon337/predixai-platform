@@ -1,0 +1,145 @@
+PREDIXAI BR — RELATÓRIO DE CORREÇÃO
+PTP: PTP-113B.3.1A.5.1A.6
+Nome curto: fix_stepper_guard
+Ação: FIX
+Data: 2026-07-06 22:33:06 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+
+===== OBJETIVO =====
+Corrigir a guarda inválida do Stepper BRL.
+Ação técnica:
+1. Remover o bloco global inválido @app.after_request anexado ao final do arquivo.
+2. Inserir patch seguro antes do if __name__ == '__main__'.
+3. Desativar a injeção monetária legada V1 por monkey patch controlado.
+4. Manter o bloco mais novo de layout/Stepper BRL.
+5. Validar com py_compile, import smoke e Flask test_client em /session/setup.
+6. Classificar relatório antigo untracked como FAIL_PARTIAL, se existir.
+
+===== INVESTIGAR — ESTADO DO GIT =====
+
+$ git rev-parse --show-toplevel
+/home/leo/Documentos/GitHub/predixai-platform
+exit_code=0
+
+$ git branch --show-current
+main
+exit_code=0
+
+$ git log -8 --oneline
+2c8fea5 PTP-113B.3.1A.5.1A.5 validate Stepper BRL
+6f91982 PTP-113B.3.1A.5.1A.4 unify Stepper BRL
+965bc1b PTP-113B.3.1A.5.1A.3 audit Stepper BRL
+34af941 PTP-GOV.2 add PredixAI Trader master scope
+217aaca PTP-GOV.1.1 close governance final report
+108108f PTP-GOV.1 install PredixAI governance protocols
+98a4a67 PTP-113B.3.1A.5.1A.2 AUDIT pause publish report
+9520510 PTP-113B.3.1A.5.1A.2 AUDIT pause money stepper state
+exit_code=0
+
+--- git status inicial ---
+?? reports/20260706_221311_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.txt
+?? reports/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_FIX.txt
+WARN: Relatório antigo untracked detectado e será classificado no índice como FAIL_PARTIAL.
+
+===== INVESTIGAR — ARQUIVO ALVO =====
+OK: arquivo alvo encontrado.
+  5562 206187 scripts/predixai_trader_mobile_server.py
+4e639ab53eaf65136f8f07ff80ff9934d5aa8d7ea8337ea51dfb4ba50571490e  scripts/predixai_trader_mobile_server.py
+
+===== AUDITORIA PRÉ-CORREÇÃO =====
+parseMoney_pre=2
+formatBRL_pre=2
+DOMContentLoaded_pre=2
+money_stepper_pre=10
+bad_global_guard_pre=8
+invalid_guard_marker_pre=2
+fix_marker_pre=0
+
+===== CONSTRUIR — PATCH SEGURO =====
+BACKUP_CREATED: backups/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_predixai_trader_mobile_server.before.py
+REMOVED_BAD_GLOBAL_GUARD: bloco global inválido removido do final do arquivo.
+PATCH_MODE: bloco de correção inserido antes do if __name__ == '__main__'.
+PATCH_APPLIED: removed_bad_block=True
+
+===== VALIDAR — PY_COMPILE =====
+
+$ python -m py_compile scripts/predixai_trader_mobile_server.py
+exit_code=0
+PASS: py_compile aprovado.
+
+===== VALIDAR — IMPORT SMOKE =====
+
+--- import smoke output ---
+IMPORT_SMOKE_PASS
+DISABLED_LEGACY_FUNCTIONS=_ptp113b3151a_currency_controls_v1_assets,_ptp113b3151a_inject_currency_controls_v1
+import_smoke_exit_code=0
+PASS: import smoke aprovado.
+
+===== VALIDAR — FLASK TEST_CLIENT /session/setup =====
+
+--- Flask test_client output ---
+HTTP_STATUS=200
+HTML_PARSE_MONEY_DEFS=1
+HTML_FORMAT_BRL_DEFS=1
+HTML_DOMCONTENTLOADED=1
+HTML_MONEY_STEPPER=5
+HTML_LEGACY_MARKER=0
+HTML_NEWER_MARKER=1
+TEST_CLIENT_PASS
+test_client_exit_code=0
+PASS: Flask test_client validou /session/setup sem duplicação monetária crítica.
+
+===== VALIDAR — AUDITORIA PÓS-CORREÇÃO NO ARQUIVO =====
+parseMoney_pos=2
+formatBRL_pos=2
+DOMContentLoaded_pos=2
+money_stepper_pos=10
+invalid_guard_marker_pos=0
+fix_marker_pos=1
+PASS: nenhum @app.after_request global em coluna zero detectado.
+
+===== VALIDAR — GIT DIFF CHECK =====
+
+$ git diff --check
+exit_code=0
+PASS: git diff --check aprovado.
+
+===== VALIDAR — ROTA VIVA, SE SERVIDOR ESTIVER RODANDO =====
+live_http_code_session_setup=200
+live_html_parseMoney_definicoes=2
+live_html_formatBRL_definicoes=2
+WARN: Servidor vivo ainda mostra parseMoney duplicado. Provável processo antigo; reiniciar servidor mobile antes do teste visual.
+WARN: Servidor vivo ainda mostra formatBRL duplicado. Provável processo antigo; reiniciar servidor mobile antes do teste visual.
+
+===== CLASSIFICAR SOBRA UNTRACKED =====
+Relatório órfão encontrado: reports/20260706_221311_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.txt
+Classificação: FAIL_PARTIAL — tentativa inicial de auditoria interrompida antes do fechamento correto.
+
+===== REGISTRAR — STATUS FINAL =====
+Status calculado: WARN
+Warnings: 3
+Erros: 0
+
+===== REGISTRAR — MARKDOWN E ÍNDICE =====
+Backup do índice criado: backups/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_reports_index.before.md
+Relatório órfão classificado no índice como FAIL_PARTIAL.
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_FIX.md
+Índice atualizado: docs/reports_index.md
+
+===== SANITY CHECK — ARQUIVOS PARA VERSIONAMENTO =====
+intended_git_add: scripts/predixai_trader_mobile_server.py
+intended_git_add: reports/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_FIX.txt
+intended_git_add: docs/history/ptp/PTP-113/PTP-113B/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_FIX.md
+intended_git_add: docs/reports_index.md
+intended_git_add: backups/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_predixai_trader_mobile_server.before.py
+intended_git_add: backups/20260706_223306_PTP-113B.3.1A.5.1A.6_fix_stepper_guard_reports_index.before.md
+intended_git_add: reports/20260706_221311_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.txt
+
+===== ENTREGAR — FECHAMENTO DO RELATÓRIO =====
+Status final: WARN
+Warnings: 3
+Erros: 0
+
+Relatório fechado antes de commit/push.
+Depois do push, o script apenas abrirá este relatório, sem escrever novas linhas nele.

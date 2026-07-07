@@ -5524,39 +5524,74 @@ except NameError:
     pass
 
 
+
+# PTP-113B.3.1A.5.1A.6_FIX_STEPPER_GUARD
+def _ptp113b3151a51a6_disable_legacy_currency_controls_brl():
+    """
+    Desativa a injeção monetária legada V1 sem usar app global.
+
+    Motivo:
+    - A auditoria encontrou dois blocos monetários em /session/setup.
+    - O bloco legado V1 injeta parseMoney/formatBRL duplicados.
+    - A correção anterior usou @app.after_request fora de create_mobile_app e quebrou import.
+
+    Estratégia segura:
+    - Não remove fisicamente o código antigo.
+    - Substitui apenas funções legadas que carregam o marcador exato
+      PTP113B3151A_CURRENCY_CONTROLS_BRL.
+    - Mantém o bloco mais novo PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC.
+    """
+    legacy_marker = "PTP113B3151A_CURRENCY_CONTROLS_BRL"
+    disabled = []
+
+    def _noop_html(html, *args, **kwargs):
+        return html
+
+    def _noop_assets(*args, **kwargs):
+        return ""
+
+    try:
+        import inspect as _inspect
+
+        for _name, _obj in list(globals().items()):
+            if not callable(_obj):
+                continue
+
+            if not _name.startswith("_ptp113b3151a"):
+                continue
+
+            if _name.startswith("_ptp113b3151a1"):
+                continue
+
+            if _name.startswith("_ptp113b3151a51a6"):
+                continue
+
+            try:
+                _source = _inspect.getsource(_obj)
+            except Exception:
+                _source = ""
+
+            if legacy_marker not in _source:
+                continue
+
+            if "inject" in _name:
+                globals()[_name] = _noop_html
+                disabled.append(_name)
+                continue
+
+            if "asset" in _name or "assets" in _name:
+                globals()[_name] = _noop_assets
+                disabled.append(_name)
+                continue
+
+        globals()["_PTP113B3151A51A6_DISABLED_LEGACY_CURRENCY_CONTROLS"] = tuple(disabled)
+
+    except Exception as _exc:
+        globals()["_PTP113B3151A51A6_DISABLED_LEGACY_CURRENCY_CONTROLS_ERROR"] = str(_exc)[:200]
+
+
+_ptp113b3151a51a6_disable_legacy_currency_controls_brl()
+
+
 if __name__ == "__main__":
     raise SystemExit(main())
-
-# PTP-113B.3.1A.5.1A.4_UNIFY_STEPPER_BRL_RUNTIME_GUARD
-@app.after_request
-def _ptp113b3151a51a4_unify_stepper_brl(response):
-    """Desativa a injeção monetária legada V1 antes do Stepper BRL V2 rodar."""
-    try:
-        if request.path != "/session/setup":
-            return response
-
-        content_type = response.headers.get("Content-Type", "")
-        if "text/html" not in content_type:
-            return response
-
-        html = response.get_data(as_text=True)
-        runtime_marker = "<!-- PTP113B3151A_CURRENCY_CONTROLS_BRL disabled by PTP-113B.3.1A.5.1A.4_UNIFY_STEPPER_BRL_RUNTIME_GUARD -->"
-
-        if runtime_marker in html:
-            return response
-
-        if "PTP113B3151A_CURRENCY_CONTROLS_BRL" not in html:
-            if "</head>" in html:
-                html = html.replace("</head>", runtime_marker + "\n</head>", 1)
-            elif "</body>" in html:
-                html = html.replace("</body>", runtime_marker + "\n</body>", 1)
-            else:
-                html = runtime_marker + "\n" + html
-
-            response.set_data(html)
-            response.headers["Content-Length"] = str(len(response.get_data()))
-
-    except Exception:
-        return response
-
-    return response

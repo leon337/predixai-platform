@@ -1,0 +1,720 @@
+PREDIXAI BR — RELATÓRIO DE AUDITORIA
+PTP: PTP-113B.3.1A.5.1A.3
+Nome curto: stepper_brl
+Ação: AUDIT
+Data: 2026-07-06 22:13:11 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+Status inicial: AUDIT
+
+===== OBJETIVO =====
+Auditar a tela /session/setup no servidor mobile para mapear:
+- duplicação de hooks monetários;
+- money-stepper duplicado;
+- parseMoney duplicado;
+- formatBRL duplicado;
+- motivo provável do botão '-' aumentar valor;
+- risco de valores BRL explodirem para milhões.
+
+Regra desta etapa: NÃO corrigir código neste script.
+
+===== INVESTIGAR — ESTADO DO GIT =====
+
+$ git rev-parse --show-toplevel
+/home/leo/Documentos/GitHub/predixai-platform
+exit_code=0
+
+$ git branch --show-current
+main
+exit_code=0
+
+$ git log -1 --oneline
+34af941 PTP-GOV.2 add PredixAI Trader master scope
+exit_code=0
+
+$ git status --short
+?? reports/20260706_221311_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.txt
+exit_code=0
+
+===== INVESTIGAR — MEMÓRIA MÍNIMA DO PROJETO =====
+
+OK: arquivo encontrado: PROJECT_STATE.md
+ 1006 48844 PROJECT_STATE.md
+Ocorrências relevantes em PROJECT_STATE.md:
+17:PTP-112 - Mobile-First Strategy Engine e Sessao Simulada.
+21:Saneamento futuro dos arquivos trader untracked e legados fora do nucleo PTP-112.
+84:- O PTP-112 publicou o Mobile-First Strategy Engine e Sessao Simulada, validando o fluxo Strategy Engine -> Confluence Engine -> Mobile Signal Screen -> Paper Trade -> saldo simulado.
+85:- O PTP-112 preserva o escopo seguro: sem execucao real, sem clique automatico, sem corretora real, sem login, sem senha e sem saldo real.
+765:- A leitura leve prioriza preco por `window_title`; OCR completo nao e usado no ciclo mobile de 3s.
+766:- `POST /api/mobile/reset-session` cria backup local, gera novo `session_id`, limpa historico JSON e limpa as tabelas SQLite `signals` e `price_ticks`.
+767:- O painel mobile filtra historico e sinais por `session_id` e ativo atual para evitar mistura entre Cafeina Index, LATAM Index e dados antigos.
+768:- `POST /api/mobile/start?interval=3` preserva lock do leitor e evita leitores duplicados.
+884:- Encoding visual do mobile/compacto corrigido.
+894:- Isso não bloqueia a PTP-108B, pois o escopo era runtime, leitura, dashboard e mobile.
+897:## PTP-112 — Mobile-First Strategy Engine e Sessao Simulada
+904:- PTP-112 publicada como milestone mobile-first do PredixAI Trader.
+905:- PTP-112A ate PTP-112I concluidas.
+906:- PTP-112J.0, PTP-112J.0.1, PTP-112J.1 e PTP-112J.2 realizadas como auditoria, saneamento e publicacao final controlada.
+928:## PTP-113B.3.1A — Construção do contrato completo da tela inicial
+933:- Corrigida a tela /session/setup para contrato operacional completo.
+938:- /api/mobile/signal/contract passa a expor contrato completo.
+939:- /api/mobile/state passa a expor campos top-level de segurança simulada para auditoria.
+944:## PTP-113B.3.1A.1 — Fix Pullback no contrato público V2
+951:- /api/mobile/signal/contract deve expor available_strategies, incluindo pullback.
+953:## PTP-113B.3.1A.3 — Fix POST /session/setup
+958:- Criada mini-PTP porque a tela /session/setup abriu, mas o botão Iniciar sessão simulada retornou 405 Method Not Allowed.
+959:- Correção: garantir rota POST em /session/setup apontando para o mesmo handler da tela inicial.
+960:- Objetivo: permitir envio do formulário e redirecionamento para /mobile.
+962:## PTP-113B.3.1A.4 — Meta de lucro e cancelamento no sinal
+967:- Adicionado campo Lucro desejado da sessão na tela /session/setup.
+972:## PTP-113B.3.1A.4.1 — Meta de lucro V2 aplicada
+977:- Criada correção robusta porque a PTP-113B.3.1A.4 não inseriu os campos na tela/contrato.
+978:- /session/setup passa a exibir Lucro desejado da sessão.
+979:- /session/setup passa a exibir Saldo alvo.
+982:- /api/mobile/signal/contract passa a expor profit_target.
+983:- /api/mobile/state passa a refletir profit_target.
+985:## PTP-113B.3.1A.5.0 — Regularização dos arquivos pendentes no GitHub
+
+OK: arquivo encontrado: predixai_context.json
+ 1463 51748 predixai_context.json
+Ocorrências relevantes em predixai_context.json:
+477:    "last_approved_ptp": "PTP-112 - Mobile-First Strategy Engine e Sessao Simulada",
+498:    "orders_enabled": false,
+511:    "orders_enabled": false,
+652:    "orders_enabled": false,
+680:    "orders_enabled": false,
+706:    "orders_enabled": false,
+729:    "orders_enabled": false,
+753:    "orders_enabled": false,
+774:    "orders_enabled": false,
+792:    "orders_enabled": false,
+804:  "last_approved_ptp": "PTP-112 - Mobile-First Strategy Engine e Sessao Simulada",
+808:    "orders_enabled": false,
+1199:      "orders_enabled": false,
+1205:  "trader_mobile_observer": {
+1209:    "orders_enabled": false,
+1212:    "mobile_urls": [
+1213:      "http://127.0.0.1:8766/mobile",
+1214:      "http://192.168.10.103:8766/mobile"
+1223:      "route": "POST /api/mobile/reset-session",
+1224:      "backup_directory_pattern": "data/runtime/backups/mobile_reset_YYYYMMDD_HHMMSS/",
+1229:        "mobile_current_session.json"
+1252:  "last_ptp": "PTP-112",
+1262:    "ptp": "PTP-112",
+1266:    "summary": "Publicacao final controlada da milestone mobile-first do PredixAI Trader.",
+1268:      "PTP-112A ate PTP-112I concluidas",
+1269:      "PTP-112J.0, J.0.1, J.1 e J.2 realizadas",
+1272:      "Nucleo mobile-first e paper trade simulado versionados",
+1305:      "ptp": "PTP-112",
+1309:      "summary": "Milestone mobile-first publicada com Strategy Engine, Confluence Engine, Mobile Signal Screen e Paper Trade simulado.",
+1311:        "PTP-112A ate PTP-112I concluidas",
+1312:        "PTP-112J.0, J.0.1, J.1 e J.2 realizadas",
+1324:    "ptp": "PTP-112",
+1333:    "validated_environment": "Linux Mint + Brave + mobile panel",
+1339:      "mobile server",
+1341:      "UTF-8 mobile/compact encoding"
+1358:    "milestone": "PTP-112",
+1360:      "PTP-112A",
+1361:      "PTP-112B",
+1362:      "PTP-112C",
+1363:      "PTP-112D",
+1364:      "PTP-112E",
+1365:      "PTP-112F",
+1366:      "PTP-112G",
+1367:      "PTP-112H",
+1368:      "PTP-112I",
+1369:      "PTP-112J.0",
+1370:      "PTP-112J.0.1",
+1371:      "PTP-112J.1",
+1372:      "PTP-112J.2"
+1376:      "src/predixai/mobile/",
+1377:      "src/predixai/trader/mobile_session_contract.py",
+1383:    "mobile_first_preserved": true,
+1409:      "ptp": "PTP-113B.3.1A",
+1412:      "summary": "Construção do contrato completo da tela inicial mobile-first simulada.",
+1418:        "Exposição de segurança simulada no contrato e no /api/mobile/state."
+1420:      "next_step": "Validar PTP-113B.3.1A antes de avançar para PTP-113B.3.1B."
+1423:      "ptp": "PTP-113B.3.1A.1-V2",
+1431:      "ptp": "PTP-113B.3.1A.3",
+1434:      "summary": "Correção do POST em /session/setup após 405 Method Not Allowed.",
+1439:      "ptp": "PTP-113B.3.1A.4",
+1444:      "next_step": "Validar visualmente no notebook e telefone antes de iniciar PTP-113B.3.1B."
+1447:      "ptp": "PTP-113B.3.1A.4.1",
+1451:      "reason": "A tentativa PTP-113B.3.1A.4 falhou porque o patch não encontrou os pontos reais de inserção.",
+1452:      "next_step": "Validar notebook e telefone antes de fechar PTP-113B.3.1A."
+1455:      "ptp": "PTP-113B.3.1A.5.0",
+
+OK: diretório encontrado: docs/project_memory
+docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md
+
+OK: diretório encontrado: docs/history/ptp
+docs/history/ptp/PTP-GOV/PTP-GOV.1.1/20260706_213229_PTP-GOV.1.1_fechar_relatorio_final.md
+docs/history/ptp/PTP-GOV/PTP-GOV.1/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.md
+docs/history/ptp/PTP-GOV/PTP-GOV.2/20260706_215911_PTP-GOV.2_escopo_trader.md
+
+OK: índice encontrado: docs/reports_index.md
+# Índice de Relatórios — PredixAI BR
+
+| Data | PTP | Nome curto | Status | Relatório | Markdown |
+|---|---|---|---|---|---|
+| 2026-07-06 | PTP-GOV.1 | protocolos_predixai | PASS | `reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.1/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.md` |
+| 2026-07-06 | PTP-GOV.1.1 | fechar_relatorio_final | PASS | `reports/20260706_213229_PTP-GOV.1.1_fechar_relatorio_final.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.1.1/20260706_213229_PTP-GOV.1.1_fechar_relatorio_final.md` |
+| 2026-07-06 | PTP-GOV.2 | escopo_trader | PASS | `reports/20260706_215911_PTP-GOV.2_escopo_trader.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.2/20260706_215911_PTP-GOV.2_escopo_trader.md` |
+
+===== INVESTIGAR — ARQUIVO ALVO =====
+OK: arquivo alvo encontrado.
+  5528 204965 scripts/predixai_trader_mobile_server.py
+f8582326cd82a5ed9cab4415066b8b53d81d659074aac15688ce63691e94a6e5  scripts/predixai_trader_mobile_server.py
+
+===== AUDITAR — BUSCAS DIRETAS =====
+
+--- Busca fixa: money-stepper :: money-stepper ---
+ocorrencias=10
+4943:  .money-stepper {
+4951:  .money-stepper button {
+4962:  .money-stepper button:active {
+4966:  .money-stepper input {
+5038:    wrapper.className = "money-stepper";
+5188:  .money-stepper {
+5197:  .money-stepper button {
+5214:  .money-stepper input {
+5314:    wrapper.className = "money-stepper";
+5418:      result.stepper = document.querySelector('[data-money-stepper-for="max_entry_limit"]');
+
+--- Busca fixa: parseMoney :: parseMoney ---
+ocorrencias=18
+5005:  function parseMoney(value) {
+5031:    const current = parseMoney(source.value || source.getAttribute("value") || "0");
+5059:      const min = parseMoney(source.getAttribute("min") || "0");
+5071:      sync(parseMoney(source.value) - 1);
+5075:      sync(parseMoney(source.value) + 1);
+5079:      visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+5084:      sync(parseMoney(visible.value));
+5090:        sync(parseMoney(visible.value));
+5118:      source.value = toDecimal(parseMoney(source.value));
+5253:  function parseMoney(value) {
+5310:    const initialValue = parseMoney(source.value || source.getAttribute("value") || "0");
+5335:      const min = parseMoney(source.getAttribute("min") || "0");
+5348:      sync(parseMoney(source.value) - 1);
+5352:      sync(parseMoney(source.value) + 1);
+5356:      visible.value = toDecimal(parseMoney(source.value)).replace(".", ",");
+5361:      sync(parseMoney(visible.value));
+5367:        sync(parseMoney(visible.value));
+5474:      source.value = toDecimal(parseMoney(source.value));
+
+--- Busca fixa: formatBRL :: formatBRL ---
+ocorrencias=6
+5018:  function formatBRL(value) {
+5050:    visible.value = formatBRL(current);
+5064:      visible.value = formatBRL(next);
+5266:  function formatBRL(value) {
+5326:    visible.value = formatBRL(initialValue);
+5341:      visible.value = formatBRL(next);
+
+--- Busca fixa: addEventListener :: addEventListener ---
+ocorrencias=16
+5070:    minus.addEventListener("click", function () {
+5074:    plus.addEventListener("click", function () {
+5078:    visible.addEventListener("focus", function () {
+5083:    visible.addEventListener("blur", function () {
+5087:    visible.addEventListener("keydown", function (event) {
+5113:  document.addEventListener("DOMContentLoaded", applyMoneyControls);
+5116:  document.addEventListener("submit", function () {
+5347:    minus.addEventListener("click", function () {
+5351:    plus.addEventListener("click", function () {
+5355:    visible.addEventListener("focus", function () {
+5360:    visible.addEventListener("blur", function () {
+5364:    visible.addEventListener("keydown", function (event) {
+5460:      select.addEventListener("change", updateRecoveryLimitVisibility);
+5461:      select.addEventListener("input", updateRecoveryLimitVisibility);
+5465:  document.addEventListener("DOMContentLoaded", applyMoneyUI);
+5469:  document.addEventListener("submit", function () {
+
+--- Busca fixa: onclick :: onclick ---
+ocorrencias=5
+390:        <button type="button" onclick="resetSession()">Limpar sessão</button>
+426:    <button type="button" onclick="refreshState()">Atualizar</button>
+427:    <button type="button" onclick="startSimulatedSession()">Iniciar simulado</button>
+428:    <button type="button" onclick="stopReader()">Parar leitor</button>
+3287:<button onclick="startSession()">Iniciar sessão simulada</button>
+
+--- Busca fixa: DOMContentLoaded :: DOMContentLoaded ---
+ocorrencias=2
+5113:  document.addEventListener("DOMContentLoaded", applyMoneyControls);
+5465:  document.addEventListener("DOMContentLoaded", applyMoneyUI);
+
+--- Busca fixa: session/setup :: session/setup ---
+ocorrencias=11
+3367:    @app.route("/session/setup")
+3817:        if _rule.rule == "/session/setup":
+3826:            "/session/setup",
+3843:        if _rule.rule == "/session/setup" and "POST" in _rule.methods:
+3848:            "/session/setup",
+4110:        if _rule.rule == "/session/setup":
+4120:            "/session/setup",
+4807:                    if request.path == "/session/setup":
+4909:                    if request.path == "/session/setup":
+5154:                    if request.path == "/session/setup":
+5508:                    if request.path == "/session/setup":
+
+--- Busca fixa: BRL :: BRL ---
+ocorrencias=12
+3554:                "currency": "BRL",
+4929:# PTP-113B.3.1A.5.1A_CURRENCY_CONTROLS_BRL_V1
+5018:  function formatBRL(value) {
+5022:      currency: "BRL",
+5050:    visible.value = formatBRL(current);
+5064:      visible.value = formatBRL(next);
+5122:  window.PTP113B3151A_CURRENCY_CONTROLS_BRL = true;
+5133:    if "PTP113B3151A_CURRENCY_CONTROLS_BRL" in html:
+5266:  function formatBRL(value) {
+5269:      currency: "BRL",
+5326:    visible.value = formatBRL(initialValue);
+5341:      visible.value = formatBRL(next);
+
+--- Busca fixa: R$ :: R$ ---
+ocorrencias=13
+3694:    <div class="box"><div class="k">Consumo estimado 1h</div><div class="v" id="consumption">R$ 25,00</div></div>
+3720:    function brl(v) {{ return "R$ " + Number(v || 0).toFixed(2).replace(".", ","); }}
+3871:            "label": f"R$ {desired_profit:.2f}",
+3982:    <div class="box"><div class="k">Consumo estimado 1h</div><div class="v" id="consumption">R$ 25,00</div></div>
+3983:    <div class="box"><div class="k">Lucro desejado</div><div class="v" id="profitTarget">R$ 25,00</div></div>
+3984:    <div class="box"><div class="k">Saldo alvo</div><div class="v" id="targetBalance">R$ 125,00</div></div>
+4010:    function brl(v) { return "R$ " + Number(v || 0).toFixed(2).replace(".", ","); }
+5044:    minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+5056:    plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+5103:    help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+5320:    minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+5332:    plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+5380:    help.textContent = "Ajuste em R$ 1,00 por clique. Valor enviado ao contrato como decimal monetário.";
+
+--- Busca fixa: banca :: banca ---
+ocorrencias=5
+3591:                "banca_simulada",
+3766:                "banca_simulada": contract["bankroll"]["initial_bankroll"],
+4057:                "banca_simulada": contract["bankroll"]["initial_bankroll"],
+4856:        '    <div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, percentual da banca exposto, risco combinado e alerta.</div>',
+5294:    if (t.includes("banca simulada inicial")) return "initial_bankroll";
+
+--- Busca fixa: entrada :: entrada ---
+ocorrencias=34
+655:      document.getElementById("latestSignal").textContent = `Último sinal: ${latest.direction || "-"} / emitido ${fmtDateTime(latest.emitted_at || latest.created_at)} / entrada ${fmtPrice(latest.entry_price ?? latest.price)}`;
+3277:<label>Valor da entrada simulada</label>
+3329:            "horario_entrada",
+3340:            "horario_entrada": "HH:MM:SS",
+3341:            "preco_referencia": "preço ou zona de entrada",
+3343:            "alerta_cancelamento": "Cancelar se o preço fugir da zona antes do horário de entrada.",
+3474:                "description": "Aguarda retorno do preço para uma zona antes de sugerir entrada.",
+3582:                "horario_entrada",
+3593:                "entrada_simulada",
+3671:    <label>Valor da entrada simulada</label>
+3699:    <div class="note" id="cancelAlert">Cancelar se o preço fugir da zona antes do horário de entrada.</div>
+3757:                "horario_entrada": "HH:MM:SS",
+3758:                "preco_referencia": "preço ou zona de entrada",
+3768:                "entrada_simulada": contract["bankroll"]["current_entry"],
+3956:    <label>Valor da entrada simulada</label>
+4049:                "horario_entrada": "HH:MM:SS",
+4050:                "preco_referencia": "preço ou zona de entrada",
+4059:                "entrada_simulada": contract["bankroll"]["current_entry"],
+4063:                "cancelamento_especifico": "Será definido no sinal conforme ativo, preço, horário de entrada e estratégia.",
+4618:        reason = "Mão fixa: entrada fixa após perda."
+4639:        reason = "Modo não reconhecido tratado como entrada base."
+4673:        alert = "Risco simulado alto. Reduzir entrada, recuperação ou stop."
+4768:        '  <option value="MAO_FIXA">Mão fixa / entrada fixa</option>',
+4786:            '<label>Limite máximo de entrada simulada</label><input name="max_entry_limit" id="max_entry_limit" type="number" min="1" step="0.01" value="20.00"/><label>Perfil de risco</label>',
+4791:        preview = '<div class="box" id="recoveryPreview" data-ptp="PTP-113B.3.1A.5.1_RECOVERY_PREVIEW_V2"><div class="k">Gestão simulada de recuperação e risco</div><div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, risco combinado e alerta.</div></div>'
+4846:        '    <option value="MAO_FIXA">Mão fixa / entrada fixa</option>',
+4852:        '  <label>Limite máximo de entrada simulada</label>',
+4856:        '    <div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, percentual da banca exposto, risco combinado e alerta.</div>',
+4876:            '  <option value="MAO_FIXA">Mão fixa / entrada fixa</option>',
+5248:    "Valor da entrada simulada",
+5250:    "Limite máximo de entrada simulada"
+5295:    if (t.includes("valor da entrada simulada")) return "initial_entry";
+5297:    if (t.includes("limite máximo de entrada")) return "max_entry_limit";
+5414:      return normalizeText(label.textContent).includes("limite máximo de entrada");
+
+--- Busca fixa: meta :: meta ---
+ocorrencias=116
+100:  <meta charset="utf-8">
+101:  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+882:def _metadata_session_id(value: Any) -> str:
+883:    metadata = _metadata_from_json(value)
+884:    return _as_text(metadata.get("session_id") or metadata.get("mobile_session_id"))
+888:    return _as_text(point.get("session_id")) or _metadata_session_id(point.get("metadata_json"))
+1233:                INSERT INTO price_ticks (created_at, asset, price, source, metadata_json)
+1275:    metadata = {
+1292:                session_id, metadata_json, entry_price, support, resistance
+1309:                json.dumps(metadata, ensure_ascii=False),
+1660:            "metadata_json": item.get("metadata_json"),
+1759:                metadata_json TEXT
+1771:                metadata_json TEXT
+1791:def _metadata_from_json(value: Any) -> dict[str, Any]:
+1824:def _point_metadata(point: dict[str, Any]) -> dict[str, Any]:
+1825:    metadata = _metadata_from_json(point.get("metadata_json"))
+1826:    broker_window = metadata.get("broker_window")
+1828:        broker_metadata = broker_window.get("metadata")
+1829:        if isinstance(broker_metadata, dict):
+1830:            metadata["broker_window_valid"] = broker_metadata.get("broker_window_valid")
+1831:    return metadata
+1835:    metadata = _point_metadata(point)
+1839:        metadata.get("window_title"),
+1841:    broker_window = metadata.get("broker_window")
+1869:    metadata = _point_metadata(point)
+1870:    if metadata.get("broker_window_valid") is False:
+1882:def _no_result_price_metadata(target_dt: datetime) -> dict[str, Any]:
+1922:        return None, _no_result_price_metadata(target_dt)
+1948:    metadata: dict[str, Any] | None = None,
+1955:                created_at, asset, price, source, metadata_json
+1964:                json.dumps(metadata or {}, ensure_ascii=False),
+1994:            SELECT created_at, asset, price, source, metadata_json
+2008:                "metadata_json": row["metadata_json"],
+2024:    price, metadata = _history_price_near_target(
+2030:        return price, metadata
+2032:    sqlite_price, sqlite_metadata = _sqlite_price_tick_near_target(
+2037:        return sqlite_price, sqlite_metadata
+2038:    return None, metadata
+2091:            result_price, match_metadata = _result_price_near_target(
+2096:            metadata = _metadata_from_json(row["metadata_json"])
+2097:            metadata.update(match_metadata)
+2101:                metadata["result_price_search_status"] = WAITING_RESULT_STATUS
+2102:                metadata["unknown_after"] = unknown_deadline.isoformat()
+2108:                        metadata_json = ?
+2114:                        json.dumps(metadata, ensure_ascii=False),
+2122:            metadata["result_reason"] = result_reason
+2123:            metadata["unknown_after"] = unknown_deadline.isoformat()
+2125:                metadata["result_price_search_status"] = "UNKNOWN_AFTER_MARGIN"
+2136:                    metadata_json = ?
+2146:                    json.dumps(metadata, ensure_ascii=False),
+2177:            result_price, match_metadata = _result_price_near_target(
+2186:            metadata = _metadata_from_json(row["metadata_json"])
+2187:            metadata.update(match_metadata)
+2188:            metadata["backfilled_unknown"] = True
+2189:            metadata["result_reason"] = ""
+2199:                    metadata_json = ?
+2209:                    json.dumps(metadata, ensure_ascii=False),
+2346:        metadata = {
+2363:                session_id, metadata_json, entry_price, support, resistance
+2380:                json.dumps(metadata, ensure_ascii=False),
+2391:    metadata = _metadata_from_json(item.get("metadata_json"))
+2403:    item["result_price_timestamp"] = metadata.get("result_price_timestamp")
+2404:    item["result_price_delta_seconds"] = metadata.get("result_price_delta_seconds")
+2405:    item["result_price_source"] = metadata.get("result_price_source")
+2406:    item["session_id"] = item.get("session_id") or metadata.get("session_id")
+2407:    item["target_time"] = metadata.get("target_time")
+2408:    item["search_window_end"] = metadata.get("search_window_end")
+2409:    item["unknown_after"] = metadata.get("unknown_after")
+2410:    item["result_price_search_status"] = metadata.get("result_price_search_status")
+2411:    item["result_reason"] = item.get("result_reason") or metadata.get("result_reason") or ""
+2470:                   result_reason, session_id, source, metadata_json
+2513:                   result_reason, session_id, source, metadata_json
+2555:            "SELECT created_at, asset, metadata_json FROM price_ticks"
+2561:            metadata_session_id = _metadata_session_id(row["metadata_json"])
+2562:            if metadata_session_id and metadata_session_id != session_id:
+3238:<meta charset="utf-8">
+3239:<meta name="viewport" content="width=device-width, initial-scale=1">
+3519:        meta = catalog[strategy_key]
+3521:            signals_5m = meta["signals_5m_scalper"]
+3522:            signals_1h = meta["signals_1h_scalper"]
+
+--- Busca fixa: recuperação :: recuperação ---
+ocorrencias=6
+4614:        reason = "Sem recuperação."
+4673:        alert = "Risco simulado alto. Reduzir entrada, recuperação ou stop."
+4767:        '  <option value="NONE">Sem recuperação</option>',
+4791:        preview = '<div class="box" id="recoveryPreview" data-ptp="PTP-113B.3.1A.5.1_RECOVERY_PREVIEW_V2"><div class="k">Gestão simulada de recuperação e risco</div><div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, risco combinado e alerta.</div></div>'
+4845:        '    <option value="NONE">Sem recuperação</option>',
+4875:            '  <option value="NONE">Sem recuperação</option>',
+
+--- Busca fixa: martingale :: martingale ---
+ocorrencias=4
+4624:        reason = "Soros/anti-martingale simulado."
+4769:        '  <option value="SOROS">Soros / anti-martingale</option>',
+4847:        '    <option value="SOROS">Soros / anti-martingale</option>',
+4877:            '  <option value="SOROS">Soros / anti-martingale</option>',
+
+--- Busca fixa: SmartGale :: SmartGale ---
+ocorrencias=4
+4636:        reason = "SmartGale simulado com progressão limitada."
+4772:        '  <option value="SMARTGALE">SmartGale simulado</option>',
+4850:        '    <option value="SMARTGALE">SmartGale simulado</option>',
+4880:            '  <option value="SMARTGALE">SmartGale simulado</option>',
+
+===== AUDITAR — PADRÕES DE JS, BOTÕES E STEPPERS =====
+
+--- Busca regex: definições parseMoney :: (function|const|let|var)[[:space:]]+parseMoney|parseMoney[[:space:]]*= ---
+ocorrencias=2
+5005:  function parseMoney(value) {
+5253:  function parseMoney(value) {
+
+--- Busca regex: definições formatBRL :: (function|const|let|var)[[:space:]]+formatBRL|formatBRL[[:space:]]*= ---
+ocorrencias=2
+5018:  function formatBRL(value) {
+5266:  function formatBRL(value) {
+
+--- Busca regex: hooks click/input/change :: addEventListener\(['"](click|input|change)|onclick= ---
+ocorrencias=11
+390:        <button type="button" onclick="resetSession()">Limpar sessão</button>
+426:    <button type="button" onclick="refreshState()">Atualizar</button>
+427:    <button type="button" onclick="startSimulatedSession()">Iniciar simulado</button>
+428:    <button type="button" onclick="stopReader()">Parar leitor</button>
+3287:<button onclick="startSession()">Iniciar sessão simulada</button>
+5070:    minus.addEventListener("click", function () {
+5074:    plus.addEventListener("click", function () {
+5347:    minus.addEventListener("click", function () {
+5351:    plus.addEventListener("click", function () {
+5460:      select.addEventListener("change", updateRecoveryLimitVisibility);
+5461:      select.addEventListener("input", updateRecoveryLimitVisibility);
+
+--- Busca regex: stepper/increment/decrement :: money-stepper|stepper|increment|decrement|plus|minus|\+|− ---
+ocorrencias=111
+535:        return pad + ((max - value) / span) * (h - pad * 2 - 24);
+540:          return pad + ((parsed - minTime) / timeSpan) * (w - pad * 2);
+542:        return pad + index * ((w - pad * 2) / Math.max(1, points.length - 1));
+548:          return pad + ((clamped - minTime) / timeSpan) * (w - pad * 2);
+567:        ctx.fillText(`${label} ${fmtPrice(value)}`, pad + 4, Math.max(14, y - 4));
+952:        suffix += 1
+1185:        recent_prices = [round(previous_price + step * idx, 6) for idx in range(6)]
+1447:    match = re.search(r"-?\d+(?:[.,]\d+)?", text)
+1522:        text = text[:-1] + "+00:00"
+1580:    if re.search(r"cafe[ií]na\s+index", text, flags=re.IGNORECASE):
+1582:    if re.search(r"asia\s+composite\s+index", text, flags=re.IGNORECASE):
+1584:    if re.search(r"latam\s+index", text, flags=re.IGNORECASE):
+1887:            target_dt + timedelta(seconds=RESULT_PRICE_TOLERANCE_SECONDS)
+1930:            target_dt + timedelta(seconds=RESULT_PRICE_TOLERANCE_SECONDS)
+2079:            target_dt = created_at + timedelta(seconds=expiration_seconds)
+2099:            unknown_deadline = target_dt + timedelta(seconds=UNKNOWN_AFTER_EXPIRATION_SECONDS)
+2176:            target_dt = created_at + timedelta(seconds=expiration_seconds)
+2213:            updated += 1
+2266:            updated += 1
+2422:    expires_at = created_at + timedelta(seconds=expiration_seconds)
+2426:        item["remaining_seconds"] = int(max(0, remaining + 0.999))
+2454:    return (" WHERE " + " AND ".join(clauses), params) if clauses else ("", params)
+2482:    valid = win + loss + draw
+2528:    closed = win + loss + draw + unknown
+2570:        count += 1
+2647:        match = re.search(r"--loop-interval\s+(\d+)", str(process.get("command_line") or ""))
+2775:    env["PYTHONPATH"] = str(SRC_DIR) + os.pathsep + env.get("PYTHONPATH", "")
+3720:    function brl(v) {{ return "R$ " + Number(v || 0).toFixed(2).replace(".", ","); }}
+3729:      document.getElementById("signals5").innerText = s5 + (s5 === 1 ? " sinal" : " sinais");
+3730:      document.getElementById("signals1h").innerText = s1h + (s1h === 1 ? " sinal" : " sinais");
+3869:            "target_bankroll": round(current_bankroll + desired_profit, 2),
+4010:    function brl(v) { return "R$ " + Number(v || 0).toFixed(2).replace(".", ","); }
+4020:      document.getElementById("signals5").innerText = s5 + (s5 === 1 ? " sinal" : " sinais");
+4021:      document.getElementById("signals1h").innerText = s1h + (s1h === 1 ? " sinal" : " sinais");
+4025:      document.getElementById("targetBalance").innerText = brl(bankroll + desiredProfit);
+4232:    target_dt = emitted_at + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+4254:            "timestamp": (target_dt + timedelta(seconds=10)).isoformat(),
+4263:        raise AssertionError("Audit history +10s WIN test failed")
+4266:        raise AssertionError("Audit history +10s LOSS test failed")
+4286:            "timestamp": (target_dt + timedelta(seconds=11)).isoformat(),
+4314:    win_target = win_created + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+4319:                "timestamp": (win_target + timedelta(seconds=5)).isoformat(),
+4333:    sqlite_win_target = sqlite_win_created + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+4340:        created_at=(sqlite_win_target + timedelta(seconds=5)).isoformat(),
+4357:    sqlite_alta_target = sqlite_alta_created + timedelta(seconds=DEFAULT_EXPIRATION_SECONDS)
+4364:        created_at=(sqlite_alta_target + timedelta(seconds=5)).isoformat(),
+4391:    old_target = old_created + timedelta(seconds=60)
+4400:        created_at=(old_target + timedelta(seconds=5)).isoformat(),
+4617:        sequence = [entry for _ in range(max_steps + 1)]
+4649:        risk_score += 1
+4651:        risk_score += 1
+4653:        risk_score += 2
+4655:        risk_score += 1
+4657:        risk_score += 1
+4659:        risk_score += 1
+4661:        risk_score += 1
+4663:        risk_score += 2
+4777:        r"<select[^>]+name=[\"']recovery_mode[\"'][^>]*>.*?</select>",
+4792:        html = html.replace("</form>", preview + "\n</form>", 1)
+4884:            r"<select[^>]+name=[\"']recovery_mode[\"'][^>]*>.*?</select>",
+4892:        html = html.replace("</form>", block + "\n</form>", 1)
+4894:        html += "\n" + block
+4943:  .money-stepper {
+4951:  .money-stepper button {
+4962:  .money-stepper button:active {
+4966:  .money-stepper input {
+5038:    wrapper.className = "money-stepper";
+5041:    const minus = document.createElement("button");
+5042:    minus.type = "button";
+5043:    minus.textContent = "−";
+5044:    minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+5053:    const plus = document.createElement("button");
+5054:    plus.type = "button";
+5055:    plus.textContent = "+";
+5056:    plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+5070:    minus.addEventListener("click", function () {
+5074:    plus.addEventListener("click", function () {
+5075:      sync(parseMoney(source.value) + 1);
+5095:    wrapper.appendChild(minus);
+5097:    wrapper.appendChild(plus);
+5109:      document.querySelectorAll('[name="' + name + '"]').forEach(createMoneyControl);
+5126:    return css + "\n" + js
+5139:        return html.replace("</body>", assets + "\n</body>", 1)
+5141:    return html + "\n" + assets
+5188:  .money-stepper {
+5197:  .money-stepper button {
+5214:  .money-stepper input {
+5276:    return String(text || "").replace(/\\s+/g, " ").trim().toLowerCase();
+5287:      guard += 1;
+5314:    wrapper.className = "money-stepper";
+5317:    const minus = document.createElement("button");
+5318:    minus.type = "button";
+5319:    minus.textContent = "−";
+5320:    minus.setAttribute("aria-label", "Diminuir R$ 1,00");
+5327:    visible.setAttribute("aria-label", labelText + " em reais");
+5329:    const plus = document.createElement("button");
+5330:    plus.type = "button";
+5331:    plus.textContent = "+";
+5332:    plus.setAttribute("aria-label", "Aumentar R$ 1,00");
+5347:    minus.addEventListener("click", function () {
+5351:    plus.addEventListener("click", function () {
+5352:      sync(parseMoney(source.value) + 1);
+5372:    wrapper.appendChild(minus);
+5374:    wrapper.appendChild(plus);
+5408:      stepper: null,
+5418:      result.stepper = document.querySelector('[data-money-stepper-for="max_entry_limit"]');
+5419:      if (result.stepper && result.stepper.nextElementSibling && result.stepper.nextElementSibling.classList.contains("money-help")) {
+5420:        result.help = result.stepper.nextElementSibling;
+5434:    [elements.label, elements.stepper, elements.help].forEach(function (el) {
+5493:        return html.replace("</body>", assets + "\n</body>", 1)
+5495:    return html + "\n" + assets
+
+--- Busca regex: querySelector monetário :: querySelector(All)?\(.*(money|step|brl|bank|entry|target|recovery|banca|entrada|meta) ---
+ocorrencias=5
+5117:    document.querySelectorAll("[data-money-field='1']").forEach(function (source) {
+5401:    return document.querySelector('[name="recovery_mode"]');
+5407:      source: document.querySelector('[data-money-semantic-name="max_entry_limit"], [name="max_entry_limit"], #max_entry_limit'),
+5418:      result.stepper = document.querySelector('[data-money-stepper-for="max_entry_limit"]');
+5472:    document.querySelectorAll("[data-money-field-v2='1']").forEach(function (source) {
+
+--- Busca regex: dataset/step/value :: dataset|data-|step|value|parseFloat|Number\(|toLocaleString ---
+ocorrencias=345
+176:    .value {
+182:    .value.big { font-size: 36px; }
+332:      <div id="asset" class="value">-</div>
+337:      <div id="price" class="value big">-</div>
+342:      <div id="support" class="value">-</div>
+347:      <div id="resistance" class="value">-</div>
+352:      <div id="signal" class="value signal">AGUARDAR</div>
+364:      <div id="confidence" class="value">-</div>
+369:      <div id="age" class="value">-</div>
+374:      <div id="status" class="value">Parado</div>
+441:    function fmtPrice(value) {
+442:      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+443:      return nf.format(Number(value));
+452:    function fmtConfidence(value) {
+453:      if (value === null || value === undefined) return "-";
+454:      let number = Number(value);
+462:      const value = Math.max(0, Number(seconds) || 0);
+463:      if (value < 60) return `${Math.ceil(value)}s`;
+464:      return `${Math.floor(value / 60)}min ${Math.ceil(value % 60)}s`;
+467:    function fmtHitRate(value) {
+468:      const number = Number(value || 0);
+472:    function fmtDateTime(value) {
+473:      if (!value) return "-";
+474:      const date = new Date(value);
+480:      document.querySelectorAll("[data-expiration-label]").forEach(button => {
+481:        const active = button.dataset.expirationLabel === expirationLabel;
+516:      const values = points.map(p => Number(p.price_value)).filter(v => !Number.isNaN(v));
+517:      const signalValues = (signals || []).map(s => Number(s.entry_price ?? s.price)).filter(v => !Number.isNaN(v));
+518:      const supportValue = Number(support);
+519:      const resistanceValue = Number(resistance);
+520:      if (!Number.isNaN(supportValue)) values.push(supportValue);
+521:      if (!Number.isNaN(resistanceValue)) values.push(resistanceValue);
+522:      values.push(...signalValues);
+523:      const min = Math.min(...values);
+524:      const max = Math.max(...values);
+527:      const priceValues = points.map(p => Number(p.price_value)).filter(v => !Number.isNaN(v));
+534:      function yFor(value) {
+535:        return pad + ((max - value) / span) * (h - pad * 2 - 24);
+552:      function drawLevel(value, color, label) {
+553:        if (Number.isNaN(value)) return;
+554:        const y = yFor(value);
+567:        ctx.fillText(`${label} ${fmtPrice(value)}`, pad + 4, Math.max(14, y - 4));
+574:      priceValues.forEach((value, index) => {
+576:        const y = yFor(value);
+584:        const entry = Number(signal.entry_price ?? signal.price);
+618:        const delta = item.delta === null || item.delta === undefined ? "-" : Number(item.delta).toFixed(5);
+670:          : `${Number(diagnostics.average_interval_seconds).toFixed(1)}s`;
+681:      if ([30, 60].includes(Number(data.expiration_seconds))) {
+682:        expirationSeconds = Number(data.expiration_seconds);
+697:      signalEl.className = "value signal";
+701:      statusEl.className = "value";
+882:def _metadata_session_id(value: Any) -> str:
+883:    metadata = _metadata_from_json(value)
+1030:            "price_value": None,
+1051:def _as_bool(value: Any, default: bool = False) -> bool:
+1052:    if isinstance(value, bool):
+1053:        return value
+1054:    if value is None:
+1056:    return str(value).strip().lower() in {"1", "true", "yes", "sim", "on"}
+1059:def _number(value: Any, default: float) -> float:
+1060:    parsed = _parse_float(value)
+1064:def _int_number(value: Any, default: int) -> int:
+1066:        return int(_number(value, float(default)))
+1072:    value = payload.get(name)
+1073:    return value if isinstance(value, dict) else {}
+1076:def _safe_choice(value: Any, allowed: set[str], default: str) -> str:
+1077:    text = str(value or "").strip().upper()
+1155:            "max_recovery_steps": 0 if not recovery_enabled else max(0, min(5, _int_number(recovery.get("max_recovery_steps"), 0))),
+1156:            "current_recovery_step": 0,
+1175:    recent_values = market.get("recent_prices")
+1177:    if isinstance(recent_values, list):
+1178:        for item in recent_values:
+1184:        step = (current_price - previous_price) / 5 or 0.15
+1185:        recent_prices = [round(previous_price + step * idx, 6) for idx in range(6)]
+1211:            "price": _format_price_value(price),
+1212:            "price_value": _format_price_value(price),
+1239:                    float(point["price_value"]),
+1299:                _format_price_value(price),
+1310:                _format_price_value(price),
+1343:    entry_value = float(contract.get("bankroll", {}).get("current_entry", 5.0))
+1349:        entry_value=entry_value,
+1396:            "price": _format_price_value(current_price),
+1397:            "price_value": _format_price_value(current_price),
+1437:def _parse_float(value: Any) -> float | None:
+1438:    if value is None:
+1440:    if isinstance(value, (int, float)):
+1441:        return float(value)
+1443:    text = str(value).strip()
+1466:def _is_valid_price(value: float | None, asset: str | None = None) -> bool:
+1467:    if value is None or value <= 0:
+1471:    if int(round(value)) in {1, 3, 24, 25, 52, 85, 2026}:
+1475:    if value < min_price:
+1477:    if ("cafe" in asset_text or "asia composite" in asset_text) and 1900 <= value <= 2100:
+1493:def _format_price_value(value: float | None) -> float | None:
+1494:    if value is None:
+1496:    return round(float(value), 6)
+1499:def _normalize_expiration_seconds(value: Any = None) -> int:
+1501:        seconds = int(str(value if value is not None else DEFAULT_EXPIRATION_SECONDS).strip())
+1509:def _stored_expiration_seconds(value: Any = None) -> int:
+1511:        seconds = int(str(value if value is not None else DEFAULT_EXPIRATION_SECONDS).strip())
+1517:def _parse_dt(value: Any) -> datetime | None:
+1518:    if not value:
+1520:    text = str(value).strip()
+1529:def _dt_timestamp(value: datetime) -> float:
+1530:    if value.tzinfo is None:
+1531:        value = value.replace(tzinfo=_now().tzinfo)
+1532:    return value.timestamp()
+1555:def _as_text(value: Any) -> str:
+1556:    if value is None:
+1558:    return str(value).strip()
+1566:            for child in node.values():
+1589:def _extract_value(data: Any, keys: set[str]) -> Any:
+1592:        for key, value in data.items():
+1594:                return value
+1595:        for value in data.values():
+1596:            found = _extract_value(value, keys)
+1601:            found = _extract_value(item, keys)
+1608:    return _parse_dt(_extract_value(data, {"timestamp", "created_at", "captured_at", "updated_at", "time"}))
+1643:        price = _parse_float(item.get("price_value"))
+1653:            "price": _format_price_value(price),
+
+===== AUDITAR — CONTAGEM DE RISCO =====
+parseMoney_definicoes=2
+formatBRL_definicoes=2
+money_stepper_ocorrencias=10
+DOMContentLoaded_ocorrencias=2
+addEventListener_ocorrencias=16
+onclick_ocorrencias=5
+BRL_ocorrencias=12
