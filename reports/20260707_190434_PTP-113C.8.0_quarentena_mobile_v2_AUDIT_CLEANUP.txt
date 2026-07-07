@@ -1,0 +1,388 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP 113 C.8.0
+Nome curto: quarentena_mobile_v2
+Data: 2026-07-07 19:04:34 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Modo: 100% simulado
+Ação: saneamento conservador, quarentena e preparação Mobile V2
+Código novo Mobile V2: NÃO
+
+===== TRAVAS OPERACIONAIS =====
+simulation_only=true
+orders_enabled=false
+real_money_enabled=false
+auto_click_enabled=false
+broker_login_enabled=false
+credentials_allowed=false
+Nenhuma ordem real será criada.
+Nenhum saldo real será usado.
+Nenhum login real será usado.
+Nenhum auto-click será ativado.
+
+===== INVESTIGAR — ESTADO GIT =====
+
+===== git status inicial =====
+$ git status --short
+ M reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+?? reports/20260707_190434_PTP-113C.8.0_quarentena_mobile_v2_AUDIT_CLEANUP.txt
+STATUS: 0
+
+===== últimos commits =====
+$ git log -8 --oneline
+8b72aff PTP 113 C.7.7A auditar start reader
+a3cdbbe PTP 113 C.7.7 validacao controlada observador ativo
+a06e7c0 PTP 113 C.7.6B.3 registrar validacao mobile pos rollback
+d33735e PTP 113 C.7.6B.2 rollback mobile server pre C75
+129df10 PTP 113 C.7.6B.1 recovery sintaxe mobile server
+1fe269a PTP 113 C.7.6B correcao cirurgica sintaxe dedup C75
+d05841b PTP 113 C.7.5 estabilizar reader mobile polling
+99b915d PTP 113 C.7.4 fix sqlite reader lock
+STATUS: 0
+
+===== INVESTIGAR — ARQUIVOS-CHAVE =====
+OK: PROJECT_STATE.md encontrado
+OK: predixai_context.json encontrado
+OK: scripts/predixai_trader_mobile_server.py encontrado
+Linhas: 9676
+
+===== INVESTIGAR — PAPERTRADER LEGADO =====
+tests/test_trader_basic.py encontrado
+10:from predixai.trader.paper_trade import PaperTrader
+83:    pt = PaperTrader(ev)
+WARN: teste legado referencia PaperTrader.
+Observação: PaperTrader é legado/inexistente segundo checkpoint; não será corrigido nesta etapa.
+
+===== INVESTIGAR — INVENTÁRIO DE CANDIDATOS =====
+Candidatos backup:
+./backups/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling/predixai_trader_signals.db.bak
+./backups/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling/predixai_trader_mobile_server.py.bak
+./backups/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling/main.py.bak
+./backups/20260707_124136_PTP-113C.7.6B.2_rollback_mobile_server_pre_C75/predixai_trader_mobile_server.py.bak
+./backups/20260707_124136_PTP-113C.7.6B.2_rollback_mobile_server_pre_C75/main.py.bak
+./backups/20260707_091055_PTP-113B.3.1B.5.2.2_corrigir_marcadores_visiveis_mobile/predixai_trader_mobile_server.py.bak
+./backups/ptp112h1_20260705_124322/ptp112h_validate_paper_trade_session.py.bak
+./backups/ptp112h1_20260705_124322/paper_trade.py.bak
+./backups/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual/predixai_trader_mobile_server.py.bak
+./backups/20260707_101816_PTP-113C.3_abertura_simulada_operacao/predixai_trader_mobile_server.py.bak
+./backups/20260707_102122_PTP-113C.4_fechamento_simulado_win_loss_draw/predixai_trader_mobile_server.py.bak
+./backups/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75/predixai_trader_mobile_server.py.bak
+./backups/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75/sqlite_resilience.py.bak
+./backups/20260707_123306_PTP-113C.7.6B_correcao_cirurgica_sintaxe_dedup_C75/main.py.bak
+./backups/ptp/PTP-113/PTP-113B/20260706_233221/predixai_trader_mobile_server.py.bak
+./backups/20260707_103509_PTP-113C.6_historico_operacional/predixai_trader_mobile_server.py.bak
+./backups/20260707_090108_PTP-113B.3.1B.5.2.1_recovery_saneamento_visual_mobile/predixai_trader_mobile_server.py.bak
+./backups/ptp112h_20260705_123515/session.py.bak
+./backups/ptp112h_20260705_123515/paper_trade.py.bak
+./backups/20260707_123814_PTP-113C.7.6B.1_recovery_sintaxe_mobile_server/predixai_trader_mobile_server.py.bak
+./backups/20260707_123814_PTP-113C.7.6B.1_recovery_sintaxe_mobile_server/main.py.bak
+./backups/20260707_101039_PTP-113C.2_modelo_sinal_atual/predixai_trader_mobile_server.py.bak
+./backups/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente/predixai_trader_mobile_server.py.bak
+./backups/20260707_112913_PTP-113C.7.4_corrigir_lock_sqlite_reader/predixai_trader_mobile_server.py.bak
+./backups/20260707_104059_PTP-113C.7_validacao_mobile_visual/predixai_trader_mobile_server.py.bak
+./backups/20260707_102431_PTP-113C.5_atualizacao_banca_simulada/predixai_trader_mobile_server.py.bak
+
+Candidatos cache/runtime:
+./tools/openclaw/__pycache__
+./tools/openclaw/__pycache__/openclaw_runner.cpython-312.pyc
+./predixai/__pycache__
+./predixai/__pycache__/__init__.cpython-312.pyc
+./src/predixai/security/__pycache__
+./src/predixai/security/__pycache__/__init__.cpython-312.pyc
+./src/predixai/__pycache__
+./src/predixai/__pycache__/init.cpython-312.pyc
+./src/predixai/__pycache__/__init__.cpython-312.pyc
+./src/predixai/__pycache__/main.cpython-312.pyc
+./src/predixai/vision/__pycache__
+./src/predixai/vision/__pycache__/roi_manager.cpython-312.pyc
+./src/predixai/vision/__pycache__/vision_engine.cpython-312.pyc
+./src/predixai/vision/__pycache__/image_loader_validator.cpython-312.pyc
+./src/predixai/vision/__pycache__/frame_storage.cpython-312.pyc
+./src/predixai/vision/__pycache__/image_loader.cpython-312.pyc
+./src/predixai/vision/__pycache__/frame_validator.cpython-312.pyc
+./src/predixai/vision/__pycache__/roi_crop.cpython-312.pyc
+./src/predixai/vision/__pycache__/roi_crop_engine.cpython-312.pyc
+./src/predixai/vision/__pycache__/roi_crop_storage.cpython-312.pyc
+./src/predixai/vision/__pycache__/roi_crop_exporter.cpython-312.pyc
+./src/predixai/vision/__pycache__/roi_registry.cpython-312.pyc
+./src/predixai/vision/__pycache__/init.cpython-312.pyc
+./src/predixai/vision/__pycache__/roi_crop_validator.cpython-312.pyc
+./src/predixai/vision/__pycache__/image_buffer.cpython-312.pyc
+./src/predixai/vision/__pycache__/roi_validator.cpython-312.pyc
+./src/predixai/vision/__pycache__/frame.cpython-312.pyc
+./src/predixai/vision/__pycache__/__init__.cpython-312.pyc
+./src/predixai/vision/__pycache__/roi.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__
+./src/predixai/vision/visual/__pycache__/market_element.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_classifier_registry.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_entity_registry_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/screen_object.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_context.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_analysis_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_registry.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_context_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/screen_element_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/intelligence_context_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/visual_scene_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/screen_layout_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_analyzer.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/intelligence_snapshot.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_hypothesis_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_scene.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_structure.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_structure_validator.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/signal.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/signal_registry.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_element_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/visual_snapshot_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_scene.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_registry.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_label_mapper.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_hypothesis_registry.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_registry_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_scene.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/signal_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/time_region_mapper.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_matcher.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/structured_ocr_result.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/region_text.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/signal_storage.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_scene_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/ocr_parser.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/visual_scene_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/screen_object_registry.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/price_region_mapper.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/visual_snapshot.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/init.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_analysis_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_hypothesis.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/signal_scorer.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_label.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/hypothesis_evaluator.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/visual_scene.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_analysis_validator.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/intelligence_context.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/signal_score.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_element.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/strategy_readiness_snapshot_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_scene_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/intelligence_snapshot_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_entity_storage.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_validator.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_analysis.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/intelligence_context_validator.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/ocr_text_block.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/region_text_mapper.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_classifier.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_entity_validator.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_element_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/intelligence_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/signal_validator.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/strategy_readiness_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_detector.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/__init__.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_structure_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_entity_registry.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/screen_element.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/semantic_scene_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/structured_ocr_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/strategy_readiness_snapshot.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_entity.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_structure_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_registry_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/visual_benchmark.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/market_entity_builder.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/hypothesis_score.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/screen_layout.cpython-312.pyc
+./src/predixai/vision/visual/__pycache__/pattern_storage.cpython-312.pyc
+./src/predixai/vision/regions/__pycache__
+./src/predixai/vision/regions/__pycache__/region_registry.cpython-312.pyc
+./src/predixai/vision/regions/__pycache__/region_validator.cpython-312.pyc
+./src/predixai/vision/regions/__pycache__/region_manager.cpython-312.pyc
+./src/predixai/vision/regions/__pycache__/region.cpython-312.pyc
+./src/predixai/vision/regions/__pycache__/profile_binding.cpython-312.pyc
+./src/predixai/vision/regions/__pycache__/__init__.cpython-312.pyc
+./src/predixai/auditor/__pycache__
+./src/predixai/auditor/__pycache__/__init__.cpython-312.pyc
+./src/predixai/learning/__pycache__
+./src/predixai/learning/__pycache__/__init__.cpython-312.pyc
+./src/predixai/capture/__pycache__
+./src/predixai/capture/__pycache__/capture_session.cpython-312.pyc
+./src/predixai/capture/__pycache__/snapshot_metadata.cpython-312.pyc
+./src/predixai/capture/__pycache__/capture_engine.cpython-312.pyc
+./src/predixai/capture/__pycache__/init.cpython-312.pyc
+./src/predixai/capture/__pycache__/capture_snapshot.cpython-312.pyc
+./src/predixai/capture/__pycache__/__init__.cpython-312.pyc
+./src/predixai/capture/__pycache__/capture_storage.cpython-312.pyc
+./src/predixai/capture/__pycache__/capture_validator.cpython-312.pyc
+./src/predixai/live/__pycache__
+./src/predixai/live/__pycache__/live_calibration.cpython-312.pyc
+./src/predixai/live/__pycache__/candle_statistics.cpython-312.pyc
+./src/predixai/live/__pycache__/field_definition.cpython-312.pyc
+./src/predixai/live/__pycache__/live_evidence_package.cpython-312.pyc
+./src/predixai/live/__pycache__/live_session_controller.cpython-312.pyc
+./src/predixai/live/__pycache__/broker_window_state.cpython-312.pyc
+./src/predixai/live/__pycache__/field_extractor.cpython-312.pyc
+./src/predixai/live/__pycache__/live_validation_report.cpython-312.pyc
+./src/predixai/live/__pycache__/live_capture_tick.cpython-312.pyc
+./src/predixai/live/__pycache__/candle_snapshot.cpython-312.pyc
+./src/predixai/live/__pycache__/broker_window_detector.cpython-312.pyc
+./src/predixai/live/__pycache__/live_candle_benchmark.cpython-312.pyc
+./src/predixai/live/__pycache__/live_validation_benchmark.cpython-312.pyc
+./src/predixai/live/__pycache__/live_capture_scheduler.cpython-312.pyc
+./src/predixai/live/__pycache__/candle_snapshot_builder.cpython-312.pyc
+./src/predixai/live/__pycache__/live_session_state.cpython-312.pyc
+./src/predixai/live/__pycache__/field_locator.cpython-312.pyc
+./src/predixai/live/__pycache__/live_market_reader.cpython-312.pyc
+./src/predixai/live/__pycache__/live_market_reading.cpython-312.pyc
+./src/predixai/live/__pycache__/live_session.cpython-312.pyc
+./src/predixai/live/__pycache__/__init__.cpython-312.pyc
+./src/predixai/live/__pycache__/candle_statistics_builder.cpython-312.pyc
+
+===== PLANEJAR — REGRA CONSERVADORA =====
+1. Arquivos rastreados pelo Git NÃO serão movidos automaticamente.
+2. Arquivos não rastreados de cache/runtime/backup serão movidos para quarentena.
+3. Nenhum código novo do Mobile V2 será criado.
+4. Nenhuma lógica de sinal/resultado/saldo/histórico será alterada.
+5. O objetivo é reduzir sujeira operacional e registrar a base para C.8.1.
+
+===== CONSTRUIR — HARDENING DO .gitignore =====
+OK: .gitignore revisado com padrões de runtime/cache.
+
+===== CONSTRUIR — QUARENTENA SEGURA DE ARQUIVOS =====
+Arquivos/diretórios movidos para quarentena: 4043
+Itens rastreados preservados e apenas registrados: 0
+Itens ausentes ignorados: 0
+Quarentena local: backups/quarantine/20260707_190434_PTP-113C.8.0_quarentena_mobile_v2
+
+===== VALIDAR — COMPILAÇÃO E DIFF =====
+
+===== py_compile mobile server =====
+$ python3 -m py_compile scripts/predixai_trader_mobile_server.py
+scripts/predixai_trader_mobile_server.py:8918: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+scripts/predixai_trader_mobile_server.py:9179: SyntaxWarning: invalid escape sequence '\d'
+  return """
+STATUS: 0
+
+===== git diff --check =====
+$ git diff --check
+
+STATUS: 0
+
+===== VALIDAR — TRAVAS SIMULADAS NO CÓDIGO =====
+1268:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+1269:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+1270:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+1271:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+1272:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+1273:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+1417:        "simulation_only=" + d.simulation_only +
+1418:        " | orders_enabled=" + d.orders_enabled +
+1419:        " | real_money_enabled=" + d.real_money_enabled +
+1420:        " | auto_click_enabled=" + d.auto_click_enabled +
+1421:        " | broker_login_enabled=" + d.broker_login_enabled +
+1422:        " | credentials_allowed=" + d.credentials_allowed
+3035:      data.simulation_only === true &&
+3036:      data.orders_enabled === false &&
+3037:      data.real_money_enabled === false &&
+3038:      data.auto_click_enabled === false &&
+3039:      data.broker_login_enabled === false &&
+3040:      data.credentials_allowed === false;
+3076:        `simulation_only=${text(data.simulation_only)} · orders_enabled=${text(data.orders_enabled)} · real_money_enabled=${text(data.real_money_enabled)}`,
+3274:        "orders_enabled": False,
+3472:            "orders_enabled": False,
+3653:            "simulation_only": True,
+3655:            "orders_enabled": False,
+3656:            "auto_click_enabled": False,
+3657:            "real_money_enabled": False,
+3681:                            "simulation_only": True,
+3682:                            "orders_enabled": False,
+3714:        "simulation_only": True,
+3716:        "orders_enabled": False,
+3717:        "auto_click_enabled": False,
+3718:        "real_money_enabled": False,
+3765:            "simulation_only": True,
+3766:            "orders_enabled": False,
+3798:        "orders_enabled": False,
+3799:        "auto_click_enabled": False,
+3800:        "real_money_enabled": False,
+3801:        "broker_login_enabled": False,
+3802:        "simulation_only": True,
+3840:            "simulation_only": True,
+3841:            "orders_enabled": False,
+3842:            "auto_click_enabled": False,
+3843:            "real_money_enabled": False,
+3854:        "simulation_only": True,
+3855:        "orders_enabled": False,
+3856:        "auto_click_enabled": False,
+3857:        "real_money_enabled": False,
+4786:            "orders_enabled": False,
+5723:        "simulation_only": bool(pick("simulation_only", True)),
+5724:        "orders_enabled": bool(pick("orders_enabled", False)),
+5725:        "real_money_enabled": bool(pick("real_money_enabled", False)),
+5726:        "auto_click_enabled": bool(pick("auto_click_enabled", False)),
+5727:        "broker_login_enabled": bool(pick("broker_login_enabled", False)),
+5728:        "credentials_allowed": bool(pick("credentials_allowed", False)),
+5781:        safety.get("simulation_only") is not True
+5782:        or safety.get("orders_enabled") is not False
+5783:        or safety.get("real_money_enabled") is not False
+5784:        or safety.get("auto_click_enabled") is not False
+5785:        or safety.get("broker_login_enabled") is not False
+5786:        or safety.get("credentials_allowed") is not False
+6000:        safety.get("simulation_only") is True
+6001:        and safety.get("orders_enabled") is False
+6002:        and safety.get("real_money_enabled") is False
+6003:        and safety.get("auto_click_enabled") is False
+6004:        and safety.get("broker_login_enabled") is False
+6005:        and safety.get("credentials_allowed") is False
+6136:        "simulation_only": True,
+6137:        "orders_enabled": False,
+6138:        "real_money_enabled": False,
+6139:        "auto_click_enabled": False,
+6140:        "broker_login_enabled": False,
+6141:        "credentials_allowed": False,
+6229:        "simulation_only": True,
+6230:        "orders_enabled": False,
+6231:        "real_money_enabled": False,
+6232:        "auto_click_enabled": False,
+6233:        "broker_login_enabled": False,
+6234:        "credentials_allowed": False,
+6403:        "simulation_only": True,
+6404:        "orders_enabled": False,
+6405:        "real_money_enabled": False,
+OK: trava localizada: simulation_only
+OK: trava localizada: orders_enabled
+OK: trava localizada: real_money_enabled
+OK: trava localizada: auto_click_enabled
+OK: trava localizada: broker_login_enabled
+OK: trava localizada: credentials_allowed
+
+===== VALIDAR — ENDPOINTS LOCAIS SE SERVIDOR ESTIVER ATIVO =====
+WARN: /mobile não respondeu agora. Pode ser servidor desligado.
+WARN: /api/mobile/state não respondeu agora. Pode ser servidor desligado.
+
+===== REGISTRAR — MARKDOWN HISTÓRICO =====
+Markdown criado: docs/history/ptp/PTP-113/PTP-113C/20260707_190434_PTP-113C.8.0_quarentena_mobile_v2_AUDIT_CLEANUP.md
+
+===== REGISTRAR — ÍNDICE DE RELATÓRIOS =====
+Índice atualizado: docs/reports_index.md
+
+===== PUBLICAR — SANITY CHECK ANTES DO GIT ADD =====
+Sanity check concluído.
+
+===== RESULTADO FINAL DO RELATÓRIO =====
+Resultado geral: WARN_PASS
+Warnings: 3
+Falhas: 0
+Relatório: reports/20260707_190434_PTP-113C.8.0_quarentena_mobile_v2_AUDIT_CLEANUP.txt
+Markdown: docs/history/ptp/PTP-113/PTP-113C/20260707_190434_PTP-113C.8.0_quarentena_mobile_v2_AUDIT_CLEANUP.md
+Manifesto: docs/history/ptp/PTP-113/PTP-113C/20260707_190434_PTP-113C.8.0_quarentena_mobile_v2_quarantine_manifest.txt
+Observação: relatório fechado antes de commit/push conforme regra do projeto.

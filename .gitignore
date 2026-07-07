@@ -238,3 +238,21 @@ logs/live_collector_*.log
 openclaw/
 data/predixai_trader.sqlite3
 data/predixai_trader.sqlite3-*
+
+# PTP 113 C.8.0 — runtime/cache safety
+*.pyc
+*.pyo
+*.env
+*.sqlite-wal
+*.sqlite-shm
+*.db-wal
+*.db-shm
+data/runtime/*.json
+data/runtime/*.db
+data/runtime/*.db-wal
+data/runtime/*.db-shm
+data/runtime/*.pid
+data/runtime/*.lock
+data/runtime/*.log
+logs/
+backups/quarantine/
