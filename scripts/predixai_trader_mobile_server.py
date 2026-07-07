@@ -5093,6 +5093,321 @@ def _build_state(
     }
 
 
+
+# ============================================================
+# PTP113C2_MODELO_SINAL_ATUAL_START
+# PTP 113 C.2 — Modelo do Sinal Atual
+# Objetivo: impedir que histórico antigo vire sinal operacional.
+# ============================================================
+
+def _ptp113c2_latest_item(value):
+    if isinstance(value, list) and value:
+        return value[-1]
+    return None
+
+
+def _ptp113c2_first_dict(*values):
+    for value in values:
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def _ptp113c2_float(value):
+    try:
+        if value is None or value == "":
+            return None
+        return float(value)
+    except Exception:
+        return None
+
+
+def _ptp113c2_bool(value):
+    return bool(value is True or str(value).strip().lower() in {"true", "1", "yes", "sim", "on"})
+
+
+def _ptp113c2_text(value, fallback=""):
+    if value is None:
+        return fallback
+    text = str(value).strip()
+    return text if text else fallback
+
+
+def _ptp113c2_last_age_seconds(state):
+    diagnostics = state.get("price_diagnostics") if isinstance(state, dict) else {}
+    nested_state = state.get("state") if isinstance(state, dict) else {}
+
+    for source in (diagnostics, nested_state, state):
+        if not isinstance(source, dict):
+            continue
+        for key in ("last_price_age_seconds", "last_reading_age_seconds", "age_seconds"):
+            value = source.get(key)
+            try:
+                if value is not None:
+                    return int(float(value))
+            except Exception:
+                pass
+
+    return None
+
+
+def _ptp113c2_reader_is_active(state):
+    if not isinstance(state, dict):
+        return False
+
+    if _ptp113c2_bool(state.get("reader_running")):
+        return True
+
+    try:
+        if int(state.get("active_reader_count") or 0) > 0:
+            return True
+    except Exception:
+        pass
+
+    readers = state.get("active_readers")
+    if isinstance(readers, list) and readers:
+        return True
+
+    return False
+
+
+def _ptp113c2_max_current_age_seconds(state):
+    interval = state.get("reader_interval") or state.get("signal_analysis_interval") or 3
+    try:
+        interval = int(float(interval))
+    except Exception:
+        interval = 3
+
+    return max(15, interval * 4)
+
+
+def _ptp113c2_latest_history_point(state):
+    if not isinstance(state, dict):
+        return {}
+
+    for key in ("price_history", "history", "price_ticks", "ticks"):
+        item = _ptp113c2_latest_item(state.get(key))
+        if isinstance(item, dict):
+            return item
+
+    return {}
+
+
+def _ptp113c2_latest_signal(state):
+    if not isinstance(state, dict):
+        return {}
+
+    mobile_session = state.get("mobile_session")
+    if isinstance(mobile_session, dict):
+        mobile_signal = mobile_session.get("mobile_signal")
+        if isinstance(mobile_signal, dict):
+            return mobile_signal
+
+    stats = state.get("signal_stats")
+    if isinstance(stats, dict) and isinstance(stats.get("latest_signal"), dict):
+        return stats.get("latest_signal")
+
+    signals = state.get("signals")
+    if isinstance(signals, list) and signals and isinstance(signals[0], dict):
+        return signals[0]
+
+    nested_state = state.get("state")
+    if isinstance(nested_state, dict):
+        return nested_state
+
+    return {}
+
+
+def _ptp113c2_contract(state):
+    mobile_session = state.get("mobile_session") if isinstance(state, dict) else {}
+    if isinstance(mobile_session, dict):
+        contract = mobile_session.get("contract")
+        if isinstance(contract, dict):
+            return contract
+    return {}
+
+
+def _ptp113c2_strategy_label(state):
+    contract = _ptp113c2_contract(state)
+    strategy = contract.get("strategy")
+    if isinstance(strategy, dict):
+        return _ptp113c2_text(strategy.get("label") or strategy.get("key"), "Estratégia simulada")
+    return "Estratégia simulada"
+
+
+def _ptp113c2_direction(signal, nested_state):
+    raw = (
+        signal.get("decision")
+        or signal.get("direction")
+        or nested_state.get("direction")
+        or nested_state.get("signal")
+        or ""
+    )
+    raw = str(raw).upper()
+
+    if "ALTA" in raw or "CALL" in raw or "COMPRA" in raw:
+        return "CALL"
+    if "BAIXA" in raw or "PUT" in raw or "VENDA" in raw:
+        return "PUT"
+    return "NEUTRO"
+
+
+def _ptp113c2_safety(state):
+    contract = _ptp113c2_contract(state)
+    security = contract.get("security") if isinstance(contract.get("security"), dict) else {}
+
+    def pick(key, default):
+        if key in security:
+            return security.get(key)
+        if key in contract:
+            return contract.get(key)
+        return state.get(key, default)
+
+    return {
+        "simulation_only": bool(pick("simulation_only", True)),
+        "orders_enabled": bool(pick("orders_enabled", False)),
+        "real_money_enabled": bool(pick("real_money_enabled", False)),
+        "auto_click_enabled": bool(pick("auto_click_enabled", False)),
+        "broker_login_enabled": bool(pick("broker_login_enabled", False)),
+        "credentials_allowed": bool(pick("credentials_allowed", False)),
+    }
+
+
+def _ptp113c2_current_signal_model(state):
+    """
+    Modelo normalizado do sinal atual.
+
+    Este modelo não abre operação, não calcula resultado e não altera saldo.
+    Ele apenas define se existe leitura atual válida para uma etapa futura.
+    """
+    if not isinstance(state, dict):
+        return {
+            "status": "aguardando_leitura",
+            "operation_allowed": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": "Estado inválido.",
+            "uses_historical_data_as_current": False,
+            "source": "PTP113C2_MODELO_SINAL_ATUAL",
+        }
+
+    nested_state = state.get("state") if isinstance(state.get("state"), dict) else {}
+    history_point = _ptp113c2_latest_history_point(state)
+    signal = _ptp113c2_latest_signal(state)
+
+    reader_active = _ptp113c2_reader_is_active(state)
+    age_seconds = _ptp113c2_last_age_seconds(state)
+    max_age = _ptp113c2_max_current_age_seconds(state)
+
+    price = _ptp113c2_float(
+        nested_state.get("price")
+        if nested_state.get("price") is not None
+        else history_point.get("price_value", history_point.get("price"))
+    )
+
+    asset = _ptp113c2_text(
+        nested_state.get("asset")
+        or history_point.get("asset")
+        or signal.get("asset"),
+        "Sem ativo atual",
+    )
+
+    has_recent_reading = (
+        reader_active
+        and age_seconds is not None
+        and age_seconds <= max_age
+        and price is not None
+    )
+
+    safety = _ptp113c2_safety(state)
+
+    blocked_by_safety = (
+        safety.get("simulation_only") is not True
+        or safety.get("orders_enabled") is not False
+        or safety.get("real_money_enabled") is not False
+        or safety.get("auto_click_enabled") is not False
+        or safety.get("broker_login_enabled") is not False
+        or safety.get("credentials_allowed") is not False
+    )
+
+    if blocked_by_safety:
+        status = "bloqueado_seguranca"
+        reason = "Travas simuladas inconsistentes. Avanço bloqueado."
+        operation_allowed = False
+    elif not reader_active:
+        status = "aguardando_leitura"
+        reason = "Observador desligado. Histórico não pode virar sinal atual."
+        operation_allowed = False
+    elif age_seconds is None:
+        status = "aguardando_leitura_valida"
+        reason = "Observador ativo, mas sem idade confiável da última leitura."
+        operation_allowed = False
+    elif not has_recent_reading:
+        status = "aguardando_leitura_valida"
+        reason = "Leitura ausente ou antiga demais para abrir operação simulada."
+        operation_allowed = False
+    else:
+        status = "sinal_pronto"
+        reason = "Leitura atual válida disponível para etapa futura de abertura simulada."
+        operation_allowed = True
+
+    direction = _ptp113c2_direction(signal, nested_state)
+
+    confidence = signal.get("confidence", nested_state.get("confidence"))
+    try:
+        confidence = float(confidence) if confidence is not None else None
+    except Exception:
+        confidence = None
+
+    model = {
+        "version": "PTP 113 C.2",
+        "status": status,
+        "operation_allowed": bool(operation_allowed),
+        "result_allowed": False,
+        "balance_update_allowed": False,
+        "uses_historical_data_as_current": False,
+        "reader_running": bool(reader_active),
+        "last_price_age_seconds": age_seconds,
+        "max_current_age_seconds": max_age,
+        "asset": asset if operation_allowed else "Sem leitura ativa",
+        "reference_price": price if operation_allowed else None,
+        "reference_timestamp": history_point.get("timestamp") if operation_allowed else None,
+        "direction": direction if operation_allowed else "NEUTRO",
+        "confidence": confidence if operation_allowed else None,
+        "reason": reason,
+        "strategy": _ptp113c2_strategy_label(state),
+        "expiration_seconds": state.get("expiration_seconds"),
+        "source": "PTP113C2_MODELO_SINAL_ATUAL",
+        "next_step": "PTP 113 C.3 — Abertura Simulada da Operação" if operation_allowed else "Aguardar leitura atual válida.",
+        "safety": safety,
+        "historical_snapshot": {
+            "asset": _ptp113c2_text(history_point.get("asset"), "Sem histórico"),
+            "price": _ptp113c2_float(history_point.get("price_value", history_point.get("price"))),
+            "timestamp": history_point.get("timestamp"),
+            "signal": signal.get("decision") or signal.get("direction") or signal.get("signal"),
+            "confidence": signal.get("confidence"),
+            "status": "histórico_não_operacional",
+        },
+    }
+
+    return model
+
+
+if "_PTP113C2_ORIGINAL_BUILD_STATE" not in globals():
+    _PTP113C2_ORIGINAL_BUILD_STATE = _build_state
+
+    def _build_state(*args, **kwargs):
+        data = _PTP113C2_ORIGINAL_BUILD_STATE(*args, **kwargs)
+        if isinstance(data, dict):
+            data["current_signal_model"] = _ptp113c2_current_signal_model(data)
+            data["ptp113c2_current_signal_model_ready"] = True
+        return data
+
+# ============================================================
+# PTP113C2_MODELO_SINAL_ATUAL_END
+# ============================================================
+
+
 def _host_from_header(host_header: str | None) -> str:
     host = (host_header or "").split(":", 1)[0]
     if host in {"", "0.0.0.0", "127.0.0.1", "localhost"}:

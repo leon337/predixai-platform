@@ -55,3 +55,10 @@
 - Status: AUDIT
 - Relatório: `reports/20260707_100425_PTP-113C.1_auditoria_estado_atual_AUDIT.txt`
 - Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_100425_PTP-113C.1_auditoria_estado_atual_AUDIT.md`
+
+## 2026-07-07 10:10:39 -0300 — PTP 113 C.2 — Modelo do Sinal Atual
+
+- Status: FIX
+- Relatório: `reports/20260707_101039_PTP-113C.2_modelo_sinal_atual_FIX.txt`
+- Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_101039_PTP-113C.2_modelo_sinal_atual_FIX.md`
+- Arquivo alterado: `scripts/predixai_trader_mobile_server.py`

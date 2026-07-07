@@ -1,0 +1,250 @@
+PREDIXAI BR — PTP 113 C.2 modelo_sinal_atual
+Data: 2026-07-07 10:10:39 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+Status: FIX
+
+===== OBJETIVO =====
+Criar modelo único de sinal atual para impedir que histórico antigo vire sinal operacional.
+
+===== REGRA =====
+Não abrir operação simulada nesta etapa.
+Não calcular WIN/LOSS/DRAW nesta etapa.
+Não alterar saldo nesta etapa.
+Não usar dado histórico antigo como sinal atual.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_101039_PTP-113C.2_modelo_sinal_atual_FIX.txt
+
+===== INVESTIGAR — Últimos commits =====
+5acc1bd PTP 113 C.1 audit estado atual
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+62e61f8 PTP-113B.3.1B.5.2.3 ajuste visual campos críticos mobile FIX
+3ecd0b3 PTP-113B.3.1B.5.2.2 corrigir_marcadores_visiveis_mobile FIX
+2ec0408 PTP-113B.3.1B.5.2.1 finalize visual recovery saneamento mobile
+6777748 PTP-113B.3.1B.5.1.1 close toggle observer report recovery
+d76f24d PTP-113B.3.1B.5.1 toggle_observador_persistente PASS
+
+===== INVESTIGAR — Arquivo alvo =====
+OK: arquivo alvo existe
+
+===== INVESTIGAR — Trechos relevantes antes do patch =====
+45:from predixai.mobile.signal_screen import build_mobile_signal_screen
+51:from predixai.trader.paper_trade import build_paper_trade_from_mobile_signal
+795:      badge.textContent = data.reader_running ? "RODANDO" : "PARADO";
+796:      badge.style.color = data.reader_running ? "#38d66b" : "#a8b5c6";
+800:      paintStats(data.signal_stats || {});
+801:      paintDiagnostics(data.price_diagnostics || {});
+802:      const latest = (data.signal_stats || {}).latest_signal || signals[0] || null;
+1173:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+1174:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+1175:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+1176:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+1177:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+1178:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+1322:        "simulation_only=" + d.simulation_only +
+1323:        " | orders_enabled=" + d.orders_enabled +
+1324:        " | real_money_enabled=" + d.real_money_enabled +
+1325:        " | auto_click_enabled=" + d.auto_click_enabled +
+1326:        " | broker_login_enabled=" + d.broker_login_enabled +
+1327:        " | credentials_allowed=" + d.credentials_allowed
+1529:      state.reader_running === true ||
+2016:    const running = Boolean(state?.reader_running || activeCount > 0 || readers.length > 0);
+2018:    const signalLast = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+2070:    const signal = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+2101:    const signal = state?.mobile_session?.mobile_signal || latestItem(state?.signals);
+2818:        "orders_enabled": False,
+3016:            "orders_enabled": False,
+3177:    mobile_signal: dict[str, Any],
+3194:            "confidence": mobile_signal.get("confidence"),
+3197:            "simulation_only": True,
+3199:            "orders_enabled": False,
+3200:            "auto_click_enabled": False,
+3201:            "real_money_enabled": False,
+3202:            "mobile_signal": mobile_signal,
+3225:                            "simulation_only": True,
+3226:                            "orders_enabled": False,
+3241:    mobile_signal: dict[str, Any],
+3250:    direction = str(operation.get("direction") or mobile_signal.get("decision") or "").upper()
+3258:        "simulation_only": True,
+3260:        "orders_enabled": False,
+3261:        "auto_click_enabled": False,
+3262:        "real_money_enabled": False,
+3264:        "mobile_signal": mobile_signal,
+3283:                float(mobile_signal.get("confidence") or 0),
+3309:            "simulation_only": True,
+3310:            "orders_enabled": False,
+3323:    mobile_screen = build_mobile_signal_screen(confluence_result)
+3327:    paper_session = build_paper_trade_from_mobile_signal(
+3334:    mobile_signal = mobile_screen.to_dict()
+3342:        "orders_enabled": False,
+3343:        "auto_click_enabled": False,
+3344:        "real_money_enabled": False,
+3345:        "broker_login_enabled": False,
+3346:        "simulation_only": True,
+3350:        "mobile_signal": mobile_signal,
+3358:        mobile_signal=mobile_signal,
+3365:        mobile_signal=mobile_signal,
+3379:            "signal": f"OBSERVAR {mobile_signal['decision']}" if mobile_signal["decision"] in {"ALTA", "BAIXA"} else "AGUARDAR",
+3380:            "direction": mobile_signal["decision"],
+3381:            "confidence": mobile_signal["confidence"],
+3384:            "simulation_only": True,
+3385:            "orders_enabled": False,
+3386:            "auto_click_enabled": False,
+3387:            "real_money_enabled": False,
+3388:            "mobile_signal": mobile_signal,
+3398:        "simulation_only": True,
+3399:        "orders_enabled": False,
+3400:        "auto_click_enabled": False,
+3401:        "real_money_enabled": False,
+3406:        "mobile_signal": mobile_signal,
+4330:            "orders_enabled": False,
+4467:def _signal_stats(
+4591:def _price_diagnostics(
+4593:    signal_stats: dict[str, Any],
+4604:    latest_signal = signal_stats.get("latest_signal")
+4612:        "waiting_result_count": int(signal_stats.get("pending") or 0),
+4616:def _reader_running() -> bool:
+4732:    if _reader_running():
+4849:    if _reader_running() and _reader_process is not None:
+4886:def _build_state(
+4910:    running = _reader_running() or bool(reader_processes)
+5049:    signal_stats = _signal_stats(session=mobile_session, asset=asset)
+5064:        "reader_running": running,
+5078:        "signal_stats": signal_stats,
+5079:        "price_diagnostics": _price_diagnostics(
+5081:            signal_stats,
+5096:def _host_from_header(host_header: str | None) -> str:
+5353:    def mobile_signal_contract():  # type: ignore[no-untyped-def]
+5517:            "simulation_only": True,
+5518:            "orders_enabled": False,
+5519:            "real_money_enabled": False,
+5520:            "auto_click_enabled": False,
+5521:            "broker_login_enabled": False,
+5522:            "credentials_allowed": False,
+5580:                "simulation_only": True,
+5581:                "orders_enabled": False,
+5582:                "real_money_enabled": False,
+5583:                "auto_click_enabled": False,
+5584:                "broker_login_enabled": False,
+5585:                "credentials_allowed": False,
+5781:            data["simulation_only"] = True
+5782:            data["orders_enabled"] = False
+5783:            data["real_money_enabled"] = False
+5784:            data["auto_click_enabled"] = False
+5785:            data["broker_login_enabled"] = False
+5786:            data["credentials_allowed"] = False
+6077:            data["simulation_only"] = True
+6078:            data["orders_enabled"] = False
+6079:            data["real_money_enabled"] = False
+6080:            data["auto_click_enabled"] = False
+6475:                    "simulation_only": True,
+6494:            diagnostics = payload.get("price_diagnostics", {})
+
+===== PLANEJAR — Estratégia técnica =====
+Estratégia:
+1. Não criar novo motor de sinais.
+2. Criar função normalizadora reaproveitando o estado existente.
+3. Injetar campo current_signal_model no payload de /api/mobile/state.
+4. Bloquear operação se:
+   - reader_running=false;
+   - não houver leitura recente;
+   - preço estiver ausente;
+   - dado atual vier apenas de histórico antigo.
+5. Expor flags explícitas:
+   - operation_allowed=false/true;
+   - result_allowed=false/true;
+   - balance_update_allowed=false/true;
+   - uses_historical_data_as_current=false.
+
+===== CONSTRUIR — Backup =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_101039_PTP-113C.2_modelo_sinal_atual/predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — Aplicar patch PTP 113 C.2 =====
+PASS: patch PTP113C2_MODELO_SINAL_ATUAL aplicado.
+PATCH_EXIT=0
+
+===== VALIDAR — py_compile =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:7287: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:7548: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PY_COMPILE_EXIT=0
+
+===== VALIDAR — git diff check =====
+GIT_DIFF_CHECK_EXIT=0
+
+===== VALIDAR — Marcadores do patch =====
+5098:# PTP113C2_MODELO_SINAL_ATUAL_START
+5291:            "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5380:        "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5407:# PTP113C2_MODELO_SINAL_ATUAL_END
+
+===== VALIDAR — Reiniciar servidor mobile =====
+Processos encontrados: 11188
+SERVER_PID=20279
+
+===== VALIDAR — Endpoint /mobile =====
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.8 Python/3.12.3
+Date: Tue, 07 Jul 2026 13:10:45 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 86874
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Connection: close
+
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — Endpoint /api/mobile/state com current_signal_model =====
+CURL_STATE_EXIT=0
+HAS_CURRENT_SIGNAL_MODEL= True
+PTP113C2_READY= True
+status=aguardando_leitura
+operation_allowed=False
+result_allowed=False
+balance_update_allowed=False
+uses_historical_data_as_current=False
+reader_running=False
+last_price_age_seconds=33848
+asset=Sem leitura ativa
+reference_price=None
+direction=NEUTRO
+reason=Observador desligado. Histórico não pode virar sinal atual.
+next_step=Aguardar leitura atual válida.
+SAFETY_SIMULATION_ONLY= True
+SAFETY_ORDERS_ENABLED= False
+SAFETY_REAL_MONEY_ENABLED= False
+SAFETY_AUTO_CLICK_ENABLED= False
+SAFETY_BROKER_LOGIN_ENABLED= False
+SAFETY_CREDENTIALS_ALLOWED= False
+CURRENT_SIGNAL_MODEL_VALIDATE=PASS
+MODEL_VALIDATE_EXIT=0
+
+===== VALIDAR — Travas simuladas no endpoint =====
+simulation_only=True expected=True
+orders_enabled=False expected=False
+real_money_enabled=False expected=False
+auto_click_enabled=False expected=False
+broker_login_enabled=False expected=False
+credentials_allowed=False expected=False
+SAFETY_LOCKS_VALIDATE=PASS
+SAFETY_VALIDATE_EXIT=0
+
+===== REGISTRAR — Resultado técnico =====
+Resultado esperado:
+- current_signal_model criado em /api/mobile/state.
+- Histórico antigo não pode virar sinal atual.
+- Se reader_running=false, operation_allowed=false.
+- result_allowed=false nesta etapa.
+- balance_update_allowed=false nesta etapa.
+- PTP 113 C.3 só poderá abrir operação simulada se operation_allowed=true.
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+A  docs/history/ptp/PTP-113/PTP-113C/20260707_101039_PTP-113C.2_modelo_sinal_atual_FIX.md
+M  docs/reports_index.md
+A  reports/20260707_101039_PTP-113C.2_modelo_sinal_atual_FIX.txt
+M  scripts/predixai_trader_mobile_server.py
