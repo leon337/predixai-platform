@@ -313,7 +313,96 @@ MOBILE_HTML = r"""<!doctype html>
       font-size: 12px;
       line-height: 1.35;
     }
-  </style>
+  
+/* PTP113B31B2_OBSERVADOR_CONTRACT_UX */
+.ux-contract-card,
+.ux-live-chart-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  padding: 10px;
+  margin: 8px 0;
+}
+.ux-contract-title {
+  color: var(--line);
+  font: 800 12px Consolas, monospace;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+.ux-contract-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.ux-contract-item {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  background: #081421;
+}
+.ux-contract-label {
+  color: var(--muted);
+  font: 700 10px Consolas, monospace;
+  text-transform: uppercase;
+}
+.ux-contract-value {
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+}
+.ux-security-line {
+  margin-top: 8px;
+  color: var(--yellow);
+  font: 700 11px Consolas, monospace;
+}
+.ux-chart-canvas {
+  width: 100%;
+  height: 140px;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #07111b;
+}
+.ux-chart-status {
+  margin-top: 6px;
+  color: var(--muted);
+  font: 700 11px Consolas, monospace;
+}
+.ux-processing {
+  outline: 2px solid var(--yellow) !important;
+  box-shadow: 0 0 14px rgba(255, 191, 0, .35) !important;
+}
+.ux-ok {
+  outline: 2px solid var(--green) !important;
+  box-shadow: 0 0 14px rgba(56, 214, 107, .35) !important;
+}
+.ux-error {
+  outline: 2px solid var(--red) !important;
+  box-shadow: 0 0 14px rgba(255, 77, 109, .35) !important;
+}
+.ux-toast {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 9999;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #061018;
+  color: var(--text);
+  padding: 10px;
+  font: 800 13px Arial, sans-serif;
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+}
+@media (max-width: 640px) {
+  .ux-contract-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+</style>
 </head>
 <body>
   <header>
@@ -796,6 +885,291 @@ MOBILE_HTML = r"""<!doctype html>
     refreshState();
     setInterval(refreshState, 1000);
   </script>
+
+<script>
+/* PTP113B31B2_OBSERVADOR_CONTRACT_UX */
+(function () {
+  const UX_MARKER = "PTP113B31B2_OBSERVADOR_CONTRACT_UX_RUNTIME";
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function showToast(message, mode) {
+    let toast = $("predixai-ux-toast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "predixai-ux-toast";
+      toast.className = "ux-toast";
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.className = "ux-toast";
+    if (mode === "error") toast.classList.add("ux-error");
+    if (mode === "ok") toast.classList.add("ux-ok");
+    setTimeout(function () {
+      if (toast) toast.remove();
+    }, 2200);
+  }
+
+  function displayValue(value) {
+    if (value === null || value === undefined || value === "") return "-";
+    if (typeof value === "object") {
+      if (value.label) return value.label;
+      if (value.name) return value.name;
+      if (value.key) return value.key;
+      try { return JSON.stringify(value); } catch (err) { return "-"; }
+    }
+    return String(value);
+  }
+
+  function asMoney(value) {
+    if (value === null || value === undefined || value === "") return "-";
+    if (typeof value === "string" && value.indexOf("R$") >= 0) return value;
+    let numberValue = value;
+    if (typeof numberValue === "string") {
+      numberValue = numberValue.replace("R$", "").trim().replaceAll(".", "").replace(",", ".");
+    }
+    numberValue = Number(numberValue);
+    if (!Number.isFinite(numberValue)) return displayValue(value);
+    return numberValue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function deepPick(obj, names) {
+    const wanted = names.map(function (x) { return String(x).toLowerCase(); });
+    const stack = [obj];
+    const seen = new Set();
+
+    while (stack.length) {
+      const current = stack.shift();
+      if (!current || typeof current !== "object" || seen.has(current)) continue;
+      seen.add(current);
+
+      for (const key of Object.keys(current)) {
+        const low = key.toLowerCase();
+        if (wanted.indexOf(low) >= 0) return current[key];
+      }
+
+      for (const key of Object.keys(current)) {
+        const low = key.toLowerCase();
+        for (const name of wanted) {
+          if (low.indexOf(name) >= 0) return current[key];
+        }
+      }
+
+      for (const key of Object.keys(current)) {
+        const val = current[key];
+        if (val && typeof val === "object") stack.push(val);
+      }
+    }
+    return undefined;
+  }
+
+  function setText(id, value, formatter) {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = formatter ? formatter(value) : displayValue(value);
+  }
+
+  function ensureCards() {
+    if (!$("predixai-contract-card")) {
+      const card = document.createElement("section");
+      card.id = "predixai-contract-card";
+      card.className = "ux-contract-card";
+      card.innerHTML =
+        '<div class="ux-contract-title">Contrato da sessão simulada</div>' +
+        '<div class="ux-contract-grid">' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Saldo atual</div><div id="ux-saldo-atual" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Banca inicial</div><div id="ux-banca-inicial" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Entrada atual</div><div id="ux-entrada-atual" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Meta de lucro</div><div id="ux-meta-lucro" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Stop / limite</div><div id="ux-stop-limite" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Recuperação</div><div id="ux-recuperacao" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Próxima entrada</div><div id="ux-proxima-entrada" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Exposição máxima</div><div id="ux-exposicao-maxima" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Modo operacional</div><div id="ux-modo-operacional" class="ux-contract-value">-</div></div>' +
+        '<div class="ux-contract-item"><div class="ux-contract-label">Estratégia</div><div id="ux-estrategia" class="ux-contract-value">-</div></div>' +
+        '</div>' +
+        '<div id="ux-security-line" class="ux-security-line">Segurança simulada: carregando...</div>';
+
+      const anchor = document.querySelector(".notice") || document.querySelector("header") || document.body.firstElementChild;
+      if (anchor && anchor.parentNode) {
+        anchor.parentNode.insertBefore(card, anchor.nextSibling);
+      } else {
+        document.body.insertBefore(card, document.body.firstChild);
+      }
+    }
+
+    if (!$("predixai-live-chart-card")) {
+      const chart = document.createElement("section");
+      chart.id = "predixai-live-chart-card";
+      chart.className = "ux-live-chart-card";
+      chart.innerHTML =
+        '<div class="ux-contract-title">Gráfico da sessão</div>' +
+        '<canvas id="predixai-ux-price-chart" class="ux-chart-canvas" width="900" height="180"></canvas>' +
+        '<div id="predixai-ux-chart-status" class="ux-chart-status">Coletando dados para gráfico...</div>';
+
+      const contract = $("predixai-contract-card");
+      if (contract && contract.parentNode) {
+        contract.parentNode.insertBefore(chart, contract.nextSibling);
+      } else {
+        document.body.appendChild(chart);
+      }
+    }
+  }
+
+  function extractPoints(state) {
+    const raw = state.price_ticks || state.ticks || state.history || [];
+    if (!Array.isArray(raw)) return [];
+    return raw.map(function (row) {
+      if (typeof row === "number") return row;
+      if (!row || typeof row !== "object") return NaN;
+      return Number(row.price_value ?? row.price ?? row.value ?? row.close ?? row.last_price);
+    }).filter(function (v) {
+      return Number.isFinite(v);
+    }).slice(-40);
+  }
+
+  function drawChart(points) {
+    const canvas = $("predixai-ux-price-chart");
+    const status = $("predixai-ux-chart-status");
+    if (!canvas || !canvas.getContext) return;
+
+    const ctx = canvas.getContext("2d");
+    const width = canvas.width;
+    const height = canvas.height;
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.fillStyle = "#07111b";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.strokeStyle = "#203245";
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) {
+      const y = Math.round((height / 5) * i);
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    if (!points || points.length < 2) {
+      ctx.fillStyle = "#a8b5c6";
+      ctx.font = "bold 20px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Coletando dados para gráfico...", width / 2, height / 2);
+      if (status) status.textContent = "Aguardando pelo menos 2 preços para desenhar linha.";
+      return;
+    }
+
+    const min = Math.min.apply(null, points);
+    const max = Math.max.apply(null, points);
+    const range = Math.max(max - min, 0.000001);
+
+    ctx.strokeStyle = "#00e5ff";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+
+    points.forEach(function (value, index) {
+      const x = points.length === 1 ? width / 2 : (index / (points.length - 1)) * width;
+      const y = height - ((value - min) / range) * (height - 20) - 10;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
+
+    if (status) {
+      const last = points[points.length - 1];
+      status.textContent = "Gráfico atualizado: " + new Date().toLocaleTimeString("pt-BR") + " | último preço: " + last.toLocaleString("pt-BR");
+    }
+  }
+
+  function updateSecurity(state) {
+    const line = $("ux-security-line");
+    if (!line) return;
+
+    const flags = [
+      "simulation_only",
+      "orders_enabled",
+      "real_money_enabled",
+      "auto_click_enabled",
+      "broker_login_enabled",
+      "credentials_allowed"
+    ];
+
+    line.textContent = "Segurança simulada: " + flags.map(function (key) {
+      const value = deepPick(state, [key]);
+      return key + "=" + displayValue(value);
+    }).join(" | ");
+  }
+
+  async function updateContract() {
+    ensureCards();
+
+    try {
+      const response = await fetch("/api/mobile/state?ux_contract=1", { cache: "no-store" });
+      const state = await response.json();
+
+      setText("ux-saldo-atual", deepPick(state, ["current_balance", "saldo_atual", "saldo", "balance"]), asMoney);
+      setText("ux-banca-inicial", deepPick(state, ["initial_bankroll", "starting_balance", "banca_inicial", "banca", "bankroll"]), asMoney);
+      setText("ux-entrada-atual", deepPick(state, ["current_entry", "entry_value", "entry_amount", "stake", "entrada_atual", "entrada", "entry"]), asMoney);
+      setText("ux-meta-lucro", deepPick(state, ["profit_target", "target_profit", "meta_lucro", "meta"]), asMoney);
+      setText("ux-stop-limite", deepPick(state, ["stop_loss", "loss_limit", "max_loss", "limite", "limit", "stop"]), asMoney);
+      setText("ux-recuperacao", deepPick(state, ["recovery_mode", "recovery_strategy", "selected_recovery", "recuperacao", "recovery", "martingale", "soros", "smartgale"]));
+      setText("ux-proxima-entrada", deepPick(state, ["next_entry", "next_stake", "proxima_entrada", "próxima_entrada"]), asMoney);
+      setText("ux-exposicao-maxima", deepPick(state, ["max_exposure", "exposicao_maxima", "exposição_maxima", "exposure", "entrada_maxima", "entrada máxima"]), asMoney);
+      setText("ux-modo-operacional", deepPick(state, ["operational_mode", "modo_operacional", "mode"]));
+      setText("ux-estrategia", deepPick(state, ["strategy", "selected_strategy", "estrategia"]));
+
+      updateSecurity(state);
+      drawChart(extractPoints(state));
+    } catch (err) {
+      const status = $("predixai-ux-chart-status");
+      if (status) status.textContent = "Erro ao atualizar contrato/gráfico: " + err.message;
+    }
+  }
+
+  function attachButtonFeedback() {
+    document.querySelectorAll("button, a").forEach(function (el) {
+      if (el.dataset.predixaiUxBound === "1") return;
+      el.dataset.predixaiUxBound = "1";
+
+      el.addEventListener("click", function () {
+        const label = (el.textContent || el.value || "comando").trim();
+        el.classList.remove("ux-ok", "ux-error");
+        el.classList.add("ux-processing");
+        showToast("Comando recebido: " + label, "ok");
+
+        setTimeout(function () {
+          el.classList.remove("ux-processing");
+          el.classList.add("ux-ok");
+          setTimeout(function () {
+            el.classList.remove("ux-ok");
+          }, 1200);
+        }, 650);
+      }, { capture: true });
+    });
+  }
+
+  function bootUx() {
+    if (document.body.dataset[UX_MARKER] === "1") return;
+    document.body.dataset[UX_MARKER] = "1";
+    ensureCards();
+    attachButtonFeedback();
+    updateContract();
+    setInterval(updateContract, 3000);
+    setInterval(attachButtonFeedback, 3000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootUx);
+  } else {
+    bootUx();
+  }
+})();
+</script>
+
 </body>
 </html>
 """

@@ -1,0 +1,51 @@
+PREDIXAI PUBLICAR OBSERVADOR UX
+Data: seg 06 jul 2026 23:46:28 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+PTP: PTP-113B.3.1B.2.1
+Status: PUBLISH
+Objetivo: publicar correção PTP-113B.3.1B.2 sem versionar backups ignorados
+
+===== INVESTIGAR — ESTADO GIT =====
+HEAD inicial:
+1af77f9 PTP-113B.3.1B.1 audit Observador mobile-first
+
+Status inicial:
+A  docs/history/ptp/PTP-113/PTP-113B/20260706_233221_PTP-113B.3.1B.2_contrato_observador_mobile_FIX.md
+M  docs/reports_index.md
+ M reports/20260706_232339_PTP-113B.3.1B.1_audit_observador_mobile_AUDIT.txt
+A  reports/20260706_233221_PTP-113B.3.1B.2_contrato_observador_mobile_FIX.txt
+M  scripts/predixai_trader_mobile_server.py
+?? reports/20260706_234628_PTP-113B.3.1B.2.1_publicar_observador_ux_PUBLISH.txt
+
+===== VALIDAR — PATCH APLICADO =====
+PASS: marcador UX encontrado.
+PASS: card de contrato encontrado.
+PASS: gráfico UX encontrado.
+PASS: feedback visual dos botões encontrado.
+
+===== VALIDAR — PY_COMPILE =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5365: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5626: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PASS: py_compile
+
+===== VALIDAR — HTTP =====
+/mobile -> HTTP 200
+/api/mobile/state -> HTTP 200
+PASS: /mobile respondeu.
+PASS: HTML real contém card contrato.
+PASS: HTML real contém gráfico UX.
+PASS: /api/mobile/state respondeu.
+
+===== VALIDAR — GIT DIFF CHECK =====
+PASS: git diff --check
+
+===== REGISTRAR — MARKDOWN =====
+
+===== REGISTRAR — ÍNDICE =====
+
+===== PUBLICAR — PREPARAÇÃO =====
+Resultado final antes do commit: PASS
+Backups NÃO serão versionados.
+Relatório fechado antes do commit/push.

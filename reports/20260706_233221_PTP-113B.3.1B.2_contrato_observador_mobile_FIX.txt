@@ -1,0 +1,101 @@
+PREDIXAI OBSERVADOR CONTRACT UX
+Data: seg 06 jul 2026 23:32:21 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+PTP: PTP-113B.3.1B.2
+Status: FIX
+Base URL: http://127.0.0.1:8766
+Servidor: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+
+===== INVESTIGAR — GIT =====
+Branch:
+main
+
+HEAD:
+1af77f9 PTP-113B.3.1B.1 audit Observador mobile-first
+
+Status inicial:
+ M reports/20260706_232339_PTP-113B.3.1B.1_audit_observador_mobile_AUDIT.txt
+?? reports/20260706_233221_PTP-113B.3.1B.2_contrato_observador_mobile_FIX.txt
+
+===== INVESTIGAR — ARQUIVOS BASE =====
+OK: /home/leo/Documentos/GitHub/predixai-platform/PROJECT_STATE.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/predixai_context.json
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+
+===== PLANEJAR — BACKUP =====
+Backup criado: /home/leo/Documentos/GitHub/predixai-platform/backups/ptp/PTP-113/PTP-113B/20260706_233221/predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — PATCH OBSERVADOR CONTRACT UX =====
+CHANGED: UX do observador injetado na tela mobile
+PASS: patch aplicado.
+
+===== VALIDAR — PY_COMPILE =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5365: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5626: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PASS: py_compile do servidor mobile
+
+===== VALIDAR — MARCADORES NO CÓDIGO =====
+PASS: marcador UX encontrado no código.
+PASS: card de contrato encontrado no código.
+PASS: gráfico vivo encontrado no código.
+PASS: feedback visual dos botões encontrado no código.
+
+===== VALIDAR — RESTART DO SERVIDOR MOBILE =====
+Encerrando processo antigo do servidor mobile, se existir...
+Iniciando servidor mobile em segundo plano...
+PASS: processo do servidor mobile iniciado. PID=111547
+
+===== VALIDAR — ENDPOINTS HTTP =====
+/mobile -> HTTP 200
+/api/mobile/state -> HTTP 200
+PASS: /mobile respondeu HTTP 200
+PASS: HTML real contém card de contrato.
+PASS: HTML real contém gráfico UX.
+PASS: /api/mobile/state respondeu HTTP 200
+Travas de segurança detectadas no /api/mobile/state:
+- simulation_only: True
+- orders_enabled: False
+- real_money_enabled: False
+- auto_click_enabled: False
+- broker_login_enabled: False
+- credentials_allowed: False
+
+===== VALIDAR — SEGURANÇA DE VERSIONAMENTO =====
+PASS: nenhum arquivo sensível/cache óbvio no status.
+
+===== VALIDAR — GIT DIFF CHECK =====
+scripts/predixai_trader_mobile_server.py:316: trailing whitespace.
++  
+WARN: git diff --check encontrou problema.
+
+===== REGISTRAR — RESULTADO =====
+Resultado técnico da etapa: WARN
+
+Critérios da PTP-113B.3.1B.2:
+1. /mobile carregar contrato da primeira tela.
+2. /mobile exibir saldo atual simulado.
+3. /mobile exibir banca, entrada, meta, recuperação e exposição.
+4. /mobile manter gráfico atualizando ou com estado visual claro.
+5. Botões mostrarem feedback visual após clique.
+6. Segurança simulada preservada.
+
+Observação:
+O relatório será fechado antes do commit/push. Depois do push, o script apenas abrirá este relatório.
+
+===== REGISTRAR — MARKDOWN HISTÓRICO =====
+Markdown gerado: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260706_233221_PTP-113B.3.1B.2_contrato_observador_mobile_FIX.md
+
+===== REGISTRAR — ÍNDICE =====
+Índice atualizado: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+
+===== PUBLICAR — PREPARAÇÃO =====
+Relatório fechado antes do commit/push.
+Arquivos serão versionados agora:
+- /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+- /home/leo/Documentos/GitHub/predixai-platform/reports/20260706_233221_PTP-113B.3.1B.2_contrato_observador_mobile_FIX.txt
+- /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260706_233221_PTP-113B.3.1B.2_contrato_observador_mobile_FIX.md
+- /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+- /home/leo/Documentos/GitHub/predixai-platform/backups/ptp/PTP-113/PTP-113B/20260706_233221/predixai_trader_mobile_server.py.bak
