@@ -1,0 +1,32 @@
+PREDIXAI PTP-113B.3.1B.5.1.1 fechar_relatorio_toggle_observador RECOVERY
+Data: 2026-07-07 08:55:41 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== OBJETIVO =====
+Fechar corretamente a sobra documental da PTP-113B.3.1B.5.1.
+
+===== CONTEXTO =====
+A tentativa anterior entrou em PAUSE porque o próprio script criou um novo relatório antes da checagem e passou a detectar esse relatório como alteração inesperada.
+
+===== ARQUIVOS VERSIONADOS =====
+- reports/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.txt
+- reports/20260707_004901_PTP-113B.3.1B.5.1.1_fechar_relatorio_toggle_observador_PASS.txt
+- reports/20260707_085541_PTP-113B.3.1B.5.1.1_fechar_relatorio_toggle_observador_RECOVERY_PASS.txt
+- docs/history/ptp/PTP-113/PTP-113B/20260707_085541_PTP-113B.3.1B.5.1.1_fechar_relatorio_toggle_observador_RECOVERY_PASS.md
+- docs/reports_index.md
+
+===== EXECUÇÃO =====
+Nenhum código foi alterado.
+Ação limitada a relatórios, Markdown histórico e índice.
+
+===== VALIDAÇÃO =====
+- Git status inicial conferido.
+- Alterações esperadas identificadas.
+- Nenhum arquivo sensível detectado.
+- Commit e push serão executados após fechamento deste relatório.
+
+===== RESULTADO =====
+PASS DOCUMENTAL
+
+===== PRÓXIMA AÇÃO =====
+Validar visualmente a tela /mobile e criar mini-PTP para saneamento visual final, pois ainda existem blocos antigos de preço/suporte/resistência aparecendo fora do painel novo.

@@ -26,3 +26,8 @@
 - Markdown: `docs/history/ptp/PTP-113/PTP-113B/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.md`
 - Arquivo técnico: `scripts/predixai_trader_mobile_server.py`
 - Resultado: PASS
+
+## 20260707_085541 — PTP-113B.3.1B.5.1.1 — fechar_relatorio_toggle_observador — RECOVERY PASS
+- Relatório: `reports/20260707_085541_PTP-113B.3.1B.5.1.1_fechar_relatorio_toggle_observador_RECOVERY_PASS.txt`
+- Markdown: `docs/history/ptp/PTP-113/PTP-113B/20260707_085541_PTP-113B.3.1B.5.1.1_fechar_relatorio_toggle_observador_RECOVERY_PASS.md`
+- Resultado: RECOVERY PASS

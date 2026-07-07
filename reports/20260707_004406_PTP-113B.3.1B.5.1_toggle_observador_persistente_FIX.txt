@@ -314,3 +314,19 @@ Markdown histórico: /home/leo/Documentos/GitHub/predixai-platform/docs/history/
 ===== PUBLICAR =====
 Sanity check contra arquivos sensíveis:
 OK: nenhum arquivo sensível/cache detectado no status.
+[main d76f24d] PTP-113B.3.1B.5.1 toggle_observador_persistente PASS
+ 4 files changed, 871 insertions(+)
+ create mode 100644 docs/history/ptp/PTP-113/PTP-113B/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.md
+ create mode 100644 reports/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.txt
+
+Commit final:
+d76f24d PTP-113B.3.1B.5.1 toggle_observador_persistente PASS
+
+===== ENTREGAR =====
+RESULTADO: PASS
+Próxima validação do Leo:
+1. Reiniciar servidor mobile se o HTML real ainda não mostrar o marcador.
+2. Abrir /mobile no celular.
+3. Confirmar que observador desligado mostra Sem leitura ativa.
+4. Confirmar que Cafeina Index/preço antigo/sinal antigo aparecem só em Último histórico.
+5. Colar este relatório no chat.

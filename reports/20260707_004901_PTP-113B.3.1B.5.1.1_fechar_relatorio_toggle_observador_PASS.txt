@@ -1,0 +1,19 @@
+PREDIXAI PTP-113B.3.1B.5.1.1 fechar_relatorio_toggle_observador
+Data: 2026-07-07 00:49:01 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== INVESTIGAR =====
+Status inicial:
+ M reports/20260707_004406_PTP-113B.3.1B.5.1_toggle_observador_persistente_FIX.txt
+?? reports/20260707_004901_PTP-113B.3.1B.5.1.1_fechar_relatorio_toggle_observador_PASS.txt
+
+Último commit:
+d76f24d PTP-113B.3.1B.5.1 toggle_observador_persistente PASS
+
+===== PLANEJAR =====
+Objetivo: versionar a sobra local do relatório da PTP-113B.3.1B.5.1.
+Sem alteração de código.
+
+===== VALIDAR =====
+PAUSE: existem alterações além do relatório esperado.
+?? reports/20260707_004901_PTP-113B.3.1B.5.1.1_fechar_relatorio_toggle_observador_PASS.txt
