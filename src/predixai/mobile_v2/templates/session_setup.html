@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PredixAI Mobile V2 — Tela 1</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071018;
+      --card: #101d2a;
+      --line: #23364a;
+      --text: #e8f3ff;
+      --muted: #9db2c8;
+      --accent: #32d3ff;
+      --warn: #ffd166;
+      --ok: #69f0ae;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #12344a 0, var(--bg) 42%);
+      color: var(--text);
+    }
+    main {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .top {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.92);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: 1.35rem; margin: 0 0 6px; }
+    p { color: var(--muted); line-height: 1.45; }
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.88);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: .9rem;
+      margin: 12px 0 6px;
+    }
+    input, select, button, a.btn {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 13px;
+      background: #071421;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    button, a.btn {
+      display: block;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 12px;
+      background: linear-gradient(135deg, #0f7ea1, #124f86);
+      border-color: #2b8bb8;
+      font-weight: 700;
+    }
+    .ghost { background: #0c1824; }
+    .safety {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: .82rem;
+      line-height: 1.5;
+      color: var(--ok);
+      overflow-wrap: anywhere;
+    }
+    .output {
+      white-space: pre-wrap;
+      color: var(--warn);
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: .84rem;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="top">
+    <h1>PredixAI Mobile V2 — Tela 1</h1>
+    <p>Configuração simulada da sessão. Esta tela não usa saldo real, não faz login e não executa ordem.</p>
+  </section>
+
+  <section class="card">
+    <form id="setupForm">
+      <label>Banca simulada inicial</label>
+      <input name="initial_bank" inputmode="decimal" value="100,00">
+
+      <label>Entrada simulada</label>
+      <input name="entry_value" inputmode="decimal" value="5,00">
+
+      <label>Meta simulada</label>
+      <input name="profit_goal" inputmode="decimal" value="10,00">
+
+      <label>Modo de recuperação</label>
+      <select name="recovery_mode">
+        <option value="sem_recuperacao">Sem recuperação</option>
+        <option value="mao_fixa">Mão fixa</option>
+        <option value="soros">Soros simulado</option>
+        <option value="martingale_1">1 Martingale simulado</option>
+        <option value="martingale_2">2 Martingales simulados</option>
+        <option value="smartgale">SmartGale simulado</option>
+      </select>
+
+      <label>Ativo observado</label>
+      <input name="asset_label" value="Aguardando leitura">
+
+      <button type="submit">Criar contrato simulado</button>
+      <a class="btn ghost" href="/mobile">Ir para Tela 2</a>
+    </form>
+  </section>
+
+  <section class="card">
+    <strong>Travas simuladas</strong>
+    <div class="safety">
+simulation_only=true<br>
+orders_enabled=false<br>
+real_money_enabled=false<br>
+auto_click_enabled=false<br>
+broker_login_enabled=false<br>
+credentials_allowed=false
+    </div>
+  </section>
+
+  <section class="card">
+    <strong>Resultado</strong>
+    <pre id="output" class="output">Aguardando configuração.</pre>
+  </section>
+</main>
+
+<script>
+const form = document.getElementById("setupForm");
+const output = document.getElementById("output");
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  output.textContent = "Criando contrato simulado...";
+
+  const payload = Object.fromEntries(new FormData(form).entries());
+
+  try {
+    const response = await fetch("/session/create", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+    output.textContent = JSON.stringify({
+      ok: data.ok,
+      simulated_contract_only: data.simulated_contract_only,
+      next_screen: data.next_screen,
+      session_status: data.state?.session?.status,
+      contract: data.state?.session?.contract
+    }, null, 2);
+  } catch (error) {
+    output.textContent = "Erro ao criar contrato simulado: " + error;
+  }
+});
+</script>
+</body>
+</html>

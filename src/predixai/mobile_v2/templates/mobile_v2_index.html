@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PredixAI Mobile V2 — Tela 2</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #061018;
+      --card: #101d2a;
+      --line: #25384c;
+      --text: #e8f3ff;
+      --muted: #9db2c8;
+      --accent: #32d3ff;
+      --ok: #69f0ae;
+      --warn: #ffd166;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #15384f 0, var(--bg) 45%);
+      color: var(--text);
+    }
+    main {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      padding: 14px;
+    }
+    header, .card {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.9);
+      border-radius: 18px;
+      padding: 15px;
+      margin: 11px 0;
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 6px; }
+    h2 { font-size: 1rem; margin: 0 0 10px; color: var(--accent); }
+    p { margin: 6px 0; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .item {
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(7,20,33,.65);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: .78rem;
+      margin-bottom: 4px;
+    }
+    .value {
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .status-off { color: var(--muted); }
+    .status-on { color: var(--ok); }
+    .status-warn { color: var(--warn); }
+    .actions {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+    button, a.btn {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 13px;
+      background: #0c1824;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+    }
+    .start { background: linear-gradient(135deg, #127a54, #0e5642); }
+    .stop { background: linear-gradient(135deg, #8c2f39, #5c1d28); }
+    .refresh { background: linear-gradient(135deg, #0f7ea1, #124f86); }
+    .safe {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: .78rem;
+      line-height: 1.5;
+      color: var(--ok);
+      overflow-wrap: anywhere;
+    }
+    .note {
+      color: var(--warn);
+      font-size: .88rem;
+    }
+    @media (max-width: 460px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>PredixAI Mobile V2 — Tela 2</h1>
+    <p>Painel operacional simulado. Sem geração de sinal, sem histórico operacional e sem ordem real.</p>
+  </header>
+
+  <section class="card">
+    <h2>Controle do observador</h2>
+    <div class="grid">
+      <div class="item">
+        <div class="label">Estado</div>
+        <div id="observerStatus" class="value status-off">Carregando...</div>
+      </div>
+      <div class="item">
+        <div class="label">Processo real</div>
+        <div id="observerRunning" class="value">-</div>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:12px">
+      <button class="start" onclick="observerStart()">Ligar controle simulado</button>
+      <button class="stop" onclick="observerStop()">Desligar controle simulado</button>
+      <button class="refresh" onclick="loadState()">Atualizar</button>
+      <a class="btn" href="/session/setup">Voltar para Tela 1</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Leitura atual</h2>
+    <div class="grid">
+      <div class="item">
+        <div class="label">Ativo</div>
+        <div id="asset" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Preço</div>
+        <div id="price" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Origem</div>
+        <div id="source" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Idade</div>
+        <div id="age" class="value">-</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Sinal atual — placeholder</h2>
+    <div class="grid">
+      <div class="item">
+        <div class="label">Status</div>
+        <div id="signalStatus" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Direção</div>
+        <div id="signalDirection" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Confiança</div>
+        <div id="signalConfidence" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Estratégia</div>
+        <div id="signalStrategy" class="value">-</div>
+      </div>
+    </div>
+    <p class="note">Nesta etapa, estes campos apenas exibem o estado. Não existe geração de sinal.</p>
+  </section>
+
+  <section class="card">
+    <h2>Histórico — placeholder futuro</h2>
+    <p id="historyBox">Histórico operacional ainda não implementado nesta PTP.</p>
+  </section>
+
+  <section class="card">
+    <h2>Travas simuladas</h2>
+    <div id="safety" class="safe">Carregando...</div>
+  </section>
+</main>
+
+<script>
+function text(value, fallback = "-") {
+  if (value === null || value === undefined || value === "") return fallback;
+  return String(value);
+}
+
+async function loadState() {
+  const response = await fetch("/state/current");
+  const data = await response.json();
+  const state = data.state || {};
+  const observer = state.observer || {};
+  const reading = state.reading || {};
+  const signal = state.signal || {};
+  const session = state.session || {};
+  const history = state.history || {};
+
+  document.getElementById("observerStatus").textContent = text(observer.status);
+  document.getElementById("observerRunning").textContent = observer.running ? "SIM" : "NÃO";
+
+  document.getElementById("asset").textContent = text(reading.asset, "Sem leitura ativa");
+  document.getElementById("price").textContent = text(reading.price, "Sem leitura ativa");
+  document.getElementById("source").textContent = text(reading.source, "none");
+  document.getElementById("age").textContent = reading.age_seconds === null ? "-" : reading.age_seconds + "s";
+
+  document.getElementById("signalStatus").textContent = text(signal.status, "aguardando_leitura");
+  document.getElementById("signalDirection").textContent = text(signal.direction, "NEUTRO");
+  document.getElementById("signalConfidence").textContent = text(signal.confidence, "-");
+  document.getElementById("signalStrategy").textContent = text(signal.strategy, "-");
+
+  document.getElementById("historyBox").textContent =
+    "Placeholder futuro. Eventos registrados: " + text(history.count, "0");
+
+  document.getElementById("safety").innerHTML =
+    "simulation_only=" + text(session.simulation_only) + "<br>" +
+    "orders_enabled=" + text(session.orders_enabled) + "<br>" +
+    "real_money_enabled=" + text(session.real_money_enabled) + "<br>" +
+    "auto_click_enabled=" + text(session.auto_click_enabled) + "<br>" +
+    "broker_login_enabled=" + text(session.broker_login_enabled) + "<br>" +
+    "credentials_allowed=" + text(session.credentials_allowed);
+}
+
+async function observerStart() {
+  await fetch("/observer/start", {method: "POST"});
+  await loadState();
+}
+
+async function observerStop() {
+  await fetch("/observer/stop", {method: "POST"});
+  await loadState();
+}
+
+loadState();
+setInterval(loadState, 5000);
+</script>
+</body>
+</html>
