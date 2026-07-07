@@ -1,0 +1,316 @@
+PREDIXAI BR — PTP 113 C.7.2 corrigir_start_observador_visual
+Data: 2026-07-07 10:59:16 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+Status: FIX
+
+===== OBJETIVO =====
+Corrigir o botão Iniciar simulado para também acionar o reader/observador visual.
+
+===== REGRA =====
+Não executar ordem real.
+Não usar saldo real.
+Não clicar em compra/venda.
+Não ativar auto-click.
+A corretora aberta é apenas fonte visual observada.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual_FIX.txt
+
+===== INVESTIGAR — Últimos commits =====
+756568b PTP 113 C.7 add mobile visual validation
+f24c17d PTP 113 C.6 add operational history event
+b5acbef PTP 113 C.5 add simulated bankroll update
+64e9d81 PTP 113 C.4 add simulated close result
+e5ac227 PTP 113 C.3 add simulated open operation
+dc0e817 PTP 113 C.2 add current signal model
+5acc1bd PTP 113 C.1 audit estado atual
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+62e61f8 PTP-113B.3.1B.5.2.3 ajuste visual campos críticos mobile FIX
+
+===== INVESTIGAR — Start/reader/endpoints existentes =====
+77:SIMULATED_START_ROUTES = {"/mobile/session/start", "/api/mobile/simulated-session/start"}
+516:    <button type="button" onclick="startSimulatedSession()">Iniciar simulado</button>
+795:      badge.textContent = data.reader_running ? "RODANDO" : "PARADO";
+796:      badge.style.color = data.reader_running ? "#38d66b" : "#a8b5c6";
+810:      const response = await fetch(`/api/mobile/state?expiration=${expirationSeconds}`, { cache: "no-store" });
+819:      await fetch("/mobile/session/start", {
+865:      await fetch("/api/mobile/stop", { method: "POST" });
+874:      const response = await fetch("/api/mobile/reset-session", { method: "POST" });
+1306:      const res = await fetch("/api/mobile/state?ptp113b31b4=1", { cache: "no-store" });
+1529:      state.reader_running === true ||
+1530:      Number(state.active_reader_count || 0) > 0 ||
+1531:      (Array.isArray(state.active_readers) && state.active_readers.length > 0)
+1537:    const active = state.active_readers;
+1676:    const res = await fetch("/api/mobile/state?ptp113b31b5=1", { cache: "no-store" });
+2014:    const activeCount = Number(state?.active_reader_count || 0);
+2015:    const readers = Array.isArray(state?.active_readers) ? state.active_readers : [];
+2016:    const running = Boolean(state?.reader_running || activeCount > 0 || readers.length > 0);
+2178:        const res = await fetch(endpoint, { method: "POST" });
+2252:      const res = await fetch("/api/mobile/state", { cache: "no-store" });
+2258:        active_reader_count: 0,
+2259:        active_readers: [],
+2623:    const labels = ["Atualizar", "Iniciar simulado", "Parar leitor", "Dashboard"];
+3526:                "PaperTradeSession simulado iniciado por /mobile/session/start.",
+4857:def _reader_running() -> bool:
+4875:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+4960:def _start_reader(interval: Any) -> dict[str, Any]:
+4962:        return _start_reader_locked(interval)
+4965:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+4973:    if _reader_running():
+4974:        active_readers = _active_reader_processes(force_refresh=True)
+4980:            "active_reader_count": max(1, len(active_readers)),
+4981:            "active_readers": active_readers,
+4984:    active_readers = _active_reader_processes(force_refresh=True)
+4985:    if active_readers:
+4986:        _reader_interval = _reader_interval_from_processes(active_readers)
+4991:            "warning": _reader_warning(active_readers) or "Leitor live-loop ja esta ativo.",
+4992:            "active_reader_count": len(active_readers),
+4993:            "active_readers": active_readers,
+5033:            "active_reader_count": 0,
+5052:            "active_reader_count": 0,
+5063:        "active_reader_count": 1,
+5085:def _stop_reader() -> dict[str, Any]:
+5088:    active_readers = _active_reader_processes(force_refresh=True)
+5089:    pids = {int(process["pid"]) for process in active_readers if process.get("pid")}
+5090:    if _reader_running() and _reader_process is not None:
+5150:    reader_processes = _active_reader_processes()
+5151:    running = _reader_running() or bool(reader_processes)
+5305:        "reader_running": running,
+5307:        "active_reader_count": max(1, len(reader_processes)) if running else 0,
+5308:        "active_readers": reader_processes,
+5399:    if _ptp113c2_bool(state.get("reader_running")):
+5403:        if int(state.get("active_reader_count") or 0) > 0:
+5408:    readers = state.get("active_readers")
+5610:        "reader_running": bool(reader_active),
+6706:        return 200, "application/json; charset=utf-8", _json_bytes(_stop_reader())
+6841:  const res = await fetch("/mobile/session/start", {
+6937:    @app.route("/mobile/session/start", methods=["POST"])
+6938:    @app.route("/api/mobile/simulated-session/start", methods=["POST"])
+6947:        return jsonify(_stop_reader())
+7960:    print("Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start")
+7962:    reader_warning = _reader_warning(_active_reader_processes())
+
+===== INVESTIGAR — Marcadores PTP 113 C =====
+2781:<!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_START -->
+2856:  const MARKER = "PTP113C7_VALIDACAO_MOBILE_VISUAL_RUNTIME";
+3019:<!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_END -->
+5339:# PTP113C2_MODELO_SINAL_ATUAL_START
+5532:            "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5621:        "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5648:# PTP113C2_MODELO_SINAL_ATUAL_END
+5654:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_START
+5807:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5821:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5842:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5856:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5869:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5881:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5927:        "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5943:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_END
+5949:# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_START
+6079:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+6093:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+6106:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+6119:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+6138:                    "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+6163:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+6195:        "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+6211:# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_END
+6217:# PTP113C5_ATUALIZACAO_BANCA_SIMULADA_START
+6318:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6331:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6345:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6358:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6373:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6392:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6423:        "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6439:# PTP113C5_ATUALIZACAO_BANCA_SIMULADA_END
+6445:# PTP113C6_HISTORICO_OPERACIONAL_START
+6555:            "source": "PTP113C6_HISTORICO_OPERACIONAL",
+6582:        "source": "PTP113C6_HISTORICO_OPERACIONAL",
+6647:# PTP113C6_HISTORICO_OPERACIONAL_END
+
+===== CONSTRUIR — Backup =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual/predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — Aplicar backend + frontend C.7.2 =====
+PASS: patch PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL aplicado.
+PATCH_EXIT=0
+
+===== VALIDAR — py_compile =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8823: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:9084: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PY_COMPILE_EXIT=0
+
+===== VALIDAR — git diff check =====
+GIT_DIFF_CHECK_EXIT=0
+
+===== VALIDAR — Marcadores C.7.2 =====
+3022:<!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_START -->
+3025:  const MARKER = "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_RUNTIME";
+3040:    let box = document.getElementById("px-ptp113c72-command-status");
+3043:      box.id = "px-ptp113c72-command-status";
+3079:      const result = await postJson("/api/mobile/observer/start", {
+3119:      if (txt.includes("iniciar simulado") && !node.dataset.ptp113c72StartBound) {
+3120:        node.dataset.ptp113c72StartBound = "1";
+3126:      if (txt.includes("parar leitor") && !node.dataset.ptp113c72StopBound) {
+3127:        node.dataset.ptp113c72StopBound = "1";
+3139:<!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_END -->
+8074:# PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_START
+8079:def _ptp113c72_reader_snapshot(force_refresh=True):
+8100:        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8104:def _ptp113c72_payload():
+8106:        from flask import request as _ptp113c72_request
+8107:        data = _ptp113c72_request.get_json(silent=True)
+8113:def _ptp113c72_interval(payload):
+8122:def _ptp113c72_start_observer_payload():
+8123:    payload = _ptp113c72_payload()
+8124:    interval = _ptp113c72_interval(payload)
+8126:    before = _ptp113c72_reader_snapshot(force_refresh=True)
+8138:    after = _ptp113c72_reader_snapshot(force_refresh=True)
+8154:        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8158:def _ptp113c72_stop_observer_payload():
+8159:    before = _ptp113c72_reader_snapshot(force_refresh=True)
+8171:    after = _ptp113c72_reader_snapshot(force_refresh=True)
+8186:        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+8196:        if not getattr(app, "_ptp113c72_observer_routes_registered", False):
+8197:            def ptp113c72_observer_start():
+8198:                return _ptp113c72_start_observer_payload()
+8200:            def ptp113c72_observer_stop():
+8201:                return _ptp113c72_stop_observer_payload()
+8203:            def ptp113c72_observer_status():
+8204:                return _ptp113c72_reader_snapshot(force_refresh=True)
+8206:            for rule in ("/api/mobile/observer/start", "/api/mobile/reader/start", "/mobile/reader/start"):
+8210:                        f"ptp113c72_observer_start_{rule.replace('/', '_')}",
+8211:                        ptp113c72_observer_start,
+8221:                        f"ptp113c72_observer_stop_{rule.replace('/', '_')}",
+8222:                        ptp113c72_observer_stop,
+8232:                        f"ptp113c72_observer_status_{rule.replace('/', '_')}",
+8233:                        ptp113c72_observer_status,
+8239:            app._ptp113c72_observer_routes_registered = True
+8244:# PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_END
+
+===== VALIDAR — Reiniciar servidor mobile =====
+Processos encontrados: 25432
+SERVER_PID=30410
+
+===== VALIDAR — Endpoint /mobile =====
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.8 Python/3.12.3
+Date: Tue, 07 Jul 2026 13:59:22 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 98156
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Connection: close
+
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — HTML real contém C.7.2 =====
+HTML_C72_MARKER=PASS
+
+===== VALIDAR — Status do observer antes do start =====
+{
+    "active_reader_count": 0,
+    "active_readers": [],
+    "auto_click_enabled": false,
+    "broker_login_enabled": false,
+    "credentials_allowed": false,
+    "orders_enabled": false,
+    "reader_running": false,
+    "real_money_enabled": false,
+    "simulation_only": true,
+    "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL"
+}
+
+===== VALIDAR — POST observer/start =====
+{
+    "after": {
+        "active_reader_count": 0,
+        "active_readers": [],
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "credentials_allowed": false,
+        "orders_enabled": false,
+        "reader_running": true,
+        "real_money_enabled": false,
+        "simulation_only": true,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL"
+    },
+    "auto_click_enabled": false,
+    "before": {
+        "active_reader_count": 0,
+        "active_readers": [],
+        "auto_click_enabled": false,
+        "broker_login_enabled": false,
+        "credentials_allowed": false,
+        "orders_enabled": false,
+        "reader_running": false,
+        "real_money_enabled": false,
+        "simulation_only": true,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL"
+    },
+    "broker_login_enabled": false,
+    "credentials_allowed": false,
+    "interval": 3,
+    "message": "Observador visual solicitado.",
+    "ok": true,
+    "orders_enabled": false,
+    "real_money_enabled": false,
+    "simulation_only": true,
+    "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+    "start_result": {
+        "active_reader_count": 1,
+        "interval": 3,
+        "log_path": "/home/leo/Documentos/GitHub/predixai-platform/data/runtime/mobile_reader.log",
+        "observer_only": true,
+        "pid": 30454,
+        "status": "STARTED"
+    },
+    "status": "ON"
+}
+
+===== VALIDAR — Aguardar leitura/processo =====
+
+===== VALIDAR — Estado após start =====
+reader_running= True
+active_reader_count= 1
+reader_warning= 
+state_status= Rodando — aguardando preço
+state_message= Janela ignorada: VS Code não é corretora
+current_signal_model_exists=True
+simulated_open_operation_exists=True
+simulated_close_result_exists=True
+simulated_bankroll_update_exists=True
+operational_history_event_exists=True
+simulation_only=True expected=True
+orders_enabled=False expected=False
+real_money_enabled=False expected=False
+auto_click_enabled=False expected=False
+broker_login_enabled=False expected=False
+credentials_allowed=False expected=False
+OBSERVER_START_VALIDATE=PASS
+PTP113C72_STATE_VALIDATE=PASS
+PTP113C72_STATE_VALIDATE_EXIT=0
+
+===== REGISTRAR — Resultado técnico =====
+Resultado esperado:
+- /api/mobile/observer/start criado.
+- /api/mobile/observer/stop criado.
+- /api/mobile/observer/status criado.
+- Botão Iniciar simulado passa a chamar observer/start.
+- Botão Parar leitor passa a chamar observer/stop.
+- Travas simuladas preservadas.
+- Nenhuma ordem real é executada.
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+A  docs/history/ptp/PTP-113/PTP-113C/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual_FIX.md
+M  docs/reports_index.md
+A  reports/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual_FIX.txt
+M  scripts/predixai_trader_mobile_server.py

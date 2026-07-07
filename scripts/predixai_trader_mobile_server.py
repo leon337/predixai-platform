@@ -3018,6 +3018,126 @@ a.px-btn-error {
 </script>
 <!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_END -->
 
+
+<!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_START -->
+<script>
+(function () {
+  const MARKER = "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_RUNTIME";
+  if (window[MARKER]) return;
+  window[MARKER] = true;
+
+  async function postJson(url, payload) {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      body: JSON.stringify(payload || {})
+    });
+    return await response.json().catch(() => ({}));
+  }
+
+  function setCommandMessage(text) {
+    let box = document.getElementById("px-ptp113c72-command-status");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "px-ptp113c72-command-status";
+      box.style.margin = "10px 12px";
+      box.style.padding = "10px 12px";
+      box.style.border = "1px solid rgba(0,220,255,.24)";
+      box.style.borderRadius = "12px";
+      box.style.color = "#e8f7ff";
+      box.style.background = "rgba(7,20,35,.90)";
+      box.style.fontWeight = "700";
+
+      const anchor =
+        document.getElementById("px-ptp113c7-cycle") ||
+        document.getElementById("px-observer-toggle-panel") ||
+        document.querySelector("main") ||
+        document.body;
+
+      if (anchor && anchor.parentNode && anchor !== document.body) {
+        anchor.parentNode.insertBefore(box, anchor);
+      } else {
+        document.body.appendChild(box);
+      }
+    }
+    box.textContent = text;
+  }
+
+  async function refreshStateSoon() {
+    setTimeout(async function () {
+      try {
+        const response = await fetch("/api/mobile/state", { cache: "no-store" });
+        await response.json();
+      } catch (err) {}
+    }, 800);
+  }
+
+  async function startObserverFromMobile() {
+    setCommandMessage("Comando executado/encaminhado: ligar observador visual...");
+    try {
+      const result = await postJson("/api/mobile/observer/start", {
+        interval: 3,
+        source: "PTP113C72_MOBILE_BUTTON"
+      });
+
+      const after = result && result.after ? result.after : {};
+      if (result.ok || after.reader_running) {
+        setCommandMessage("Observador visual ligado. Aguarde a primeira leitura.");
+      } else {
+        setCommandMessage("Start solicitado, mas reader ainda não confirmou ON. Verificar relatório.");
+      }
+    } catch (err) {
+      setCommandMessage("Falha ao ligar observador visual: " + err);
+    }
+    refreshStateSoon();
+  }
+
+  async function stopObserverFromMobile() {
+    setCommandMessage("Comando executado/encaminhado: parar observador visual...");
+    try {
+      await postJson("/api/mobile/observer/stop", {
+        source: "PTP113C72_MOBILE_BUTTON"
+      });
+      setCommandMessage("Parada do observador visual solicitada.");
+    } catch (err) {
+      setCommandMessage("Falha ao parar observador visual: " + err);
+    }
+    refreshStateSoon();
+  }
+
+  function buttonText(node) {
+    return (node && node.innerText ? node.innerText : node && node.textContent ? node.textContent : "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function bindButtons() {
+    document.querySelectorAll("button, a, [role='button']").forEach(function (node) {
+      const txt = buttonText(node);
+
+      if (txt.includes("iniciar simulado") && !node.dataset.ptp113c72StartBound) {
+        node.dataset.ptp113c72StartBound = "1";
+        node.addEventListener("click", function () {
+          startObserverFromMobile();
+        });
+      }
+
+      if (txt.includes("parar leitor") && !node.dataset.ptp113c72StopBound) {
+        node.dataset.ptp113c72StopBound = "1";
+        node.addEventListener("click", function () {
+          stopObserverFromMobile();
+        });
+      }
+    });
+  }
+
+  bindButtons();
+  setInterval(bindButtons, 1200);
+})();
+</script>
+<!-- PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_FRONTEND_END -->
+
 </body>
 </html>
 """
@@ -7947,6 +8067,182 @@ def _run_audit_logic_smoke_test() -> bool:
     if old_metadata.get("target_time") != old_target.isoformat():
         raise AssertionError("60s legacy signal target_time was not preserved")
     return True
+
+
+
+# ============================================================
+# PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_START
+# PTP 113 C.7.2 — Corrigir Start do Observador Visual
+# Objetivo: disponibilizar endpoints seguros para ligar/parar/status do reader.
+# ============================================================
+
+def _ptp113c72_reader_snapshot(force_refresh=True):
+    try:
+        processes = _active_reader_processes(force_refresh=force_refresh)
+    except Exception:
+        processes = []
+
+    try:
+        running = bool(_reader_running() or processes)
+    except Exception:
+        running = bool(processes)
+
+    return {
+        "reader_running": running,
+        "active_reader_count": len(processes) if isinstance(processes, list) else 0,
+        "active_readers": processes if isinstance(processes, list) else [],
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+    }
+
+
+def _ptp113c72_payload():
+    try:
+        from flask import request as _ptp113c72_request
+        data = _ptp113c72_request.get_json(silent=True)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _ptp113c72_interval(payload):
+    value = payload.get("interval") or payload.get("reader_interval") or payload.get("seconds") or 3
+    try:
+        value = int(float(value))
+    except Exception:
+        value = 3
+    return max(1, min(30, value))
+
+
+def _ptp113c72_start_observer_payload():
+    payload = _ptp113c72_payload()
+    interval = _ptp113c72_interval(payload)
+
+    before = _ptp113c72_reader_snapshot(force_refresh=True)
+
+    try:
+        result = _start_reader(interval)
+    except Exception as exc:
+        result = {
+            "ok": False,
+            "status": "ERROR",
+            "error": str(exc),
+            "message": "Falha ao iniciar reader/observador visual.",
+        }
+
+    after = _ptp113c72_reader_snapshot(force_refresh=True)
+
+    return {
+        "ok": bool(after.get("reader_running")),
+        "status": "ON" if after.get("reader_running") else "START_REQUESTED_NOT_RUNNING",
+        "message": "Observador visual solicitado.",
+        "interval": interval,
+        "start_result": result,
+        "before": before,
+        "after": after,
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+    }
+
+
+def _ptp113c72_stop_observer_payload():
+    before = _ptp113c72_reader_snapshot(force_refresh=True)
+
+    try:
+        result = _stop_reader()
+    except Exception as exc:
+        result = {
+            "ok": False,
+            "status": "ERROR",
+            "error": str(exc),
+            "message": "Falha ao parar reader/observador visual.",
+        }
+
+    after = _ptp113c72_reader_snapshot(force_refresh=True)
+
+    return {
+        "ok": bool(after.get("reader_running") is False),
+        "status": "OFF" if after.get("reader_running") is False else "STOP_REQUESTED_STILL_RUNNING",
+        "message": "Parada do observador visual solicitada.",
+        "stop_result": result,
+        "before": before,
+        "after": after,
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+        "source": "PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL",
+    }
+
+
+if "_PTP113C72_ORIGINAL_CREATE_MOBILE_APP" not in globals() and "create_mobile_app" in globals():
+    _PTP113C72_ORIGINAL_CREATE_MOBILE_APP = create_mobile_app
+
+    def create_mobile_app(*args, **kwargs):
+        app = _PTP113C72_ORIGINAL_CREATE_MOBILE_APP(*args, **kwargs)
+
+        if not getattr(app, "_ptp113c72_observer_routes_registered", False):
+            def ptp113c72_observer_start():
+                return _ptp113c72_start_observer_payload()
+
+            def ptp113c72_observer_stop():
+                return _ptp113c72_stop_observer_payload()
+
+            def ptp113c72_observer_status():
+                return _ptp113c72_reader_snapshot(force_refresh=True)
+
+            for rule in ("/api/mobile/observer/start", "/api/mobile/reader/start", "/mobile/reader/start"):
+                try:
+                    app.add_url_rule(
+                        rule,
+                        f"ptp113c72_observer_start_{rule.replace('/', '_')}",
+                        ptp113c72_observer_start,
+                        methods=["POST"],
+                    )
+                except Exception:
+                    pass
+
+            for rule in ("/api/mobile/observer/stop", "/api/mobile/reader/stop", "/mobile/reader/stop"):
+                try:
+                    app.add_url_rule(
+                        rule,
+                        f"ptp113c72_observer_stop_{rule.replace('/', '_')}",
+                        ptp113c72_observer_stop,
+                        methods=["POST"],
+                    )
+                except Exception:
+                    pass
+
+            for rule in ("/api/mobile/observer/status", "/api/mobile/reader/status"):
+                try:
+                    app.add_url_rule(
+                        rule,
+                        f"ptp113c72_observer_status_{rule.replace('/', '_')}",
+                        ptp113c72_observer_status,
+                        methods=["GET"],
+                    )
+                except Exception:
+                    pass
+
+            app._ptp113c72_observer_routes_registered = True
+
+        return app
+
+# ============================================================
+# PTP113C72_CORRIGIR_START_OBSERVADOR_VISUAL_BACKEND_END
+# ============================================================
 
 
 def run_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:

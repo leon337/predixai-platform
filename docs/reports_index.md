@@ -97,3 +97,10 @@
 - Relatório: `reports/20260707_104059_PTP-113C.7_validacao_mobile_visual_FIX.txt`
 - Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_104059_PTP-113C.7_validacao_mobile_visual_FIX.md`
 - Arquivo alterado: `scripts/predixai_trader_mobile_server.py`
+
+## 2026-07-07 10:59:16 -0300 — PTP 113 C.7.2 — Corrigir Start do Observador Visual
+
+- Status: FIX
+- Relatório: `reports/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual_FIX.txt`
+- Histórico: `docs/history/ptp/PTP-113/PTP-113C/20260707_105916_PTP-113C.7.2_corrigir_start_observador_visual_FIX.md`
+- Arquivo alterado: `scripts/predixai_trader_mobile_server.py`
