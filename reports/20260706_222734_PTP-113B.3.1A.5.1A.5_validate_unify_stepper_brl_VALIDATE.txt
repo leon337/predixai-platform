@@ -1,0 +1,345 @@
+PREDIXAI BR — RELATÓRIO DE VALIDAÇÃO
+PTP: PTP-113B.3.1A.5.1A.5
+Nome curto: validate_unify_stepper_brl
+Ação: VALIDATE
+Data: 2026-07-06 22:27:34 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+
+===== OBJETIVO =====
+Validar a correção Unificar Stepper BRL sem alterar código.
+A validação checa:
+- estado do Git;
+- compilação Python;
+- presença da guarda runtime;
+- risco da guarda estar no fim do arquivo;
+- import smoke test;
+- /session/setup se servidor já estiver ativo;
+- sobras de relatórios untracked.
+
+===== INVESTIGAR — ESTADO DO GIT =====
+
+$ git rev-parse --show-toplevel
+/home/leo/Documentos/GitHub/predixai-platform
+exit_code=0
+
+$ git branch --show-current
+main
+exit_code=0
+
+$ git log -5 --oneline
+6f91982 PTP-113B.3.1A.5.1A.4 unify Stepper BRL
+965bc1b PTP-113B.3.1A.5.1A.3 audit Stepper BRL
+34af941 PTP-GOV.2 add PredixAI Trader master scope
+217aaca PTP-GOV.1.1 close governance final report
+108108f PTP-GOV.1 install PredixAI governance protocols
+exit_code=0
+
+--- git status inicial ---
+?? reports/20260706_221311_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.txt
+?? reports/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_VALIDATE.txt
+WARN: Relatório antigo 20260706_221311 ainda aparece como sobra untracked.
+WARN: Commit recente da PTP-113B.3.1A.5.1A.4 não encontrado nos últimos 5 commits.
+
+===== VALIDAR — ARQUIVO ALVO =====
+OK: arquivo alvo encontrado.
+  5562 206187 scripts/predixai_trader_mobile_server.py
+4e639ab53eaf65136f8f07ff80ff9934d5aa8d7ea8337ea51dfb4ba50571490e  scripts/predixai_trader_mobile_server.py
+parseMoney_definicoes=2
+formatBRL_definicoes=2
+DOMContentLoaded_ocorrencias=2
+money_stepper_ocorrencias=10
+guard_marker_ocorrencias=2
+legacy_marker_ocorrencias=4
+after_request_ocorrencias=8
+PASS: guarda runtime encontrada.
+WARN: A lógica da guarda parece passiva: ela age quando o marcador legado NÃO está no HTML. Se o marcador legado estiver presente, pode não bloquear a V1.
+
+--- linhas da guarda runtime ---
+5530:# PTP-113B.3.1A.5.1A.4_UNIFY_STEPPER_BRL_RUNTIME_GUARD
+5543:        runtime_marker = "<!-- PTP113B3151A_CURRENCY_CONTROLS_BRL disabled by PTP-113B.3.1A.5.1A.4_UNIFY_STEPPER_BRL_RUNTIME_GUARD -->"
+
+--- últimos 80 versos do arquivo alvo ---
+def _ptp113b3151a1_inject_currency_layout_v1(html):
+    if not isinstance(html, str):
+        return html
+
+    if "PTP113B3151A1_CURRENCY_LAYOUT_RECOVERY_LOGIC" in html:
+        return html
+
+    assets = _ptp113b3151a1_currency_layout_assets_v1()
+
+    if "</body>" in html:
+        return html.replace("</body>", assets + "\n</body>", 1)
+
+    return html + "\n" + assets
+
+
+try:
+    _ptp113b3151a1_original_create_mobile_app_v1 = create_mobile_app
+
+    def create_mobile_app(*args, **kwargs):  # type: ignore[no-redef]
+        app = _ptp113b3151a1_original_create_mobile_app_v1(*args, **kwargs)
+
+        if not getattr(app, "_ptp113b3151a1_currency_layout_v1", False):
+            @app.after_request
+            def _ptp113b3151a1_currency_layout_after_request_v1(response):
+                try:
+                    if request.path == "/session/setup":
+                        content_type = str(response.headers.get("Content-Type", ""))
+                        if "text/html" in content_type:
+                            html = response.get_data(as_text=True)
+                            html = _ptp113b3151a1_inject_currency_layout_v1(html)
+                            response.set_data(html)
+                            response.headers["Content-Length"] = str(len(response.get_data()))
+                    return response
+                except Exception as exc:
+                    response.headers["X-PTP113B3151A1-CurrencyLayout-Warning"] = str(exc)[:120]
+                    return response
+
+            app._ptp113b3151a1_currency_layout_v1 = True
+
+        return app
+except NameError:
+    pass
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+# PTP-113B.3.1A.5.1A.4_UNIFY_STEPPER_BRL_RUNTIME_GUARD
+@app.after_request
+def _ptp113b3151a51a4_unify_stepper_brl(response):
+    """Desativa a injeção monetária legada V1 antes do Stepper BRL V2 rodar."""
+    try:
+        if request.path != "/session/setup":
+            return response
+
+        content_type = response.headers.get("Content-Type", "")
+        if "text/html" not in content_type:
+            return response
+
+        html = response.get_data(as_text=True)
+        runtime_marker = "<!-- PTP113B3151A_CURRENCY_CONTROLS_BRL disabled by PTP-113B.3.1A.5.1A.4_UNIFY_STEPPER_BRL_RUNTIME_GUARD -->"
+
+        if runtime_marker in html:
+            return response
+
+        if "PTP113B3151A_CURRENCY_CONTROLS_BRL" not in html:
+            if "</head>" in html:
+                html = html.replace("</head>", runtime_marker + "\n</head>", 1)
+            elif "</body>" in html:
+                html = html.replace("</body>", runtime_marker + "\n</body>", 1)
+            else:
+                html = runtime_marker + "\n" + html
+
+            response.set_data(html)
+            response.headers["Content-Length"] = str(len(response.get_data()))
+
+    except Exception:
+        return response
+
+    return response
+
+===== VALIDAR — PY_COMPILE =====
+
+$ python -m py_compile scripts/predixai_trader_mobile_server.py
+exit_code=0
+PASS: py_compile aprovado.
+
+===== VALIDAR — IMPORT SMOKE TEST =====
+
+--- import smoke output ---
+Traceback (most recent call last):
+  File "<stdin>", line 11, in <module>
+  File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py", line 5531, in <module>
+    @app.after_request
+     ^^^
+NameError: name 'app' is not defined
+IMPORT_SMOKE_FAIL
+NameError: name 'app' is not defined
+import_smoke_exit_code=1
+FAIL: Import smoke test falhou. Verificar se a guarda anexada ao final causou erro runtime.
+
+===== VALIDAR — GIT DIFF CHECK =====
+
+$ git diff --check
+exit_code=0
+PASS: git diff --check aprovado.
+
+===== VALIDAR — ROTA /session/setup SE SERVIDOR ESTIVER ATIVO =====
+http_code_session_setup=200
+PASS: /session/setup respondeu HTTP 200.
+html_parseMoney_definicoes=2
+html_formatBRL_definicoes=2
+html_DOMContentLoaded_ocorrencias=2
+html_money_stepper_ocorrencias=10
+html_guard_marker_ocorrencias=0
+html_legacy_marker_ocorrencias=1
+FAIL: HTML de /session/setup ainda contém mais de uma definição de parseMoney.
+FAIL: HTML de /session/setup ainda contém mais de uma definição de formatBRL.
+WARN: HTML de /session/setup ainda contém mais de um DOMContentLoaded.
+WARN: HTML ainda contém marcador legado V1. Validar visualmente se a V1 foi realmente bloqueada.
+
+--- amostra do HTML /session/setup ---
+<!doctype html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PredixAI BR — Iniciar Sessão Simulada</title>
+    <style>
+    body{margin:0;background:#07111f;color:#eaf4ff;font-family:Arial,sans-serif}
+    .wrap{max-width:620px;margin:0 auto;padding:22px}
+    .card{background:#0d1c31;border:1px solid #1f3c5c;border-radius:18px;padding:20px;box-shadow:0 0 22px #0008}
+    h1{font-size:24px;margin:0 0 8px;color:#66d9ff}
+    h2{font-size:17px;margin:22px 0 8px;color:#d8aa3a}
+    p{color:#b8c7d9;line-height:1.45}
+    label{display:block;margin-top:14px;font-weight:bold}
+    select,input{width:100%;padding:12px;border-radius:10px;border:1px solid #2c5278;background:#081625;color:#fff;font-size:16px;box-sizing:border-box}
+    button{width:100%;margin-top:22px;padding:15px;border:0;border-radius:12px;background:#d8aa3a;color:#08111f;font-weight:bold;font-size:17px}
+    .badge{display:inline-block;background:#12324f;border:1px solid #2b6e9f;color:#9de6ff;border-radius:999px;padding:6px 10px;font-size:12px;margin-bottom:10px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .box{background:#081625;border:1px solid #1f3c5c;border-radius:12px;padding:12px;margin-top:10px}
+    .k{font-size:12px;color:#8fa6bd}
+    .v{font-size:18px;font-weight:bold;color:#fff;margin-top:4px}
+    .note{margin-top:14px;font-size:13px;color:#90a7bd;line-height:1.4}
+    .warn{border-color:#d8aa3a;color:#ffe4a0}
+    </style>
+    </head>
+    <body>
+    <div class="wrap">
+    <div class="card">
+    <div class="badge">MODO 100% SIMULADO</div>
+    <h1>PredixAI Trader — Configurar Sessão</h1>
+    <p>Configure o contrato operacional antes de abrir o painel mobile. Nenhuma ordem real, clique automático, login ou saldo real será usado.</p>
+
+    <form method="post">
+    <h2>1. Modo operacional</h2>
+    <label>Modo</label>
+    <select name="operational_mode" id="operational_mode" onchange="updatePreview()">
+    <option value="scalper">Scalper — sinais rápidos</option>
+    <option value="day_trade">Day Trade — sinais mais seletivos</option>
+    </select>
+
+    <h2>2. Estratégia geradora do sinal</h2>
+    <label>Estratégia</label>
+    <select name="strategy_key" id="strategy_key" onchange="updatePreview()">
+    <option value="support_resistance">Suporte e resistência</option>
+    <option value="candle_reversal">Reversão de vela</option>
+    <option value="breakout">Rompimento</option>
+    <option value="moving_average_trend">Tendência por médias</option>
+    <option value="pullback">Pullback</option>
+    <option value="simple_confluence" selected>Confluência simples</option>
+    </select>
+
+    <h2>3. Banca simulada, meta e risco</h2>
+    <label>Banca simulada inicial</label>
+    <input name="initial_bankroll" id="initial_bankroll" type="number" step="0.01" value="100" oninput="updatePreview()">
+
+    <label>Valor da entrada simulada</label>
+    <input name="current_entry" id="current_entry" type="number" step="0.01" value="5" oninput="updatePreview()">
+
+    <label>Lucro desejado da sessão</label>
+    <input name="desired_profit" id="desired_profit" type="number" step="0.01" value="25" oninput="updatePreview()">
+
+    <label>Expiração</label>
+    <select name="expiration_seconds" id="expiration_seconds">
+    <option value="30">30 segundos</option>
+    <option value="60" selected>60 segundos</option>
+    <option value="300">5 minutos</option>
+    <option value="900">15 minutos</option>
+    </select>
+
+    <label>Perfil de risco</label>
+    <select name="risk_profile" id="risk_profile">
+    <option value="conservador" selected>Conservador</option>
+    <option value="moderado">Moderado</option>
+    <option value="agressivo_simulado">Agressivo apenas simulado</option>
+    </select>
+
+    <h2>4. Prévia operacional</h2>
+    <div class="grid">
+    <div class="box"><div class="k">Estimativa em 5 min</div><div class="v" id="signals5">1 sinal</div></div>
+    <div class="box"><div class="k">Estimativa em 1 hora</div><div class="v" id="signals1h">5 sinais</div></div>
+    <div class="box"><div class="k">Risco da estratégia</div><div class="v" id="riskBox">baixo/médio</div></div>
+    <div class="box"><div class="k">Consumo estimado 1h</div><div class="v" id="consumption">R$ 25,00</div></div>
+    <div class="box"><div class="k">Lucro desejado</div><div class="v" id="profitTarget">R$ 25,00</div></div>
+    <div class="box"><div class="k">Saldo alvo</div><div class="v" id="targetBalance">R$ 125,00</div></div>
+    </div>
+
+    <div class="box warn">
+    <div class="k">Regra geral da sessão</div>
+    <div class="note" id="generalRule">O cancelamento específico será exibido junto do sinal gerado.</div>
+    </div>
+
+    <button type="submit">Iniciar sessão simulada</button>
+    <section class="box" data-ptp="PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3">
+  <h2>Recuperação e risco simulados</h2>
+  <label>Recuperação simulada</label>
+  <select name="recovery_mode" id="recovery_mode">
+  <option value="NONE">Sem recuperação</option>
+  <option value="MAO_FIXA">Mão fixa / entrada fixa</option>
+  <option value="SOROS">Soros / anti-martingale</option>
+  <option value="MARTINGALE_1">1 Martingale</option>
+  <option value="MARTINGALE_2">2 Martingales</option>
+  <option value="SMARTGALE">SmartGale simulado</option>
+</select>
+  <label>Limite máximo de entrada simulada</label>
+  <input name="max_entry_limit" id="max_entry_limit" type="number" min="1" step="0.01" value="20.00"/>
+  <div class="box">
+    <div class="k">Prévia de risco</div>
+    <div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, percentual da banca exposto, risco combinado e alerta.</div>
+  </div>
+</section>
+<div class="box" id="recoveryPreview" data-ptp="PTP-113B.3.1A.5.1_RECOVERY_PREVIEW_V2"><div class="k">Gestão simulada de recuperação e risco</div><div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, risco combinado e alerta.</div></div>
+</form>
+
+    <div class="note">
+    Contrato: mobile-first, observador visual, motor lógico programado, saldo simulado e segurança travada.
+    </div>
+    </div>
+    </div>
+
+    <script>
+
+===== VALIDAR — SEGURANÇA SIMULADA =====
+498:    "orders_enabled": false,
+511:    "orders_enabled": false,
+652:    "orders_enabled": false,
+680:    "orders_enabled": false,
+706:    "orders_enabled": false,
+729:    "orders_enabled": false,
+753:    "orders_enabled": false,
+774:    "orders_enabled": false,
+792:    "orders_enabled": false,
+808:    "orders_enabled": false,
+1199:      "orders_enabled": false,
+1209:    "orders_enabled": false,
+PASS: nenhuma ativação óbvia de ordem real/auto-click/login real encontrada no arquivo alvo.
+
+===== REGISTRAR — STATUS FINAL =====
+Status calculado: FAIL
+Warnings: 5
+Erros: 3
+
+===== REGISTRAR — MARKDOWN E ÍNDICE =====
+Backup do índice criado: backups/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_reports_index.before.md
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_VALIDATE.md
+Índice atualizado: docs/reports_index.md
+
+===== SANITY CHECK — ARQUIVOS PARA VERSIONAMENTO =====
+intended_git_add: reports/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_VALIDATE.txt
+intended_git_add: docs/history/ptp/PTP-113/PTP-113B/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_VALIDATE.md
+intended_git_add: docs/reports_index.md
+intended_git_add: backups/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_reports_index.before.md
+
+===== ENTREGAR — FECHAMENTO DO RELATÓRIO =====
+Status final: FAIL
+Warnings: 5
+Erros: 3
+
+Relatório fechado antes de commit/push.
+Depois do push, o script apenas abrirá este relatório, sem escrever novas linhas nele.

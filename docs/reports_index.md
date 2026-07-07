@@ -8,3 +8,4 @@
 
 - 2026-07-06 22:14:47 -0300 | PTP-113B.3.1A.5.1A.3 | stepper_brl | AUDIT | reports/20260706_221447_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.txt | docs/history/ptp/PTP-113/PTP-113B/20260706_221447_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.md | commit após script
 | 2026-07-06 22:19:35 -0300 | PTP-113B.3.1A.5.1A.4 | unify_stepper_brl | PASS | `reports/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.txt` | `docs/history/ptp/PTP-113/PTP-113B/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.md` |
+| 2026-07-06 22:27:34 -0300 | PTP-113B.3.1A.5.1A.5 | validate_unify_stepper_brl | FAIL | `reports/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_VALIDATE.txt` | `docs/history/ptp/PTP-113/PTP-113B/20260706_222734_PTP-113B.3.1A.5.1A.5_validate_unify_stepper_brl_VALIDATE.md` |
