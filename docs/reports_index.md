@@ -132,3 +132,4 @@
 
 - 2026-07-07 13:08:42 -0300 | PTP-113C.7.7A | auditar_start_reader | PASS_AUDIT_START_READER_READY_FOR_FIX | reports/20260707_130832_PTP-113C.7.7A_auditar_start_reader_AUDIT.txt | docs/history/ptp/PTP-113/PTP-113C/20260707_130832_PTP-113C.7.7A_auditar_start_reader_AUDIT.md
 | 2026-07-07 19:04:34 -0300 | PTP 113 C.8.0 | quarentena_mobile_v2 | PASS | `reports/20260707_190434_PTP-113C.8.0_quarentena_mobile_v2_AUDIT_CLEANUP.txt` | `docs/history/ptp/PTP-113/PTP-113C/20260707_190434_PTP-113C.8.0_quarentena_mobile_v2_AUDIT_CLEANUP.md` |
+| 2026-07-07 19:08:28 -0300 | PTP 113 C.8.0.1 | fechar_sobra_local_c80 | PASS | `reports/20260707_190828_PTP-113C.8.0.1_fechar_sobra_local_c80_CLOSE_LOCAL_RESIDUE.txt` | `docs/history/ptp/PTP-113/PTP-113C/20260707_190828_PTP-113C.8.0.1_fechar_sobra_local_c80_CLOSE_LOCAL_RESIDUE.md` |

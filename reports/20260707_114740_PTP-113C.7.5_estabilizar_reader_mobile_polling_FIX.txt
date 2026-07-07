@@ -1037,3 +1037,20 @@ Index atualizado: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_ind
 ?? src/predixai/runtime/
 
 ===== PUBLICAR — Commit e push =====
+[main d05841b] PTP 113 C.7.5 estabilizar reader mobile polling
+ 7 files changed, 2192 insertions(+), 6 deletions(-)
+ create mode 100644 docs/history/ptp/PTP-113/PTP-113C/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.md
+ create mode 100644 reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+ create mode 100644 src/predixai/runtime/__init__.py
+ create mode 100644 src/predixai/runtime/sqlite_resilience.py
+COMMIT_EXIT=0
+To https://github.com/leon337/predixai-platform.git
+   99b915d..d05841b  main -> main
+PUSH_EXIT=0
+
+===== ENTREGAR — Abrir relatório =====
+RELATORIO=/home/leo/Documentos/GitHub/predixai-platform/reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+MARKDOWN=/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.md
+
+===== STATUS FINAL =====
+PTP113C75_RESULT=WARN_OR_FAIL_REVIEW_NEEDED

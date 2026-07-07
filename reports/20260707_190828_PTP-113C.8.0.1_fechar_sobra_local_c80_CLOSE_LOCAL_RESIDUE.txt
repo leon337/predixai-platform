@@ -1,0 +1,98 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP 113 C.8.0.1
+Nome curto: fechar_sobra_local_c80
+Data: 2026-07-07 19:08:28 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Alvo: reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+Modo: fechamento de sobra local pós C.8.0
+Operação real: NÃO
+Código novo Mobile V2: NÃO
+
+===== TRAVAS OPERACIONAIS =====
+simulation_only=true
+orders_enabled=false
+real_money_enabled=false
+auto_click_enabled=false
+broker_login_enabled=false
+credentials_allowed=false
+
+===== INVESTIGAR — STATUS INICIAL =====
+
+===== git status inicial =====
+$ git status --short
+ M reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+?? reports/20260707_190828_PTP-113C.8.0.1_fechar_sobra_local_c80_CLOSE_LOCAL_RESIDUE.txt
+STATUS: 0
+
+===== últimos commits =====
+$ git log -5 --oneline
+1da8948 PTP 113 C.8.0 saneamento quarentena mobile v2
+8b72aff PTP 113 C.7.7A auditar start reader
+a3cdbbe PTP 113 C.7.7 validacao controlada observador ativo
+a06e7c0 PTP 113 C.7.6B.3 registrar validacao mobile pos rollback
+d33735e PTP 113 C.7.6B.2 rollback mobile server pre C75
+STATUS: 0
+
+===== INVESTIGAR — ALVO =====
+OK: relatório alvo existe.
+
+===== INVESTIGAR — DIFF DO ALVO =====
+diff --git a/reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt b/reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+index f85d576..56c3c79 100644
+--- a/reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
++++ b/reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
+@@ -1037,3 +1037,20 @@ Index atualizado: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_ind
+ ?? src/predixai/runtime/
+ 
+ ===== PUBLICAR — Commit e push =====
++[main d05841b] PTP 113 C.7.5 estabilizar reader mobile polling
++ 7 files changed, 2192 insertions(+), 6 deletions(-)
++ create mode 100644 docs/history/ptp/PTP-113/PTP-113C/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.md
++ create mode 100644 reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
++ create mode 100644 src/predixai/runtime/__init__.py
++ create mode 100644 src/predixai/runtime/sqlite_resilience.py
++COMMIT_EXIT=0
++To https://github.com/leon337/predixai-platform.git
++   99b915d..d05841b  main -> main
++PUSH_EXIT=0
++
++===== ENTREGAR — Abrir relatório =====
++RELATORIO=/home/leo/Documentos/GitHub/predixai-platform/reports/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.txt
++MARKDOWN=/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260707_114740_PTP-113C.7.5_estabilizar_reader_mobile_polling_FIX.md
++
++===== STATUS FINAL =====
++PTP113C75_RESULT=WARN_OR_FAIL_REVIEW_NEEDED
+DIFF_DETECTADO: sim
+
+===== INVESTIGAR — MUDANÇAS EXISTENTES FORA DO ALVO =====
+OK: nenhuma mudança inesperada fora do alvo detectada antes do registro desta PTP.
+
+===== PLANEJAR — DECISÃO =====
+Decisão: versionar relatório alvo modificado.
+Motivo: sobra local já existia após C.8.0 e precisa ser fechada no GitHub.
+
+===== VALIDAR — DIFF CHECK =====
+
+===== git diff --check =====
+$ git diff --check
+
+STATUS: 0
+
+===== REGISTRAR — MARKDOWN HISTÓRICO =====
+Markdown criado: docs/history/ptp/PTP-113/PTP-113C/20260707_190828_PTP-113C.8.0.1_fechar_sobra_local_c80_CLOSE_LOCAL_RESIDUE.md
+
+===== REGISTRAR — ÍNDICE =====
+Índice atualizado: docs/reports_index.md
+
+===== RESULTADO FINAL DO RELATÓRIO =====
+Resultado geral: PASS
+Decisão: VERSION_TARGET_REPORT
+Warnings: 0
+Falhas: 0
+Relatório: reports/20260707_190828_PTP-113C.8.0.1_fechar_sobra_local_c80_CLOSE_LOCAL_RESIDUE.txt
+Markdown: docs/history/ptp/PTP-113/PTP-113C/20260707_190828_PTP-113C.8.0.1_fechar_sobra_local_c80_CLOSE_LOCAL_RESIDUE.md
+Índice: docs/reports_index.md
+Observação: relatório fechado antes de commit/push.
