@@ -1,0 +1,273 @@
+PREDIXAI BR — RELATÓRIO DE REINÍCIO E VALIDAÇÃO
+PTP: PTP-113B.3.1A.5.1A.7
+Nome curto: restart_validate_stepper_brl
+Ação: VALIDATE
+Data: 2026-07-06 22:37:19 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+Porta mobile: 8766
+URL validada: http://127.0.0.1:8766/session/setup
+
+===== OBJETIVO =====
+Reiniciar o servidor mobile para carregar a correção PTP-113B.3.1A.5.1A.6.
+Validar que /session/setup agora sai sem duplicação monetária:
+- parseMoney = 1
+- formatBRL = 1
+- DOMContentLoaded monetário = 1
+- marcador legado V1 = 0
+
+Nenhuma operação real, login real, saldo real, auto-click ou ordem real será executada.
+
+===== INVESTIGAR — ESTADO DO GIT =====
+
+$ git rev-parse --show-toplevel
+/home/leo/Documentos/GitHub/predixai-platform
+exit_code=0
+
+$ git branch --show-current
+main
+exit_code=0
+
+$ git log -8 --oneline
+198460d PTP-113B.3.1A.5.1A.6 fix Stepper BRL guard
+2c8fea5 PTP-113B.3.1A.5.1A.5 validate Stepper BRL
+6f91982 PTP-113B.3.1A.5.1A.4 unify Stepper BRL
+965bc1b PTP-113B.3.1A.5.1A.3 audit Stepper BRL
+34af941 PTP-GOV.2 add PredixAI Trader master scope
+217aaca PTP-GOV.1.1 close governance final report
+108108f PTP-GOV.1 install PredixAI governance protocols
+98a4a67 PTP-113B.3.1A.5.1A.2 AUDIT pause publish report
+exit_code=0
+
+--- git status inicial ---
+?? __HTML_TEST_PATH__
+?? reports/20260706_223719_PTP-113B.3.1A.5.1A.7_restart_validate_stepper_brl_VALIDATE.txt
+WARN: Commit da PTP-113B.3.1A.5.1A.6 não encontrado nos últimos 8 commits.
+
+===== VALIDAR — ARQUIVO E COMPILAÇÃO =====
+OK: arquivo alvo encontrado.
+  5597 207044 scripts/predixai_trader_mobile_server.py
+478872fe723d593de8231d86ecd4e3059b496e8bfc1bcb8795ad5b18b760a879  scripts/predixai_trader_mobile_server.py
+
+$ python -m py_compile scripts/predixai_trader_mobile_server.py
+exit_code=0
+PASS: py_compile aprovado.
+PASS: marcador da correção 5.1A.6 encontrado.
+PASS: marcador inválido da 5.1A.4 removido.
+
+===== REINICIAR — PARAR PROCESSO ANTIGO DA PORTA 8766 =====
+PIDs escutando na porta 8766:
+99489
+PID 99489: python scripts/predixai_trader_mobile_server.py
+Encerrando PID seguro: 99489
+PASS: porta 8766 liberada.
+
+===== REINICIAR — INICIAR SERVIDOR MOBILE =====
+
+--- tentativa de start: mobile_server_direct_args ---
+$ python scripts/predixai_trader_mobile_server.py --host 0.0.0.0 --port 8766
+pid_iniciado=108965
+Processo ainda ativo após 8s.
+http_code_mobile_server_direct_args=200
+
+--- últimas 120 linhas do log do servidor ---
+PredixAI Trader Mobile Server
+Modo observador. Não é recomendação financeira.
+Modo observador/simulado. Não executa ordens.
+Local PC: http://127.0.0.1:8766/mobile
+Celular na mesma Wi-Fi: http://192.168.10.101:8766/mobile
+Endpoints simulados: POST /mobile/session/start | POST /api/mobile/simulated-session/start | POST /api/mobile/start
+Endpoint observador legado: POST /api/mobile/stop
+ * Serving Flask app 'predixai_trader_mobile_server'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8766
+ * Running on http://192.168.10.101:8766
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [06/Jul/2026 22:37:24] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Jul/2026 22:37:26] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Jul/2026 22:37:28] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Jul/2026 22:37:30] "GET /api/mobile/state?expiration=30 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Jul/2026 22:37:30] "GET /session/setup HTTP/1.1" 200 -
+PASS: servidor respondeu HTTP 200 em http://127.0.0.1:8766/session/setup.
+
+===== VALIDAR — HTML REAL DE /session/setup =====
+html_parseMoney_definicoes=1
+html_formatBRL_definicoes=1
+html_DOMContentLoaded_ocorrencias=1
+html_money_stepper_ocorrencias=5
+html_legacy_marker_ocorrencias=0
+html_newer_marker_ocorrencias=1
+PASS: HTML real tem apenas 1 parseMoney.
+PASS: HTML real tem apenas 1 formatBRL.
+PASS: HTML real tem apenas 1 DOMContentLoaded monetário.
+PASS: marcador legado V1 não aparece no HTML real.
+
+--- amostra inicial do HTML real ---
+<!doctype html>
+    <html lang="pt-BR">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PredixAI BR — Iniciar Sessão Simulada</title>
+    <style>
+    body{margin:0;background:#07111f;color:#eaf4ff;font-family:Arial,sans-serif}
+    .wrap{max-width:620px;margin:0 auto;padding:22px}
+    .card{background:#0d1c31;border:1px solid #1f3c5c;border-radius:18px;padding:20px;box-shadow:0 0 22px #0008}
+    h1{font-size:24px;margin:0 0 8px;color:#66d9ff}
+    h2{font-size:17px;margin:22px 0 8px;color:#d8aa3a}
+    p{color:#b8c7d9;line-height:1.45}
+    label{display:block;margin-top:14px;font-weight:bold}
+    select,input{width:100%;padding:12px;border-radius:10px;border:1px solid #2c5278;background:#081625;color:#fff;font-size:16px;box-sizing:border-box}
+    button{width:100%;margin-top:22px;padding:15px;border:0;border-radius:12px;background:#d8aa3a;color:#08111f;font-weight:bold;font-size:17px}
+    .badge{display:inline-block;background:#12324f;border:1px solid #2b6e9f;color:#9de6ff;border-radius:999px;padding:6px 10px;font-size:12px;margin-bottom:10px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .box{background:#081625;border:1px solid #1f3c5c;border-radius:12px;padding:12px;margin-top:10px}
+    .k{font-size:12px;color:#8fa6bd}
+    .v{font-size:18px;font-weight:bold;color:#fff;margin-top:4px}
+    .note{margin-top:14px;font-size:13px;color:#90a7bd;line-height:1.4}
+    .warn{border-color:#d8aa3a;color:#ffe4a0}
+    </style>
+    </head>
+    <body>
+    <div class="wrap">
+    <div class="card">
+    <div class="badge">MODO 100% SIMULADO</div>
+    <h1>PredixAI Trader — Configurar Sessão</h1>
+    <p>Configure o contrato operacional antes de abrir o painel mobile. Nenhuma ordem real, clique automático, login ou saldo real será usado.</p>
+
+    <form method="post">
+    <h2>1. Modo operacional</h2>
+    <label>Modo</label>
+    <select name="operational_mode" id="operational_mode" onchange="updatePreview()">
+    <option value="scalper">Scalper — sinais rápidos</option>
+    <option value="day_trade">Day Trade — sinais mais seletivos</option>
+    </select>
+
+    <h2>2. Estratégia geradora do sinal</h2>
+    <label>Estratégia</label>
+    <select name="strategy_key" id="strategy_key" onchange="updatePreview()">
+    <option value="support_resistance">Suporte e resistência</option>
+    <option value="candle_reversal">Reversão de vela</option>
+    <option value="breakout">Rompimento</option>
+    <option value="moving_average_trend">Tendência por médias</option>
+    <option value="pullback">Pullback</option>
+    <option value="simple_confluence" selected>Confluência simples</option>
+    </select>
+
+    <h2>3. Banca simulada, meta e risco</h2>
+    <label>Banca simulada inicial</label>
+    <input name="initial_bankroll" id="initial_bankroll" type="number" step="0.01" value="100" oninput="updatePreview()">
+
+    <label>Valor da entrada simulada</label>
+    <input name="current_entry" id="current_entry" type="number" step="0.01" value="5" oninput="updatePreview()">
+
+    <label>Lucro desejado da sessão</label>
+    <input name="desired_profit" id="desired_profit" type="number" step="0.01" value="25" oninput="updatePreview()">
+
+    <label>Expiração</label>
+    <select name="expiration_seconds" id="expiration_seconds">
+    <option value="30">30 segundos</option>
+    <option value="60" selected>60 segundos</option>
+    <option value="300">5 minutos</option>
+    <option value="900">15 minutos</option>
+    </select>
+
+    <label>Perfil de risco</label>
+    <select name="risk_profile" id="risk_profile">
+    <option value="conservador" selected>Conservador</option>
+    <option value="moderado">Moderado</option>
+    <option value="agressivo_simulado">Agressivo apenas simulado</option>
+    </select>
+
+    <h2>4. Prévia operacional</h2>
+    <div class="grid">
+    <div class="box"><div class="k">Estimativa em 5 min</div><div class="v" id="signals5">1 sinal</div></div>
+    <div class="box"><div class="k">Estimativa em 1 hora</div><div class="v" id="signals1h">5 sinais</div></div>
+    <div class="box"><div class="k">Risco da estratégia</div><div class="v" id="riskBox">baixo/médio</div></div>
+    <div class="box"><div class="k">Consumo estimado 1h</div><div class="v" id="consumption">R$ 25,00</div></div>
+    <div class="box"><div class="k">Lucro desejado</div><div class="v" id="profitTarget">R$ 25,00</div></div>
+    <div class="box"><div class="k">Saldo alvo</div><div class="v" id="targetBalance">R$ 125,00</div></div>
+    </div>
+
+    <div class="box warn">
+    <div class="k">Regra geral da sessão</div>
+    <div class="note" id="generalRule">O cancelamento específico será exibido junto do sinal gerado.</div>
+    </div>
+
+    <button type="submit">Iniciar sessão simulada</button>
+    <section class="box" data-ptp="PTP-113B.3.1A.5.1_SETUP_UI_FORCE_HOOK_V3">
+  <h2>Recuperação e risco simulados</h2>
+  <label>Recuperação simulada</label>
+  <select name="recovery_mode" id="recovery_mode">
+  <option value="NONE">Sem recuperação</option>
+  <option value="MAO_FIXA">Mão fixa / entrada fixa</option>
+  <option value="SOROS">Soros / anti-martingale</option>
+  <option value="MARTINGALE_1">1 Martingale</option>
+  <option value="MARTINGALE_2">2 Martingales</option>
+  <option value="SMARTGALE">SmartGale simulado</option>
+</select>
+  <label>Limite máximo de entrada simulada</label>
+  <input name="max_entry_limit" id="max_entry_limit" type="number" min="1" step="0.01" value="20.00"/>
+  <div class="box">
+    <div class="k">Prévia de risco</div>
+    <div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, percentual da banca exposto, risco combinado e alerta.</div>
+  </div>
+</section>
+<div class="box" id="recoveryPreview" data-ptp="PTP-113B.3.1A.5.1_RECOVERY_PREVIEW_V2"><div class="k">Gestão simulada de recuperação e risco</div><div class="v">O contrato calcula sequência de entradas, próxima entrada, entrada máxima, exposição máxima, risco combinado e alerta.</div></div>
+</form>
+
+    <div class="note">
+    Contrato: mobile-first, observador visual, motor lógico programado, saldo simulado e segurança travada.
+    </div>
+    </div>
+    </div>
+
+    <script>
+
+===== VALIDAR — SEGURANÇA SIMULADA =====
+498:    "orders_enabled": false,
+511:    "orders_enabled": false,
+652:    "orders_enabled": false,
+680:    "orders_enabled": false,
+706:    "orders_enabled": false,
+729:    "orders_enabled": false,
+753:    "orders_enabled": false,
+774:    "orders_enabled": false,
+792:    "orders_enabled": false,
+808:    "orders_enabled": false,
+1199:      "orders_enabled": false,
+1209:    "orders_enabled": false,
+PASS: nenhuma ativação óbvia de ordem real/auto-click/login real encontrada.
+
+===== VALIDAR — GIT DIFF CHECK =====
+
+$ git diff --check
+exit_code=0
+PASS: git diff --check aprovado.
+
+===== REGISTRAR — STATUS FINAL =====
+Status calculado: WARN
+Warnings: 1
+Erros: 0
+
+===== REGISTRAR — MARKDOWN E ÍNDICE =====
+Backup do índice criado: backups/20260706_223719_PTP-113B.3.1A.5.1A.7_restart_validate_stepper_brl_reports_index.before.md
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260706_223719_PTP-113B.3.1A.5.1A.7_restart_validate_stepper_brl_VALIDATE.md
+Índice atualizado: docs/reports_index.md
+
+===== SANITY CHECK — ARQUIVOS PARA VERSIONAMENTO =====
+intended_git_add: reports/20260706_223719_PTP-113B.3.1A.5.1A.7_restart_validate_stepper_brl_VALIDATE.txt
+intended_git_add: docs/history/ptp/PTP-113/PTP-113B/20260706_223719_PTP-113B.3.1A.5.1A.7_restart_validate_stepper_brl_VALIDATE.md
+intended_git_add: docs/reports_index.md
+intended_git_add: data/runtime/logs/20260706_223719_PTP-113B.3.1A.5.1A.7_restart_validate_stepper_brl_server.log
+intended_git_add: backups/20260706_223719_PTP-113B.3.1A.5.1A.7_restart_validate_stepper_brl_reports_index.before.md
+
+===== ENTREGAR — FECHAMENTO DO RELATÓRIO =====
+Status final: WARN
+Warnings: 1
+Erros: 0
+
+Relatório fechado antes de commit/push.
+Depois do push, o script apenas abrirá este relatório, sem escrever novas linhas nele.
