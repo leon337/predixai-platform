@@ -5408,6 +5408,301 @@ if "_PTP113C2_ORIGINAL_BUILD_STATE" not in globals():
 # ============================================================
 
 
+
+# ============================================================
+# PTP113C3_ABERTURA_SIMULADA_OPERACAO_START
+# PTP 113 C.3 — Abertura Simulada da Operação
+# Objetivo: montar operação simulada PENDING apenas quando o sinal atual permitir.
+# ============================================================
+
+import uuid as _ptp113c3_uuid
+from datetime import timedelta as _ptp113c3_timedelta
+
+
+def _ptp113c3_dict(value):
+    return value if isinstance(value, dict) else {}
+
+
+def _ptp113c3_float(value, default=None):
+    try:
+        if value is None or value == "":
+            return default
+        return float(value)
+    except Exception:
+        return default
+
+
+def _ptp113c3_text(value, fallback=""):
+    if value is None:
+        return fallback
+    value = str(value).strip()
+    return value if value else fallback
+
+
+def _ptp113c3_contract(state):
+    mobile_session = _ptp113c3_dict(state.get("mobile_session"))
+    return _ptp113c3_dict(mobile_session.get("contract"))
+
+
+def _ptp113c3_bankroll(state):
+    contract = _ptp113c3_contract(state)
+    bankroll = _ptp113c3_dict(contract.get("bankroll"))
+
+    if not bankroll:
+        mobile_session = _ptp113c3_dict(state.get("mobile_session"))
+        bankroll = _ptp113c3_dict(mobile_session.get("simulated_bankroll"))
+
+    return bankroll
+
+
+def _ptp113c3_entry_value(state):
+    bankroll = _ptp113c3_bankroll(state)
+    return _ptp113c3_float(
+        bankroll.get("current_entry")
+        or bankroll.get("entry")
+        or bankroll.get("entry_value"),
+        0.0,
+    )
+
+
+def _ptp113c3_balance_before(state):
+    bankroll = _ptp113c3_bankroll(state)
+    return _ptp113c3_float(
+        bankroll.get("current_bankroll")
+        or bankroll.get("current_balance")
+        or bankroll.get("balance")
+        or bankroll.get("initial_bankroll"),
+        0.0,
+    )
+
+
+def _ptp113c3_expiration_seconds(state, model):
+    contract = _ptp113c3_contract(state)
+    expiration = _ptp113c3_dict(contract.get("expiration"))
+    value = (
+        model.get("expiration_seconds")
+        or state.get("expiration_seconds")
+        or expiration.get("seconds")
+        or 60
+    )
+    try:
+        return max(30, int(float(value)))
+    except Exception:
+        return 60
+
+
+def _ptp113c3_timestamp_base(model):
+    raw = model.get("reference_timestamp")
+    try:
+        if raw and "_parse_dt" in globals():
+            parsed = _parse_dt(raw)
+            if parsed is not None:
+                return parsed
+    except Exception:
+        pass
+
+    try:
+        if "_now" in globals():
+            return _now()
+    except Exception:
+        pass
+
+    return None
+
+
+def _ptp113c3_iso(dt):
+    try:
+        if dt is not None:
+            return dt.isoformat()
+    except Exception:
+        pass
+
+    try:
+        if "_now_iso" in globals():
+            return _now_iso()
+    except Exception:
+        pass
+
+    return ""
+
+
+def _ptp113c3_operation_id(model, opened_at, expires_at):
+    seed = "|".join([
+        _ptp113c3_text(model.get("asset")),
+        _ptp113c3_text(model.get("direction")),
+        _ptp113c3_text(model.get("reference_price")),
+        _ptp113c3_text(opened_at),
+        _ptp113c3_text(expires_at),
+        "PTP113C3",
+    ])
+    return f"sim_{_ptp113c3_uuid.uuid5(_ptp113c3_uuid.NAMESPACE_URL, seed).hex[:16]}"
+
+
+def _ptp113c3_safety_ok(model):
+    safety = _ptp113c3_dict(model.get("safety"))
+    return (
+        safety.get("simulation_only") is True
+        and safety.get("orders_enabled") is False
+        and safety.get("real_money_enabled") is False
+        and safety.get("auto_click_enabled") is False
+        and safety.get("broker_login_enabled") is False
+        and safety.get("credentials_allowed") is False
+    )
+
+
+def _ptp113c3_simulated_open_operation(state):
+    """
+    Monta abertura simulada PENDING sem calcular resultado e sem alterar saldo.
+    """
+    if not isinstance(state, dict):
+        return {
+            "version": "PTP 113 C.3",
+            "status": "blocked_invalid_state",
+            "operation_opened": False,
+            "operation_allowed": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": "Estado inválido.",
+            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+        }
+
+    model = _ptp113c3_dict(state.get("current_signal_model"))
+
+    if not model:
+        return {
+            "version": "PTP 113 C.3",
+            "status": "blocked_missing_current_signal_model",
+            "operation_opened": False,
+            "operation_allowed": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": "current_signal_model ausente. Execute/valide PTP 113 C.2.",
+            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+        }
+
+    allowed = bool(model.get("operation_allowed") is True)
+    signal_status = _ptp113c3_text(model.get("status"))
+    direction = _ptp113c3_text(model.get("direction"), "NEUTRO").upper()
+    price = _ptp113c3_float(model.get("reference_price"))
+    confidence = _ptp113c3_float(model.get("confidence"))
+
+    safety_ok = _ptp113c3_safety_ok(model)
+
+    if not safety_ok:
+        return {
+            "version": "PTP 113 C.3",
+            "status": "blocked_safety",
+            "operation_opened": False,
+            "operation_allowed": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": "Travas simuladas inconsistentes. Abertura bloqueada.",
+            "current_signal_status": signal_status,
+            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+        }
+
+    if not allowed or signal_status != "sinal_pronto":
+        return {
+            "version": "PTP 113 C.3",
+            "status": "blocked_waiting_current_signal",
+            "operation_opened": False,
+            "operation_allowed": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": model.get("reason") or "Sem sinal atual válido.",
+            "current_signal_status": signal_status,
+            "current_signal_next_step": model.get("next_step"),
+            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+        }
+
+    if direction not in {"CALL", "PUT"}:
+        return {
+            "version": "PTP 113 C.3",
+            "status": "blocked_invalid_direction",
+            "operation_opened": False,
+            "operation_allowed": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": "Direção inválida para abertura simulada.",
+            "direction": direction,
+            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+        }
+
+    if price is None:
+        return {
+            "version": "PTP 113 C.3",
+            "status": "blocked_missing_open_price",
+            "operation_opened": False,
+            "operation_allowed": False,
+            "result_allowed": False,
+            "balance_update_allowed": False,
+            "reason": "Preço de abertura ausente.",
+            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+        }
+
+    entry_value = _ptp113c3_entry_value(state)
+    balance_before = _ptp113c3_balance_before(state)
+    expiration_seconds = _ptp113c3_expiration_seconds(state, model)
+
+    opened_dt = _ptp113c3_timestamp_base(model)
+    opened_at = _ptp113c3_iso(opened_dt)
+
+    expires_at = ""
+    try:
+        if opened_dt is not None:
+            expires_at = (opened_dt + _ptp113c3_timedelta(seconds=expiration_seconds)).isoformat()
+    except Exception:
+        expires_at = ""
+
+    operation_id = _ptp113c3_operation_id(model, opened_at, expires_at)
+
+    return {
+        "version": "PTP 113 C.3",
+        "status": "PENDING",
+        "operation_opened": True,
+        "operation_allowed": True,
+        "result_allowed": False,
+        "balance_update_allowed": False,
+        "operation_id": operation_id,
+        "asset": model.get("asset"),
+        "direction": direction,
+        "entry_value": entry_value,
+        "open_price": price,
+        "opened_at": opened_at,
+        "expires_at": expires_at,
+        "expiration_seconds": expiration_seconds,
+        "confidence": confidence,
+        "strategy": model.get("strategy"),
+        "saldo_before": balance_before,
+        "saldo_after": None,
+        "result": "PENDING",
+        "profit_loss": None,
+        "simulation_only": True,
+        "orders_enabled": False,
+        "real_money_enabled": False,
+        "auto_click_enabled": False,
+        "broker_login_enabled": False,
+        "credentials_allowed": False,
+        "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+        "next_step": "PTP 113 C.4 — Fechamento Simulado WIN/LOSS/DRAW",
+    }
+
+
+if "_PTP113C3_ORIGINAL_BUILD_STATE" not in globals():
+    _PTP113C3_ORIGINAL_BUILD_STATE = _build_state
+
+    def _build_state(*args, **kwargs):
+        data = _PTP113C3_ORIGINAL_BUILD_STATE(*args, **kwargs)
+        if isinstance(data, dict):
+            data["simulated_open_operation"] = _ptp113c3_simulated_open_operation(data)
+            data["ptp113c3_simulated_open_operation_ready"] = True
+        return data
+
+# ============================================================
+# PTP113C3_ABERTURA_SIMULADA_OPERACAO_END
+# ============================================================
+
+
 def _host_from_header(host_header: str | None) -> str:
     host = (host_header or "").split(":", 1)[0]
     if host in {"", "0.0.0.0", "127.0.0.1", "localhost"}:

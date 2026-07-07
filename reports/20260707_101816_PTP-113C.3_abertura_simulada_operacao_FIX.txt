@@ -1,0 +1,127 @@
+PREDIXAI BR — PTP 113 C.3 abertura_simulada_operacao
+Data: 2026-07-07 10:18:16 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+Status: FIX
+
+===== OBJETIVO =====
+Criar camada segura de abertura simulada da operação.
+
+===== REGRA =====
+Não executar ordem real.
+Não calcular WIN/LOSS/DRAW nesta etapa.
+Não alterar saldo nesta etapa.
+Não abrir operação se current_signal_model.operation_allowed=false.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_101816_PTP-113C.3_abertura_simulada_operacao_FIX.txt
+
+===== INVESTIGAR — Últimos commits =====
+dc0e817 PTP 113 C.2 add current signal model
+5acc1bd PTP 113 C.1 audit estado atual
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+62e61f8 PTP-113B.3.1B.5.2.3 ajuste visual campos críticos mobile FIX
+3ecd0b3 PTP-113B.3.1B.5.2.2 corrigir_marcadores_visiveis_mobile FIX
+2ec0408 PTP-113B.3.1B.5.2.1 finalize visual recovery saneamento mobile
+6777748 PTP-113B.3.1B.5.1.1 close toggle observer report recovery
+
+===== INVESTIGAR — Marcadores necessários =====
+4886:def _build_state(
+5098:# PTP113C2_MODELO_SINAL_ATUAL_START
+5276:def _ptp113c2_current_signal_model(state):
+5291:            "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5380:        "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5399:    def _build_state(*args, **kwargs):
+5402:            data["current_signal_model"] = _ptp113c2_current_signal_model(data)
+5403:            data["ptp113c2_current_signal_model_ready"] = True
+5407:# PTP113C2_MODELO_SINAL_ATUAL_END
+
+===== CONSTRUIR — Backup =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_101816_PTP-113C.3_abertura_simulada_operacao/predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — Aplicar patch PTP 113 C.3 =====
+PASS: patch PTP113C3_ABERTURA_SIMULADA_OPERACAO aplicado.
+PATCH_EXIT=0
+
+===== VALIDAR — py_compile =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:7582: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:7843: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PY_COMPILE_EXIT=0
+
+===== VALIDAR — git diff check =====
+GIT_DIFF_CHECK_EXIT=0
+
+===== VALIDAR — Marcadores PTP 113 C.3 =====
+5413:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_START
+5553:def _ptp113c3_simulated_open_operation(state):
+5566:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5580:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5601:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5615:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5628:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5640:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5686:        "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5697:            data["simulated_open_operation"] = _ptp113c3_simulated_open_operation(data)
+5698:            data["ptp113c3_simulated_open_operation_ready"] = True
+5702:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_END
+
+===== VALIDAR — Reiniciar servidor mobile =====
+Processos encontrados: 20279
+SERVER_PID=21856
+
+===== VALIDAR — Endpoint /mobile =====
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.8 Python/3.12.3
+Date: Tue, 07 Jul 2026 13:18:22 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 86874
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Connection: close
+
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — Endpoint /api/mobile/state com simulated_open_operation =====
+CURL_STATE_EXIT=0
+HAS_CURRENT_SIGNAL_MODEL= True
+HAS_SIMULATED_OPEN_OPERATION= True
+PTP113C3_READY= True
+status=blocked_waiting_current_signal
+operation_opened=False
+operation_allowed=False
+result_allowed=False
+balance_update_allowed=False
+reason=Observador desligado. Histórico não pode virar sinal atual.
+source=PTP113C3_ABERTURA_SIMULADA_OPERACAO
+next_step=None
+SIMULATED_OPEN_OPERATION_VALIDATE=PASS
+SIMULATED_OPEN_OPERATION_VALIDATE_EXIT=0
+
+===== VALIDAR — Travas simuladas no endpoint =====
+simulation_only=True expected=True
+orders_enabled=False expected=False
+real_money_enabled=False expected=False
+auto_click_enabled=False expected=False
+broker_login_enabled=False expected=False
+credentials_allowed=False expected=False
+SAFETY_LOCKS_VALIDATE=PASS
+SAFETY_VALIDATE_EXIT=0
+
+===== REGISTRAR — Resultado técnico =====
+Resultado esperado:
+- simulated_open_operation criado em /api/mobile/state.
+- Se current_signal_model.operation_allowed=false, operação permanece bloqueada.
+- Se current_signal_model.operation_allowed=true, operação simulada PENDING é montada.
+- Resultado ainda não é calculado.
+- Saldo ainda não é alterado.
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+A  docs/history/ptp/PTP-113/PTP-113C/20260707_101816_PTP-113C.3_abertura_simulada_operacao_FIX.md
+M  docs/reports_index.md
+A  reports/20260707_101816_PTP-113C.3_abertura_simulada_operacao_FIX.txt
+M  scripts/predixai_trader_mobile_server.py
