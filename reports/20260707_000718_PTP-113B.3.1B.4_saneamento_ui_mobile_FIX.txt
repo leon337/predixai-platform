@@ -1,0 +1,86 @@
+PREDIXAI SANEAMENTO UI MOBILE
+Data: ter 07 jul 2026 00:07:18 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+PTP: PTP-113B.3.1B.4
+Status: FIX
+Objetivo: remover conflitos JS e reconstruir UX mobile-first da /mobile
+
+===== INVESTIGAR — GIT =====
+HEAD:
+6be04ce PTP-113B.3.1B.3 fix real contract data on mobile
+
+Status inicial:
+?? reports/20260707_000718_PTP-113B.3.1B.4_saneamento_ui_mobile_FIX.txt
+
+===== INVESTIGAR — HTTP ANTES DO PATCH =====
+/api/mobile/state -> HTTP 200
+/mobile -> HTTP 200
+
+===== PLANEJAR — BACKUP =====
+Backup técnico fora do Git: /tmp/predixai_backups/PTP-113B.3.1B.4_20260707_000718_predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — REMOVER PATCHES CONFLITANTES E INSERIR RENDERIZADOR ÚNICO =====
+PASS: bloco antigo removido: PTP113B31B2_OBSERVADOR_CONTRACT_UX
+PASS: bloco antigo removido: PTP113B31B3_CONTRATO_REAL_MOBILE
+PASS: renderizador único PTP113B31B4 inserido.
+INFO: grupos antigos removidos: 2
+
+===== VALIDAR — PY_COMPILE =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5576: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5837: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PASS: py_compile
+
+===== VALIDAR — MARCADORES =====
+PASS: marcador encontrado: PTP113B31B4_SANEAMENTO_UI_MOBILE
+PASS: marcador encontrado: px-mobile-ui
+PASS: marcador encontrado: hideOldUi
+PASS: marcador encontrado: recoveryText
+PASS: marcador encontrado: overflow-x: hidden
+
+===== VALIDAR — RESTART SERVIDOR =====
+PASS: servidor reiniciado. PID=113719
+
+===== VALIDAR — HTTP FINAL =====
+/mobile -> HTTP 200
+/api/mobile/state -> HTTP 200
+PASS: HTML real contém saneamento UI.
+
+===== VALIDAR — SEGURANÇA =====
+PASS: simulation_only=True esperado=True
+PASS: orders_enabled=False esperado=False
+PASS: real_money_enabled=False esperado=False
+PASS: auto_click_enabled=False esperado=False
+PASS: broker_login_enabled=False esperado=False
+PASS: credentials_allowed=False esperado=False
+
+===== VALIDAR — GIT DIFF CHECK =====
+PASS: git diff --check
+
+===== REGISTRAR — RESULTADO =====
+Resultado técnico antes do commit: PASS
+
+Critérios visuais:
+1. Não pode exibir JSON bruto.
+2. Não pode exibir {}.
+3. Não deve exigir zoom para leitura.
+4. Deve exibir renderizador único do contrato.
+5. Deve reduzir conflito entre patches JS.
+6. Deve preservar travas simuladas.
+
+Backup técnico fora do Git:
+/tmp/predixai_backups/PTP-113B.3.1B.4_20260707_000718_predixai_trader_mobile_server.py.bak
+
+===== REGISTRAR — MARKDOWN =====
+
+===== REGISTRAR — ÍNDICE =====
+
+===== PUBLICAR — PREPARAÇÃO =====
+Relatório fechado antes do commit/push.
+Backups não serão versionados.
+Arquivos permitidos:
+- /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+- /home/leo/Documentos/GitHub/predixai-platform/reports/20260707_000718_PTP-113B.3.1B.4_saneamento_ui_mobile_FIX.txt
+- /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260707_000718_PTP-113B.3.1B.4_saneamento_ui_mobile_FIX.md
+- /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md

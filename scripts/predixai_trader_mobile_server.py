@@ -886,663 +886,393 @@ MOBILE_HTML = r"""<!doctype html>
     setInterval(refreshState, 1000);
   </script>
 
-<script>
-/* PTP113B31B2_OBSERVADOR_CONTRACT_UX */
-(function () {
-  const UX_MARKER = "PTP113B31B2_OBSERVADOR_CONTRACT_UX_RUNTIME";
-
-  function $(id) {
-    return document.getElementById(id);
-  }
-
-  function showToast(message, mode) {
-    let toast = $("predixai-ux-toast");
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "predixai-ux-toast";
-      toast.className = "ux-toast";
-      document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.className = "ux-toast";
-    if (mode === "error") toast.classList.add("ux-error");
-    if (mode === "ok") toast.classList.add("ux-ok");
-    setTimeout(function () {
-      if (toast) toast.remove();
-    }, 2200);
-  }
-
-  function displayValue(value) {
-    if (value === null || value === undefined || value === "") return "-";
-    if (typeof value === "object") {
-      if (value.label) return value.label;
-      if (value.name) return value.name;
-      if (value.key) return value.key;
-      try { return JSON.stringify(value); } catch (err) { return "-"; }
-    }
-    return String(value);
-  }
-
-  function asMoney(value) {
-    if (value === null || value === undefined || value === "") return "-";
-    if (typeof value === "string" && value.indexOf("R$") >= 0) return value;
-    let numberValue = value;
-    if (typeof numberValue === "string") {
-      numberValue = numberValue.replace("R$", "").trim().replaceAll(".", "").replace(",", ".");
-    }
-    numberValue = Number(numberValue);
-    if (!Number.isFinite(numberValue)) return displayValue(value);
-    return numberValue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  }
-
-  function deepPick(obj, names) {
-    const wanted = names.map(function (x) { return String(x).toLowerCase(); });
-    const stack = [obj];
-    const seen = new Set();
-
-    while (stack.length) {
-      const current = stack.shift();
-      if (!current || typeof current !== "object" || seen.has(current)) continue;
-      seen.add(current);
-
-      for (const key of Object.keys(current)) {
-        const low = key.toLowerCase();
-        if (wanted.indexOf(low) >= 0) return current[key];
-      }
-
-      for (const key of Object.keys(current)) {
-        const low = key.toLowerCase();
-        for (const name of wanted) {
-          if (low.indexOf(name) >= 0) return current[key];
-        }
-      }
-
-      for (const key of Object.keys(current)) {
-        const val = current[key];
-        if (val && typeof val === "object") stack.push(val);
-      }
-    }
-    return undefined;
-  }
-
-  function setText(id, value, formatter) {
-    const el = $(id);
-    if (!el) return;
-    el.textContent = formatter ? formatter(value) : displayValue(value);
-  }
-
-  function ensureCards() {
-    if (!$("predixai-contract-card")) {
-      const card = document.createElement("section");
-      card.id = "predixai-contract-card";
-      card.className = "ux-contract-card";
-      card.innerHTML =
-        '<div class="ux-contract-title">Contrato da sessão simulada</div>' +
-        '<div class="ux-contract-grid">' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Saldo atual</div><div id="ux-saldo-atual" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Banca inicial</div><div id="ux-banca-inicial" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Entrada atual</div><div id="ux-entrada-atual" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Meta de lucro</div><div id="ux-meta-lucro" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Stop / limite</div><div id="ux-stop-limite" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Recuperação</div><div id="ux-recuperacao" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Próxima entrada</div><div id="ux-proxima-entrada" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Exposição máxima</div><div id="ux-exposicao-maxima" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Modo operacional</div><div id="ux-modo-operacional" class="ux-contract-value">-</div></div>' +
-        '<div class="ux-contract-item"><div class="ux-contract-label">Estratégia</div><div id="ux-estrategia" class="ux-contract-value">-</div></div>' +
-        '</div>' +
-        '<div id="ux-security-line" class="ux-security-line">Segurança simulada: carregando...</div>';
-
-      const anchor = document.querySelector(".notice") || document.querySelector("header") || document.body.firstElementChild;
-      if (anchor && anchor.parentNode) {
-        anchor.parentNode.insertBefore(card, anchor.nextSibling);
-      } else {
-        document.body.insertBefore(card, document.body.firstChild);
-      }
-    }
-
-    if (!$("predixai-live-chart-card")) {
-      const chart = document.createElement("section");
-      chart.id = "predixai-live-chart-card";
-      chart.className = "ux-live-chart-card";
-      chart.innerHTML =
-        '<div class="ux-contract-title">Gráfico da sessão</div>' +
-        '<canvas id="predixai-ux-price-chart" class="ux-chart-canvas" width="900" height="180"></canvas>' +
-        '<div id="predixai-ux-chart-status" class="ux-chart-status">Coletando dados para gráfico...</div>';
-
-      const contract = $("predixai-contract-card");
-      if (contract && contract.parentNode) {
-        contract.parentNode.insertBefore(chart, contract.nextSibling);
-      } else {
-        document.body.appendChild(chart);
-      }
-    }
-  }
-
-  function extractPoints(state) {
-    const raw = state.price_ticks || state.ticks || state.history || [];
-    if (!Array.isArray(raw)) return [];
-    return raw.map(function (row) {
-      if (typeof row === "number") return row;
-      if (!row || typeof row !== "object") return NaN;
-      return Number(row.price_value ?? row.price ?? row.value ?? row.close ?? row.last_price);
-    }).filter(function (v) {
-      return Number.isFinite(v);
-    }).slice(-40);
-  }
-
-  function drawChart(points) {
-    const canvas = $("predixai-ux-price-chart");
-    const status = $("predixai-ux-chart-status");
-    if (!canvas || !canvas.getContext) return;
-
-    const ctx = canvas.getContext("2d");
-    const width = canvas.width;
-    const height = canvas.height;
-    ctx.clearRect(0, 0, width, height);
-
-    ctx.fillStyle = "#07111b";
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.strokeStyle = "#203245";
-    ctx.lineWidth = 1;
-    for (let i = 1; i <= 4; i++) {
-      const y = Math.round((height / 5) * i);
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
-
-    if (!points || points.length < 2) {
-      ctx.fillStyle = "#a8b5c6";
-      ctx.font = "bold 20px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("Coletando dados para gráfico...", width / 2, height / 2);
-      if (status) status.textContent = "Aguardando pelo menos 2 preços para desenhar linha.";
-      return;
-    }
-
-    const min = Math.min.apply(null, points);
-    const max = Math.max.apply(null, points);
-    const range = Math.max(max - min, 0.000001);
-
-    ctx.strokeStyle = "#00e5ff";
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-
-    points.forEach(function (value, index) {
-      const x = points.length === 1 ? width / 2 : (index / (points.length - 1)) * width;
-      const y = height - ((value - min) / range) * (height - 20) - 10;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    });
-
-    ctx.stroke();
-
-    if (status) {
-      const last = points[points.length - 1];
-      status.textContent = "Gráfico atualizado: " + new Date().toLocaleTimeString("pt-BR") + " | último preço: " + last.toLocaleString("pt-BR");
-    }
-  }
-
-  function updateSecurity(state) {
-    const line = $("ux-security-line");
-    if (!line) return;
-
-    const flags = [
-      "simulation_only",
-      "orders_enabled",
-      "real_money_enabled",
-      "auto_click_enabled",
-      "broker_login_enabled",
-      "credentials_allowed"
-    ];
-
-    line.textContent = "Segurança simulada: " + flags.map(function (key) {
-      const value = deepPick(state, [key]);
-      return key + "=" + displayValue(value);
-    }).join(" | ");
-  }
-
-  async function updateContract() {
-    ensureCards();
-
-    try {
-      const response = await fetch("/api/mobile/state?ux_contract=1", { cache: "no-store" });
-      const state = await response.json();
-
-      setText("ux-saldo-atual", deepPick(state, ["current_balance", "saldo_atual", "saldo", "balance"]), asMoney);
-      setText("ux-banca-inicial", deepPick(state, ["initial_bankroll", "starting_balance", "banca_inicial", "banca", "bankroll"]), asMoney);
-      setText("ux-entrada-atual", deepPick(state, ["current_entry", "entry_value", "entry_amount", "stake", "entrada_atual", "entrada", "entry"]), asMoney);
-      setText("ux-meta-lucro", deepPick(state, ["profit_target", "target_profit", "meta_lucro", "meta"]), asMoney);
-      setText("ux-stop-limite", deepPick(state, ["stop_loss", "loss_limit", "max_loss", "limite", "limit", "stop"]), asMoney);
-      setText("ux-recuperacao", deepPick(state, ["recovery_mode", "recovery_strategy", "selected_recovery", "recuperacao", "recovery", "martingale", "soros", "smartgale"]));
-      setText("ux-proxima-entrada", deepPick(state, ["next_entry", "next_stake", "proxima_entrada", "próxima_entrada"]), asMoney);
-      setText("ux-exposicao-maxima", deepPick(state, ["max_exposure", "exposicao_maxima", "exposição_maxima", "exposure", "entrada_maxima", "entrada máxima"]), asMoney);
-      setText("ux-modo-operacional", deepPick(state, ["operational_mode", "modo_operacional", "mode"]));
-      setText("ux-estrategia", deepPick(state, ["strategy", "selected_strategy", "estrategia"]));
-
-      updateSecurity(state);
-      drawChart(extractPoints(state));
-    } catch (err) {
-      const status = $("predixai-ux-chart-status");
-      if (status) status.textContent = "Erro ao atualizar contrato/gráfico: " + err.message;
-    }
-  }
-
-  function attachButtonFeedback() {
-    document.querySelectorAll("button, a").forEach(function (el) {
-      if (el.dataset.predixaiUxBound === "1") return;
-      el.dataset.predixaiUxBound = "1";
-
-      el.addEventListener("click", function () {
-        const label = (el.textContent || el.value || "comando").trim();
-        el.classList.remove("ux-ok", "ux-error");
-        el.classList.add("ux-processing");
-        showToast("Comando recebido: " + label, "ok");
-
-        setTimeout(function () {
-          el.classList.remove("ux-processing");
-          el.classList.add("ux-ok");
-          setTimeout(function () {
-            el.classList.remove("ux-ok");
-          }, 1200);
-        }, 650);
-      }, { capture: true });
-    });
-  }
-
-  function bootUx() {
-    if (document.body.dataset[UX_MARKER] === "1") return;
-    document.body.dataset[UX_MARKER] = "1";
-    ensureCards();
-    attachButtonFeedback();
-    updateContract();
-    setInterval(updateContract, 3000);
-    setInterval(attachButtonFeedback, 3000);
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootUx);
-  } else {
-    bootUx();
-  }
-})();
-</script>
-
 
 <style>
-/* PTP113B31B3_CONTRATO_REAL_MOBILE */
+/* PTP113B31B4_SANEAMENTO_UI_MOBILE */
 html, body {
-  max-width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
   overflow-x: hidden !important;
+  font-size: 16px !important;
 }
-.ux-contract-card,
-.ux-live-chart-card {
+body {
+  padding: 10px !important;
+}
+* {
   max-width: 100%;
-  overflow-x: hidden;
 }
-.ux-contract-grid {
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+.predixai-mobile-shell {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
 }
-.ux-contract-item {
+.px-primary-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel-2);
+  padding: 12px;
+  margin: 10px 0;
+}
+.px-title {
+  color: var(--line);
+  font: 800 13px Consolas, monospace;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.px-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.px-metric {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #081421;
+  padding: 10px;
   min-width: 0;
 }
-.ux-contract-value {
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  white-space: normal;
+.px-label {
+  color: var(--muted);
+  font: 800 11px Consolas, monospace;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.px-value {
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 900;
   line-height: 1.15;
-}
-#ux-recuperacao {
-  font-size: 16px;
-}
-#ux-security-line {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
-canvas,
-.ux-chart-canvas {
-  max-width: 100% !important;
+.px-value.big {
+  font-size: 24px;
+}
+.px-value.ok {
+  color: var(--green);
+}
+.px-value.warn {
+  color: var(--yellow);
+}
+.px-security {
+  margin-top: 10px;
+  color: var(--yellow);
+  font: 800 11px Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.px-canvas {
+  width: 100%;
+  height: 145px;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #07111b;
+}
+.px-chart-status {
+  margin-top: 7px;
+  color: var(--muted);
+  font: 800 12px Consolas, monospace;
+}
+.px-action-feedback {
+  position: sticky;
+  bottom: 8px;
+  z-index: 20;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #061018;
+  color: var(--text);
+  padding: 10px;
+  margin: 8px 0;
+  font-weight: 900;
+  display: none;
+}
+.px-processing {
+  outline: 2px solid var(--yellow) !important;
+  filter: brightness(1.12);
+}
+.px-done {
+  outline: 2px solid var(--green) !important;
+}
+@media (max-width: 720px) {
+  body {
+    padding: 8px !important;
+  }
+  h1 {
+    font-size: 20px !important;
+  }
+  .px-hero-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .px-metric {
+    padding: 9px;
+  }
+  .px-value {
+    font-size: 18px;
+  }
+  .px-value.big {
+    font-size: 22px;
+  }
+  button, a {
+    min-height: 46px;
+    font-size: 15px !important;
+  }
+}
+@media (max-width: 430px) {
+  .px-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .px-value,
+  .px-value.big {
+    font-size: 20px;
+  }
 }
 </style>
 
 <script>
-/* PTP113B31B3_CONTRATO_REAL_MOBILE */
+/* PTP113B31B4_SANEAMENTO_UI_MOBILE */
 (function () {
-  const PATCH_MARKER = "PTP113B31B3_CONTRATO_REAL_MOBILE_RUNTIME";
+  const MARKER = "PTP113B31B4_SANEAMENTO_UI_MOBILE_RUNTIME";
 
-  function byId(id) {
-    return document.getElementById(id);
+  function id(x) { return document.getElementById(x); }
+
+  function isObj(v) {
+    return v && typeof v === "object" && !Array.isArray(v);
   }
 
-  function isPlainObject(value) {
-    return value && typeof value === "object" && !Array.isArray(value);
-  }
-
-  function firstDefined() {
-    for (const value of arguments) {
-      if (value !== undefined && value !== null && value !== "") return value;
+  function first() {
+    for (const v of arguments) {
+      if (v !== undefined && v !== null && v !== "") return v;
     }
     return undefined;
   }
 
-  function getPath(obj, path) {
-    if (!obj || !path) return undefined;
-    const parts = String(path).split(".");
-    let current = obj;
-    for (const part of parts) {
-      if (!current || typeof current !== "object") return undefined;
-      if (!(part in current)) return undefined;
-      current = current[part];
+  function path(obj, p) {
+    if (!obj) return undefined;
+    let cur = obj;
+    for (const part of String(p).split(".")) {
+      if (!cur || typeof cur !== "object" || !(part in cur)) return undefined;
+      cur = cur[part];
     }
-    return current;
+    return cur;
   }
 
-  function pick(scopeList, pathList) {
-    for (const scope of scopeList) {
-      if (!scope || typeof scope !== "object") continue;
-      for (const path of pathList) {
-        const value = getPath(scope, path);
-        if (value !== undefined && value !== null && value !== "") return value;
+  function num(v) {
+    if (typeof v === "number") return v;
+    if (isObj(v)) {
+      const keys = [
+        "current_bankroll", "initial_bankroll", "current_entry",
+        "desired_profit", "target_bankroll", "next_entry",
+        "max_entry", "exposure_max", "amount", "value"
+      ];
+      for (const k of keys) {
+        const n = num(v[k]);
+        if (Number.isFinite(n)) return n;
       }
-    }
-    return undefined;
-  }
-
-  function numberFromObject(obj, preferredKeys) {
-    if (!isPlainObject(obj)) return undefined;
-
-    for (const key of preferredKeys || []) {
-      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
-        const parsed = toNumber(obj[key]);
-        if (Number.isFinite(parsed)) return parsed;
-      }
-    }
-
-    const genericKeys = [
-      "amount", "value", "brl", "current", "initial", "starting",
-      "balance", "bankroll", "entry", "stake", "target", "max", "limit"
-    ];
-
-    for (const key of genericKeys) {
-      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
-        const parsed = toNumber(obj[key]);
-        if (Number.isFinite(parsed)) return parsed;
-      }
-    }
-
-    return undefined;
-  }
-
-  function toNumber(value) {
-    if (typeof value === "number") return value;
-    if (isPlainObject(value)) {
-      const extracted = numberFromObject(value);
-      if (Number.isFinite(extracted)) return extracted;
       return NaN;
     }
-    if (typeof value !== "string") return Number(value);
-
-    let clean = value.replace("R$", "").trim();
-
-    if (clean.indexOf(",") >= 0 && clean.indexOf(".") >= 0) {
-      if (clean.lastIndexOf(",") > clean.lastIndexOf(".")) {
-        clean = clean.replaceAll(".", "").replace(",", ".");
-      } else {
-        clean = clean.replaceAll(",", "");
-      }
-    } else if (clean.indexOf(",") >= 0) {
-      clean = clean.replace(",", ".");
+    if (typeof v !== "string") return Number(v);
+    let s = v.replace("R$", "").trim();
+    if (s.includes(",") && s.includes(".")) {
+      if (s.lastIndexOf(",") > s.lastIndexOf(".")) s = s.replaceAll(".", "").replace(",", ".");
+      else s = s.replaceAll(",", "");
+    } else if (s.includes(",")) {
+      s = s.replace(",", ".");
     }
-
-    const parsed = Number(clean);
-    return Number.isFinite(parsed) ? parsed : NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
   }
 
-  function money(value) {
-    const n = toNumber(value);
+  function brl(v) {
+    const n = num(v);
     if (!Number.isFinite(n)) return "-";
     return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   }
 
-  function textValue(value) {
-    if (value === undefined || value === null || value === "") return "-";
-
-    if (isPlainObject(value)) {
-      return firstDefined(
-        value.label,
-        value.name,
-        value.title,
-        value.description,
-        value.key,
-        value.mode
-      ) || "-";
-    }
-
-    return String(value);
+  function label(v) {
+    if (v === undefined || v === null || v === "") return "-";
+    if (isObj(v)) return first(v.label, v.name, v.title, v.description, v.key, v.mode, "-");
+    return String(v);
   }
 
-  function recoveryLabel(value) {
-    if (value === undefined || value === null || value === "") return "Sem recuperação";
+  function recoveryText(recovery) {
+    if (!recovery) return "Sem recuperação";
 
-    if (typeof value === "string") {
-      const up = value.toUpperCase();
-      if (up === "NONE" || up === "SEM_RECUPERACAO" || up === "NO_RECOVERY") return "Sem recuperação";
-      if (up.includes("MARTINGALE_2") || up.includes("2")) return "2 Martingales";
-      if (up.includes("MARTINGALE_1") || up.includes("MARTINGALE")) return "1 Martingale";
-      if (up.includes("SOROS")) return "Soros";
-      if (up.includes("SMART")) return "SmartGale";
-      return value;
-    }
+    const plan = isObj(recovery) && isObj(recovery.recovery_plan) ? recovery.recovery_plan : {};
+    const modeRaw = first(
+      path(recovery, "recovery_mode"),
+      path(recovery, "mode"),
+      path(recovery, "key"),
+      path(plan, "mode"),
+      recovery
+    );
 
-    if (isPlainObject(value)) {
-      const mode = String(firstDefined(value.mode, value.key, value.name, value.label, "")).toUpperCase();
-      const enabled = value.enabled;
-      const steps = toNumber(firstDefined(value.max_recovery_steps, value.steps, value.levels, 0));
+    const enabled = first(
+      path(recovery, "recovery_enabled"),
+      path(recovery, "enabled"),
+      path(plan, "enabled")
+    );
 
-      if (enabled === false || mode === "NONE" || steps === 0) return "Sem recuperação";
-      if (mode.includes("SOROS")) return "Soros";
-      if (mode.includes("SMART")) return "SmartGale";
-      if (mode.includes("MARTINGALE") && steps >= 2) return "2 Martingales";
-      if (mode.includes("MARTINGALE") || steps === 1) return "1 Martingale";
+    const steps = num(first(
+      path(recovery, "max_recovery_steps"),
+      path(plan, "max_recovery_steps"),
+      0
+    ));
 
-      return firstDefined(value.label, value.description, value.reason, "Recuperação simulada");
-    }
+    const mode = String(modeRaw || "").toUpperCase();
 
-    return textValue(value);
+    if (enabled === false || mode === "NONE" || mode === "NO_RECOVERY" || steps === 0) return "Sem recuperação";
+    if (mode.includes("SMART")) return "SmartGale simulado";
+    if (mode.includes("SOROS")) return "Soros";
+    if (mode.includes("MARTINGALE") && steps >= 2) return "2 Martingales";
+    if (mode.includes("MARTINGALE") || steps === 1) return "1 Martingale";
+
+    return label(recovery);
   }
 
-  function modeLabel(value) {
-    if (isPlainObject(value)) {
-      return firstDefined(value.label, value.name, value.description, value.key, "-");
-    }
-
-    const txt = String(value || "");
-    if (txt === "scalper") return "Scalper";
-    if (txt === "day_trade") return "Day Trade";
-    if (txt === "mobile_first_simulated") return "Mobile-first simulado";
-    return txt || "-";
+  function modeText(v) {
+    if (isObj(v)) return first(v.label, v.name, v.description, v.key, "-");
+    if (v === "scalper") return "Scalper";
+    if (v === "day_trade") return "Day Trade";
+    if (v === "mobile_first_simulated") return "Mobile-first simulado";
+    return label(v);
   }
 
-  function strategyLabel(value) {
-    if (isPlainObject(value)) {
-      return firstDefined(value.label, value.name, value.description, value.key, "-");
-    }
-
-    const txt = String(value || "");
-    if (txt === "candle_reversal") return "Reversão de vela";
-    if (txt === "simple_confluence") return "Confluência simples";
-    if (txt === "moving_average_trend") return "Tendência por médias";
-    if (txt === "breakout") return "Rompimento";
-    if (txt === "pullback") return "Pullback";
-    return txt || "-";
+  function strategyText(v) {
+    if (isObj(v)) return first(v.label, v.name, v.description, v.key, "-");
+    const map = {
+      candle_reversal: "Reversão de vela",
+      simple_confluence: "Confluência simples",
+      moving_average_trend: "Tendência por médias",
+      breakout: "Rompimento",
+      pullback: "Pullback"
+    };
+    return map[v] || label(v);
   }
 
-  function setText(id, value) {
-    const el = byId(id);
-    if (el) el.textContent = value;
-  }
-
-  function normalizeState(state) {
-    const mobileSession = state.mobile_session || {};
-    const contract = mobileSession.contract || state.contract || {};
-    const setup = mobileSession.session_setup || state.session_setup || {};
-    const preview = mobileSession.preview || contract.preview || {};
-    const recovery = contract.recovery || mobileSession.recovery || state.recovery || {};
-
-    const scopes = [contract, setup, preview, mobileSession, state];
-
-    const initialBankroll = pick(scopes, [
-      "initial_bankroll",
-      "starting_balance",
-      "initial_balance",
-      "banca_inicial",
-      "bankroll.initial",
-      "bankroll.value",
-      "bankroll.amount",
-      "bankroll",
-      "balance.initial",
-      "balance.starting"
-    ]);
-
-    const currentBalance = pick(scopes, [
-      "current_balance",
-      "saldo_atual",
-      "saldo",
-      "balance.current",
-      "balance.value",
-      "balance",
-      "simulated_balance"
-    ]);
-
-    const entry = pick(scopes, [
-      "current_entry",
-      "entry_value",
-      "entry_amount",
-      "entrada_atual",
-      "entrada",
-      "stake.value",
-      "stake.amount",
-      "stake",
-      "entry"
-    ]);
-
-    const target = pick(scopes, [
-      "profit_target",
-      "target_profit",
-      "profit_goal",
-      "meta_lucro",
-      "lucro_desejado",
-      "target.value",
-      "target"
-    ]);
-
-    const stop = pick(scopes, [
-      "stop_loss",
-      "loss_limit",
-      "max_loss",
-      "stop_limit",
-      "limite",
-      "limit",
-      "stop"
-    ]);
-
-    const nextEntry = pick([recovery, ...scopes], [
-      "next_entry",
-      "next_stake",
-      "next_value",
-      "proxima_entrada",
-      "próxima_entrada"
-    ]);
-
-    const maxExposure = pick([recovery, ...scopes], [
-      "max_exposure",
-      "exposure_max",
-      "exposure",
-      "exposicao_maxima",
-      "exposição_maxima",
-      "max_entry",
-      "entrada_maxima"
-    ]);
-
-    const recoveryObj = pick(scopes, [
-      "recovery",
-      "selected_recovery",
-      "recovery_mode",
-      "recovery_strategy"
-    ]);
-
-    const opMode = pick(scopes, [
-      "operational_mode",
-      "modo_operacional",
-      "mode"
-    ]);
-
-    const strategy = pick(scopes, [
-      "strategy",
-      "selected_strategy",
-      "estrategia"
-    ]);
+  function extract(state) {
+    const ms = state.mobile_session || {};
+    const c = ms.contract || {};
+    const b = c.bankroll || ms.bankroll || ms.simulated_bankroll || {};
+    const pt = c.profit_target || ms.profit_target || state.profit_target || {};
+    const rec = ms.recovery || state.recovery_plan || c.recovery || {};
 
     return {
-      initialBankroll,
-      currentBalance: firstDefined(currentBalance, initialBankroll),
-      entry,
-      target,
-      stop,
-      nextEntry,
-      maxExposure,
-      recoveryObj,
-      opMode,
-      strategy
+      saldo: first(b.current_bankroll, b.balance, b.current_balance, ms.current_balance, state.current_balance),
+      banca: first(b.initial_bankroll, b.starting_balance, b.initial_balance),
+      entrada: first(b.current_entry, c.current_entry, ms.current_entry, ms.entry_value, state.current_entry),
+      meta: first(pt.desired_profit, pt.profit_target, pt.target_profit, c.profit_target, ms.profit_target),
+      alvo: first(pt.target_bankroll, b.target_bankroll),
+      stop: first(c.risk && c.risk.stop_loss, ms.risk && ms.risk.stop_loss, state.risk_management && state.risk_management.stop_loss),
+      recuperacao: recoveryText(rec),
+      proxima: first(rec.next_entry, rec.recovery_plan && rec.recovery_plan.next_entry),
+      exposicao: first(rec.exposure_max, rec.max_entry, rec.recovery_plan && rec.recovery_plan.exposure_max),
+      modo: modeText(first(c.operational_mode, ms.operational_mode, ms.mode)),
+      estrategia: strategyText(first(c.strategy, ms.strategy)),
+      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
     };
   }
 
-  function extractPoints(state) {
-    const raw = firstDefined(
-      state.price_ticks,
-      state.ticks,
-      state.price_history,
-      state.history,
-      []
-    );
-
-    if (!Array.isArray(raw)) return [];
-
-    return raw.map(function (row) {
-      if (typeof row === "number") return row;
-      if (!row || typeof row !== "object") return NaN;
-      return toNumber(firstDefined(row.price_value, row.price, row.value, row.close, row.last_price));
-    }).filter(function (v) {
-      return Number.isFinite(v);
-    }).slice(-40);
+  function set(idName, text) {
+    const el = id(idName);
+    if (el) el.textContent = text;
   }
 
-  function redrawChart(points) {
-    const canvas = byId("predixai-ux-price-chart");
-    const status = byId("predixai-ux-chart-status");
-    if (!canvas || !canvas.getContext) return;
+  function ensureLayout() {
+    if (id("px-mobile-ui")) return;
 
+    const shell = document.createElement("section");
+    shell.id = "px-mobile-ui";
+    shell.className = "predixai-mobile-shell";
+
+    shell.innerHTML =
+      '<div class="px-primary-card">' +
+        '<div class="px-title">Painel operacional simulado</div>' +
+        '<div class="px-hero-grid">' +
+          '<div class="px-metric"><div class="px-label">Saldo atual</div><div id="px-saldo" class="px-value big">-</div></div>' +
+          '<div class="px-metric"><div class="px-label">Banca inicial</div><div id="px-banca" class="px-value">-</div></div>' +
+          '<div class="px-metric"><div class="px-label">Entrada atual</div><div id="px-entrada" class="px-value">-</div></div>' +
+          '<div class="px-metric"><div class="px-label">Meta de lucro</div><div id="px-meta" class="px-value">-</div></div>' +
+          '<div class="px-metric"><div class="px-label">Recuperação</div><div id="px-recuperacao" class="px-value ok">-</div></div>' +
+          '<div class="px-metric"><div class="px-label">Próxima entrada</div><div id="px-proxima" class="px-value">-</div></div>' +
+          '<div class="px-metric"><div class="px-label">Exposição máxima</div><div id="px-exposicao" class="px-value">-</div></div>' +
+          '<div class="px-metric"><div class="px-label">Modo</div><div id="px-modo" class="px-value">-</div></div>' +
+          '<div class="px-metric"><div class="px-label">Estratégia</div><div id="px-estrategia" class="px-value">-</div></div>' +
+        '</div>' +
+        '<div id="px-security" class="px-security">Segurança simulada: carregando...</div>' +
+      '</div>' +
+      '<div class="px-primary-card">' +
+        '<div class="px-title">Gráfico da sessão</div>' +
+        '<canvas id="px-chart" class="px-canvas" width="720" height="180"></canvas>' +
+        '<div id="px-chart-status" class="px-chart-status">Coletando dados para gráfico...</div>' +
+      '</div>' +
+      '<div id="px-action-feedback" class="px-action-feedback"></div>';
+
+    const header = document.querySelector("header");
+    const notice = document.querySelector(".notice");
+    const anchor = notice || header || document.body.firstElementChild;
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(shell, anchor.nextSibling);
+    else document.body.insertBefore(shell, document.body.firstChild);
+  }
+
+  function hideOldUi() {
+    const ids = [
+      "predixai-contract-card",
+      "predixai-live-chart-card"
+    ];
+    ids.forEach(function (x) {
+      const el = id(x);
+      if (el) el.style.display = "none";
+    });
+
+    document.querySelectorAll("section, div").forEach(function (el) {
+      if (!el || el.closest("#px-mobile-ui")) return;
+      const t = (el.textContent || "").trim();
+
+      if (t.includes("CONTRATO DA SESSÃO SIMULADA") && t.length < 2500) {
+        el.style.display = "none";
+      }
+
+      if (t.includes("GRÁFICO DA SESSÃO") && t.includes("Coletando dados para gráfico") && t.length < 1000) {
+        el.style.display = "none";
+      }
+    });
+  }
+
+  function points(state) {
+    const raw = state.price_ticks || state.price_history || state.ticks || state.history || [];
+    if (!Array.isArray(raw)) return [];
+    return raw.map(function (r) {
+      if (typeof r === "number") return r;
+      if (!r || typeof r !== "object") return NaN;
+      return num(first(r.price_value, r.price, r.value, r.close, r.last_price));
+    }).filter(Number.isFinite).slice(-40);
+  }
+
+  function draw(list) {
+    const canvas = id("px-chart");
+    const status = id("px-chart-status");
+    if (!canvas || !canvas.getContext) return;
     const ctx = canvas.getContext("2d");
-    const w = canvas.width;
-    const h = canvas.height;
+    const w = canvas.width, h = canvas.height;
 
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = "#07111b";
     ctx.fillRect(0, 0, w, h);
 
     ctx.strokeStyle = "#203245";
-    ctx.lineWidth = 1;
     for (let i = 1; i <= 4; i++) {
       const y = Math.round((h / 5) * i);
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
 
-    if (!points || points.length < 2) {
+    if (!list || list.length < 2) {
       ctx.fillStyle = "#a8b5c6";
       ctx.font = "bold 18px Arial";
       ctx.textAlign = "center";
@@ -1551,84 +1281,102 @@ canvas,
       return;
     }
 
-    const min = Math.min.apply(null, points);
-    const max = Math.max.apply(null, points);
+    const min = Math.min(...list), max = Math.max(...list);
     const range = Math.max(max - min, 0.000001);
 
     ctx.strokeStyle = "#00e5ff";
     ctx.lineWidth = 3;
     ctx.beginPath();
 
-    points.forEach(function (value, index) {
-      const x = points.length === 1 ? w / 2 : (index / (points.length - 1)) * w;
-      const y = h - ((value - min) / range) * (h - 20) - 10;
-      if (index === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+    list.forEach(function (v, i) {
+      const x = (i / (list.length - 1)) * w;
+      const y = h - ((v - min) / range) * (h - 20) - 10;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
 
     ctx.stroke();
+    if (status) status.textContent = "Gráfico atualizado: " + new Date().toLocaleTimeString("pt-BR") + " | pontos: " + list.length;
+  }
 
-    if (status) {
-      status.textContent = "Gráfico atualizado: " + new Date().toLocaleTimeString("pt-BR") + " | pontos: " + points.length;
+  async function refresh() {
+    ensureLayout();
+    hideOldUi();
+
+    try {
+      const res = await fetch("/api/mobile/state?ptp113b31b4=1", { cache: "no-store" });
+      const state = await res.json();
+      const d = extract(state);
+
+      set("px-saldo", brl(d.saldo));
+      set("px-banca", brl(d.banca));
+      set("px-entrada", brl(d.entrada));
+      set("px-meta", brl(d.meta));
+      set("px-recuperacao", d.recuperacao);
+      set("px-proxima", brl(d.proxima));
+      set("px-exposicao", brl(d.exposicao));
+      set("px-modo", d.modo);
+      set("px-estrategia", d.estrategia);
+
+      set("px-security",
+        "Segurança simulada: " +
+        "simulation_only=" + d.simulation_only +
+        " | orders_enabled=" + d.orders_enabled +
+        " | real_money_enabled=" + d.real_money_enabled +
+        " | auto_click_enabled=" + d.auto_click_enabled +
+        " | broker_login_enabled=" + d.broker_login_enabled +
+        " | credentials_allowed=" + d.credentials_allowed
+      );
+
+      draw(points(state));
+    } catch (err) {
+      set("px-chart-status", "Erro ao atualizar painel: " + err.message);
     }
   }
 
-  function hideOldDuplicateCharts() {
-    const newCard = byId("predixai-live-chart-card");
+  function bindButtons() {
+    const feedback = id("px-action-feedback");
+    document.querySelectorAll("button, a").forEach(function (el) {
+      if (el.dataset.pxSaneamentoBound === "1") return;
+      el.dataset.pxSaneamentoBound = "1";
 
-    document.querySelectorAll("section, div").forEach(function (el) {
-      if (!el || el === newCard || el.closest("#predixai-live-chart-card")) return;
-      const text = (el.textContent || "").trim();
-      if (!text.includes("Coletando dados para gráfico")) return;
-      if (text.length > 220) return;
-      if (el.querySelector("#predixai-ux-price-chart")) return;
+      el.addEventListener("click", function () {
+        const labelTxt = (el.textContent || "comando").trim();
+        el.classList.remove("px-done");
+        el.classList.add("px-processing");
 
-      const rect = el.getBoundingClientRect();
-      if (rect.height > 80 && rect.width > 150) {
-        el.style.display = "none";
-        el.dataset.predixaiOldChartHidden = "1";
-      }
+        if (feedback) {
+          feedback.style.display = "block";
+          feedback.textContent = "Comando recebido: " + labelTxt;
+        }
+
+        setTimeout(function () {
+          el.classList.remove("px-processing");
+          el.classList.add("px-done");
+          if (feedback) feedback.textContent = "Comando executado/encaminhado: " + labelTxt;
+          setTimeout(function () {
+            el.classList.remove("px-done");
+            if (feedback) feedback.style.display = "none";
+          }, 1400);
+        }, 700);
+      }, { capture: true });
     });
   }
 
-  async function applyRealContract() {
-    try {
-      const response = await fetch("/api/mobile/state?contrato_real_mobile=1", { cache: "no-store" });
-      const state = await response.json();
-      const normalized = normalizeState(state);
-
-      setText("ux-saldo-atual", money(normalized.currentBalance));
-      setText("ux-banca-inicial", money(normalized.initialBankroll));
-      setText("ux-entrada-atual", money(normalized.entry));
-      setText("ux-meta-lucro", money(normalized.target));
-      setText("ux-stop-limite", money(normalized.stop));
-      setText("ux-recuperacao", recoveryLabel(normalized.recoveryObj));
-      setText("ux-proxima-entrada", money(normalized.nextEntry));
-      setText("ux-exposicao-maxima", money(normalized.maxExposure));
-      setText("ux-modo-operacional", modeLabel(normalized.opMode));
-      setText("ux-estrategia", strategyLabel(normalized.strategy));
-
-      redrawChart(extractPoints(state));
-      hideOldDuplicateCharts();
-    } catch (err) {
-      const status = byId("predixai-ux-chart-status");
-      if (status) status.textContent = "Erro ao carregar contrato real: " + err.message;
-    }
-  }
-
-  function bootRealContractPatch() {
-    if (document.body.dataset[PATCH_MARKER] === "1") return;
-    document.body.dataset[PATCH_MARKER] = "1";
-
-    applyRealContract();
-    setInterval(applyRealContract, 3000);
-    setInterval(hideOldDuplicateCharts, 3000);
+  function boot() {
+    if (document.body.dataset[MARKER] === "1") return;
+    document.body.dataset[MARKER] = "1";
+    ensureLayout();
+    bindButtons();
+    refresh();
+    setInterval(refresh, 2000);
+    setInterval(bindButtons, 3000);
+    setInterval(hideOldUi, 2000);
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bootRealContractPatch);
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
-    bootRealContractPatch();
+    boot();
   }
 })();
 </script>
