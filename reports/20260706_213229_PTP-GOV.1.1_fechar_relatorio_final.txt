@@ -1,0 +1,67 @@
+PREDIXAI BR — RELATÓRIO DE EXECUÇÃO
+PTP: PTP-GOV.1.1
+Nome curto: fechar_relatorio_final
+Data: seg 06 jul 2026 21:32:29 -03
+Repo esperado: /home/leo/Documentos/GitHub/predixai-platform
+
+Objetivo:
+Fechar a sobra local do relatório da PTP-GOV.1 e ajustar o padrão prático
+dos próximos scripts para não escrever no relatório depois do commit/push.
+
+===== 1. INVESTIGAR =====
+
+===== Git status inicial =====
+ M reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
+?? reports/20260706_213229_PTP-GOV.1.1_fechar_relatorio_final.txt
+RESULTADO: OK
+
+===== Últimos commits =====
+108108f PTP-GOV.1 install PredixAI governance protocols
+98a4a67 PTP-113B.3.1A.5.1A.2 AUDIT pause publish report
+9520510 PTP-113B.3.1A.5.1A.2 AUDIT pause money stepper state
+1461ee4 PTP-113B.3.1A.5.1A.1 PASS currency layout publish report
+f24fe10 PTP-113B.3.1A.5.1A.1 PASS currency layout recovery logic
+27ac65f PTP-113B.3.1A.5.1A PASS currency controls publish report
+6d88950 PTP-113B.3.1A.5.1A PASS currency controls BRL
+e424f11 PTP-113B.3.1A.5.1 PASS setup UI publish report
+b2449b9 PTP-113B.3.1A.5.1 PASS setup UI recovery risk
+cb26f24 PTP-113B.3.1A.5.1 FAIL setup UI recovery risk
+RESULTADO: OK
+
+Sobra detectada:
+reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
+
+===== 2. PLANEJAR =====
+Plano:
+1. Registrar a pendência do relatório final da PTP-GOV.1.
+2. Criar Markdown histórico desta mini-PTP.
+3. Atualizar docs/reports_index.md.
+4. Versionar relatório anterior modificado, relatório novo, Markdown e índice.
+5. Fazer commit e push.
+6. Abrir relatório sem escrever mais nada nele depois do push.
+
+===== 3. CONSTRUIR / REGISTRAR =====
+Markdown histórico criado: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-GOV/PTP-GOV.1.1/20260706_213229_PTP-GOV.1.1_fechar_relatorio_final.md
+Índice atualizado: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+
+===== 4. VALIDAR =====
+
+===== Git diff check =====
+RESULTADO: OK
+
+Conferência de arquivos:
+OK: /home/leo/Documentos/GitHub/predixai-platform/reports/20260706_213229_PTP-GOV.1.1_fechar_relatorio_final.txt
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-GOV/PTP-GOV.1.1/20260706_213229_PTP-GOV.1.1_fechar_relatorio_final.md
+OK: /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+
+===== 5. FECHAMENTO DO RELATÓRIO =====
+Status calculado antes da publicação: PASS
+Regra corrigida:
+A partir deste ponto, o script não escreverá mais no relatório após commit/push.
+O relatório será apenas aberto no final.
+
+Arquivos que serão versionados:
+ M docs/reports_index.md
+ M reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
+?? docs/history/ptp/PTP-GOV/PTP-GOV.1.1/
+?? reports/20260706_213229_PTP-GOV.1.1_fechar_relatorio_final.txt

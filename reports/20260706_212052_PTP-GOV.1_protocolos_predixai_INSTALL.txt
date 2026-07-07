@@ -55,3 +55,58 @@ Markdown histórico criado: /home/leo/Documentos/GitHub/predixai-platform/docs/h
 ===== 6. PUBLICAR =====
 Sanity check de arquivos sensíveis:
 OK: nenhum arquivo sensível óbvio detectado no git status.
+
+===== Git status antes do commit =====
+A  docs/history/ptp/PTP-GOV/PTP-GOV.1/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.md
+A  docs/protocols/PREDIXAI_CHAT_PROTOCOL.md
+A  docs/protocols/PREDIXAI_CHECKPOINT_TEMPLATE.md
+A  docs/protocols/PREDIXAI_EXECUTION_POLICY.md
+A  docs/protocols/PREDIXAI_PROJECT_INSTRUCTION.md
+A  docs/protocols/PREDIXAI_PROJECT_SOURCE_TEMPLATE.md
+A  docs/protocols/PREDIXAI_PTP_HISTORY_TEMPLATE.md
+A  docs/protocols/PREDIXAI_SKILLS.md
+A  docs/reports_index.md
+AM reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
+RESULTADO: OK
+
+===== Git commit =====
+[main 108108f] PTP-GOV.1 install PredixAI governance protocols
+ 10 files changed, 564 insertions(+)
+ create mode 100644 docs/history/ptp/PTP-GOV/PTP-GOV.1/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.md
+ create mode 100644 docs/protocols/PREDIXAI_CHAT_PROTOCOL.md
+ create mode 100644 docs/protocols/PREDIXAI_CHECKPOINT_TEMPLATE.md
+ create mode 100644 docs/protocols/PREDIXAI_EXECUTION_POLICY.md
+ create mode 100644 docs/protocols/PREDIXAI_PROJECT_INSTRUCTION.md
+ create mode 100644 docs/protocols/PREDIXAI_PROJECT_SOURCE_TEMPLATE.md
+ create mode 100644 docs/protocols/PREDIXAI_PTP_HISTORY_TEMPLATE.md
+ create mode 100644 docs/protocols/PREDIXAI_SKILLS.md
+ create mode 100644 docs/reports_index.md
+ create mode 100644 reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
+RESULTADO: OK
+
+===== Git push =====
+To https://github.com/leon337/predixai-platform.git
+   98a4a67..108108f  main -> main
+RESULTADO: OK
+
+===== Git status final =====
+ M reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
+RESULTADO: OK
+
+===== Último commit =====
+108108f PTP-GOV.1 install PredixAI governance protocols
+RESULTADO: OK
+
+===== 7. ENTREGAR =====
+Execução finalizada.
+Copie este relatório e cole no chat.
+
+===== FINALIZAÇÃO =====
+PTP: PTP-GOV.1
+Nome curto: protocolos_predixai
+Status final: PASS
+Relatório: /home/leo/Documentos/GitHub/predixai-platform/reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
+Markdown histórico: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-GOV/PTP-GOV.1/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.md
+
+===== ABERTURA DO RELATÓRIO =====
+Relatório: /home/leo/Documentos/GitHub/predixai-platform/reports/20260706_212052_PTP-GOV.1_protocolos_predixai_INSTALL.txt
