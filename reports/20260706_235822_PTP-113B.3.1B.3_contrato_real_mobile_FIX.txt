@@ -1,0 +1,106 @@
+PREDIXAI CORRIGIR CONTRATO REAL MOBILE
+Data: seg 06 jul 2026 23:58:22 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+PTP: PTP-113B.3.1B.3
+Status: FIX
+Objetivo: corrigir dados reais do contrato na tela /mobile
+
+===== INVESTIGAR — GIT =====
+HEAD:
+21fcea0 PTP-113B.3.1B.2.1 publish Observador UX without ignored backups
+
+Status inicial:
+?? reports/20260706_235822_PTP-113B.3.1B.3_contrato_real_mobile_FIX.txt
+
+===== INVESTIGAR — ESTADO HTTP ATUAL =====
+/api/mobile/state -> HTTP 200
+/mobile -> HTTP 200
+PASS: state capturado em /tmp/predixai_PTP-113B.3.1B.3_20260706_235822_state.json
+
+===== INVESTIGAR — RESUMO DO JSON REAL =====
+Chaves topo:
+active_reader_count, active_readers, auto_click_enabled, broker_login_enabled, credentials_allowed, db_path, expiration_seconds, history, mobile_session, mobile_url, notice, orders_enabled, price_diagnostics, price_history, profit_target, ptp113b31a41_profit_target_ready, ptp113b31a_contract_complete, reader_interval, reader_running, reader_warning, real_money_enabled, recent_rejections, recovery_plan, resistance, risk_management, runtime, signal_analysis_interval, signal_stats, signals, simulation_notice, simulation_only, state, support
+
+Chaves mobile_session:
+asset, auto_click_enabled, bankroll, broker_login_enabled, confluence_result, contract, mobile_signal, mode, operational_mode, orders_enabled, paper_trade_session, preview, profit_target, real_money_enabled, recovery, risk, risk_management, session_id, simulated_bankroll, simulation_only, source, started_at, strategy, strategy_decision
+
+Chaves contract:
+auto_click_enabled, bankroll, broker_login_enabled, credentials_allowed, expiration, operational_mode, orders_enabled, preview, profit_target, real_money_enabled, required_visual_fields, risk, security, simulation_only, strategy
+
+Candidatos encontrados por prioridade contract -> mobile_session -> top:
+- saldo_atual: scope=None key=None value=None
+- banca_inicial: scope=contract key=bankroll value={'currency': 'BRL', 'initial_bankroll': 500.0, 'current_bankroll': 500.0, 'current_entry': 30.0, 'profit_loss': 0.0, 'profit_loss_percent': 0.0}
+- entrada_atual: scope=None key=None value=None
+- meta_lucro: scope=contract key=profit_target value={'desired_profit': 50.0, 'target_bankroll': 550.0, 'target_profit_percent': 10.0, 'label': 'R$ 50.00', 'note': 'Meta de lucro apenas simulada para esta sessão.'}
+- recuperacao: scope=mobile_session key=recovery value={'recovery_enabled': False, 'recovery_mode': 'NONE', 'max_recovery_steps': 0, 'entry_sequence': [5.0], 'next_entry': 5.0, 'max_entry': 5.0, 'exposure_max': 5.0, 'exposure_percent': 5.0, 'combined_risk': 'BAIXO', 'risk_alert': 'Risco simulado baixo.', 'recovery_plan': {'mode': 'NONE', 'enabled': False, 'max_recovery_steps': 0, 'entry_sequence': [5.0], 'next_entry': 5.0, 'max_entry': 5.0, 'exposure_max': 5.0, 'exposure_percent': 5.0, 'combined_risk': 'BAIXO', 'risk_alert': 'Risco simulado baixo.', 'reason': 'Sem recuperação.', 'payout_reference': 80.0}}
+- modo_operacional: scope=contract key=operational_mode value={'key': 'scalper', 'label': 'Scalper', 'description': 'Sessão curta, com foco em sinais rápidos e controle rígido.'}
+- estrategia: scope=contract key=strategy value={'key': 'candle_reversal', 'label': 'Reversão de vela', 'risk': 'médio/alto', 'description': 'Busca sinais de reversão após movimento curto ou esticado.'}
+
+===== PLANEJAR — BACKUP =====
+Backup técnico criado fora do Git: /tmp/predixai_backups/PTP-113B.3.1B.3_20260706_235822_predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — PATCH FRONTEND CONTRATO REAL =====
+CHANGED: patch contrato real mobile aplicado
+PASS: patch aplicado.
+
+===== VALIDAR — PY_COMPILE =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:5828: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:6089: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PASS: py_compile
+
+===== VALIDAR — MARCADORES =====
+PASS: marcador encontrado: PTP113B31B3_CONTRATO_REAL_MOBILE
+PASS: marcador encontrado: normalizeState
+PASS: marcador encontrado: recoveryLabel
+PASS: marcador encontrado: hideOldDuplicateCharts
+PASS: marcador encontrado: overflow-x: hidden
+
+===== VALIDAR — RESTART SERVIDOR MOBILE =====
+PASS: servidor mobile reiniciado. PID=112966
+
+===== VALIDAR — HTTP APÓS PATCH =====
+/mobile -> HTTP 200
+/api/mobile/state -> HTTP 200
+PASS: /mobile respondeu HTTP 200
+PASS: HTML real contém patch contrato real.
+PASS: /api/mobile/state respondeu HTTP 200
+
+===== VALIDAR — SEGURANÇA SIMULADA =====
+PASS: simulation_only=True esperado=True
+PASS: orders_enabled=False esperado=False
+PASS: real_money_enabled=False esperado=False
+PASS: auto_click_enabled=False esperado=False
+PASS: broker_login_enabled=False esperado=False
+PASS: credentials_allowed=False esperado=False
+
+===== VALIDAR — GIT DIFF CHECK =====
+PASS: git diff --check
+
+===== REGISTRAR — RESULTADO =====
+Resultado técnico antes do commit: PASS
+
+Correções esperadas:
+1. Banca inicial deixa de aparecer como {}.
+2. Recuperação deixa de aparecer como JSON bruto.
+3. Entrada/meta/saldo passam a priorizar mobile_session.contract.
+4. Modo operacional passa a mostrar label humano quando disponível.
+5. Layout mobile reduz overflow horizontal.
+6. Gráfico antigo duplicado é ocultado quando detectado.
+
+Backup técnico fora do Git:
+/tmp/predixai_backups/PTP-113B.3.1B.3_20260706_235822_predixai_trader_mobile_server.py.bak
+
+===== REGISTRAR — MARKDOWN =====
+
+===== REGISTRAR — ÍNDICE =====
+
+===== PUBLICAR — PREPARAÇÃO =====
+Relatório fechado antes do commit/push.
+Backups não serão versionados.
+Arquivos permitidos:
+- /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+- /home/leo/Documentos/GitHub/predixai-platform/reports/20260706_235822_PTP-113B.3.1B.3_contrato_real_mobile_FIX.txt
+- /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113B/20260706_235822_PTP-113B.3.1B.3_contrato_real_mobile_FIX.md
+- /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md

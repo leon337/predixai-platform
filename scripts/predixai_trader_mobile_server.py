@@ -1170,6 +1170,469 @@ MOBILE_HTML = r"""<!doctype html>
 })();
 </script>
 
+
+<style>
+/* PTP113B31B3_CONTRATO_REAL_MOBILE */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden !important;
+}
+.ux-contract-card,
+.ux-live-chart-card {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.ux-contract-grid {
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+}
+.ux-contract-item {
+  min-width: 0;
+}
+.ux-contract-value {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.15;
+}
+#ux-recuperacao {
+  font-size: 16px;
+}
+#ux-security-line {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+canvas,
+.ux-chart-canvas {
+  max-width: 100% !important;
+}
+</style>
+
+<script>
+/* PTP113B31B3_CONTRATO_REAL_MOBILE */
+(function () {
+  const PATCH_MARKER = "PTP113B31B3_CONTRATO_REAL_MOBILE_RUNTIME";
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function isPlainObject(value) {
+    return value && typeof value === "object" && !Array.isArray(value);
+  }
+
+  function firstDefined() {
+    for (const value of arguments) {
+      if (value !== undefined && value !== null && value !== "") return value;
+    }
+    return undefined;
+  }
+
+  function getPath(obj, path) {
+    if (!obj || !path) return undefined;
+    const parts = String(path).split(".");
+    let current = obj;
+    for (const part of parts) {
+      if (!current || typeof current !== "object") return undefined;
+      if (!(part in current)) return undefined;
+      current = current[part];
+    }
+    return current;
+  }
+
+  function pick(scopeList, pathList) {
+    for (const scope of scopeList) {
+      if (!scope || typeof scope !== "object") continue;
+      for (const path of pathList) {
+        const value = getPath(scope, path);
+        if (value !== undefined && value !== null && value !== "") return value;
+      }
+    }
+    return undefined;
+  }
+
+  function numberFromObject(obj, preferredKeys) {
+    if (!isPlainObject(obj)) return undefined;
+
+    for (const key of preferredKeys || []) {
+      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
+        const parsed = toNumber(obj[key]);
+        if (Number.isFinite(parsed)) return parsed;
+      }
+    }
+
+    const genericKeys = [
+      "amount", "value", "brl", "current", "initial", "starting",
+      "balance", "bankroll", "entry", "stake", "target", "max", "limit"
+    ];
+
+    for (const key of genericKeys) {
+      if (obj[key] !== undefined && obj[key] !== null && obj[key] !== "") {
+        const parsed = toNumber(obj[key]);
+        if (Number.isFinite(parsed)) return parsed;
+      }
+    }
+
+    return undefined;
+  }
+
+  function toNumber(value) {
+    if (typeof value === "number") return value;
+    if (isPlainObject(value)) {
+      const extracted = numberFromObject(value);
+      if (Number.isFinite(extracted)) return extracted;
+      return NaN;
+    }
+    if (typeof value !== "string") return Number(value);
+
+    let clean = value.replace("R$", "").trim();
+
+    if (clean.indexOf(",") >= 0 && clean.indexOf(".") >= 0) {
+      if (clean.lastIndexOf(",") > clean.lastIndexOf(".")) {
+        clean = clean.replaceAll(".", "").replace(",", ".");
+      } else {
+        clean = clean.replaceAll(",", "");
+      }
+    } else if (clean.indexOf(",") >= 0) {
+      clean = clean.replace(",", ".");
+    }
+
+    const parsed = Number(clean);
+    return Number.isFinite(parsed) ? parsed : NaN;
+  }
+
+  function money(value) {
+    const n = toNumber(value);
+    if (!Number.isFinite(n)) return "-";
+    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function textValue(value) {
+    if (value === undefined || value === null || value === "") return "-";
+
+    if (isPlainObject(value)) {
+      return firstDefined(
+        value.label,
+        value.name,
+        value.title,
+        value.description,
+        value.key,
+        value.mode
+      ) || "-";
+    }
+
+    return String(value);
+  }
+
+  function recoveryLabel(value) {
+    if (value === undefined || value === null || value === "") return "Sem recuperação";
+
+    if (typeof value === "string") {
+      const up = value.toUpperCase();
+      if (up === "NONE" || up === "SEM_RECUPERACAO" || up === "NO_RECOVERY") return "Sem recuperação";
+      if (up.includes("MARTINGALE_2") || up.includes("2")) return "2 Martingales";
+      if (up.includes("MARTINGALE_1") || up.includes("MARTINGALE")) return "1 Martingale";
+      if (up.includes("SOROS")) return "Soros";
+      if (up.includes("SMART")) return "SmartGale";
+      return value;
+    }
+
+    if (isPlainObject(value)) {
+      const mode = String(firstDefined(value.mode, value.key, value.name, value.label, "")).toUpperCase();
+      const enabled = value.enabled;
+      const steps = toNumber(firstDefined(value.max_recovery_steps, value.steps, value.levels, 0));
+
+      if (enabled === false || mode === "NONE" || steps === 0) return "Sem recuperação";
+      if (mode.includes("SOROS")) return "Soros";
+      if (mode.includes("SMART")) return "SmartGale";
+      if (mode.includes("MARTINGALE") && steps >= 2) return "2 Martingales";
+      if (mode.includes("MARTINGALE") || steps === 1) return "1 Martingale";
+
+      return firstDefined(value.label, value.description, value.reason, "Recuperação simulada");
+    }
+
+    return textValue(value);
+  }
+
+  function modeLabel(value) {
+    if (isPlainObject(value)) {
+      return firstDefined(value.label, value.name, value.description, value.key, "-");
+    }
+
+    const txt = String(value || "");
+    if (txt === "scalper") return "Scalper";
+    if (txt === "day_trade") return "Day Trade";
+    if (txt === "mobile_first_simulated") return "Mobile-first simulado";
+    return txt || "-";
+  }
+
+  function strategyLabel(value) {
+    if (isPlainObject(value)) {
+      return firstDefined(value.label, value.name, value.description, value.key, "-");
+    }
+
+    const txt = String(value || "");
+    if (txt === "candle_reversal") return "Reversão de vela";
+    if (txt === "simple_confluence") return "Confluência simples";
+    if (txt === "moving_average_trend") return "Tendência por médias";
+    if (txt === "breakout") return "Rompimento";
+    if (txt === "pullback") return "Pullback";
+    return txt || "-";
+  }
+
+  function setText(id, value) {
+    const el = byId(id);
+    if (el) el.textContent = value;
+  }
+
+  function normalizeState(state) {
+    const mobileSession = state.mobile_session || {};
+    const contract = mobileSession.contract || state.contract || {};
+    const setup = mobileSession.session_setup || state.session_setup || {};
+    const preview = mobileSession.preview || contract.preview || {};
+    const recovery = contract.recovery || mobileSession.recovery || state.recovery || {};
+
+    const scopes = [contract, setup, preview, mobileSession, state];
+
+    const initialBankroll = pick(scopes, [
+      "initial_bankroll",
+      "starting_balance",
+      "initial_balance",
+      "banca_inicial",
+      "bankroll.initial",
+      "bankroll.value",
+      "bankroll.amount",
+      "bankroll",
+      "balance.initial",
+      "balance.starting"
+    ]);
+
+    const currentBalance = pick(scopes, [
+      "current_balance",
+      "saldo_atual",
+      "saldo",
+      "balance.current",
+      "balance.value",
+      "balance",
+      "simulated_balance"
+    ]);
+
+    const entry = pick(scopes, [
+      "current_entry",
+      "entry_value",
+      "entry_amount",
+      "entrada_atual",
+      "entrada",
+      "stake.value",
+      "stake.amount",
+      "stake",
+      "entry"
+    ]);
+
+    const target = pick(scopes, [
+      "profit_target",
+      "target_profit",
+      "profit_goal",
+      "meta_lucro",
+      "lucro_desejado",
+      "target.value",
+      "target"
+    ]);
+
+    const stop = pick(scopes, [
+      "stop_loss",
+      "loss_limit",
+      "max_loss",
+      "stop_limit",
+      "limite",
+      "limit",
+      "stop"
+    ]);
+
+    const nextEntry = pick([recovery, ...scopes], [
+      "next_entry",
+      "next_stake",
+      "next_value",
+      "proxima_entrada",
+      "próxima_entrada"
+    ]);
+
+    const maxExposure = pick([recovery, ...scopes], [
+      "max_exposure",
+      "exposure_max",
+      "exposure",
+      "exposicao_maxima",
+      "exposição_maxima",
+      "max_entry",
+      "entrada_maxima"
+    ]);
+
+    const recoveryObj = pick(scopes, [
+      "recovery",
+      "selected_recovery",
+      "recovery_mode",
+      "recovery_strategy"
+    ]);
+
+    const opMode = pick(scopes, [
+      "operational_mode",
+      "modo_operacional",
+      "mode"
+    ]);
+
+    const strategy = pick(scopes, [
+      "strategy",
+      "selected_strategy",
+      "estrategia"
+    ]);
+
+    return {
+      initialBankroll,
+      currentBalance: firstDefined(currentBalance, initialBankroll),
+      entry,
+      target,
+      stop,
+      nextEntry,
+      maxExposure,
+      recoveryObj,
+      opMode,
+      strategy
+    };
+  }
+
+  function extractPoints(state) {
+    const raw = firstDefined(
+      state.price_ticks,
+      state.ticks,
+      state.price_history,
+      state.history,
+      []
+    );
+
+    if (!Array.isArray(raw)) return [];
+
+    return raw.map(function (row) {
+      if (typeof row === "number") return row;
+      if (!row || typeof row !== "object") return NaN;
+      return toNumber(firstDefined(row.price_value, row.price, row.value, row.close, row.last_price));
+    }).filter(function (v) {
+      return Number.isFinite(v);
+    }).slice(-40);
+  }
+
+  function redrawChart(points) {
+    const canvas = byId("predixai-ux-price-chart");
+    const status = byId("predixai-ux-chart-status");
+    if (!canvas || !canvas.getContext) return;
+
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#07111b";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = "#203245";
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) {
+      const y = Math.round((h / 5) * i);
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+
+    if (!points || points.length < 2) {
+      ctx.fillStyle = "#a8b5c6";
+      ctx.font = "bold 18px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("Coletando dados para gráfico...", w / 2, h / 2);
+      if (status) status.textContent = "Aguardando pelo menos 2 preços para desenhar linha.";
+      return;
+    }
+
+    const min = Math.min.apply(null, points);
+    const max = Math.max.apply(null, points);
+    const range = Math.max(max - min, 0.000001);
+
+    ctx.strokeStyle = "#00e5ff";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+
+    points.forEach(function (value, index) {
+      const x = points.length === 1 ? w / 2 : (index / (points.length - 1)) * w;
+      const y = h - ((value - min) / range) * (h - 20) - 10;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
+
+    if (status) {
+      status.textContent = "Gráfico atualizado: " + new Date().toLocaleTimeString("pt-BR") + " | pontos: " + points.length;
+    }
+  }
+
+  function hideOldDuplicateCharts() {
+    const newCard = byId("predixai-live-chart-card");
+
+    document.querySelectorAll("section, div").forEach(function (el) {
+      if (!el || el === newCard || el.closest("#predixai-live-chart-card")) return;
+      const text = (el.textContent || "").trim();
+      if (!text.includes("Coletando dados para gráfico")) return;
+      if (text.length > 220) return;
+      if (el.querySelector("#predixai-ux-price-chart")) return;
+
+      const rect = el.getBoundingClientRect();
+      if (rect.height > 80 && rect.width > 150) {
+        el.style.display = "none";
+        el.dataset.predixaiOldChartHidden = "1";
+      }
+    });
+  }
+
+  async function applyRealContract() {
+    try {
+      const response = await fetch("/api/mobile/state?contrato_real_mobile=1", { cache: "no-store" });
+      const state = await response.json();
+      const normalized = normalizeState(state);
+
+      setText("ux-saldo-atual", money(normalized.currentBalance));
+      setText("ux-banca-inicial", money(normalized.initialBankroll));
+      setText("ux-entrada-atual", money(normalized.entry));
+      setText("ux-meta-lucro", money(normalized.target));
+      setText("ux-stop-limite", money(normalized.stop));
+      setText("ux-recuperacao", recoveryLabel(normalized.recoveryObj));
+      setText("ux-proxima-entrada", money(normalized.nextEntry));
+      setText("ux-exposicao-maxima", money(normalized.maxExposure));
+      setText("ux-modo-operacional", modeLabel(normalized.opMode));
+      setText("ux-estrategia", strategyLabel(normalized.strategy));
+
+      redrawChart(extractPoints(state));
+      hideOldDuplicateCharts();
+    } catch (err) {
+      const status = byId("predixai-ux-chart-status");
+      if (status) status.textContent = "Erro ao carregar contrato real: " + err.message;
+    }
+  }
+
+  function bootRealContractPatch() {
+    if (document.body.dataset[PATCH_MARKER] === "1") return;
+    document.body.dataset[PATCH_MARKER] = "1";
+
+    applyRealContract();
+    setInterval(applyRealContract, 3000);
+    setInterval(hideOldDuplicateCharts, 3000);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootRealContractPatch);
+  } else {
+    bootRealContractPatch();
+  }
+})();
+</script>
+
 </body>
 </html>
 """
