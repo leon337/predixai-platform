@@ -7,3 +7,4 @@
 | 2026-07-06 | PTP-GOV.2 | escopo_trader | PASS | `reports/20260706_215911_PTP-GOV.2_escopo_trader.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.2/20260706_215911_PTP-GOV.2_escopo_trader.md` |
 
 - 2026-07-06 22:14:47 -0300 | PTP-113B.3.1A.5.1A.3 | stepper_brl | AUDIT | reports/20260706_221447_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.txt | docs/history/ptp/PTP-113/PTP-113B/20260706_221447_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.md | commit após script
+| 2026-07-06 22:19:35 -0300 | PTP-113B.3.1A.5.1A.4 | unify_stepper_brl | PASS | `reports/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.txt` | `docs/history/ptp/PTP-113/PTP-113B/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.md` |

@@ -1,0 +1,129 @@
+PREDIXAI BR — RELATÓRIO DE CORREÇÃO
+PTP: PTP-113B.3.1A.5.1A.4
+Nome curto: unify_stepper_brl
+Ação: FIX
+Data: 2026-07-06 22:19:35 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: scripts/predixai_trader_mobile_server.py
+
+===== OBJETIVO =====
+Unificar o Stepper BRL da tela /session/setup.
+A correção adiciona uma guarda runtime para impedir a injeção do bloco monetário legado V1.
+Resultado esperado:
+- manter apenas o controle monetário mais novo em execução;
+- impedir duplo bind de botões + e -;
+- evitar explosão de valores BRL;
+- preservar fluxo 100% simulado.
+
+===== INVESTIGAR — ESTADO DO GIT =====
+
+$ git rev-parse --show-toplevel
+/home/leo/Documentos/GitHub/predixai-platform
+exit_code=0
+
+$ git branch --show-current
+main
+exit_code=0
+
+$ git log -1 --oneline
+965bc1b PTP-113B.3.1A.5.1A.3 audit Stepper BRL
+exit_code=0
+
+$ git status --short
+?? reports/20260706_221311_PTP-113B.3.1A.5.1A.3_stepper_brl_AUDIT.txt
+?? reports/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.txt
+exit_code=0
+
+===== INVESTIGAR — MEMÓRIA MÍNIMA =====
+OK: PROJECT_STATE.md encontrado.
+928:## PTP-113B.3.1A — Construção do contrato completo da tela inicial
+933:- Corrigida a tela /session/setup para contrato operacional completo.
+944:## PTP-113B.3.1A.1 — Fix Pullback no contrato público V2
+953:## PTP-113B.3.1A.3 — Fix POST /session/setup
+958:- Criada mini-PTP porque a tela /session/setup abriu, mas o botão Iniciar sessão simulada retornou 405 Method Not Allowed.
+959:- Correção: garantir rota POST em /session/setup apontando para o mesmo handler da tela inicial.
+962:## PTP-113B.3.1A.4 — Meta de lucro e cancelamento no sinal
+967:- Adicionado campo Lucro desejado da sessão na tela /session/setup.
+972:## PTP-113B.3.1A.4.1 — Meta de lucro V2 aplicada
+977:- Criada correção robusta porque a PTP-113B.3.1A.4 não inseriu os campos na tela/contrato.
+978:- /session/setup passa a exibir Lucro desejado da sessão.
+979:- /session/setup passa a exibir Saldo alvo.
+985:## PTP-113B.3.1A.5.0 — Regularização dos arquivos pendentes no GitHub
+OK: predixai_context.json encontrado.
+498:    "orders_enabled": false,
+511:    "orders_enabled": false,
+652:    "orders_enabled": false,
+680:    "orders_enabled": false,
+706:    "orders_enabled": false,
+729:    "orders_enabled": false,
+753:    "orders_enabled": false,
+774:    "orders_enabled": false,
+792:    "orders_enabled": false,
+808:    "orders_enabled": false,
+1199:      "orders_enabled": false,
+1209:    "orders_enabled": false,
+1409:      "ptp": "PTP-113B.3.1A",
+1420:      "next_step": "Validar PTP-113B.3.1A antes de avançar para PTP-113B.3.1B."
+1423:      "ptp": "PTP-113B.3.1A.1-V2",
+1431:      "ptp": "PTP-113B.3.1A.3",
+1434:      "summary": "Correção do POST em /session/setup após 405 Method Not Allowed.",
+1439:      "ptp": "PTP-113B.3.1A.4",
+1444:      "next_step": "Validar visualmente no notebook e telefone antes de iniciar PTP-113B.3.1B."
+1447:      "ptp": "PTP-113B.3.1A.4.1",
+1451:      "reason": "A tentativa PTP-113B.3.1A.4 falhou porque o patch não encontrou os pontos reais de inserção.",
+1452:      "next_step": "Validar notebook e telefone antes de fechar PTP-113B.3.1A."
+1455:      "ptp": "PTP-113B.3.1A.5.0",
+Backup do índice criado: backups/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_reports_index.before.md
+
+===== INVESTIGAR — ARQUIVO ALVO =====
+OK: arquivo alvo encontrado.
+  5528 204965 scripts/predixai_trader_mobile_server.py
+f8582326cd82a5ed9cab4415066b8b53d81d659074aac15688ce63691e94a6e5  scripts/predixai_trader_mobile_server.py
+
+===== AUDITORIA PRÉ-CORREÇÃO =====
+parseMoney_definicoes_pre=2
+formatBRL_definicoes_pre=2
+DOMContentLoaded_pre=2
+money_stepper_pre=10
+legacy_marker_pre=2
+
+===== CONSTRUIR — PATCH SEGURO =====
+BACKUP_CREATED: backups/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_predixai_trader_mobile_server.before.py
+PATCH_MODE: return app não encontrado; bloco anexado ao final do arquivo.
+PATCH_APPLIED: guarda runtime do Stepper BRL adicionada.
+
+===== VALIDAR =====
+
+$ python -m py_compile scripts/predixai_trader_mobile_server.py
+exit_code=0
+PASS: py_compile do servidor mobile.
+PASS: guarda runtime encontrada no arquivo.
+parseMoney_definicoes_pos=2
+formatBRL_definicoes_pos=2
+DOMContentLoaded_pos=2
+money_stepper_pos=10
+guard_marker_pos=2
+
+$ git diff --check
+exit_code=0
+PASS: git diff --check.
+
+===== REGISTRAR — MARKDOWN E ÍNDICE =====
+Markdown histórico gerado: docs/history/ptp/PTP-113/PTP-113B/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.md
+Índice atualizado: docs/reports_index.md
+
+===== SANITY CHECK — ARQUIVOS PARA VERSIONAMENTO =====
+intended_git_add: scripts/predixai_trader_mobile_server.py
+intended_git_add: reports/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.txt
+intended_git_add: docs/history/ptp/PTP-113/PTP-113B/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_FIX.md
+intended_git_add: docs/reports_index.md
+intended_git_add: backups/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_predixai_trader_mobile_server.before.py
+intended_git_add: backups/20260706_221935_PTP-113B.3.1A.5.1A.4_unify_stepper_brl_reports_index.before.md
+
+===== ENTREGAR — FECHAMENTO DO RELATÓRIO =====
+Status final: PASS
+Warnings: 0
+Erros: 0
+
+Relatório fechado antes de commit/push.
+Depois do push, o script apenas abrirá este relatório, sem escrever novas linhas nele.

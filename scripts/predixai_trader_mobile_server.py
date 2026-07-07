@@ -5526,3 +5526,37 @@ except NameError:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+# PTP-113B.3.1A.5.1A.4_UNIFY_STEPPER_BRL_RUNTIME_GUARD
+@app.after_request
+def _ptp113b3151a51a4_unify_stepper_brl(response):
+    """Desativa a injeção monetária legada V1 antes do Stepper BRL V2 rodar."""
+    try:
+        if request.path != "/session/setup":
+            return response
+
+        content_type = response.headers.get("Content-Type", "")
+        if "text/html" not in content_type:
+            return response
+
+        html = response.get_data(as_text=True)
+        runtime_marker = "<!-- PTP113B3151A_CURRENCY_CONTROLS_BRL disabled by PTP-113B.3.1A.5.1A.4_UNIFY_STEPPER_BRL_RUNTIME_GUARD -->"
+
+        if runtime_marker in html:
+            return response
+
+        if "PTP113B3151A_CURRENCY_CONTROLS_BRL" not in html:
+            if "</head>" in html:
+                html = html.replace("</head>", runtime_marker + "\n</head>", 1)
+            elif "</body>" in html:
+                html = html.replace("</body>", runtime_marker + "\n</body>", 1)
+            else:
+                html = runtime_marker + "\n" + html
+
+            response.set_data(html)
+            response.headers["Content-Length"] = str(len(response.get_data()))
+
+    except Exception:
+        return response
+
+    return response
