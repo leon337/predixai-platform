@@ -1,0 +1,162 @@
+PREDIXAI BR — PTP 113 C.7 validacao_mobile_visual
+Data: 2026-07-07 10:40:59 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Arquivo alvo: /home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py
+Status: FIX
+
+===== OBJETIVO =====
+Adicionar validação visual mobile-first do ciclo sinal → abertura → fechamento → banca → histórico.
+
+===== REGRA =====
+Não criar nova lógica operacional.
+Não executar ordem real.
+Não usar saldo real.
+Não alterar saldo.
+Não registrar operação falsa.
+Manter tudo 100% simulado.
+
+===== INVESTIGAR — Git status inicial =====
+?? reports/20260707_104059_PTP-113C.7_validacao_mobile_visual_FIX.txt
+
+===== INVESTIGAR — Últimos commits =====
+f24c17d PTP 113 C.6 add operational history event
+b5acbef PTP 113 C.5 add simulated bankroll update
+64e9d81 PTP 113 C.4 add simulated close result
+e5ac227 PTP 113 C.3 add simulated open operation
+dc0e817 PTP 113 C.2 add current signal model
+5acc1bd PTP 113 C.1 audit estado atual
+d816382 PTP-113B.3.1B.5.2.5 registrar PASS visual pos zoom observador mobile
+9eb521e PTP-113B.3.1B.5.2.4 corrigir topo observador mobile FIX
+
+===== INVESTIGAR — Marcadores necessários =====
+2780:</body>
+5098:# PTP113C2_MODELO_SINAL_ATUAL_START
+5291:            "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5380:        "source": "PTP113C2_MODELO_SINAL_ATUAL",
+5407:# PTP113C2_MODELO_SINAL_ATUAL_END
+5413:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_START
+5566:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5580:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5601:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5615:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5628:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5640:            "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5686:        "source": "PTP113C3_ABERTURA_SIMULADA_OPERACAO",
+5702:# PTP113C3_ABERTURA_SIMULADA_OPERACAO_END
+5708:# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_START
+5838:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5852:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5865:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5878:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5897:                    "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5922:            "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5954:        "source": "PTP113C4_FECHAMENTO_SIMULADO_RESULTADO",
+5970:# PTP113C4_FECHAMENTO_SIMULADO_RESULTADO_END
+5976:# PTP113C5_ATUALIZACAO_BANCA_SIMULADA_START
+6077:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6090:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6104:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6117:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6132:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6151:            "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6182:        "source": "PTP113C5_ATUALIZACAO_BANCA_SIMULADA",
+6198:# PTP113C5_ATUALIZACAO_BANCA_SIMULADA_END
+6204:# PTP113C6_HISTORICO_OPERACIONAL_START
+6314:            "source": "PTP113C6_HISTORICO_OPERACIONAL",
+6341:        "source": "PTP113C6_HISTORICO_OPERACIONAL",
+6406:# PTP113C6_HISTORICO_OPERACIONAL_END
+6614:</body>
+7031:    </body>
+7324:    </body>
+8509:    if "</body>" in html:
+8510:        return html.replace("</body>", assets + "\n</body>", 1)
+8939:    if "</body>" in html:
+8940:        return html.replace("</body>", assets + "\n</body>", 1)
+
+===== CONSTRUIR — Backup =====
+Backup criado em: /home/leo/Documentos/GitHub/predixai-platform/backups/20260707_104059_PTP-113C.7_validacao_mobile_visual/predixai_trader_mobile_server.py.bak
+
+===== CONSTRUIR — Aplicar patch visual PTP 113 C.7 =====
+PASS: patch visual PTP113C7_VALIDACAO_MOBILE_VISUAL aplicado.
+PATCH_EXIT=0
+
+===== VALIDAR — py_compile =====
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8527: SyntaxWarning: invalid escape sequence '\d'
+  js = """
+/home/leo/Documentos/GitHub/predixai-platform/scripts/predixai_trader_mobile_server.py:8788: SyntaxWarning: invalid escape sequence '\d'
+  return """
+PY_COMPILE_EXIT=0
+
+===== VALIDAR — git diff check =====
+GIT_DIFF_CHECK_EXIT=0
+
+===== VALIDAR — Marcadores PTP 113 C.7 =====
+2781:<!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_START -->
+2783:  #px-ptp113c7-cycle {
+2794:  #px-ptp113c7-cycle .px-c7-title {
+2802:  #px-ptp113c7-cycle .px-c7-subtitle {
+2809:  #px-ptp113c7-cycle .px-c7-grid {
+2815:  #px-ptp113c7-cycle .px-c7-card {
+2822:  #px-ptp113c7-cycle .px-c7-label {
+2830:  #px-ptp113c7-cycle .px-c7-value {
+2837:  #px-ptp113c7-cycle .px-c7-status-ok { color: #38d66b; }
+2838:  #px-ptp113c7-cycle .px-c7-status-warn { color: #ffbf00; }
+2839:  #px-ptp113c7-cycle .px-c7-status-block { color: #ff6b7a; }
+2840:  #px-ptp113c7-cycle .px-c7-mini {
+2848:    #px-ptp113c7-cycle .px-c7-grid {
+2856:  const MARKER = "PTP113C7_VALIDACAO_MOBILE_VISUAL_RUNTIME";
+2896:    let panel = document.getElementById("px-ptp113c7-cycle");
+2900:    panel.id = "px-ptp113c7-cycle";
+2902:      <div class="px-c7-title">PTP 113 C — Ciclo Simulado</div>
+3019:<!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_END -->
+
+===== VALIDAR — Reiniciar servidor mobile =====
+Processos encontrados: 24292
+SERVER_PID=25432
+
+===== VALIDAR — Endpoint /mobile =====
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.8 Python/3.12.3
+Date: Tue, 07 Jul 2026 13:41:06 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 94359
+Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+Connection: close
+
+CURL_MOBILE_EXIT=0
+
+===== VALIDAR — HTML real contém painel C.7 =====
+HTML_MARKER=PASS
+HTML_TITLE=PASS
+
+===== VALIDAR — Endpoint /api/mobile/state =====
+CURL_STATE_EXIT=0
+current_signal_model_exists=True
+simulated_open_operation_exists=True
+simulated_close_result_exists=True
+simulated_bankroll_update_exists=True
+operational_history_event_exists=True
+simulation_only=True expected=True
+orders_enabled=False expected=False
+real_money_enabled=False expected=False
+auto_click_enabled=False expected=False
+broker_login_enabled=False expected=False
+credentials_allowed=False expected=False
+PTP113C7_STATE_VALIDATE=PASS
+PTP113C7_STATE_VALIDATE_EXIT=0
+
+===== REGISTRAR — Resultado técnico =====
+Resultado esperado:
+- Painel visual PTP 113 C aparece no /mobile.
+- Painel mostra sinal, abertura, fechamento, banca, histórico e travas.
+- Não altera lógica operacional.
+- Não registra operação falsa.
+- Não altera saldo.
+
+===== PUBLICAR — Sanity check contra arquivos sensíveis =====
+
+===== PUBLICAR — Arquivos versionados =====
+A  docs/history/ptp/PTP-113/PTP-113C/20260707_104059_PTP-113C.7_validacao_mobile_visual_FIX.md
+M  docs/reports_index.md
+A  reports/20260707_104059_PTP-113C.7_validacao_mobile_visual_FIX.txt
+M  scripts/predixai_trader_mobile_server.py

@@ -2777,6 +2777,247 @@ a.px-btn-error {
 
 
 
+
+<!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_START -->
+<style>
+  #px-ptp113c7-cycle {
+    margin: 14px 10px 90px;
+    padding: 14px;
+    border: 1px solid rgba(0, 220, 255, .28);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(7, 20, 35, .96), rgba(3, 9, 17, .96));
+    box-shadow: 0 0 22px rgba(0, 200, 255, .10);
+    color: #e8f7ff;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  #px-ptp113c7-cycle .px-c7-title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: .03em;
+    color: #7ee7ff;
+    margin-bottom: 4px;
+  }
+
+  #px-ptp113c7-cycle .px-c7-subtitle {
+    font-size: 12px;
+    color: #a8b5c6;
+    margin-bottom: 12px;
+    line-height: 1.35;
+  }
+
+  #px-ptp113c7-cycle .px-c7-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  #px-ptp113c7-cycle .px-c7-card {
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 10px;
+    background: rgba(255,255,255,.035);
+  }
+
+  #px-ptp113c7-cycle .px-c7-label {
+    font-size: 11px;
+    color: #91a4b8;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 4px;
+  }
+
+  #px-ptp113c7-cycle .px-c7-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f5fbff;
+    overflow-wrap: anywhere;
+  }
+
+  #px-ptp113c7-cycle .px-c7-status-ok { color: #38d66b; }
+  #px-ptp113c7-cycle .px-c7-status-warn { color: #ffbf00; }
+  #px-ptp113c7-cycle .px-c7-status-block { color: #ff6b7a; }
+  #px-ptp113c7-cycle .px-c7-mini {
+    font-size: 11px;
+    color: #a8b5c6;
+    margin-top: 4px;
+    line-height: 1.35;
+  }
+
+  @media (min-width: 520px) {
+    #px-ptp113c7-cycle .px-c7-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  const MARKER = "PTP113C7_VALIDACAO_MOBILE_VISUAL_RUNTIME";
+  if (window[MARKER]) return;
+  window[MARKER] = true;
+
+  function text(v, fallback = "-") {
+    if (v === null || v === undefined || v === "") return fallback;
+    return String(v);
+  }
+
+  function money(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "-";
+    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function price(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "-";
+    return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 5 });
+  }
+
+  function statusClass(status) {
+    const s = String(status || "").toLowerCase();
+    if (s.includes("ready") || s.includes("simulated") || s.includes("closed") || s.includes("bankroll_update")) return "px-c7-status-ok";
+    if (s.includes("aguard") || s.includes("waiting") || s.includes("unknown")) return "px-c7-status-warn";
+    if (s.includes("blocked") || s.includes("bloqueado")) return "px-c7-status-block";
+    return "px-c7-status-warn";
+  }
+
+  function card(label, value, mini, cls) {
+    return `
+      <div class="px-c7-card">
+        <div class="px-c7-label">${label}</div>
+        <div class="px-c7-value ${cls || ""}">${value}</div>
+        ${mini ? `<div class="px-c7-mini">${mini}</div>` : ""}
+      </div>
+    `;
+  }
+
+  function ensurePanel() {
+    let panel = document.getElementById("px-ptp113c7-cycle");
+    if (panel) return panel;
+
+    panel = document.createElement("section");
+    panel.id = "px-ptp113c7-cycle";
+    panel.innerHTML = `
+      <div class="px-c7-title">PTP 113 C — Ciclo Simulado</div>
+      <div class="px-c7-subtitle">
+        Validação visual mobile-first: sinal, abertura, fechamento, banca e histórico.
+      </div>
+      <div class="px-c7-grid" id="px-ptp113c7-grid">
+        <div class="px-c7-card">
+          <div class="px-c7-label">Status</div>
+          <div class="px-c7-value px-c7-status-warn">Carregando...</div>
+        </div>
+      </div>
+    `;
+
+    const anchor =
+      document.getElementById("px-observer-toggle-panel") ||
+      document.querySelector("main") ||
+      document.body;
+
+    if (anchor && anchor.parentNode && anchor !== document.body) {
+      anchor.parentNode.insertBefore(panel, anchor.nextSibling);
+    } else {
+      document.body.appendChild(panel);
+    }
+
+    return panel;
+  }
+
+  function renderCycle(data) {
+    const panel = ensurePanel();
+    const grid = panel.querySelector("#px-ptp113c7-grid");
+    if (!grid) return;
+
+    const signal = data.current_signal_model || {};
+    const open = data.simulated_open_operation || {};
+    const close = data.simulated_close_result || {};
+    const bank = data.simulated_bankroll_update || {};
+    const event = data.operational_history_event || {};
+
+    const safety =
+      data.simulation_only === true &&
+      data.orders_enabled === false &&
+      data.real_money_enabled === false &&
+      data.auto_click_enabled === false &&
+      data.broker_login_enabled === false &&
+      data.credentials_allowed === false;
+
+    grid.innerHTML = [
+      card(
+        "Sinal atual",
+        text(signal.status, "aguardando_leitura"),
+        `Direção: ${text(signal.direction, "NEUTRO")} · Preço: ${price(signal.reference_price)} · ${text(signal.reason, "")}`,
+        statusClass(signal.status)
+      ),
+      card(
+        "Abertura simulada",
+        text(open.status, "não aberta"),
+        `Aberta: ${text(open.operation_opened, false)} · Entrada: ${money(open.entry_value)} · ID: ${text(open.operation_id)}`,
+        statusClass(open.status)
+      ),
+      card(
+        "Fechamento simulado",
+        text(close.status, "não calculado"),
+        `Resultado: ${text(close.result, "-")} · Calculado: ${text(close.result_calculated, false)} · Fechamento: ${price(close.close_price)}`,
+        statusClass(close.status)
+      ),
+      card(
+        "Banca simulada",
+        text(bank.status, "bloqueada"),
+        `Saldo antes: ${money(bank.saldo_before)} · Saldo depois: ${money(bank.saldo_after)} · P/L: ${money(bank.profit_loss)}`,
+        statusClass(bank.status)
+      ),
+      card(
+        "Histórico operacional",
+        text(event.event_type, "AUDIT_BLOCKED"),
+        `Pronto: ${text(event.event_ready, false)} · Persistido: ${text(event.event_persisted, false)} · ${text(event.reason, "")}`,
+        statusClass(event.status)
+      ),
+      card(
+        "Travas simuladas",
+        safety ? "SEGURAS" : "VERIFICAR",
+        `simulation_only=${text(data.simulation_only)} · orders_enabled=${text(data.orders_enabled)} · real_money_enabled=${text(data.real_money_enabled)}`,
+        safety ? "px-c7-status-ok" : "px-c7-status-block"
+      )
+    ].join("");
+  }
+
+  const originalFetch = window.fetch;
+  if (typeof originalFetch === "function") {
+    window.fetch = async function () {
+      const response = await originalFetch.apply(this, arguments);
+      try {
+        const url = String(arguments[0] || "");
+        if (url.includes("/api/mobile/state")) {
+          response.clone().json().then(renderCycle).catch(function () {});
+        }
+      } catch (err) {}
+      return response;
+    };
+  }
+
+  async function tick() {
+    try {
+      const response = await originalFetch("/api/mobile/state", { cache: "no-store" });
+      const data = await response.json();
+      renderCycle(data);
+    } catch (err) {
+      const panel = ensurePanel();
+      const grid = panel.querySelector("#px-ptp113c7-grid");
+      if (grid) {
+        grid.innerHTML = card("Status", "Falha ao carregar estado mobile", String(err), "px-c7-status-block");
+      }
+    }
+  }
+
+  tick();
+  setInterval(tick, 5000);
+})();
+</script>
+<!-- PTP113C7_VALIDACAO_MOBILE_VISUAL_END -->
+
 </body>
 </html>
 """
