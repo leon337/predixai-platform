@@ -1,0 +1,42 @@
+PREDIXAI PTP-113C.8.3.1 — recovery_contrato_visual_mobile_v2
+Data: qua 08 jul 2026 06:00:18 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== INVESTIGAR =====
+?? reports/20260708_060018_PTP-113C.8.3.1_recovery_contrato_visual_mobile_v2_RECOVERY.txt
+d9491fd PTP 113 C.8.3 registrar falha contrato visual
+ee97498 PTP 113 C.8.2.3 validar mobile v2 standalone
+e83682f PTP 113 C.8.2.2.1 registrar PASS visual telas mobile v2
+
+===== VALIDAR BACKUP =====
+OK: backup encontrado: /home/leo/Documentos/GitHub/predixai-platform/backups/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada/src/predixai/mobile_v2/app.py
+OK: backup encontrado: /home/leo/Documentos/GitHub/predixai-platform/backups/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada/src/predixai/mobile_v2/templates/session_setup.html
+OK: backup encontrado: /home/leo/Documentos/GitHub/predixai-platform/backups/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== RESTAURAR BACKUP =====
+Restaurado: src/predixai/mobile_v2/app.py
+Restaurado: src/predixai/mobile_v2/templates/session_setup.html
+Restaurado: src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== VALIDAR RECOVERY =====
+pytest ausente; usando unittest fallback.
+
+===== VALIDAR ENDPOINTS =====
+GET / 200
+GET /health 200
+GET /session/setup 200
+GET /mobile 200
+GET /state/current 200
+RECOVERY_ENDPOINTS_PASS
+
+===== CHECKSUM PROTEÇÃO =====
+OK: state_store.py e mobile_server.py intactos.
+
+===== SEGURANÇA =====
+OK: sem observer real, reader real ou liberação real.
+OK: runtime JSON ignorado.
+
+===== REGISTRAR =====
+Markdown: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_060018_PTP-113C.8.3.1_recovery_contrato_visual_mobile_v2_RECOVERY.md
+Resultado final pré-commit: PASS
+Relatório: /home/leo/Documentos/GitHub/predixai-platform/reports/20260708_060018_PTP-113C.8.3.1_recovery_contrato_visual_mobile_v2_RECOVERY.txt
