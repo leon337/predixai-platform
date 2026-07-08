@@ -785,3 +785,12 @@ REABRIR C.8.3: BLOQUEADO ATÉ LEO ANALISAR ESTE RELATÓRIO
 PRÓXIMA AÇÃO: colar relatório no chat
 
 ===== 23. GIT ADD SEGURO =====
+
+===== 24. STAGED FINAL =====
+docs/history/ptp/PTP-113/PTP-113C/20260708_080515_PTP-113C.8.2.4_auditoria_estrutural_mobile_v2_AUDIT.md
+docs/reports_index.md
+reports/20260708_062418_PTP-113C.8.3_traceback_erro_500_backup_AUDIT.txt
+reports/20260708_062716_PTP-113C.8.3_traceback_commit_d9491fd_AUDIT.txt
+reports/20260708_064002_PTP-113C.8.3_auditoria_isolada_commit_d9491fd_AUDIT.txt
+reports/20260708_070004_PTP-113C.8.3_auditoria_templates_persistencia_AUDIT.txt
+reports/20260708_080515_PTP-113C.8.2.4_auditoria_estrutural_mobile_v2_AUDIT.txt

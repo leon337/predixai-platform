@@ -1,0 +1,498 @@
+PREDIXAI BR — PTP-113C.8.2.4.2 — Validação HTTP Mobile V2 porta 5001
+Data: 2026-07-08 08:12:01 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Base URL: http://127.0.0.1:5001
+Tipo: VALIDATION / SEM ALTERAÇÃO DE CÓDIGO
+
+===== 1. GIT — ESTADO INICIAL =====
+ M reports/20260708_080515_PTP-113C.8.2.4_auditoria_estrutural_mobile_v2_AUDIT.txt
+?? reports/20260708_081201_PTP-113C.8.2.4.2_validar_http_mobile_v2_porta_5001_VALIDATION.txt
+
+14f1a0b PTP 113 C.8.2.4 auditoria estrutural mobile v2
+b3ddbe5 PTP 113 C.8.3.1 recovery contrato visual mobile v2
+d9491fd PTP 113 C.8.3 registrar falha contrato visual
+ee97498 PTP 113 C.8.2.3 validar mobile v2 standalone
+e83682f PTP 113 C.8.2.2.1 registrar PASS visual telas mobile v2
+
+===== 2. CHECKSUM ANTES — ARQUIVOS PROTEGIDOS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== 3. SINTAXE PYTHON =====
+OK: app.py compila.
+OK: state_store.py compila.
+
+===== 4. GIT DIFF CHECK =====
+OK: git diff --check passou.
+
+===== 5. DETECÇÃO DE USOS PROIBIDOS =====
+OK: profit_target não encontrado.
+OK: bool(session.status) não encontrado.
+
+===== 6. VALIDAÇÃO HTTP — PORTA 5001 =====
+
+===== HTTP GET /health =====
+URL=http://127.0.0.1:5001/health
+HTTP_CODE=200
+RC=0
+--- BODY PREVIEW ---
+{
+    "legacy_mobile_server": false,
+    "mobile_v2": true,
+    "observer_real_started": false,
+    "ok": true,
+    "simulation_only": true,
+    "standalone": true
+}
+OK: endpoint respondeu.
+
+===== HTTP GET /session/setup =====
+URL=http://127.0.0.1:5001/session/setup
+HTTP_CODE=200
+RC=0
+--- BODY PREVIEW ---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PredixAI Mobile V2 — Tela 1</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071018;
+      --card: #101d2a;
+      --line: #23364a;
+      --text: #e8f3ff;
+      --muted: #9db2c8;
+      --accent: #32d3ff;
+      --warn: #ffd166;
+      --ok: #69f0ae;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #12344a 0, var(--bg) 42%);
+      color: var(--text);
+    }
+    main {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .top {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.92);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: 1.35rem; margin: 0 0 6px; }
+    p { color: var(--muted); line-height: 1.45; }
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.88);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: .9rem;
+      margin: 12px 0 6px;
+    }
+    input, select, button, a.btn {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 13px;
+      background: #071421;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    button, a.btn {
+      display: block;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 12px;
+      background: linear-gradient(135deg, #0f7ea1, #124f86);
+      border-color: #2b8bb8;
+      font-weight: 700;
+    }
+    .ghost { background: #0c1824; }
+    .safety {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: .82rem;
+      line-height: 1.5;
+      color: var(--ok);
+      overflow-wrap: anywhere;
+    }
+OK: endpoint respondeu.
+
+===== HTTP GET /mobile =====
+URL=http://127.0.0.1:5001/mobile
+HTTP_CODE=200
+RC=0
+--- BODY PREVIEW ---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PredixAI Mobile V2 — Tela 2</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #061018;
+      --card: #101d2a;
+      --line: #25384c;
+      --text: #e8f3ff;
+      --muted: #9db2c8;
+      --accent: #32d3ff;
+      --ok: #69f0ae;
+      --warn: #ffd166;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #15384f 0, var(--bg) 45%);
+      color: var(--text);
+    }
+    main {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      padding: 14px;
+    }
+    header, .card {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.9);
+      border-radius: 18px;
+      padding: 15px;
+      margin: 11px 0;
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 6px; }
+    h2 { font-size: 1rem; margin: 0 0 10px; color: var(--accent); }
+    p { margin: 6px 0; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .item {
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(7,20,33,.65);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: .78rem;
+      margin-bottom: 4px;
+    }
+    .value {
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .status-off { color: var(--muted); }
+    .status-on { color: var(--ok); }
+    .status-warn { color: var(--warn); }
+    .actions {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+    button, a.btn {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 13px;
+      background: #0c1824;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      text-align: center;
+OK: endpoint respondeu.
+
+===== HTTP GET /state/current =====
+URL=http://127.0.0.1:5001/state/current
+HTTP_CODE=200
+RC=0
+--- BODY PREVIEW ---
+{
+    "mobile_v2": true,
+    "note": "reading.age_seconds is calculated at response time and is not persisted.",
+    "ok": true,
+    "route": "/state/current",
+    "runtime_persisted": true,
+    "state": {
+        "history": {
+            "count": 0,
+            "last_event_id": null
+        },
+        "observer": {
+            "last_error": null,
+            "pid": null,
+            "running": false,
+            "started_at": "2026-07-07T23:52:22.627519+00:00",
+            "status": "OFF",
+            "stopped_at": "2026-07-07T23:52:22.734533+00:00"
+        },
+        "operation": {
+            "operation_id": null,
+            "result": null,
+            "status": "none"
+        },
+        "reading": {
+            "age_seconds": null,
+            "asset": null,
+            "captured_at": null,
+            "price": null,
+            "source": "none",
+            "status": "no_active_reading"
+        },
+        "schema_version": "mobile_v2_state_v1",
+        "session": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "configured_at": "2026-07-08T10:00:05.774512+00:00",
+            "contract": {
+                "asset_label": "Aguardando leitura",
+                "entry_value": 5.0,
+                "initial_bank": 100.0,
+                "profit_goal": 10.0,
+                "recovery_mode": "none",
+                "simulation_only": true
+            },
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true,
+            "status": "configured"
+        },
+        "signal": {
+            "confidence": null,
+            "direction": "NEUTRO",
+            "reason": null,
+            "status": "aguardando_leitura",
+            "strategy": null
+        },
+        "status": "session_configured",
+        "updated_at": "2026-07-08T10:00:05.775065+00:00"
+    }
+}
+OK: endpoint respondeu.
+
+===== 7. PERSISTÊNCIA REAL =====
+
+===== POST /session/create — persistência real do contrato =====
+URL=http://127.0.0.1:5001/session/create
+HTTP_CODE=200
+RC=0
+--- BODY ---
+{
+    "history_recording": false,
+    "mobile_v2": true,
+    "next_screen": "/mobile",
+    "ok": true,
+    "operation_result": false,
+    "real_money": false,
+    "route": "/session/create",
+    "signal_generation": false,
+    "simulated_contract_only": true,
+    "state": {
+        "history": {
+            "count": 0,
+            "last_event_id": null
+        },
+        "observer": {
+            "last_error": null,
+            "pid": null,
+            "running": false,
+            "started_at": "2026-07-07T23:52:22.627519+00:00",
+            "status": "OFF",
+            "stopped_at": "2026-07-07T23:52:22.734533+00:00"
+        },
+        "operation": {
+            "operation_id": null,
+            "result": null,
+            "status": "none"
+        },
+        "reading": {
+            "asset": null,
+            "captured_at": null,
+            "price": null,
+            "source": "none",
+            "status": "no_active_reading"
+        },
+        "schema_version": "mobile_v2_state_v1",
+        "session": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "configured_at": "2026-07-08T11:12:02.188738+00:00",
+            "contract": {
+                "asset_label": "Aguardando leitura",
+                "entry_value": 5.0,
+                "initial_bank": 100.0,
+                "profit_goal": 10.0,
+                "recovery_mode": "none",
+                "simulation_only": true
+            },
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true,
+            "status": "configured"
+        },
+        "signal": {
+            "confidence": null,
+            "direction": "NEUTRO",
+            "reason": null,
+            "status": "aguardando_leitura",
+            "strategy": null
+        },
+        "status": "session_configured",
+        "updated_at": "2026-07-08T11:12:02.189424+00:00"
+    }
+}
+OK: POST /session/create respondeu.
+
+===== HTTP GET /state/current =====
+URL=http://127.0.0.1:5001/state/current
+HTTP_CODE=200
+RC=0
+--- BODY PREVIEW ---
+{
+    "mobile_v2": true,
+    "note": "reading.age_seconds is calculated at response time and is not persisted.",
+    "ok": true,
+    "route": "/state/current",
+    "runtime_persisted": true,
+    "state": {
+        "history": {
+            "count": 0,
+            "last_event_id": null
+        },
+        "observer": {
+            "last_error": null,
+            "pid": null,
+            "running": false,
+            "started_at": "2026-07-07T23:52:22.627519+00:00",
+            "status": "OFF",
+            "stopped_at": "2026-07-07T23:52:22.734533+00:00"
+        },
+        "operation": {
+            "operation_id": null,
+            "result": null,
+            "status": "none"
+        },
+        "reading": {
+            "age_seconds": null,
+            "asset": null,
+            "captured_at": null,
+            "price": null,
+            "source": "none",
+            "status": "no_active_reading"
+        },
+        "schema_version": "mobile_v2_state_v1",
+        "session": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "configured_at": "2026-07-08T11:12:02.188738+00:00",
+            "contract": {
+                "asset_label": "Aguardando leitura",
+                "entry_value": 5.0,
+                "initial_bank": 100.0,
+                "profit_goal": 10.0,
+                "recovery_mode": "none",
+                "simulation_only": true
+            },
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true,
+            "status": "configured"
+        },
+        "signal": {
+            "confidence": null,
+            "direction": "NEUTRO",
+            "reason": null,
+            "status": "aguardando_leitura",
+            "strategy": null
+        },
+        "status": "session_configured",
+        "updated_at": "2026-07-08T11:12:02.189424+00:00"
+    }
+}
+OK: endpoint respondeu.
+
+===== 8. TRAVAS SIMULADAS =====
+src/predixai/mobile_v2/app.py:91:                    "simulation_only": True,
+src/predixai/mobile_v2/app.py:92:                    "orders_enabled": False,
+src/predixai/mobile_v2/app.py:93:                    "real_money_enabled": False,
+src/predixai/mobile_v2/app.py:94:                    "auto_click_enabled": False,
+src/predixai/mobile_v2/app.py:95:                    "broker_login_enabled": False,
+src/predixai/mobile_v2/app.py:96:                    "credentials_allowed": False,
+src/predixai/mobile_v2/app.py:110:                "simulation_only": True,
+src/predixai/mobile_v2/app.py:135:                "simulation_only": True,
+src/predixai/mobile_v2/app.py:138:            session["simulation_only"] = True
+src/predixai/mobile_v2/app.py:139:            session["orders_enabled"] = False
+src/predixai/mobile_v2/app.py:140:            session["real_money_enabled"] = False
+src/predixai/mobile_v2/app.py:141:            session["auto_click_enabled"] = False
+src/predixai/mobile_v2/app.py:142:            session["broker_login_enabled"] = False
+src/predixai/mobile_v2/app.py:143:            session["credentials_allowed"] = False
+src/predixai/mobile_v2/state_store.py:72:            "simulation_only": True,
+src/predixai/mobile_v2/state_store.py:73:            "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:74:            "real_money_enabled": False,
+src/predixai/mobile_v2/state_store.py:75:            "auto_click_enabled": False,
+src/predixai/mobile_v2/state_store.py:76:            "broker_login_enabled": False,
+src/predixai/mobile_v2/state_store.py:77:            "credentials_allowed": False,
+src/predixai/mobile_v2/state_store.py:129:        "simulation_only": True,
+src/predixai/mobile_v2/state_store.py:130:        "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:131:        "real_money_enabled": False,
+src/predixai/mobile_v2/state_store.py:132:        "auto_click_enabled": False,
+src/predixai/mobile_v2/state_store.py:133:        "broker_login_enabled": False,
+src/predixai/mobile_v2/state_store.py:134:        "credentials_allowed": False,
+src/predixai/mobile_v2/templates/session_setup.html:128:simulation_only=true<br>
+src/predixai/mobile_v2/templates/session_setup.html:129:orders_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:130:real_money_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:131:auto_click_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:132:broker_login_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:133:credentials_allowed=false
+src/predixai/mobile_v2/templates/mobile_v2_index.html:218:    "simulation_only=" + text(session.simulation_only) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:219:    "orders_enabled=" + text(session.orders_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:220:    "real_money_enabled=" + text(session.real_money_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:221:    "auto_click_enabled=" + text(session.auto_click_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:222:    "broker_login_enabled=" + text(session.broker_login_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:223:    "credentials_allowed=" + text(session.credentials_allowed);
+OK: travas simuladas localizadas no Mobile V2.
+
+===== 9. CHECKSUM DEPOIS — ARQUIVOS PROTEGIDOS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== 10. COMPARAÇÃO DE CHECKSUM =====
+OK: arquivos protegidos não foram alterados.
+
+===== 11. DIFF FINAL CONTRA A PROMESSA =====
+ M reports/20260708_080515_PTP-113C.8.2.4_auditoria_estrutural_mobile_v2_AUDIT.txt
+?? reports/20260708_081201_PTP-113C.8.2.4.2_validar_http_mobile_v2_porta_5001_VALIDATION.txt
+
+PROMESSA: validação HTTP/documental sem alteração de código.
+OK: nenhum arquivo protegido aparece alterado no git status.
+
+===== 12. RESULTADO =====
+RESULTADO_FINAL: PASS_VALIDATION
+CÓDIGO ALTERADO: NÃO
+BASE_URL_VALIDADA: http://127.0.0.1:5001
+PRÓXIMA AÇÃO: colar relatório no chat
