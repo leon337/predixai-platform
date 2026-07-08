@@ -150,3 +150,8 @@
   - Relatório: `reports/20260708_133447_PTP-113C.8.3.2_auditar_template_servido_5001_AUDIT.txt`
   - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260708_133447_PTP-113C.8.3.2_auditar_template_servido_5001_AUDIT.md`
   - Base URL: `http://127.0.0.1:5001`
+
+- 2026-07-08 13:57:53 -0300 — PTP-113C.8.3.3 — restart_revalidar_template_5001 — PASS_VALIDATION
+  - Relatório: `reports/20260708_135748_PTP-113C.8.3.3_restart_revalidar_template_5001_VALIDATION_REVISED.txt`
+  - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260708_135748_PTP-113C.8.3.3_restart_revalidar_template_5001_VALIDATION_REVISED.md`
+  - Base URL: `http://127.0.0.1:5001`

@@ -1,0 +1,179 @@
+PREDIXAI BR — PTP-113C.8.3.3 — RESTART CONTROLADO + REVALIDAÇÃO DO TEMPLATE — REVISADO
+Data: 2026-07-08 13:57:53 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Base URL: http://127.0.0.1:5001
+Tipo: VALIDATION / ALTERAÇÃO TEMPORÁRIA COM ROLLBACK
+
+===== RESULTADO FINAL =====
+RESULTADO_FINAL=PASS_VALIDATION
+MOTIVO=Restart controlado validou que alteração temporária no template aparece no HTML servido e some após rollback.
+RUN_CODE=0
+ROLLBACK_STATUS=PASS
+FIRST_RESTART_STATUS=PASS
+SECOND_RESTART_STATUS=PASS
+SERVER_FINAL_STATUS=PASS
+CHECKSUM_STATUS=PASS
+PY_COMPILE_STATUS=PASS
+
+===== OBJETIVO =====
+Provar se o servidor 5001 passa a servir alteração em mobile_v2_index.html após restart controlado.
+
+===== ESCOPO =====
+Permitido:
+- inserir marcador temporário no template;
+- reiniciar servidor 5001;
+- validar marcador no HTML servido;
+- restaurar template;
+- reiniciar novamente;
+- validar remoção do marcador;
+- gerar relatório/Markdown/índice;
+- commit/push apenas de documentação.
+
+Proibido:
+- criar card visual final;
+- alterar contrato;
+- alterar app.py;
+- alterar state_store.py;
+- alterar session_setup.html;
+- deixar mobile_v2_index.html alterado no final;
+- avançar para C.8.4+.
+
+===== GIT INICIAL =====
+Branch: main
+HEAD antes: cc19a58 PTP 113 C.8.3.2 auditar template servido 5001
+
+Status inicial:
+LIMPO
+
+docs/reports_index.md estava sujo antes? NO
+
+===== PY COMPILE =====
+python3 -m py_compile src/predixai/mobile_v2/app.py
+APP_PY_COMPILE=PASS
+
+python3 -m py_compile src/predixai/mobile_v2/state_store.py
+STATE_STORE_COMPILE=PASS
+
+===== PROCESSO / PIDs =====
+BASE_URL=http://127.0.0.1:5001
+PORT=5001
+PID_INICIAL=25458
+PID_INICIAL_CMD=python3 scripts/run_mobile_v2_server.py 
+PID_INICIAL_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+PID_APOS_PATCH=63396
+PID_APOS_PATCH_CMD=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+PID_APOS_PATCH_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+PID_APOS_ROLLBACK=63459
+PID_APOS_ROLLBACK_CMD=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+PID_APOS_ROLLBACK_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+===== HTTP INICIAL =====
+GET /health => 200
+GET /session/setup => 200
+GET /mobile => 200
+GET /state/current => 200
+
+===== HTTP APÓS PATCH + RESTART =====
+GET /health => 200
+GET /session/setup => 200
+GET /mobile => 200
+GET /state/current => 200
+
+===== HTTP APÓS ROLLBACK + RESTART =====
+GET /health => 200
+GET /session/setup => 200
+GET /mobile => 200
+GET /state/current => 200
+
+===== MARCADOR TEMPORÁRIO =====
+MARKER=PTP113C833_RESTART_TEMPLATE_PROBE_REVISED
+TEMPLATE_WAS_PATCHED=YES
+MARKER_LOCAL_AFTER_PATCH=YES
+MARKER_SERVED_AFTER_RESTART=YES
+MARKER_LOCAL_AFTER_ROLLBACK=NO
+MARKER_SERVED_AFTER_ROLLBACK=NO
+
+===== CHECKSUMS ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUMS DEPOIS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUM DIFF =====
+
+CHECKSUM_STATUS=PASS
+
+===== STATUS DE ARQUIVOS PROTEGIDOS =====
+LIMPO
+
+===== GIT DIFF CHECK =====
+
+DIFF_CHECK_CODE=0
+
+===== LOG DE STOP =====
+Parando PID 25458...
+Parando PID 63396...
+
+===== LOG DE RESTART =====
+SEM_RESTART_LOG
+
+===== 10 PONTOS DA AUDITORIA =====
+1. Lógica booleana/condicional:
+   OK. Não depende de contrato, profit_target ou bool(session.status).
+
+2. Falha silenciosa:
+   OK. Erros usam set_fail no shell principal, sem subshell.
+
+3. Rollback planejado e verificado:
+   PASS. Backup fora do repo: /tmp/predixai_backups/20260708_135748_PTP-113C.8.3.3_restart_revalidar_template_5001_revised/mobile_v2_index.html.bak
+
+4. Checksum de arquivos protegidos:
+   PASS.
+
+5. Persistência real, não só HTTP:
+   OK. Validado marcador no template local e no HTML servido por /mobile.
+
+6. Estado antes e depois:
+   OK. PIDs, HTTP, checksums, py_compile e git foram registrados.
+
+7. Idempotência:
+   OK. O script aborta se marcador temporário já existir antes do teste.
+
+8. Git seguro:
+   OK. Commit permitido apenas para relatório, Markdown e índice.
+
+9. Hash de commit confirmado:
+   HEAD antes registrado acima. HEAD depois será exibido no terminal após commit/push.
+
+10. Diff final contra promessa:
+   PASS — nenhum arquivo protegido alterado.
+
+===== DIAGNÓSTICO =====
+Se RESULTADO_FINAL=PASS_VALIDATION:
+- o problema da C.8.3 era compatível com ausência de restart controlado antes da validação do HTML servido;
+- a próxima etapa pode reabrir o card visual definitivo como C.8.3.4, com restart controlado embutido.
+
+Se RESULTADO_FINAL=FAIL_PRECHECK:
+- nada foi alterado no template;
+- corrigir pré-condição antes de novo teste.
+
+Se RESULTADO_FINAL=FAIL_VALIDATION:
+- o teste falhou, mas o rollback/checksum devem estar preservados;
+- analisar relatório antes de nova tentativa.
+
+Se RESULTADO_FINAL=FAIL_ROLLBACK:
+- não avançar;
+- corrigir restauração/servidor antes de qualquer nova tentativa.
+
+===== PRÓXIMA AÇÃO =====
+Analisar este relatório no chat.
+
+FIM DO RELATÓRIO.
