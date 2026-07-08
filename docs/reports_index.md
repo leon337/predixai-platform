@@ -177,3 +177,6 @@
   - Base URL: `http://127.0.0.1:5001`
 
 - 2026-07-08 18:52:43 — PTP-113C.8.4.1 — auditoria_observer_controlado_mobile_v2 — AUDIT_PASS — relatório: reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt — histórico: docs/history/ptp/PTP-113/PTP-113C/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.md
+- 2026-07-08 19:53:25 — PTP-113C.8.4.1 — auditoria_observer_controlado_mobile_v2 — AUDIT_PASS — reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+
+- 2026-07-08 20:36:44 — PTP-113C.8.4.1 — auditoria_observer_controlado_mobile_v2 — AUDIT_PASS — relatório: `/home/leo/Documentos/GitHub/predixai-platform/reports/20260708_203643_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt` — md: `/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_203643_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.md`

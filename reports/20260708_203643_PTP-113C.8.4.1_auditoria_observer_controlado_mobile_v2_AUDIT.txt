@@ -1,0 +1,215 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+PTP: PTP-113C.8.4.1
+Nome curto: auditoria_observer_controlado_mobile_v2
+Tipo: AUDIT_ONLY
+Data: 2026-07-08 20:36:43 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== ESCOPO TRAVADO =====
+PAPER_OBSERVER_ONLY=YES
+PROCESSO_SO=NO
+PIDFILE=NO
+LOCKFILE=NO
+LEITURA_REAL=NO
+SINAL_DINAMICO=NO
+HISTORICO_OPERACIONAL=NO
+SALDO_DINAMICO=NO
+ORDEM_REAL=NO
+
+===== GIT INICIAL =====
+GIT_HEAD_INICIAL=32ba3ac
+$ git status --short
+ M docs/reports_index.md
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_203643_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+
+===== CHECKSUM BEFORE =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== COMPILE =====
+$ python3 -m py_compile 'src/predixai/mobile_v2/app.py'
+$ python3 -m py_compile 'src/predixai/mobile_v2/state_store.py'
+$ python3 -m compileall -q src/predixai/mobile_v2
+
+===== DETECTAR BASE_URL =====
+BASE_URL=http://127.0.0.1:5001
+
+===== PROCESSO DA PORTA =====
+PORT=5001
+PID=70763
+PROC_CWD=/home/leo/Documentos/GitHub/predixai-platform
+PROC_CMDLINE=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+
+===== HTTP =====
+GET /health = 200
+GET /session/setup = 200
+GET /mobile = 200
+GET /state/current = 200
+
+===== STATE CURRENT =====
+STATE_JSON_PARSE=PASS
+SESSION_STATUS= None
+CONTRACT_KEYS= []
+CONTRACT_INITIAL_BANK= None
+CONTRACT_ENTRY_VALUE= None
+CONTRACT_PROFIT_GOAL= None
+CONTRACT_RECOVERY_MODE= None
+CONTRACT_ASSET_LABEL= None
+READING_ASSET= None
+OBSERVER_NODE_TYPE= NoneType
+OBSERVER_VALUE= None
+
+===== ROTAS OBSERVER / READER — SEM EXECUTAR =====
+src/predixai/mobile_v2/routes.py:117:                "route": "/observer/start",
+src/predixai/mobile_v2/routes.py:150:                "route": "/observer/stop",
+src/predixai/mobile_v2/routes.py:159:    add_rule("/observer/start", "mobile_v2_observer_start", observer_start, ["POST"])
+src/predixai/mobile_v2/routes.py:160:    add_rule("/observer/stop", "mobile_v2_observer_stop", observer_stop, ["POST"])
+src/predixai/mobile_v2/templates/mobile_v2_index.html:454:  await fetch("/observer/start", {method: "POST"});
+src/predixai/mobile_v2/templates/mobile_v2_index.html:459:  await fetch("/observer/stop", {method: "POST"});
+src/predixai/mobile_v2/app.py:6:- APIs clean: /state/current, /observer/start, /observer/stop
+src/predixai/mobile_v2/app.py:86:                    "POST /observer/start",
+src/predixai/mobile_v2/app.py:87:                    "POST /observer/stop",
+scripts/predixai_trader_mobile_server.py:2265:      const endpoint = checked ? "/api/mobile/reader/stop" : "/api/mobile/reader/start";
+scripts/predixai_trader_mobile_server.py:3174:      const result = await postJson("/api/mobile/observer/start", {
+scripts/predixai_trader_mobile_server.py:3194:      await postJson("/api/mobile/observer/stop", {
+scripts/predixai_trader_mobile_server.py:8301:            for rule in ("/api/mobile/observer/start", "/api/mobile/reader/start", "/mobile/reader/start"):
+scripts/predixai_trader_mobile_server.py:8312:            for rule in ("/api/mobile/observer/stop", "/api/mobile/reader/stop", "/mobile/reader/stop"):
+scripts/predixai_trader_mobile_server.py:8323:            for rule in ("/api/mobile/observer/status", "/api/mobile/reader/status"):
+
+===== TEMPLATE LOCAL VS HTML SERVIDO =====
+SESSION_LOCAL_ATIVO_OBSERVADO_COUNT=4
+SESSION_SERVED_ATIVO_OBSERVADO_COUNT=4
+MOBILE_LOCAL_ATIVO_OBSERVADO_COUNT=1
+MOBILE_SERVED_ATIVO_OBSERVADO_COUNT=1
+SESSION_LOCAL_HAS_ASSET_LABEL=YES
+SESSION_SERVED_HAS_ASSET_LABEL=YES
+MOBILE_LOCAL_HAS_CONTRACT_CARD=YES
+MOBILE_SERVED_HAS_CONTRACT_CARD=YES
+
+===== BUSCA DE BUGS CONHECIDOS =====
+bool(session.status):
+if session.status:
+src/predixai/mobile_v2/templates/mobile_v2_index.html:533:    if (statusEl) statusEl.textContent = label(statusLabels, session.status, "Não configurada");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:534:    if (pillEl) pillEl.textContent = session.status === "configured" ? "Configurada" : label(statusLabels, session.status, "Pendente");
+profit_target:
+scripts/predixai_trader_mobile_server.py:1253:    const pt = c.profit_target || ms.profit_target || state.profit_target || {};
+scripts/predixai_trader_mobile_server.py:1260:      meta: first(pt.desired_profit, pt.profit_target, pt.target_profit, c.profit_target, ms.profit_target),
+scripts/predixai_trader_mobile_server.py:7614:            form.get("desired_profit") or form.get("session_profit_target") or form.get("profit_target"),
+scripts/predixai_trader_mobile_server.py:7618:        contract["profit_target"] = {
+scripts/predixai_trader_mobile_server.py:7811:                "lucro_desejado_sessao": contract["profit_target"]["desired_profit"],
+scripts/predixai_trader_mobile_server.py:7812:                "saldo_alvo_sessao": contract["profit_target"]["target_bankroll"],
+scripts/predixai_trader_mobile_server.py:7839:            mobile_session["profit_target"] = contract["profit_target"]
+scripts/predixai_trader_mobile_server.py:7846:            data["profit_target"] = contract["profit_target"]
+scripts/predixai_trader_mobile_server.py:7851:            data["ptp113b31a41_profit_target_ready"] = True
+scripts/predixai_trader_mobile_server.py:8926:    "profit_target",
+scripts/predixai_trader_mobile_server.py:9375:    if (t.includes("lucro desejado")) return "profit_target";
+duplicidade JS/renderizadores:
+src/predixai/mobile_v2/templates/session_setup.html:117:      <label>Ativo observado</label>
+src/predixai/mobile_v2/templates/session_setup.html:118:      <input type="hidden" name="asset_label" value="Aguardando leitura" data-ptp113c8341-asset-hidden="true">
+src/predixai/mobile_v2/templates/session_setup.html:175:  .ptp113c8341-observer-note {
+src/predixai/mobile_v2/templates/session_setup.html:311:    let input = byNameOrId("asset_label");
+src/predixai/mobile_v2/templates/session_setup.html:316:      input.name = "asset_label";
+src/predixai/mobile_v2/templates/session_setup.html:317:      input.id = "asset_label";
+src/predixai/mobile_v2/templates/session_setup.html:325:    document.querySelectorAll('label[for="asset_label"]').forEach(function (label) {
+src/predixai/mobile_v2/templates/session_setup.html:338:    if (document.getElementById("ptp113c8341-observer-note")) return;
+src/predixai/mobile_v2/templates/session_setup.html:341:    note.id = "ptp113c8341-observer-note";
+src/predixai/mobile_v2/templates/session_setup.html:342:    note.className = "ptp113c8341-observer-note";
+src/predixai/mobile_v2/templates/session_setup.html:343:    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, o contrato usa <strong>Aguardando leitura</strong>.";
+src/predixai/mobile_v2/templates/session_setup.html:391:  function renderContractSummary(payload) {
+src/predixai/mobile_v2/templates/session_setup.html:408:      "<div>Ativo observado: <strong>Aguardando leitura do observer</strong></div>" +
+src/predixai/mobile_v2/templates/session_setup.html:436:            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 50);
+src/predixai/mobile_v2/templates/session_setup.html:437:            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 250);
+src/predixai/mobile_v2/templates/session_setup.html:438:            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 700);
+src/predixai/mobile_v2/templates/session_setup.html:476:    document.addEventListener("DOMContentLoaded", boot);
+src/predixai/mobile_v2/templates/session_setup.html:513:    let input = byNameOrId("asset_label");
+src/predixai/mobile_v2/templates/session_setup.html:518:      input.name = "asset_label";
+src/predixai/mobile_v2/templates/session_setup.html:519:      input.id = "asset_label";
+src/predixai/mobile_v2/templates/session_setup.html:527:    document.querySelectorAll('label[for="asset_label"]').forEach(function (label) {
+src/predixai/mobile_v2/templates/session_setup.html:544:    note.className = "ptp113c8341-observer-note";
+src/predixai/mobile_v2/templates/session_setup.html:545:    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, permanece como <strong>Aguardando leitura</strong>.";
+src/predixai/mobile_v2/templates/session_setup.html:547:    const existing = document.getElementById("ptp113c8341-observer-note");
+src/predixai/mobile_v2/templates/session_setup.html:574:    document.addEventListener("DOMContentLoaded", bootRecoveryTela1);
+src/predixai/mobile_v2/templates/mobile_v2_index.html:114:        <div id="observerStatus" class="value status-off">Carregando...</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:118:        <div id="observerRunning" class="value">-</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:122:      <button class="start" onclick="observerStart()">Ligar controle simulado</button>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:123:      <button class="stop" onclick="observerStop()">Desligar controle simulado</button>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:204:      <span>Ativo observado</span>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:369:  function render(payload) {
+src/predixai/mobile_v2/templates/mobile_v2_index.html:383:    byId("ptp113c834-asset").textContent = safeText(contract.asset_label, "Aguardando leitura");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:400:    .then(render)
+src/predixai/mobile_v2/templates/mobile_v2_index.html:422:  const observer = state.observer || {};
+src/predixai/mobile_v2/templates/mobile_v2_index.html:428:  document.getElementById("observerStatus").textContent = text(observer.status);
+src/predixai/mobile_v2/templates/mobile_v2_index.html:429:  document.getElementById("observerRunning").textContent = observer.running ? "SIM" : "NÃO";
+src/predixai/mobile_v2/templates/mobile_v2_index.html:453:async function observerStart() {
+src/predixai/mobile_v2/templates/mobile_v2_index.html:454:  await fetch("/observer/start", {method: "POST"});
+src/predixai/mobile_v2/templates/mobile_v2_index.html:458:async function observerStop() {
+src/predixai/mobile_v2/templates/mobile_v2_index.html:459:  await fetch("/observer/stop", {method: "POST"});
+src/predixai/mobile_v2/templates/mobile_v2_index.html:487:    "ON_WAITING_SOURCE": "Aguardando leitura do observer",
+src/predixai/mobile_v2/templates/mobile_v2_index.html:574:    document.addEventListener("DOMContentLoaded", refresh);
+src/predixai/mobile_v2/templates/mobile_v2_index.html:579:  const observer = new MutationObserver(function () {
+src/predixai/mobile_v2/templates/mobile_v2_index.html:583:  observer.observe(document.documentElement, {
+src/predixai/mobile_v2/app.py:6:- APIs clean: /state/current, /observer/start, /observer/stop
+src/predixai/mobile_v2/app.py:8:- No real observer, no real orders, no real money.
+src/predixai/mobile_v2/app.py:16:from flask import Flask, jsonify, render_template, request
+src/predixai/mobile_v2/app.py:55:        "asset_label": str(payload.get("asset_label") or "Aguardando leitura"),
+src/predixai/mobile_v2/app.py:75:                "observer_real_started": False,
+src/predixai/mobile_v2/app.py:86:                    "POST /observer/start",
+src/predixai/mobile_v2/app.py:87:                    "POST /observer/stop",
+src/predixai/mobile_v2/app.py:109:                "observer_real_started": False,
+src/predixai/mobile_v2/app.py:116:        return render_template("session_setup.html")
+src/predixai/mobile_v2/app.py:134:                "asset_label": payload["asset_label"],
+src/predixai/mobile_v2/app.py:166:        return render_template("mobile_v2_index.html")
+src/predixai/mobile_v2/state_store.py:55:        "observer": {
+src/predixai/mobile_v2/state_store.py:102:    "observer",
+src/predixai/mobile_v2/state_store.py:123:    for key in ("observer", "reading", "session", "signal", "operation", "history"):
+
+===== ESCOPO PROIBIDO / TOKENS =====
+TOKEN_COUNT_WIN=0
+TOKEN_COUNT_LOSS=0
+TOKEN_COUNT_DRAW=0
+TOKEN_COUNT_payout=0
+TOKEN_COUNT_saldo=1
+TOKEN_COUNT_balance=0
+TOKEN_COUNT_signal=16
+TOKEN_COUNT_history=8
+TOKEN_COUNT_auto_click=8
+TOKEN_COUNT_orders_enabled=8
+TOKEN_COUNT_real_money_enabled=8
+
+===== RUNTIME / GITIGNORE =====
+$ git check-ignore -v data/runtime || true
+.gitignore:233:data/runtime/	data/runtime
+$ git ls-files data/runtime || true
+$ git status --short data/runtime || true
+
+===== CHECKSUM AFTER =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== VALIDAÇÃO FINAL =====
+CHECKSUM_STATUS=UNCHANGED_PASS
+CODE_DIFF_STATUS=UNCHANGED_PASS
+RESULTADO_FINAL=AUDIT_PASS
+IMPLEMENTACAO=NAO
+CODIGO_ALTERADO=NAO
+PROXIMA_ETAPA=PTP 113 C.8.4.2 — Implementar Observer Controlado PAPER/OBSERVER_ONLY
+PENDENCIA_C842=limpar duplicidade visual de Ativo observado na Tela 1
+
+===== GIT FINAL ANTES DO COMMIT =====
+GIT_LOG_PRE_COMMIT=32ba3ac PTP 113 C.8.4.1 auditar observer controlado mobile v2
+GIT_STATUS_PRE_COMMIT_BEGIN
+ M docs/reports_index.md
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_203643_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+GIT_STATUS_PRE_COMMIT_END
