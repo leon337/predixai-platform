@@ -1,0 +1,206 @@
+PREDIXAI BR — PTP-113C.8.3.2 — AUDITORIA DO TEMPLATE SERVIDO E PROCESSO 5001
+Data: 2026-07-08 13:34:48 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Base URL: http://127.0.0.1:5001
+Tipo: AUDIT / SEM ALTERAÇÃO DE CÓDIGO
+
+===== RESULTADO FINAL =====
+RESULTADO_FINAL=PASS_AUDIT
+MOTIVO=Auditoria executada sem alteração em arquivos protegidos.
+RESTART_INFERENCE=RESTART_CONTROLADO_PROVAVELMENTE_NECESSARIO_ANTES_DE_VALIDAR_TEMPLATE
+
+===== OBJETIVO =====
+Descobrir por que o template local alterado na C.8.3 não apareceu no HTML servido por /mobile.
+
+===== ESCOPO =====
+Permitido:
+- auditar processo da porta 5001;
+- auditar cwd/cmd/env filtrado;
+- auditar rotas e render_template;
+- auditar template local e HTML servido;
+- gerar relatório TXT;
+- gerar Markdown histórico;
+- atualizar docs/reports_index.md quando seguro;
+- publicar somente documentação.
+
+Proibido:
+- alterar app.py;
+- alterar state_store.py;
+- alterar session_setup.html;
+- alterar mobile_v2_index.html;
+- reabrir C.8.3;
+- avançar para C.8.4, C.8.5, C.8.6 ou C.8.7.
+
+===== GIT INICIAL =====
+Branch: main
+HEAD antes: 2f2cab5 PTP 113 C.8.3 contrato visual sessao simulada
+
+Status inicial:
+LIMPO
+
+docs/reports_index.md estava sujo antes? NO
+
+===== PROCESSO DA PORTA 5001 =====
+BASE_URL=http://127.0.0.1:5001
+PORT=5001
+PID=25458
+CMDLINE=python3 scripts/run_mobile_v2_server.py 
+CWD=/home/leo/Documentos/GitHub/predixai-platform
+EXE=/usr/bin/python3.12
+ENV_FILTRADO:
+PYTHONPATH=src
+PWD=/home/leo/Documentos/GitHub/predixai-platform
+VIRTUAL_ENV=/home/leo/Documentos/GitHub/predixai-platform/.venv
+
+===== HTTP =====
+GET http://127.0.0.1:5001/health => 200
+GET http://127.0.0.1:5001/session/setup => 200
+GET http://127.0.0.1:5001/mobile => 200
+GET http://127.0.0.1:5001/state/current => 200
+
+===== PY COMPILE =====
+python3 -m py_compile src/predixai/mobile_v2/app.py
+APP_PY_COMPILE=PASS
+
+python3 -m py_compile src/predixai/mobile_v2/state_store.py
+STATE_STORE_COMPILE=PASS
+
+===== ROTAS E TEMPLATES DETECTADOS EM APP.PY =====
+ARQUIVO_ANALISADO= src/predixai/mobile_v2/app.py
+render_template linha 116: ["'session_setup.html'"]
+render_template linha 166: ["'mobile_v2_index.html'"]
+
+ROTAS /mobile APROXIMADAS:
+func=mobile_screen linha=165
+  decorator= Call(func=Attribute(value=Name(id='app', ctx=Load()), attr='get', ctx=Load()), args=[Constant(value='/mobile')], keywords=[])
+
+===== CONTAGENS TEMPLATE LOCAL VS HTML SERVIDO =====
+LOCAL_TEMPLATE_EXISTS=YES
+SERVED_HTML_SIZE=7557
+LOCAL_TEMPLATE_SIZE=7558
+LOCAL_PTP113C83_COUNT=0
+0
+SERVED_PTP113C83_COUNT=0
+0
+LOCAL_CONTRACT_CARD_COUNT=0
+0
+SERVED_CONTRACT_CARD_COUNT=0
+0
+LOCAL_SECURITY_TOKEN_COUNT=6
+SERVED_SECURITY_TOKEN_COUNT=6
+
+===== STATE CURRENT / CONTRATO =====
+STATE_JSON_PARSE=PASS
+session.status= None
+contract.keys= []
+contract.initial_bank= None
+contract.entry_value= None
+contract.profit_goal= None
+contract.recovery_mode= None
+contract.asset_label= None
+contract.simulation_only= None
+security_or_state.simulation_only= None
+security_or_state.orders_enabled= None
+security_or_state.real_money_enabled= None
+security_or_state.auto_click_enabled= None
+security_or_state.broker_login_enabled= None
+security_or_state.credentials_allowed= None
+
+===== GREP TEMPLATE / HTML =====
+===== render_template / mobile_v2_index =====
+src/predixai/mobile_v2/app.py:16:from flask import Flask, jsonify, render_template, request
+src/predixai/mobile_v2/app.py:68:    def mobile_v2_index() -> Any:
+src/predixai/mobile_v2/app.py:116:        return render_template("session_setup.html")
+src/predixai/mobile_v2/app.py:166:        return render_template("mobile_v2_index.html")
+
+===== tokens C.8.3 no template local =====
+
+===== tokens C.8.3 no HTML servido =====
+
+===== travas no template local =====
+218:    "simulation_only=" + text(session.simulation_only) + "<br>" +
+219:    "orders_enabled=" + text(session.orders_enabled) + "<br>" +
+220:    "real_money_enabled=" + text(session.real_money_enabled) + "<br>" +
+221:    "auto_click_enabled=" + text(session.auto_click_enabled) + "<br>" +
+222:    "broker_login_enabled=" + text(session.broker_login_enabled) + "<br>" +
+223:    "credentials_allowed=" + text(session.credentials_allowed);
+
+===== travas no HTML servido =====
+218:    "simulation_only=" + text(session.simulation_only) + "<br>" +
+219:    "orders_enabled=" + text(session.orders_enabled) + "<br>" +
+220:    "real_money_enabled=" + text(session.real_money_enabled) + "<br>" +
+221:    "auto_click_enabled=" + text(session.auto_click_enabled) + "<br>" +
+222:    "broker_login_enabled=" + text(session.broker_login_enabled) + "<br>" +
+223:    "credentials_allowed=" + text(session.credentials_allowed);
+
+===== CHECKSUMS ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUMS DEPOIS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUM DIFF =====
+
+CHECKSUM_STATUS=PASS
+
+===== STATUS DE ARQUIVOS PROTEGIDOS =====
+
+Se vazio: nenhum arquivo protegido aparece como alterado.
+
+===== GIT DIFF CHECK =====
+
+DIFF_CHECK_CODE=0
+
+===== 10 PONTOS DA SKILL AUDITORIA DE BUGS PRÉ/PÓS-SCRIPT =====
+1. Lógica booleana/condicional:
+   AUDITADO. O script não usa profit_target nem bool(session.status) para decidir contrato.
+
+2. Falha silenciosa:
+   AUDITADO. Falhas de PID, HTTP, JSON, checksum e git são registradas.
+
+3. Rollback planejado e verificado:
+   NÃO APLICÁVEL A CÓDIGO. Esta etapa não altera código. Verificação por checksum substitui rollback.
+
+4. Checksum de arquivos protegidos:
+   PASS.
+
+5. Persistência real, não só resposta HTTP:
+   AUDITADO via /state/current e análise de session.contract.
+
+6. Estado antes e depois:
+   AUDITADO via git status, PID, HTTP, checksums e arquivos protegidos.
+
+7. Idempotência:
+   AUDITADO. Rodar novamente deve gerar apenas novo relatório/Markdown, sem tocar código.
+
+8. Git seguro:
+   AUDITADO. git add permitido somente para relatório, Markdown e índice quando seguro.
+
+9. Hash de commit confirmado:
+   HEAD antes registrado acima. Novo commit será exibido no terminal após commit/push, sem reabrir este relatório.
+
+10. Diff final contra a promessa:
+   AUDITADO. Arquivos protegidos não podem aparecer alterados.
+
+===== DIAGNÓSTICO OPERACIONAL =====
+- Se PID não existir, o servidor 5001 não está confirmado.
+- Se CWD não apontar para o repo esperado, o processo pode estar servindo outro checkout/caminho.
+- Se app.py aponta para mobile_v2_index.html, mas HTML servido não reflete alterações recentes, restart controlado é provável.
+- Se HTML servido contém tokens antigos mas não contém tokens novos pós-patch, a hipótese principal é processo/cache/reload, não falha de contrato.
+
+===== PRÓXIMA AÇÃO RECOMENDADA =====
+Se RESULTADO_FINAL=PASS_AUDIT ou WARN_AUDIT:
+- analisar este relatório no chat;
+- decidir se C.8.3.3 deve aplicar restart controlado antes de revalidar o card visual.
+
+Se RESULTADO_FINAL=FAIL_AUDIT:
+- corrigir primeiro servidor/porta/processo;
+- não reabrir C.8.3.
+
+FIM DO RELATÓRIO.
