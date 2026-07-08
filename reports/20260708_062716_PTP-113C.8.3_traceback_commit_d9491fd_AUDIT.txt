@@ -1,0 +1,73 @@
+PREDIXAI — TRACEBACK C.8.3 COMMIT FAIL
+Data: qua 08 jul 2026 06:27:16 -03
+Commit: d9491fd
+
+===== CONFIRMAR COMMIT =====
+d9491fd PTP 113 C.8.3 registrar falha contrato visual
+
+===== PREPARAR TMP COM ARQUIVOS DO COMMIT FAIL =====
+TMP: /tmp/predixai_c83_traceback_commit_fail
+
+===== TRACEBACK /mobile =====
+STATUS: 200
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PredixAI Mobile V2 — Tela 2</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #061018;
+      --card: #101d2a;
+      --line: #25384c;
+      --text: #e8f3ff;
+      --muted: #9db2c8;
+      --accent: #32d3ff;
+      --ok: #69f0ae;
+      --warn: #ffd166;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #15384f 0, var(--bg) 45%);
+      color: var(--text);
+    }
+    main {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      padding: 14px;
+    }
+    header, .card {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.9);
+      border-radius: 18px;
+      padding: 15px;
+      margin: 11px 0;
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 6px; }
+    h2 { font-size: 1rem; margin: 0 0 10px; color: var(--accent); }
+    p { margin: 6px 0; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .item {
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(7,20,33,.65);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: .78rem;
+      margin-bottom: 4px;
+    }
+    .value {
+      font-weight:
+
+Relatório salvo.

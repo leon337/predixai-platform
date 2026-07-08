@@ -1,0 +1,787 @@
+PREDIXAI BR — PTP-113C.8.2.4 — Auditoria Estrutural Mobile V2
+Data: 2026-07-08 08:05:15 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Tipo: AUDIT / SEM ALTERAÇÃO DE CÓDIGO
+Regra: não alterar app.py, templates ou state_store.py
+
+
+===== 1. IDENTIFICAÇÃO =====
+PTP: PTP-113C.8.2.4
+Nome curto: auditoria_estrutural_mobile_v2
+Status pretendido: AUDIT
+Relatório: /home/leo/Documentos/GitHub/predixai-platform/reports/20260708_080515_PTP-113C.8.2.4_auditoria_estrutural_mobile_v2_AUDIT.txt
+Markdown: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_080515_PTP-113C.8.2.4_auditoria_estrutural_mobile_v2_AUDIT.md
+
+===== 2. CHECKSUM ANTES — ARQUIVOS PROTEGIDOS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== 3. GIT — ESTADO INICIAL =====
+?? reports/20260708_062418_PTP-113C.8.3_traceback_erro_500_backup_AUDIT.txt
+?? reports/20260708_062716_PTP-113C.8.3_traceback_commit_d9491fd_AUDIT.txt
+?? reports/20260708_064002_PTP-113C.8.3_auditoria_isolada_commit_d9491fd_AUDIT.txt
+?? reports/20260708_070004_PTP-113C.8.3_auditoria_templates_persistencia_AUDIT.txt
+?? reports/20260708_080515_PTP-113C.8.2.4_auditoria_estrutural_mobile_v2_AUDIT.txt
+
+b3ddbe5 PTP 113 C.8.3.1 recovery contrato visual mobile v2
+d9491fd PTP 113 C.8.3 registrar falha contrato visual
+ee97498 PTP 113 C.8.2.3 validar mobile v2 standalone
+e83682f PTP 113 C.8.2.2.1 registrar PASS visual telas mobile v2
+19a2886 PTP 113 C.8.2.2 criar telas minimas mobile v2
+9106230 PTP 113 C.8.2.1 mobile v2 standalone server
+c149d20 PTP 113 C.8.2 criar rotas limpas mobile v2
+766bda6 PTP 113 C.8.1 criar base mobile v2 minima
+
+===== 4. BRANCH / REMOTE =====
+main
+origin	https://github.com/leon337/predixai-platform.git (fetch)
+origin	https://github.com/leon337/predixai-platform.git (push)
+
+===== 5. RELATÓRIOS AUDIT PÓS-RECOVERY =====
+PRESENTE: reports/20260708_062418_PTP-113C.8.3_traceback_erro_500_backup_AUDIT.txt
+  status: untracked ou não versionado
+PRESENTE: reports/20260708_062716_PTP-113C.8.3_traceback_commit_d9491fd_AUDIT.txt
+  status: untracked ou não versionado
+PRESENTE: reports/20260708_064002_PTP-113C.8.3_auditoria_isolada_commit_d9491fd_AUDIT.txt
+  status: untracked ou não versionado
+PRESENTE: reports/20260708_070004_PTP-113C.8.3_auditoria_templates_persistencia_AUDIT.txt
+  status: untracked ou não versionado
+
+===== 6. EXISTÊNCIA DOS ARQUIVOS MOBILE V2 =====
+OK: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+OK: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+OK: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+OK: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== 7. SINTAXE PYTHON — app.py =====
+$ python3 -B -m py_compile '/home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py'
+RC=0
+
+===== 8. SINTAXE PYTHON — state_store.py =====
+$ python3 -B -m py_compile '/home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py'
+RC=0
+
+===== 9. GIT DIFF CHECK =====
+$ git diff --check
+RC=0
+
+===== 10. MAPA ESTÁTICO — ROTAS E RENDER_TEMPLATE =====
+116:         return render_template("session_setup.html")
+166:         return render_template("mobile_v2_index.html")
+
+--- Funções próximas das rotas ---
+
+===== 11. MAPA ESTÁTICO — CAMPOS CRÍTICOS =====
+src/predixai/mobile_v2/app.py:51:        "initial_bank": _parse_brl_number(payload.get("initial_bank"), 100.0),
+src/predixai/mobile_v2/app.py:52:        "entry_value": _parse_brl_number(payload.get("entry_value"), 5.0),
+src/predixai/mobile_v2/app.py:53:        "profit_goal": _parse_brl_number(payload.get("profit_goal"), 10.0),
+src/predixai/mobile_v2/app.py:54:        "recovery_mode": str(payload.get("recovery_mode") or "sem_recuperacao"),
+src/predixai/mobile_v2/app.py:55:        "asset_label": str(payload.get("asset_label") or "Aguardando leitura"),
+src/predixai/mobile_v2/app.py:129:            session["contract"] = {
+src/predixai/mobile_v2/app.py:130:                "initial_bank": payload["initial_bank"],
+src/predixai/mobile_v2/app.py:131:                "entry_value": payload["entry_value"],
+src/predixai/mobile_v2/app.py:132:                "profit_goal": payload["profit_goal"],
+src/predixai/mobile_v2/app.py:133:                "recovery_mode": payload["recovery_mode"],
+src/predixai/mobile_v2/app.py:134:                "asset_label": payload["asset_label"],
+src/predixai/mobile_v2/app.py:154:                "simulated_contract_only": True,
+src/predixai/mobile_v2/templates/session_setup.html:99:      <input name="initial_bank" inputmode="decimal" value="100,00">
+src/predixai/mobile_v2/templates/session_setup.html:102:      <input name="entry_value" inputmode="decimal" value="5,00">
+src/predixai/mobile_v2/templates/session_setup.html:105:      <input name="profit_goal" inputmode="decimal" value="10,00">
+src/predixai/mobile_v2/templates/session_setup.html:108:      <select name="recovery_mode">
+src/predixai/mobile_v2/templates/session_setup.html:118:      <input name="asset_label" value="Aguardando leitura">
+src/predixai/mobile_v2/templates/session_setup.html:162:      simulated_contract_only: data.simulated_contract_only,
+src/predixai/mobile_v2/templates/session_setup.html:164:      session_status: data.state?.session?.status,
+src/predixai/mobile_v2/templates/session_setup.html:165:      contract: data.state?.session?.contract
+
+===== 12. BLOCO JINJA — session_setup.html =====
+99:      <input name="initial_bank" inputmode="decimal" value="100,00">
+102:      <input name="entry_value" inputmode="decimal" value="5,00">
+105:      <input name="profit_goal" inputmode="decimal" value="10,00">
+108:      <select name="recovery_mode">
+118:      <input name="asset_label" value="Aguardando leitura">
+154:    const response = await fetch("/session/create", {
+162:      simulated_contract_only: data.simulated_contract_only,
+164:      session_status: data.state?.session?.status,
+165:      contract: data.state?.session?.contract
+
+===== 13. BLOCO JINJA — mobile_v2_index.html =====
+125:      <a class="btn" href="/session/setup">Voltar para Tela 1</a>
+198:  const session = state.session || {};
+218:    "simulation_only=" + text(session.simulation_only) + "<br>" +
+219:    "orders_enabled=" + text(session.orders_enabled) + "<br>" +
+220:    "real_money_enabled=" + text(session.real_money_enabled) + "<br>" +
+221:    "auto_click_enabled=" + text(session.auto_click_enabled) + "<br>" +
+222:    "broker_login_enabled=" + text(session.broker_login_enabled) + "<br>" +
+223:    "credentials_allowed=" + text(session.credentials_allowed);
+
+===== 14. DETECÇÃO DE USOS PROIBIDOS =====
+OK: profit_target não encontrado.
+OK: bool(session.status) não encontrado.
+
+===== 15. ENDPOINTS — VALIDAÇÃO HTTP =====
+
+===== ENDPOINT HEAD /health =====
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+URL=http://127.0.0.1:8766/health
+HTTP_CODE=000
+RC=7
+WARN: endpoint indisponível ou servidor não está rodando.
+
+===== ENDPOINT HEAD /session/setup =====
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+URL=http://127.0.0.1:8766/session/setup
+HTTP_CODE=000
+RC=7
+WARN: endpoint indisponível ou servidor não está rodando.
+
+===== ENDPOINT HEAD /mobile =====
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+URL=http://127.0.0.1:8766/mobile
+HTTP_CODE=000
+RC=7
+WARN: endpoint indisponível ou servidor não está rodando.
+
+===== ENDPOINT GET /state/current =====
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+URL=http://127.0.0.1:8766/state/current
+HTTP_CODE=000
+RC=7
+WARN: endpoint indisponível ou servidor não está rodando.
+
+===== 16. PERSISTÊNCIA REAL DO CONTRATO =====
+
+===== PERSISTÊNCIA REAL — POST /session/create + GET /state/current =====
+POST JSON simulado para /session/create
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+HTTP_CODE=000
+RC=7
+WARN: POST /session/create indisponível. Pode ser servidor desligado.
+
+===== ENDPOINT GET /state/current =====
+curl: (7) Failed to connect to 127.0.0.1 port 8766 after 0 ms: Couldn't connect to server
+URL=http://127.0.0.1:8766/state/current
+HTTP_CODE=000
+RC=7
+WARN: endpoint indisponível ou servidor não está rodando.
+
+===== 17. RUNTIME IGNORADO PELO GIT =====
+.gitignore:233:data/runtime/	data/runtime/backups
+.gitignore:233:data/runtime/	data/runtime/last_live_reading.json
+.gitignore:233:data/runtime/	data/runtime/live_price_history.json
+.gitignore:233:data/runtime/	data/runtime/logs
+.gitignore:233:data/runtime/	data/runtime/mobile_current_session.json
+.gitignore:233:data/runtime/	data/runtime/mobile_session_contract_v1_1_example.json
+.gitignore:233:data/runtime/	data/runtime/mobile_v2_state.json
+.gitignore:233:data/runtime/	data/runtime/mobile_v2_state.json.lock
+.gitignore:233:data/runtime/	data/runtime/predixai_trader_signals.db
+.gitignore:233:data/runtime/	data/runtime/rejected_live_readings.json
+.gitignore:233:data/runtime/	data/runtime/backups/mobile_reset_20260704_093600
+.gitignore:233:data/runtime/	data/runtime/backups/ptp112b1_20260705_102033
+.gitignore:233:data/runtime/	data/runtime/backups/ptp112b_20260705_101604
+.gitignore:233:data/runtime/	data/runtime/backups/ptp112b_20260705_101712
+
+===== 18. SEGURANÇA — TRAVAS SIMULADAS =====
+src/predixai/mobile_v2/state_store.py:72:            "simulation_only": True,
+src/predixai/mobile_v2/state_store.py:73:            "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:74:            "real_money_enabled": False,
+src/predixai/mobile_v2/state_store.py:75:            "auto_click_enabled": False,
+src/predixai/mobile_v2/state_store.py:76:            "broker_login_enabled": False,
+src/predixai/mobile_v2/state_store.py:77:            "credentials_allowed": False,
+src/predixai/mobile_v2/state_store.py:129:        "simulation_only": True,
+src/predixai/mobile_v2/state_store.py:130:        "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:131:        "real_money_enabled": False,
+src/predixai/mobile_v2/state_store.py:132:        "auto_click_enabled": False,
+src/predixai/mobile_v2/state_store.py:133:        "broker_login_enabled": False,
+src/predixai/mobile_v2/state_store.py:134:        "credentials_allowed": False,
+src/predixai/mobile_v2/templates/session_setup.html:128:simulation_only=true<br>
+src/predixai/mobile_v2/templates/session_setup.html:129:orders_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:130:real_money_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:131:auto_click_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:132:broker_login_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:133:credentials_allowed=false
+src/predixai/mobile_v2/templates/mobile_v2_index.html:218:    "simulation_only=" + text(session.simulation_only) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:219:    "orders_enabled=" + text(session.orders_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:220:    "real_money_enabled=" + text(session.real_money_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:221:    "auto_click_enabled=" + text(session.auto_click_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:222:    "broker_login_enabled=" + text(session.broker_login_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:223:    "credentials_allowed=" + text(session.credentials_allowed);
+src/predixai/mobile_v2/app.py:91:                    "simulation_only": True,
+src/predixai/mobile_v2/app.py:92:                    "orders_enabled": False,
+src/predixai/mobile_v2/app.py:93:                    "real_money_enabled": False,
+src/predixai/mobile_v2/app.py:94:                    "auto_click_enabled": False,
+src/predixai/mobile_v2/app.py:95:                    "broker_login_enabled": False,
+src/predixai/mobile_v2/app.py:96:                    "credentials_allowed": False,
+src/predixai/mobile_v2/app.py:110:                "simulation_only": True,
+src/predixai/mobile_v2/app.py:135:                "simulation_only": True,
+src/predixai/mobile_v2/app.py:138:            session["simulation_only"] = True
+src/predixai/mobile_v2/app.py:139:            session["orders_enabled"] = False
+src/predixai/mobile_v2/app.py:140:            session["real_money_enabled"] = False
+src/predixai/mobile_v2/app.py:141:            session["auto_click_enabled"] = False
+src/predixai/mobile_v2/app.py:142:            session["broker_login_enabled"] = False
+src/predixai/mobile_v2/app.py:143:            session["credentials_allowed"] = False
+src/predixai/live/live_evidence_package.py:62:        "orders_enabled": False,
+src/predixai/dashboard/dashboard_server.py:86:        "simulation_only": point.get("simulation_only"),
+src/predixai/trader/mobile_session_contract.py:88:    "orders_enabled": False,
+src/predixai/trader/mobile_session_contract.py:89:    "real_money_enabled": False,
+src/predixai/trader/mobile_session_contract.py:90:    "auto_click_enabled": False,
+src/predixai/trader/mobile_session_contract.py:91:    "broker_login_enabled": False,
+src/predixai/trader/mobile_session_contract.py:94:    "credentials_allowed": False,
+src/predixai/trader/overnight_observer.py:215:                "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:72:            "simulation_only": True,
+src/predixai/mobile_v2/state_store.py:73:            "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:74:            "real_money_enabled": False,
+src/predixai/mobile_v2/state_store.py:75:            "auto_click_enabled": False,
+src/predixai/mobile_v2/state_store.py:76:            "broker_login_enabled": False,
+src/predixai/mobile_v2/state_store.py:77:            "credentials_allowed": False,
+src/predixai/mobile_v2/state_store.py:129:        "simulation_only": True,
+src/predixai/mobile_v2/state_store.py:130:        "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:131:        "real_money_enabled": False,
+src/predixai/mobile_v2/state_store.py:132:        "auto_click_enabled": False,
+src/predixai/mobile_v2/state_store.py:133:        "broker_login_enabled": False,
+src/predixai/mobile_v2/state_store.py:134:        "credentials_allowed": False,
+src/predixai/mobile_v2/templates/session_setup.html:128:simulation_only=true<br>
+src/predixai/mobile_v2/templates/session_setup.html:129:orders_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:130:real_money_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:131:auto_click_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:132:broker_login_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:133:credentials_allowed=false
+src/predixai/mobile_v2/templates/mobile_v2_index.html:218:    "simulation_only=" + text(session.simulation_only) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:219:    "orders_enabled=" + text(session.orders_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:220:    "real_money_enabled=" + text(session.real_money_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:221:    "auto_click_enabled=" + text(session.auto_click_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:222:    "broker_login_enabled=" + text(session.broker_login_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:223:    "credentials_allowed=" + text(session.credentials_allowed);
+src/predixai/mobile_v2/app.py:91:                    "simulation_only": True,
+src/predixai/mobile_v2/app.py:92:                    "orders_enabled": False,
+src/predixai/mobile_v2/app.py:93:                    "real_money_enabled": False,
+src/predixai/mobile_v2/app.py:94:                    "auto_click_enabled": False,
+src/predixai/mobile_v2/app.py:95:                    "broker_login_enabled": False,
+src/predixai/mobile_v2/app.py:96:                    "credentials_allowed": False,
+src/predixai/mobile_v2/app.py:110:                "simulation_only": True,
+src/predixai/mobile_v2/app.py:135:                "simulation_only": True,
+src/predixai/mobile_v2/app.py:138:            session["simulation_only"] = True
+src/predixai/mobile_v2/app.py:139:            session["orders_enabled"] = False
+src/predixai/mobile_v2/app.py:140:            session["real_money_enabled"] = False
+src/predixai/mobile_v2/app.py:141:            session["auto_click_enabled"] = False
+src/predixai/mobile_v2/app.py:142:            session["broker_login_enabled"] = False
+src/predixai/mobile_v2/app.py:143:            session["credentials_allowed"] = False
+scripts/predixai_task_protocol.py:171:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:1268:      simulation_only: first(c.simulation_only, ms.simulation_only, state.simulation_only),
+scripts/predixai_trader_mobile_server.py:1269:      orders_enabled: first(c.orders_enabled, ms.orders_enabled, state.orders_enabled),
+scripts/predixai_trader_mobile_server.py:1270:      real_money_enabled: first(c.real_money_enabled, ms.real_money_enabled, state.real_money_enabled),
+scripts/predixai_trader_mobile_server.py:1271:      auto_click_enabled: first(c.auto_click_enabled, ms.auto_click_enabled, state.auto_click_enabled),
+scripts/predixai_trader_mobile_server.py:1272:      broker_login_enabled: first(c.broker_login_enabled, ms.broker_login_enabled, state.broker_login_enabled),
+scripts/predixai_trader_mobile_server.py:1273:      credentials_allowed: first(c.credentials_allowed, state.credentials_allowed)
+scripts/predixai_trader_mobile_server.py:1417:        "simulation_only=" + d.simulation_only +
+scripts/predixai_trader_mobile_server.py:1418:        " | orders_enabled=" + d.orders_enabled +
+scripts/predixai_trader_mobile_server.py:1419:        " | real_money_enabled=" + d.real_money_enabled +
+scripts/predixai_trader_mobile_server.py:1420:        " | auto_click_enabled=" + d.auto_click_enabled +
+scripts/predixai_trader_mobile_server.py:1421:        " | broker_login_enabled=" + d.broker_login_enabled +
+scripts/predixai_trader_mobile_server.py:1422:        " | credentials_allowed=" + d.credentials_allowed
+scripts/predixai_trader_mobile_server.py:3035:      data.simulation_only === true &&
+scripts/predixai_trader_mobile_server.py:3036:      data.orders_enabled === false &&
+scripts/predixai_trader_mobile_server.py:3037:      data.real_money_enabled === false &&
+scripts/predixai_trader_mobile_server.py:3038:      data.auto_click_enabled === false &&
+scripts/predixai_trader_mobile_server.py:3039:      data.broker_login_enabled === false &&
+scripts/predixai_trader_mobile_server.py:3040:      data.credentials_allowed === false;
+scripts/predixai_trader_mobile_server.py:3076:        `simulation_only=${text(data.simulation_only)} · orders_enabled=${text(data.orders_enabled)} · real_money_enabled=${text(data.real_money_enabled)}`,
+scripts/predixai_trader_mobile_server.py:3274:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3472:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3653:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:3655:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3656:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:3657:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:3681:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:3682:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3714:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:3716:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3717:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:3718:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:3765:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:3766:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3798:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3799:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:3800:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:3801:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:3802:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:3840:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:3841:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3842:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:3843:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:3854:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:3855:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:3856:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:3857:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:4786:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:5723:        "simulation_only": bool(pick("simulation_only", True)),
+scripts/predixai_trader_mobile_server.py:5724:        "orders_enabled": bool(pick("orders_enabled", False)),
+scripts/predixai_trader_mobile_server.py:5725:        "real_money_enabled": bool(pick("real_money_enabled", False)),
+scripts/predixai_trader_mobile_server.py:5726:        "auto_click_enabled": bool(pick("auto_click_enabled", False)),
+scripts/predixai_trader_mobile_server.py:5727:        "broker_login_enabled": bool(pick("broker_login_enabled", False)),
+scripts/predixai_trader_mobile_server.py:5728:        "credentials_allowed": bool(pick("credentials_allowed", False)),
+scripts/predixai_trader_mobile_server.py:5781:        safety.get("simulation_only") is not True
+scripts/predixai_trader_mobile_server.py:5782:        or safety.get("orders_enabled") is not False
+scripts/predixai_trader_mobile_server.py:5783:        or safety.get("real_money_enabled") is not False
+scripts/predixai_trader_mobile_server.py:5784:        or safety.get("auto_click_enabled") is not False
+scripts/predixai_trader_mobile_server.py:5785:        or safety.get("broker_login_enabled") is not False
+scripts/predixai_trader_mobile_server.py:5786:        or safety.get("credentials_allowed") is not False
+scripts/predixai_trader_mobile_server.py:6000:        safety.get("simulation_only") is True
+scripts/predixai_trader_mobile_server.py:6001:        and safety.get("orders_enabled") is False
+scripts/predixai_trader_mobile_server.py:6002:        and safety.get("real_money_enabled") is False
+scripts/predixai_trader_mobile_server.py:6003:        and safety.get("auto_click_enabled") is False
+scripts/predixai_trader_mobile_server.py:6004:        and safety.get("broker_login_enabled") is False
+scripts/predixai_trader_mobile_server.py:6005:        and safety.get("credentials_allowed") is False
+scripts/predixai_trader_mobile_server.py:6136:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:6137:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:6138:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:6139:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:6140:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:6141:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:6229:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:6230:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:6231:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:6232:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:6233:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:6234:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:6403:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:6404:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:6405:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:6406:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:6407:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:6408:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:6483:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:6484:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:6485:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:6486:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:6487:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:6488:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:6631:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:6632:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:6633:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:6634:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:6635:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:6636:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:6691:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:6692:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:6693:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:6694:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:6695:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:6696:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:6791:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:6792:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:6793:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:6794:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:6795:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:6796:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:7287:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:7288:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:7289:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:7290:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:7291:            "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:7292:            "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:7350:                "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:7351:                "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:7352:                "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:7353:                "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:7354:                "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:7355:                "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:7551:            data["simulation_only"] = True
+scripts/predixai_trader_mobile_server.py:7552:            data["orders_enabled"] = False
+scripts/predixai_trader_mobile_server.py:7553:            data["real_money_enabled"] = False
+scripts/predixai_trader_mobile_server.py:7554:            data["auto_click_enabled"] = False
+scripts/predixai_trader_mobile_server.py:7555:            data["broker_login_enabled"] = False
+scripts/predixai_trader_mobile_server.py:7556:            data["credentials_allowed"] = False
+scripts/predixai_trader_mobile_server.py:7847:            data["simulation_only"] = True
+scripts/predixai_trader_mobile_server.py:7848:            data["orders_enabled"] = False
+scripts/predixai_trader_mobile_server.py:7849:            data["real_money_enabled"] = False
+scripts/predixai_trader_mobile_server.py:7850:            data["auto_click_enabled"] = False
+scripts/predixai_trader_mobile_server.py:8189:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:8190:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:8191:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:8192:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:8193:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:8194:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:8243:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:8244:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:8245:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:8246:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:8247:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:8248:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:8275:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py:8276:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py:8277:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py:8278:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py:8279:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py:8280:        "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py:8421:                    "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:837:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1035:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1216:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1218:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1219:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1220:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1244:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1245:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1277:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1279:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1280:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1281:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1328:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1329:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1361:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1362:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1363:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1364:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1365:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1403:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1404:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1405:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1406:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1417:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1418:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1419:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:1420:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2349:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3536:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3537:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3538:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3539:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3540:            "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3541:            "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3599:                "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3600:                "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3601:                "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3602:                "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3603:                "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3604:                "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3800:            data["simulation_only"] = True
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3801:            data["orders_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3802:            data["real_money_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3803:            data["auto_click_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3804:            data["broker_login_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:3805:            data["credentials_allowed"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:4222:                    "simulation_only": True,
+scripts/ptp112a_validate_mobile_session_contract.py:31:    assert contract["security"]["orders_enabled"] is False
+scripts/ptp112a_validate_mobile_session_contract.py:32:    assert contract["security"]["real_money_enabled"] is False
+scripts/ptp112a_validate_mobile_session_contract.py:39:            "orders_enabled": True,
+scripts/ptp112a_validate_mobile_session_contract.py:40:            "real_money_enabled": True,
+scripts/ptp112a_validate_mobile_session_contract.py:41:            "auto_click_enabled": True,
+scripts/ptp112a_validate_mobile_session_contract.py:42:            "broker_login_enabled": True,
+scripts/ptp112a_validate_mobile_session_contract.py:43:            "credentials_allowed": True,
+scripts/ptp112a_validate_mobile_session_contract.py:51:    assert contract["security"]["orders_enabled"] is False
+scripts/ptp112a_validate_mobile_session_contract.py:52:    assert contract["security"]["real_money_enabled"] is False
+scripts/ptp112a_validate_mobile_session_contract.py:53:    assert contract["security"]["auto_click_enabled"] is False
+scripts/ptp112a_validate_mobile_session_contract.py:54:    assert contract["security"]["broker_login_enabled"] is False
+scripts/ptp112a_validate_mobile_session_contract.py:55:    assert contract["security"]["credentials_allowed"] is False
+scripts/ptp112a_validate_mobile_session_contract.py:105:    assert blocked["security"]["orders_enabled"] is False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:837:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1035:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1216:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1218:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1219:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1220:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1244:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1245:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1277:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1279:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1280:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1281:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1328:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1329:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1361:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1362:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1363:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1364:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1365:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1403:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1404:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1405:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1406:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1417:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1418:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1419:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:1420:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2349:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:3665:                    "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:837:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1035:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1216:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1218:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1219:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1220:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1244:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1245:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1277:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1279:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1280:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1281:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1328:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1329:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1361:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1362:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1363:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1364:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1365:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1403:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1404:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1405:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1406:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1417:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1418:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1419:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:1420:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2349:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3536:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3537:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3538:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3539:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3540:            "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3541:            "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3598:                "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3599:                "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3600:                "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3601:                "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3602:                "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3603:                "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3799:            data["simulation_only"] = True
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3800:            data["orders_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3801:            data["real_money_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3802:            data["auto_click_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3803:            data["broker_login_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:3804:            data["credentials_allowed"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:4221:                    "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:837:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1035:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1216:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1218:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1219:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1220:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1244:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1245:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1277:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1279:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1280:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1281:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1328:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1329:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1361:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1362:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1363:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1364:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1365:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1403:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1404:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1405:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1406:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1417:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1418:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1419:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:1420:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2349:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:3793:                    "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:837:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1035:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1216:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1218:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1219:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1220:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1244:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1245:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1277:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1279:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1280:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1281:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1328:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1329:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1361:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1362:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1363:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1364:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1365:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1403:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1404:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1405:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1406:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1417:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1418:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1419:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:1420:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2349:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3536:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3537:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3538:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3539:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3540:            "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3541:            "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3598:                "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3599:                "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3600:                "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3601:                "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3602:                "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3603:                "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3793:            data["simulation_only"] = True
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3794:            data["orders_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3795:            data["real_money_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3796:            data["auto_click_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3797:            data["broker_login_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:3798:            data["credentials_allowed"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:4199:                    "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:837:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1035:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1216:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1218:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1219:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1220:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1244:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1245:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1277:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1279:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1280:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1281:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1328:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1329:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1361:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1362:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1363:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1364:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1365:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1403:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1404:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1405:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1406:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1417:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1418:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1419:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:1420:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2349:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3536:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3537:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3538:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3539:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3540:            "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3541:            "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3598:                "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3599:                "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3600:                "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3601:                "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3602:                "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3603:                "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3799:            data["simulation_only"] = True
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3800:            data["orders_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3801:            data["real_money_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3802:            data["auto_click_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3803:            data["broker_login_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:3804:            data["credentials_allowed"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:4205:                    "simulation_only": True,
+scripts/predixai_runtime_status.py:98:        "orders_enabled",
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:837:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1035:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1216:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1218:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1219:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1220:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1244:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1245:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1277:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1279:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1280:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1281:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1328:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1329:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1361:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1362:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1363:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1364:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1365:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1403:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1404:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1405:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1406:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1417:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1418:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1419:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:1420:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2349:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3536:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3537:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3538:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3539:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3540:            "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3541:            "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3598:                "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3599:                "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3600:                "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3601:                "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3602:                "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3603:                "credentials_allowed": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3793:            data["simulation_only"] = True
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3794:            data["orders_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3795:            data["real_money_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3796:            data["auto_click_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3797:            data["broker_login_enabled"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:3798:            data["credentials_allowed"] = False
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:4199:                    "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:837:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1035:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1216:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1218:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1219:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1220:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1244:                            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1245:                            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1277:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1279:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1280:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1281:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1328:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1329:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1361:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1362:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1363:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1364:        "broker_login_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1365:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1403:            "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1404:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1405:            "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1406:            "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1417:        "simulation_only": True,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1418:        "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1419:        "auto_click_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:1420:        "real_money_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2349:            "orders_enabled": False,
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:3757:                    "simulation_only": True,
+docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md:271:- `simulation_only = true`;
+docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md:272:- `orders_enabled = false`;
+docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md:273:- `real_money_enabled = false`;
+docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md:274:- `auto_click_enabled = false`;
+docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md:275:- `broker_login_enabled = false`;
+docs/project_memory/PREDIXAI_FONTE_PTP-113_Escopo_Mestre_PredixAI_Trader.md:276:- `credentials_allowed = false`.
+
+===== 19. CHECKSUM DEPOIS — ARQUIVOS PROTEGIDOS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== 20. COMPARAÇÃO DE CHECKSUM =====
+OK: arquivos protegidos não foram alterados.
+
+===== 21. DIFF FINAL CONTRA A PROMESSA =====
+?? reports/20260708_062418_PTP-113C.8.3_traceback_erro_500_backup_AUDIT.txt
+?? reports/20260708_062716_PTP-113C.8.3_traceback_commit_d9491fd_AUDIT.txt
+?? reports/20260708_064002_PTP-113C.8.3_auditoria_isolada_commit_d9491fd_AUDIT.txt
+?? reports/20260708_070004_PTP-113C.8.3_auditoria_templates_persistencia_AUDIT.txt
+?? reports/20260708_080515_PTP-113C.8.2.4_auditoria_estrutural_mobile_v2_AUDIT.txt
+
+PROMESSA: AUDIT-only. Permitido alterar/adicionar apenas reports/, docs/history/ptp/ e docs/reports_index.md.
+OK: nenhum arquivo protegido aparece alterado no git status.
+
+===== 22. RESULTADO TÉCNICO DA AUDITORIA =====
+RESULTADO_FINAL: WARN_AUDIT
+CÓDIGO ALTERADO: NÃO
+REABRIR C.8.3: BLOQUEADO ATÉ LEO ANALISAR ESTE RELATÓRIO
+PRÓXIMA AÇÃO: colar relatório no chat
+
+===== 23. GIT ADD SEGURO =====

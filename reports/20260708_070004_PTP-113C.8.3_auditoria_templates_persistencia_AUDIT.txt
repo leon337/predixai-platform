@@ -1,0 +1,129 @@
+PREDIXAI — AUDITORIA TEMPLATES + PERSISTÊNCIA C.8.3
+Data: qua 08 jul 2026 07:00:04 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== 1. GIT / HASH CONFIRMADO =====
+?? reports/20260708_062418_PTP-113C.8.3_traceback_erro_500_backup_AUDIT.txt
+?? reports/20260708_062716_PTP-113C.8.3_traceback_commit_d9491fd_AUDIT.txt
+?? reports/20260708_064002_PTP-113C.8.3_auditoria_isolada_commit_d9491fd_AUDIT.txt
+?? reports/20260708_070004_PTP-113C.8.3_auditoria_templates_persistencia_AUDIT.txt
+b3ddbe5 PTP 113 C.8.3.1 recovery contrato visual mobile v2
+
+===== 2. ARQUIVOS DE TEMPLATE NO DISCO =====
+src/predixai/mobile_v2/app.py
+src/predixai/mobile_v2/__init__.py
+src/predixai/mobile_v2/__pycache__/app.cpython-312.pyc
+src/predixai/mobile_v2/__pycache__/__init__.cpython-312.pyc
+src/predixai/mobile_v2/__pycache__/routes.cpython-312.pyc
+src/predixai/mobile_v2/__pycache__/state_store.cpython-312.pyc
+src/predixai/mobile_v2/routes.py
+src/predixai/mobile_v2/state_store.py
+src/predixai/mobile_v2/templates/mobile_v2_index.html
+src/predixai/mobile_v2/templates/session_setup.html
+
+===== 3. TEMPLATE_FOLDER REAL DO FLASK =====
+root_path: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2
+template_folder: templates
+jinja_loader: <jinja2.loaders.FileSystemLoader object at 0x719d1cd27470>
+
+TEMPLATE: session_setup.html
+FILENAME: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+HAS_PTP113C83: False
+HAS_NENHUM_CONTRATO: False
+HAS_CONTRATO_ATUAL: False
+HAS_ATIVO_OBSERVADO: True
+
+TEMPLATE: mobile_v2_index.html
+FILENAME: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+HAS_PTP113C83: False
+HAS_NENHUM_CONTRATO: False
+HAS_CONTRATO_ATUAL: False
+HAS_ATIVO_OBSERVADO: False
+
+===== 4. ESTADO PADRÃO REAL =====
+TOP_KEYS: ['history', 'observer', 'operation', 'reading', 'schema_version', 'session', 'signal', 'status', 'updated_at']
+SESSION: {'status': 'not_created', 'simulation_only': True, 'orders_enabled': False, 'real_money_enabled': False, 'auto_click_enabled': False, 'broker_login_enabled': False, 'credentials_allowed': False}
+READING: {'status': 'no_active_reading', 'asset': None, 'price': None, 'captured_at': None, 'source': 'none'}
+contract: None
+bool(contract): False
+session.status: not_created
+bool(session.status): True
+
+===== 5. TEST_CLIENT SEM CONTRATO =====
+STATUS: 200
+CHECK_HTML_SEM: 'Nenhum contrato simulado ativo' False
+CHECK_HTML_SEM: 'Contrato atual' False
+CHECK_HTML_SEM: 'Ativo observado' False
+CHECK_HTML_SEM: 'Sem leitura ativa' True
+CHECK_HTML_SEM: 'Aguardando etapa C.8.5' False
+CHECK_HTML_SEM: 'Disponível na etapa C.8.6' False
+CHECK_HTML_SEM: 'Disponível na etapa C.8.7' False
+CHECK_HTML_SEM: 'PTP113C83' False
+
+===== 6. POST + PERSISTÊNCIA REAL =====
+POST_STATUS: 200
+POST_JSON_HEAD: {"history_recording":false,"mobile_v2":true,"next_screen":"/mobile","ok":true,"operation_result":false,"real_money":false,"route":"/session/create","signal_generation":false,"simulated_contract_only":true,"state":{"history":{"count":0,"last_event_id":null},"observer":{"last_error":null,"pid":null,"running":false,"started_at":"2026-07-07T23:52:22.627519+00:00","status":"OFF","stopped_at":"2026-07-07T23:52:22.734533+00:00"},"operation":{"operation_id":null,"result":null,"status":"none"},"reading":{"asset":null,"captured_at":null,"price":null,"source":"none","status":"no_active_reading"},"schema_version":"mobile_v2_state_v1","session":{"auto_click_enabled":false,"broker_login_enabled":false,"configured_at":"2026-07-08T10:00:05.468198+00:00","contract":{"asset_label":"Aguardando leitura","entr
+GET_STATE_STATUS: 200
+SESSION: {
+  "auto_click_enabled": false,
+  "broker_login_enabled": false,
+  "configured_at": "2026-07-08T10:00:05.468198+00:00",
+  "contract": {
+    "asset_label": "Aguardando leitura",
+    "entry_value": 5.0,
+    "initial_bank": 100.0,
+    "profit_goal": 10.0,
+    "recovery_mode": "none",
+    "simulation_only": true
+  },
+  "credentials_allowed": false,
+  "orders_enabled": false,
+  "real_money_enabled": false,
+  "simulation_only": true,
+  "status": "configured"
+}
+CONTRACT: {
+  "asset_label": "Aguardando leitura",
+  "entry_value": 5.0,
+  "initial_bank": 100.0,
+  "profit_goal": 10.0,
+  "recovery_mode": "none",
+  "simulation_only": true
+}
+PERSIST_CHECK: initial_bank expected= 100 actual= 100.0 ok= False
+PERSIST_CHECK: entry_value expected= 5 actual= 5.0 ok= False
+PERSIST_CHECK: profit_target expected= 10 actual= None ok= False
+PERSIST_CHECK: recovery_mode expected= none actual= none ok= True
+
+===== 7. TEST_CLIENT COM CONTRATO =====
+STATUS: 200
+CHECK_HTML_COM: 'Nenhum contrato simulado ativo' False
+CHECK_HTML_COM: 'Contrato atual' False
+CHECK_HTML_COM: 'Ativo observado' False
+CHECK_HTML_COM: 'Sem leitura ativa' True
+CHECK_HTML_COM: 'Aguardando etapa C.8.5' False
+CHECK_HTML_COM: 'Disponível na etapa C.8.6' False
+CHECK_HTML_COM: 'Disponível na etapa C.8.7' False
+CHECK_HTML_COM: 'PTP113C83' False
+
+===== 8. ROTAS E ENDPOINTS =====
+/
+/health
+/mobile
+/observer/start
+/observer/stop
+/session/create
+/session/setup
+/state/current
+/static/<path:filename>
+
+===== 9. DIFF ATUAL =====
+
+===== 10. CONCLUSÃO =====
+AUDIT_ONLY: nenhum arquivo alterado por este script.
+Verificar acima:
+- template real carregado pelo Flask
+- textos C.8.3 presentes ou ausentes no HTML servido
+- persistência real do contrato após POST
+
+Relatório: /home/leo/Documentos/GitHub/predixai-platform/reports/20260708_070004_PTP-113C.8.3_auditoria_templates_persistencia_AUDIT.txt

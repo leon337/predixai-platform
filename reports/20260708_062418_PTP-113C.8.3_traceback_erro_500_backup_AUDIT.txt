@@ -1,0 +1,51 @@
+PREDIXAI — TRACEBACK ISOLADO C.8.3
+Data: qua 08 jul 2026 06:24:18 -03
+Backup: /home/leo/Documentos/GitHub/predixai-platform/backups/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada
+
+===== PREPARAR AMBIENTE ISOLADO =====
+OK: app.py quebrado carregado somente no TMP
+TMP: /tmp/predixai_c83_traceback_isolado
+
+===== TRACEBACK /mobile =====
+STATUS: 200
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PredixAI Mobile V2 — Tela 2</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #061018;
+      --card: #101d2a;
+      --line: #25384c;
+      --text: #e8f3ff;
+      --muted: #9db2c8;
+      --accent: #32d3ff;
+      --ok: #69f0ae;
+      --warn: #ffd166;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #15384f 0, var(--bg) 45%);
+      color: var(--text);
+    }
+    main {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      padding: 14px;
+    }
+    header, .card {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.9);
+      border-radius: 18px;
+      padding: 15px;
+      margin: 11px 0;
+    }
+    h1 { font-size: 1.25rem; margi
+
+Relatório: /home/leo/Documentos/GitHub/predixai-platform/reports/20260708_062418_PTP-113C.8.3_traceback_erro_500_backup_AUDIT.txt

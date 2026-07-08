@@ -1,0 +1,160 @@
+PREDIXAI — AUDITORIA ISOLADA COMPLETA C.8.3
+Data: qua 08 jul 2026 06:40:02 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Commit auditado: d9491fd
+
+===== 1. CONFIRMAR HASH =====
+d9491fd PTP 113 C.8.3 registrar falha contrato visual
+
+===== 2. PREPARAR TMP ISOLADO =====
+TMP: /tmp/predixai_c83_auditoria_isolada_d9491fd
+
+===== 3. DIFF DO COMMIT FAIL =====
+commit d9491fd14910e2eb062cb42d4aaea43acdd0de7d
+Author: Leandro Carlos <leonpcsn@gmail.com>
+Date:   Wed Jul 8 05:30:26 2026 -0300
+
+    PTP 113 C.8.3 registrar falha contrato visual
+
+ ...3_contrato_visual_sessao_simulada_SAFE_BUILD.md | 45 ++++++++++++
+ docs/reports_index.md                              |  1 +
+ ..._contrato_visual_sessao_simulada_SAFE_BUILD.txt | 81 ++++++++++++++++++++++
+ src/predixai/mobile_v2/app.py                      | 43 +++++++++++-
+ .../mobile_v2/templates/mobile_v2_index.html       | 28 ++++++++
+ .../mobile_v2/templates/session_setup.html         | 12 ++++
+ 6 files changed, 208 insertions(+), 2 deletions(-)
+
+docs/history/ptp/PTP-113/PTP-113C/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada_SAFE_BUILD.md
+docs/reports_index.md
+reports/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada_SAFE_BUILD.txt
+src/predixai/mobile_v2/app.py
+src/predixai/mobile_v2/templates/mobile_v2_index.html
+src/predixai/mobile_v2/templates/session_setup.html
+
+===== 4. COMPARAR TRECHOS CRÍTICOS APP.PY =====
+16:from flask import Flask, jsonify, render_template, request
+60:# PTP113C83_CONTRATO_VISUAL_HELPERS_START
+95:# PTP113C83_CONTRATO_VISUAL_HELPERS_END
+98:def create_mobile_v2_app(store: Optional[RuntimeStateStore] = None) -> Flask:
+107:    def mobile_v2_index() -> Any:
+122:                    "POST /session/create",
+141:    def mobile_v2_health() -> Any:
+155:        return render_template("session_setup.html", contract_view=_ptp113c83_contract_view(store.read()))
+157:    @app.post("/session/create")
+192:                "route": "/session/create",
+204:    def mobile_screen() -> Any:
+205:        return render_template("mobile_v2_index.html", contract_view=_ptp113c83_contract_view(store.read()))
+210:__all__ = ["create_mobile_v2_app"]
+
+===== 5. TESTE PY_COMPILE =====
+py_compile: PASS
+
+===== 6. TEST_CLIENT FLUXO COMPLETO =====
+
+--- GET / ---
+GET / STATUS 200
+HTML_HEAD: {"app":"PredixAI Trader Mobile V2","legacy_mobile_server":false,"observer_real_started":false,"ok":true,"routes":["GET /session/setup","POST /session/create","GET /mobile","GET /state/current","POST /observer/start","POST /observer/stop","GET /health"],"runtime_json_versioned":false,"safety":{"auto_click_enabled":false,"broker_login_enabled":false,"credentials_allowed":false,"orders_enabled":false,"real_money_enabled":false,"simulation_only":true},"screens":{"mobile":"/mobile","setup":"/session/
+GET /: PASS
+
+--- GET /health ---
+GET /health STATUS 200
+HTML_HEAD: {"legacy_mobile_server":false,"mobile_v2":true,"observer_real_started":false,"ok":true,"simulation_only":true,"standalone":true} 
+GET /health: PASS
+
+--- GET /session/setup ---
+GET /session/setup STATUS 200
+HTML_HEAD: <!doctype html> <html lang="pt-BR"> <head>   <meta charset="utf-8">   <meta name="viewport" content="width=device-width, initial-scale=1">   <title>PredixAI Mobile V2 — Tela 1</title>   <style>     :root {       color-scheme: dark;       --bg: #071018;       --card: #101d2a;       --line: #23364a;       --text: #e8f3ff;       --muted: #9db2c8;       --accent: #32d3ff;       --warn: #ffd166;       --ok: #69f0ae;       --danger: #ff6b6b;     }     * { box-sizing: border-box; }     body {       mar
+GET /session/setup: PASS
+
+--- GET /mobile SEM CONTRATO ---
+GET /mobile STATUS 200
+HTML_HEAD: <!doctype html> <html lang="pt-BR"> <head>   <meta charset="utf-8">   <meta name="viewport" content="width=device-width, initial-scale=1">   <title>PredixAI Mobile V2 — Tela 2</title>   <style>     :root {       color-scheme: dark;       --bg: #061018;       --card: #101d2a;       --line: #25384c;       --text: #e8f3ff;       --muted: #9db2c8;       --accent: #32d3ff;       --ok: #69f0ae;       --warn: #ffd166;       --danger: #ff6b6b;     }     * { box-sizing: border-box; }     body {       mar
+GET /mobile SEM CONTRATO: PASS
+CHECK_SEM_CONTRATO 'Nenhum contrato simulado ativo' False
+CHECK_SEM_CONTRATO 'Contrato atual' False
+CHECK_SEM_CONTRATO 'Sem leitura ativa' True
+CHECK_SEM_CONTRATO 'Aguardando etapa C.8.5' False
+CHECK_SEM_CONTRATO 'Disponível na etapa C.8.6' False
+CHECK_SEM_CONTRATO 'Disponível na etapa C.8.7' False
+
+--- POST /session/create ---
+POST /session/create STATUS 200
+HTML_HEAD: {"history_recording":false,"mobile_v2":true,"next_screen":"/mobile","ok":true,"operation_result":false,"real_money":false,"route":"/session/create","signal_generation":false,"simulated_contract_only":true,"state":{"history":{"count":0,"last_event_id":null},"observer":{"last_error":null,"pid":null,"running":false,"started_at":"2026-07-07T23:52:22.627519+00:00","status":"OFF","stopped_at":"2026-07-07T23:52:22.734533+00:00"},"operation":{"operation_id":null,"result":null,"status":"none"},"reading":
+POST /session/create: PASS
+
+--- GET /state/current APÓS POST ---
+GET /state/current STATUS 200
+HTML_HEAD: {"mobile_v2":true,"note":"reading.age_seconds is calculated at response time and is not persisted.","ok":true,"route":"/state/current","runtime_persisted":true,"state":{"history":{"count":0,"last_event_id":null},"observer":{"last_error":null,"pid":null,"running":false,"started_at":"2026-07-07T23:52:22.627519+00:00","status":"OFF","stopped_at":"2026-07-07T23:52:22.734533+00:00"},"operation":{"operation_id":null,"result":null,"status":"none"},"reading":{"age_seconds":null,"asset":null,"captured_at
+GET /state/current APÓS POST: PASS
+
+--- GET /mobile COM CONTRATO ---
+GET /mobile STATUS 200
+HTML_HEAD: <!doctype html> <html lang="pt-BR"> <head>   <meta charset="utf-8">   <meta name="viewport" content="width=device-width, initial-scale=1">   <title>PredixAI Mobile V2 — Tela 2</title>   <style>     :root {       color-scheme: dark;       --bg: #061018;       --card: #101d2a;       --line: #25384c;       --text: #e8f3ff;       --muted: #9db2c8;       --accent: #32d3ff;       --ok: #69f0ae;       --warn: #ffd166;       --danger: #ff6b6b;     }     * { box-sizing: border-box; }     body {       mar
+GET /mobile COM CONTRATO: PASS
+CHECK_COM_CONTRATO 'Nenhum contrato simulado ativo' False
+CHECK_COM_CONTRATO 'Contrato atual' False
+CHECK_COM_CONTRATO 'Ativo observado' False
+CHECK_COM_CONTRATO 'Sem leitura ativa' True
+CHECK_COM_CONTRATO 'Aguardando etapa C.8.5' False
+CHECK_COM_CONTRATO 'Disponível na etapa C.8.6' False
+CHECK_COM_CONTRATO 'Disponível na etapa C.8.7' False
+
+===== 7. UNITTEST VERBOSE ISOLADO =====
+test_mobile_screen_does_not_create_runtime_file (test_mobile_v2_html.MobileV2HtmlScreensTests.test_mobile_screen_does_not_create_runtime_file) ... ok
+test_mobile_screen_loads_with_placeholders (test_mobile_v2_html.MobileV2HtmlScreensTests.test_mobile_screen_loads_with_placeholders) ... ok
+test_session_create_sets_simulated_contract_only (test_mobile_v2_html.MobileV2HtmlScreensTests.test_session_create_sets_simulated_contract_only) ... ok
+test_session_setup_screen_loads (test_mobile_v2_html.MobileV2HtmlScreensTests.test_session_setup_screen_loads) ... ok
+test_age_seconds_is_not_persisted (test_mobile_v2_routes.MobileV2RoutesTests.test_age_seconds_is_not_persisted) ... ok
+test_observer_start_is_control_only (test_mobile_v2_routes.MobileV2RoutesTests.test_observer_start_is_control_only) ... ok
+test_observer_stop_sets_off_without_real_kill (test_mobile_v2_routes.MobileV2RoutesTests.test_observer_stop_sets_off_without_real_kill) ... ok
+test_register_routes_and_get_default_state (test_mobile_v2_routes.MobileV2RoutesTests.test_register_routes_and_get_default_state) ... ok
+test_registration_is_idempotent (test_mobile_v2_routes.MobileV2RoutesTests.test_registration_is_idempotent) ... ok
+test_health_endpoint (test_mobile_v2_standalone_app.MobileV2StandaloneAppTests.test_health_endpoint) ... ok
+test_index_exposes_standalone_metadata (test_mobile_v2_standalone_app.MobileV2StandaloneAppTests.test_index_exposes_standalone_metadata) ... ok
+test_mobile_v2_routes_are_available (test_mobile_v2_standalone_app.MobileV2StandaloneAppTests.test_mobile_v2_routes_are_available) ... ok
+test_concurrent_writes_respect_lock_and_keep_json_valid (test_mobile_v2_state_store.RuntimeStateStoreTests.test_concurrent_writes_respect_lock_and_keep_json_valid) ... ok
+test_create_default_state_has_required_safety_locks (test_mobile_v2_state_store.RuntimeStateStoreTests.test_create_default_state_has_required_safety_locks) ... ok
+test_lock_timeout_is_controlled_failure (test_mobile_v2_state_store.RuntimeStateStoreTests.test_lock_timeout_is_controlled_failure) ... ok
+test_write_and_read_state_sequential (test_mobile_v2_state_store.RuntimeStateStoreTests.test_write_and_read_state_sequential) ... ok
+test_write_creates_valid_json_atomically (test_mobile_v2_state_store.RuntimeStateStoreTests.test_write_creates_valid_json_atomically) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.254s
+
+OK
+
+===== 8. BUSCA DE ERROS POSSÍVEIS =====
+grep: /tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/__pycache__/app.cpython-312.pyc: arquivo binário coincide com o padrão
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/session_setup.html:142:<!-- PTP113C83_CONTRATO_VISUAL_TELA1_START -->
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/session_setup.html:145:  <p><b>Status:</b> {{ contract_view.session_status }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/session_setup.html:146:  <p><b>Ativo observado:</b> {{ contract_view.observed_asset }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/session_setup.html:147:  <p><b>Sinal:</b> {{ contract_view.signal_status }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/session_setup.html:148:  <p><b>Saldo dinâmico:</b> {{ contract_view.dynamic_balance_status }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/session_setup.html:151:<!-- PTP113C83_CONTRATO_VISUAL_TELA1_END -->
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:184:<!-- PTP113C83_CONTRATO_VISUAL_TELA2_START -->
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:185:{% if not contract_view.has_contract %}
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:187:  <h3>Nenhum contrato simulado ativo</h3>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:194:  <p><b>Status da sessão:</b> {{ contract_view.session_status }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:195:  <p><b>Banca inicial:</b> {{ contract_view.initial_bank }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:196:  <p><b>Entrada:</b> {{ contract_view.entry_value }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:197:  <p><b>Meta:</b> {{ contract_view.profit_target }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:198:  <p><b>Recuperação:</b> {{ contract_view.recovery_mode }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:199:  <p><b>Ativo observado:</b> {{ contract_view.observed_asset }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:204:  <p><b>Sinal:</b> {{ contract_view.signal_status }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:205:  <p><b>Histórico:</b> {{ contract_view.history_status }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:206:  <p><b>Resultado:</b> {{ contract_view.result_status }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:207:  <p><b>Saldo dinâmico:</b> {{ contract_view.dynamic_balance_status }}</p>
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/templates/mobile_v2_index.html:209:<!-- PTP113C83_CONTRATO_VISUAL_TELA2_END -->
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/app.py:60:# PTP113C83_CONTRATO_VISUAL_HELPERS_START
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/app.py:70:def _ptp113c83_contract_view(state):
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/app.py:84:        "session_status": session.get("status") if has_contract else "Nenhum contrato simulado ativo",
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/app.py:90:        "signal_status": "Aguardando etapa C.8.5",
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/app.py:95:# PTP113C83_CONTRATO_VISUAL_HELPERS_END
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/app.py:155:        return render_template("session_setup.html", contract_view=_ptp113c83_contract_view(store.read()))
+/tmp/predixai_c83_auditoria_isolada_d9491fd/src/predixai/mobile_v2/app.py:205:        return render_template("mobile_v2_index.html", contract_view=_ptp113c83_contract_view(store.read()))
+
+===== 9. CONCLUSÃO DA AUDITORIA =====
+Se não houver TRACEBACK_COMPLETO, o erro 500 original não é reproduzível pelo commit isolado.
+Nesse caso, a causa provável foi diferença de estado/runtime/local ou falha do script original fora do app.py isolado.
+
+Relatório: /home/leo/Documentos/GitHub/predixai-platform/reports/20260708_064002_PTP-113C.8.3_auditoria_isolada_commit_d9491fd_AUDIT.txt
