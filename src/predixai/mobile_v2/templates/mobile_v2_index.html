@@ -463,5 +463,131 @@ async function observerStop() {
 loadState();
 setInterval(loadState, 5000);
 </script>
+
+<!-- PTP113C8341_NORMALIZAR_VISUAL_CONTRATO_MOBILE_START -->
+<script>
+(function () {
+  const recoveryLabels = {
+    "none": "Sem recuperação",
+    "sem_recuperacao": "Sem recuperação",
+    "fixed": "Mão fixa",
+    "mao_fixa": "Mão fixa",
+    "fixed_hand": "Mão fixa",
+    "soros": "Soros / anti-martingale",
+    "martingale_1": "1 Martingale",
+    "martingale_2": "2 Martingales",
+    "smartgale": "SmartGale simulado",
+    "smart_martingale": "SmartGale simulado"
+  };
+
+  const statusLabels = {
+    "configured": "Configurada",
+    "not_created": "Não configurada",
+    "aguardando_leitura": "Aguardando leitura",
+    "ON_WAITING_SOURCE": "Aguardando leitura do observer",
+    "OFF": "Desligado",
+    "simulated_control_only": "Controle simulado",
+    "none": "Nenhuma"
+  };
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function moneyBRL(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "—";
+    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function label(map, value, fallback) {
+    const raw = String(value || "").trim();
+    return map[raw] || map[raw.toLowerCase()] || fallback || raw || "—";
+  }
+
+  function pickSession(payload) {
+    const root = payload && typeof payload === "object" ? payload : {};
+    const state = root.state && typeof root.state === "object" ? root.state : {};
+    return root.session || state.session || {};
+  }
+
+  function pickReading(payload) {
+    const root = payload && typeof payload === "object" ? payload : {};
+    const state = root.state && typeof root.state === "object" ? root.state : {};
+    return root.reading || state.reading || {};
+  }
+
+  function updateContractCard(payload) {
+    const session = pickSession(payload);
+    const reading = pickReading(payload);
+    const contract = session && typeof session.contract === "object" && session.contract !== null ? session.contract : {};
+
+    const statusEl = byId("ptp113c834-status");
+    const pillEl = byId("ptp113c834-session-status");
+    const assetEl = byId("ptp113c834-asset");
+    const bankEl = byId("ptp113c834-bank");
+    const entryEl = byId("ptp113c834-entry");
+    const goalEl = byId("ptp113c834-goal");
+    const recoveryEl = byId("ptp113c834-recovery");
+
+    if (statusEl) statusEl.textContent = label(statusLabels, session.status, "Não configurada");
+    if (pillEl) pillEl.textContent = session.status === "configured" ? "Configurada" : label(statusLabels, session.status, "Pendente");
+
+    const observedAsset = reading && reading.asset ? reading.asset : "Aguardando leitura";
+    if (assetEl) assetEl.textContent = observedAsset;
+
+    if (bankEl) bankEl.textContent = moneyBRL(contract.initial_bank);
+    if (entryEl) entryEl.textContent = moneyBRL(contract.entry_value);
+    if (goalEl) goalEl.textContent = moneyBRL(contract.profit_goal);
+    if (recoveryEl) recoveryEl.textContent = label(recoveryLabels, contract.recovery_mode, "Sem recuperação");
+  }
+
+  function translateExactTextNodes() {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+
+    while (walker.nextNode()) {
+      nodes.push(walker.currentNode);
+    }
+
+    nodes.forEach(function (node) {
+      const text = (node.nodeValue || "").trim();
+      if (statusLabels[text]) {
+        node.nodeValue = node.nodeValue.replace(text, statusLabels[text]);
+      }
+    });
+  }
+
+  function refresh() {
+    fetch("/state/current", { cache: "no-store" })
+      .then(function (response) { return response.json(); })
+      .then(function (payload) {
+        updateContractCard(payload);
+        translateExactTextNodes();
+      })
+      .catch(function () {
+        translateExactTextNodes();
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", refresh);
+  } else {
+    refresh();
+  }
+
+  const observer = new MutationObserver(function () {
+    translateExactTextNodes();
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+})();
+</script>
+<!-- PTP113C8341_NORMALIZAR_VISUAL_CONTRATO_MOBILE_END -->
+
 </body>
 </html>

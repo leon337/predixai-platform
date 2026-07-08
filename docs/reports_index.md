@@ -165,3 +165,8 @@
   - Relatório: `reports/20260708_161656_PTP-113C.8.3.4.1_normalizar_visual_contrato_mobile_v2_FIX_FINAL_REVISED.txt`
   - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260708_161656_PTP-113C.8.3.4.1_normalizar_visual_contrato_mobile_v2_FIX_FINAL_REVISED.md`
   - Base URL: `http://127.0.0.1:5001`
+
+- 2026-07-08 16:43:47 -0300 — PTP-113C.8.3.4.1 — normalizar_visual_contrato_mobile_v2 — PASS_FIX
+  - Relatório: `reports/20260708_164344_PTP-113C.8.3.4.1_normalizar_visual_contrato_mobile_v2_FIX_FINAL_REVISED_2.txt`
+  - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260708_164344_PTP-113C.8.3.4.1_normalizar_visual_contrato_mobile_v2_FIX_FINAL_REVISED_2.md`
+  - Base URL: `http://127.0.0.1:5001`

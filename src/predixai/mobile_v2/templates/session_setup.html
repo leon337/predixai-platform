@@ -115,7 +115,7 @@
       </select>
 
       <label>Ativo observado</label>
-      <input name="asset_label" value="Aguardando leitura">
+      <input type="hidden" name="asset_label" value="Aguardando leitura" data-ptp113c8341-asset-hidden="true">
 
       <button type="submit">Criar contrato simulado</button>
       <a class="btn ghost" href="/mobile">Ir para Tela 2</a>
@@ -169,5 +169,323 @@ form.addEventListener("submit", async (event) => {
   }
 });
 </script>
+
+<!-- PTP113C8341_NORMALIZAR_VISUAL_CONTRATO_SESSION_START -->
+<style>
+  .ptp113c8341-observer-note {
+    margin: 12px 0;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(56, 189, 248, 0.26);
+    background: rgba(14, 165, 233, 0.10);
+    color: #bae6fd;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+  .ptp113c8341-result-summary {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(34, 197, 94, 0.10);
+    color: #dcfce7;
+    line-height: 1.45;
+  }
+  .ptp113c8341-result-summary strong {
+    color: #ffffff;
+  }
+  .ptp113c8341-result-grid {
+    margin-top: 8px;
+    display: grid;
+    gap: 6px;
+  }
+</style>
+
+<script>
+(function () {
+  const MONEY_FIELDS = ["initial_bank", "entry_value", "profit_goal"];
+  const DEFAULT_ASSET_LABEL = "Aguardando leitura";
+
+  const recoveryLabels = {
+    "none": "Sem recuperação",
+    "sem_recuperacao": "Sem recuperação",
+    "fixed": "Mão fixa",
+    "mao_fixa": "Mão fixa",
+    "fixed_hand": "Mão fixa",
+    "soros": "Soros / anti-martingale",
+    "martingale_1": "1 Martingale",
+    "martingale_2": "2 Martingales",
+    "smartgale": "SmartGale simulado",
+    "smart_martingale": "SmartGale simulado"
+  };
+
+  function byNameOrId(name) {
+    return document.querySelector('[name="' + name + '"]') || document.getElementById(name);
+  }
+
+  function parseMoneyBR(value) {
+    let raw = String(value || "").trim();
+    if (!raw) return 0;
+
+    raw = raw.replace(/\s/g, "");
+    raw = raw.replace(/R\$/gi, "");
+    raw = raw.replace(/[^\d,.-]/g, "");
+
+    const hasComma = raw.indexOf(",") !== -1;
+    const hasDot = raw.indexOf(".") !== -1;
+
+    if (hasComma && hasDot) {
+      const lastComma = raw.lastIndexOf(",");
+      const lastDot = raw.lastIndexOf(".");
+      if (lastComma > lastDot) {
+        raw = raw.replace(/\./g, "").replace(",", ".");
+      } else {
+        raw = raw.replace(/,/g, "");
+      }
+    } else if (hasComma) {
+      raw = raw.replace(/\./g, "").replace(",", ".");
+    } else if (hasDot) {
+      const parts = raw.split(".");
+      if (parts.length === 2) {
+        const before = parts[0];
+        const after = parts[1];
+        if (after.length === 3 && before.length >= 1 && before.length <= 3) {
+          raw = before + after;
+        }
+      } else if (parts.length > 2) {
+        const last = parts[parts.length - 1];
+        if (last.length === 2) {
+          raw = parts.slice(0, -1).join("") + "." + last;
+        } else {
+          raw = parts.join("");
+        }
+      }
+    }
+
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function formatMoneyBR(value) {
+    const n = Number(value);
+    const safe = Number.isFinite(n) ? n : 0;
+    return safe.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function normalizeMoneyFieldsForSubmit() {
+    MONEY_FIELDS.forEach(function (name) {
+      const input = byNameOrId(name);
+      if (!input) return;
+      const n = parseMoneyBR(input.value);
+      input.value = String(n.toFixed(2));
+    });
+  }
+
+  function formatMoneyFields() {
+    MONEY_FIELDS.forEach(function (name) {
+      const input = byNameOrId(name);
+      if (!input) return;
+
+      input.setAttribute("type", "text");
+      input.setAttribute("inputmode", "decimal");
+      input.setAttribute("autocomplete", "off");
+
+      if (!input.dataset.ptp113c8341MoneyBound) {
+        input.addEventListener("blur", function () {
+          input.value = formatMoneyBR(parseMoneyBR(input.value));
+        });
+
+        input.addEventListener("focus", function () {
+          setTimeout(function () {
+            input.select && input.select();
+          }, 0);
+        });
+
+        input.dataset.ptp113c8341MoneyBound = "true";
+      }
+
+      input.value = formatMoneyBR(parseMoneyBR(input.value));
+    });
+  }
+
+  function ensureHiddenAssetField() {
+    let input = byNameOrId("asset_label");
+
+    if (!input) {
+      const form = document.querySelector("form") || document.body;
+      input = document.createElement("input");
+      input.name = "asset_label";
+      input.id = "asset_label";
+      form.appendChild(input);
+    }
+
+    input.type = "hidden";
+    input.value = DEFAULT_ASSET_LABEL;
+    input.dataset.ptp113c8341AssetHidden = "true";
+
+    const possibleGroups = [];
+    let el = input;
+
+    for (let i = 0; i < 4 && el; i += 1) {
+      possibleGroups.push(el);
+      el = el.parentElement;
+    }
+
+    possibleGroups.forEach(function (node) {
+      if (!node || node === document.body || node.tagName === "FORM") return;
+      const text = (node.textContent || "").toLowerCase();
+      if (text.includes("ativo observado")) {
+        node.style.display = "none";
+        node.setAttribute("data-ptp113c8341-asset-visual-hidden", "true");
+      }
+    });
+  }
+
+  function insertObserverNote() {
+    if (document.getElementById("ptp113c8341-observer-note")) return;
+
+    const note = document.createElement("div");
+    note.id = "ptp113c8341-observer-note";
+    note.className = "ptp113c8341-observer-note";
+    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, o contrato usa <strong>Aguardando leitura</strong>.";
+
+    const buttons = Array.from(document.querySelectorAll("button, a")).filter(function (el) {
+      return (el.textContent || "").toLowerCase().includes("criar contrato");
+    });
+
+    const target = buttons[0];
+
+    if (target && target.parentElement) {
+      target.parentElement.insertBefore(note, target);
+    } else {
+      const form = document.querySelector("form") || document.body;
+      form.appendChild(note);
+    }
+  }
+
+  function normalizeRecoveryLabels() {
+    const select = byNameOrId("recovery_mode");
+    if (!select || !select.options) return;
+
+    Array.from(select.options).forEach(function (option) {
+      const key = String(option.value || option.textContent || "").trim().toLowerCase();
+      if (recoveryLabels[key]) {
+        option.textContent = recoveryLabels[key];
+      }
+    });
+  }
+
+  function findResultCard() {
+    const headings = Array.from(document.querySelectorAll("h1,h2,h3,h4,strong,b"));
+    const heading = headings.find(function (h) {
+      return (h.textContent || "").trim().toLowerCase() === "resultado";
+    });
+
+    if (!heading) return null;
+
+    return heading.closest("section, article, .card, div") || heading.parentElement;
+  }
+
+  function recoveryLabel(value) {
+    const key = String(value || "none").trim().toLowerCase();
+    return recoveryLabels[key] || String(value || "Sem recuperação");
+  }
+
+  function money(value) {
+    return formatMoneyBR(Number(value || 0));
+  }
+
+  function renderContractSummary(payload) {
+    if (!payload || typeof payload !== "object") return;
+
+    const contract = payload.contract || (payload.state && payload.state.session && payload.state.session.contract) || {};
+    const card = findResultCard();
+    if (!card) return;
+
+    const summary = document.createElement("div");
+    summary.className = "ptp113c8341-result-summary";
+    summary.id = "ptp113c8341-result-summary";
+    summary.innerHTML =
+      "<strong>Contrato criado com sucesso</strong>" +
+      "<div class='ptp113c8341-result-grid'>" +
+      "<div>Banca: <strong>" + money(contract.initial_bank) + "</strong></div>" +
+      "<div>Entrada: <strong>" + money(contract.entry_value) + "</strong></div>" +
+      "<div>Meta: <strong>" + money(contract.profit_goal) + "</strong></div>" +
+      "<div>Recuperação: <strong>" + recoveryLabel(contract.recovery_mode) + "</strong></div>" +
+      "<div>Ativo observado: <strong>Aguardando leitura do observer</strong></div>" +
+      "<div>Modo: <strong>100% simulado</strong></div>" +
+      "</div>";
+
+    card.innerHTML = "<h2>Resultado</h2>";
+    card.appendChild(summary);
+  }
+
+  function patchFetchForSummary() {
+    if (window.__PTP113C8341_FETCH_PATCHED__) return;
+    window.__PTP113C8341_FETCH_PATCHED__ = true;
+
+    const originalFetch = window.fetch;
+
+    window.fetch = function () {
+      const args = arguments;
+      const input = args[0];
+      const url = typeof input === "string" ? input : (input && input.url) || "";
+      const isCreate = String(url).includes("/session/create");
+
+      if (isCreate) {
+        normalizeMoneyFieldsForSubmit();
+        ensureHiddenAssetField();
+      }
+
+      return originalFetch.apply(this, args).then(function (response) {
+        if (isCreate) {
+          response.clone().json().then(function (payload) {
+            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 50);
+            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 250);
+            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 700);
+          }).catch(function () {
+            setTimeout(formatMoneyFields, 200);
+          });
+        }
+
+        return response;
+      });
+    };
+  }
+
+  function bindSubmitAndButtons() {
+    document.addEventListener("submit", function () {
+      normalizeMoneyFieldsForSubmit();
+      ensureHiddenAssetField();
+      setTimeout(formatMoneyFields, 350);
+    }, true);
+
+    document.addEventListener("click", function (event) {
+      const text = (event.target && event.target.textContent || "").toLowerCase();
+      if (text.includes("criar contrato")) {
+        normalizeMoneyFieldsForSubmit();
+        ensureHiddenAssetField();
+        setTimeout(formatMoneyFields, 350);
+      }
+    }, true);
+  }
+
+  function boot() {
+    formatMoneyFields();
+    ensureHiddenAssetField();
+    insertObserverNote();
+    normalizeRecoveryLabels();
+    patchFetchForSummary();
+    bindSubmitAndButtons();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+<!-- PTP113C8341_NORMALIZAR_VISUAL_CONTRATO_SESSION_END -->
+
 </body>
 </html>
