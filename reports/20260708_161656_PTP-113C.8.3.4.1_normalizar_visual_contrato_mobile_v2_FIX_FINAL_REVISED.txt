@@ -1,0 +1,223 @@
+PREDIXAI BR — PTP-113C.8.3.4.1 — NORMALIZAÇÃO VISUAL DO CONTRATO MOBILE V2 — FINAL REVISADO
+Data: 2026-07-08 16:17:01 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Base URL: http://127.0.0.1:5001
+Tipo: FIX pequeno / TEMPLATE ONLY
+
+===== RESULTADO FINAL =====
+RESULTADO_FINAL=FAIL_FIX
+MOTIVO=/state/current não confirmou valores exatos do teste 1.
+RUN_CODE=1
+ROLLBACK_STATUS=PASS
+RESTART_STATUS=PASS
+SERVER_FINAL_STATUS=PASS
+PY_COMPILE_STATUS=PASS
+SESSION_HTML_STATUS=PASS
+MOBILE_HTML_STATUS=PASS
+SESSION_CREATE_1_STATUS=PASS
+SESSION_CREATE_2_STATUS=UNKNOWN
+STATE_CONTRACT_1_STATUS=FAIL
+STATE_CONTRACT_2_STATUS=UNKNOWN
+STATE_EXACT_VALUES_1_STATUS=FAIL
+STATE_EXACT_VALUES_2_STATUS=UNKNOWN
+ASSET_FIELD_STATUS=PASS
+MONEY_NORMALIZER_STATUS=PASS
+RESULT_SUMMARY_STATUS=PASS
+LABEL_NORMALIZER_STATUS=PASS
+CHECKSUM_CORE_STATUS=PASS
+TEMPLATE_FINAL_STATUS=RESTORED_EXPECTED
+
+===== OBJETIVO =====
+Corrigir a experiência visual da Tela 1 e manter a Tela 2 coerente com o contrato simulado, sem criar lógica nova.
+
+===== ESCOPO =====
+Permitido:
+- alterar session_setup.html;
+- alterar mobile_v2_index.html;
+- normalizar moeda BRL visualmente;
+- remover ativo observado editável da Tela 1;
+- manter asset_label técnico como "Aguardando leitura";
+- trocar JSON bruto por resumo visual;
+- traduzir labels técnicos visualmente.
+
+Proibido:
+- alterar app.py;
+- alterar state_store.py;
+- criar endpoint novo;
+- iniciar observer real;
+- implementar lógica real de recuperação;
+- calcular próxima entrada;
+- gerar sinal;
+- calcular WIN/LOSS/DRAW;
+- atualizar saldo;
+- mexer em histórico operacional;
+- avançar para C.8.4.
+
+===== OBSERVAÇÃO SOBRE VALIDAÇÃO VISUAL =====
+Este script valida a presença técnica do normalizador JS no HTML servido.
+A execução visual real do JavaScript no navegador exige PASS visual posterior por print no celular.
+
+===== GIT INICIAL =====
+Branch: main
+HEAD antes: f078eb3 PTP 113 C.8.3.4 contrato visual restart controlado FINAL
+
+Status inicial:
+LIMPO
+
+docs/reports_index.md estava sujo antes? NO
+ALLOW_COMMIT=YES
+
+===== PY COMPILE =====
+python3 -m py_compile src/predixai/mobile_v2/app.py
+APP_PY_COMPILE=PASS
+
+python3 -m py_compile src/predixai/mobile_v2/state_store.py
+STATE_STORE_COMPILE=PASS
+
+===== PROCESSO / PID =====
+BASE_URL=http://127.0.0.1:5001
+PORT=5001
+PID_INICIAL=64530
+PID_INICIAL_CMD=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+PID_INICIAL_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+PID_APOS_FIX=67145
+PID_APOS_FIX_CMD=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+PID_APOS_FIX_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+===== HTTP =====
+GET /health => 200
+GET /session/setup => 200
+GET /mobile => 200
+GET /state/current => 200
+
+===== HTML SERVIDO / SESSION + MOBILE =====
+SESSION_START_COUNT= 1
+SESSION_END_COUNT= 1
+MOBILE_START_COUNT= 1
+MOBILE_END_COUNT= 1
+ASSET_INPUT_COUNT= 1
+ASSET_NON_HIDDEN_INPUT_COUNT= 0
+OBSERVER_NOTE_FOUND= YES
+MONEY_NORMALIZER_FOUND= YES
+PARSE_DOT_DECIMAL_GUARD_FOUND= YES
+RESULT_SUMMARY_FOUND= YES
+C834_CARD_FOUND= YES
+LABEL_NORMALIZER_FOUND= YES
+SERVED_HTML_STATUS= PASS
+
+===== SESSION CREATE TESTE 1 =====
+Entrada esperada:
+banca=500
+entrada=6
+meta=15
+recuperacao=soros
+
+HTTP:
+200
+
+Resposta:
+{"history_recording":false,"mobile_v2":true,"next_screen":"/mobile","ok":true,"operation_result":false,"real_money":false,"route":"/session/create","signal_generation":false,"simulated_contract_only":true,"state":{"history":{"count":0,"last_event_id":null},"observer":{"last_error":null,"pid":null,"running":false,"started_at":"2026-07-08T18:48:51.675036+00:00","status":"OFF","stopped_at":"2026-07-08T18:49:13.206158+00:00"},"operation":{"operation_id":null,"result":null,"status":"none"},"reading":{"asset":null,"captured_at":null,"price":null,"source":"none","status":"no_active_reading"},"schema_version":"mobile_v2_state_v1","session":{"auto_click_enabled":false,"broker_login_enabled":false,"configured_at":"2026-07-08T19:16:59.438139+00:00","contract":{"asset_label":"Aguardando leitura","entry_value":6.0,"initial_bank":500.0,"profit_goal":15.0,"recovery_mode":"soros","simulation_only":true},"credentials_allowed":false,"orders_enabled":false,"real_money_enabled":false,"simulation_only":true,"status":"configured"},"signal":{"confidence":null,"direction":"NEUTRO","reason":null,"status":"aguardando_leitura","strategy":null},"status":"session_configured","updated_at":"2026-07-08T19:16:59.438872+00:00"}}
+
+===== STATE CURRENT TESTE 1 =====
+STATE_JSON_PARSE=FAIL
+ERROR= FileNotFoundError(2, 'No such file or directory')
+
+===== SESSION CREATE TESTE 2 =====
+Entrada esperada:
+banca=300
+entrada=15
+meta=80
+recuperacao=martingale_2
+
+HTTP:
+NAO_EXECUTADO
+
+Resposta:
+SEM_RESPOSTA
+
+===== STATE CURRENT TESTE 2 =====
+STATE_2_NAO_ANALISADO
+
+===== CHECKSUMS ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+dc291d70d157f8855f221e4617da7a510599e4cbc6106469b449e068622bba09  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUMS DEPOIS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+dc291d70d157f8855f221e4617da7a510599e4cbc6106469b449e068622bba09  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUM DIFF =====
+
+
+===== STATUS GIT DE ARQUIVOS PROIBIDOS =====
+LIMPO
+
+===== STATUS GIT DOS TEMPLATES =====
+LIMPO
+
+===== GIT DIFF CHECK =====
+
+DIFF_CHECK_CODE=0
+
+===== LOG DE STOP =====
+Parando PID 64530...
+Parando PID 67145...
+
+===== LOG DE RESTART =====
+SEM_RESTART_LOG
+
+===== 10 PONTOS DA AUDITORIA =====
+1. Lógica booleana/condicional:
+   OK. Não usa bool(session.status), não liga observer, não cria lógica real de recuperação.
+
+2. Falha silenciosa:
+   OK. Parse monetário revisado, moeda, ativo editável, resumo visual, POST, state e mobile foram validados.
+
+3. Rollback planejado e verificado:
+   PASS. Backup fora do repo: /tmp/predixai_backups/20260708_161656_PTP-113C.8.3.4.1_normalizar_visual_contrato_mobile_v2_final_revised
+
+4. Checksum de arquivos protegidos:
+   CORE=PASS. app.py e state_store.py não podem mudar.
+
+5. Persistência real, não só HTTP:
+   SESSION_CREATE_1=PASS; STATE_1=FAIL; EXACT_1=FAIL;
+   SESSION_CREATE_2=UNKNOWN; STATE_2=UNKNOWN; EXACT_2=UNKNOWN.
+
+6. Estado antes e depois:
+   OK. HEAD, PID, HTTP, checksums, dois contratos e git foram registrados.
+
+7. Idempotência:
+   OK. Script aborta se marcador C.8.3.4.1 já existir.
+
+8. Git seguro:
+   OK. Commit permitido apenas para templates aprovados, relatório, Markdown e índice.
+
+9. Hash de commit confirmado:
+   HEAD antes registrado. HEAD depois será exibido no terminal após commit/push.
+
+10. Diff final contra promessa:
+   PASS — nenhum app.py/state_store alterado.
+
+===== DIAGNÓSTICO =====
+Se RESULTADO_FINAL=PASS_FIX:
+- Tela 1 foi normalizada visualmente.
+- O parse monetário foi revisado para não transformar 5.00 em 500.
+- Ativo observado deixou de ser editável e fica reservado ao observer.
+- Contrato continua sendo criado via POST.
+- Dois contratos foram validados em /state/current.
+- Tela 2 mantém o card e labels humanos.
+- C.8.3.4.1 pode seguir para validação visual no celular.
+
+Se RESULTADO_FINAL=FAIL_ROLLBACK:
+- não avançar;
+- analisar relatório antes de nova tentativa.
+
+===== PRÓXIMA AÇÃO =====
+Analisar este relatório no chat.
+
+FIM DO RELATÓRIO.
