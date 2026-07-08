@@ -1,0 +1,189 @@
+PREDIXAI BR — PTP-113C.8.3.4.2 — RECOVERY VISUAL TELA 1 — FINAL
+Data: 2026-07-08 18:07:42 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Base URL: http://127.0.0.1:5001
+Tipo: FIX emergencial / TEMPLATE ONLY
+
+===== RESULTADO FINAL =====
+RESULTADO_FINAL=PASS_FIX
+MOTIVO=Recovery visual da Tela 1 aplicado: lógica agressiva de hide removida, asset_label mantido hidden, Tela 2 preservada e contrato validado.
+RUN_CODE=0
+ROLLBACK_STATUS=NOT_RUN
+RESTART_STATUS=PASS
+SERVER_FINAL_STATUS=PASS
+PY_COMPILE_STATUS=PASS
+HTTP_STATUS=PASS
+HTML_STATUS=PASS
+ASSET_FIELD_STATUS=PASS
+AGGRESSIVE_HIDE_STATUS=PASS
+SESSION_CREATE_STATUS=PASS
+STATE_CONTRACT_STATUS=PASS
+STATE_EXACT_VALUES_STATUS=PASS
+CHECKSUM_CORE_STATUS=PASS
+SESSION_TEMPLATE_STATUS=CHANGED_EXPECTED
+MOBILE_TEMPLATE_STATUS=UNCHANGED_EXPECTED
+
+===== OBJETIVO =====
+Recuperar a renderização da Tela 1 após a tela preta observada no PASS técnico da C.8.3.4.1.
+
+===== ESCOPO =====
+Permitido:
+- alterar somente session_setup.html;
+- remover lógica agressiva de ocultação do campo asset_label;
+- manter asset_label como input hidden;
+- manter nota visual do observer;
+- preservar moeda BRL, resumo visual e labels humanos.
+
+Proibido:
+- alterar app.py;
+- alterar state_store.py;
+- alterar mobile_v2_index.html;
+- criar endpoint novo;
+- iniciar observer real;
+- implementar recuperação real;
+- gerar sinal;
+- calcular resultado/saldo;
+- avançar para C.8.4.
+
+===== GIT INICIAL =====
+Branch: main
+HEAD antes: 4a49a95 PTP 113 C.8.3.4.1 normalizar visual contrato mobile v2 FINAL revisado 2
+
+Status inicial:
+LIMPO
+
+docs/reports_index.md estava sujo antes? NO
+ALLOW_COMMIT=YES
+
+===== PY COMPILE =====
+python3 -m py_compile src/predixai/mobile_v2/app.py
+APP_PY_COMPILE=PASS
+
+python3 -m py_compile src/predixai/mobile_v2/state_store.py
+STATE_STORE_COMPILE=PASS
+
+===== PROCESSO / PID =====
+BASE_URL=http://127.0.0.1:5001
+PORT=5001
+PID_INICIAL=67952
+PID_INICIAL_CMD=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+PID_INICIAL_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+PID_APOS_FIX=70763
+PID_APOS_FIX_CMD=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+PID_APOS_FIX_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+===== HTTP =====
+GET /health => 200
+GET /session/setup => 200
+GET /mobile => 200
+GET /state/current => 200
+
+===== HTML SERVIDO =====
+C8342_START_COUNT= 1
+C8342_END_COUNT= 1
+ASSET_INPUT_COUNT= 1
+ASSET_NON_HIDDEN_INPUT_COUNT= 0
+BAD_AGGRESSIVE_TOKENS= NONE
+VISIBLE_TOKENS_FOUND= PredixAI Mobile V2 — Tela 1,Criar contrato,Banca,Entrada,Meta
+VISIBLE_TOKEN_COUNT= 5
+MOBILE_STILL_HAS_CARD= YES
+SESSION_HTML_BYTES= 17715
+MOBILE_HTML_BYTES= 18597
+HTML_STATUS= PASS
+
+===== SESSION CREATE =====
+HTTP:
+200
+
+Resposta:
+{"history_recording":false,"mobile_v2":true,"next_screen":"/mobile","ok":true,"operation_result":false,"real_money":false,"route":"/session/create","signal_generation":false,"simulated_contract_only":true,"state":{"history":{"count":0,"last_event_id":null},"observer":{"last_error":null,"pid":null,"running":false,"started_at":"2026-07-08T18:48:51.675036+00:00","status":"OFF","stopped_at":"2026-07-08T18:49:13.206158+00:00"},"operation":{"operation_id":null,"result":null,"status":"none"},"reading":{"asset":null,"captured_at":null,"price":null,"source":"none","status":"no_active_reading"},"schema_version":"mobile_v2_state_v1","session":{"auto_click_enabled":false,"broker_login_enabled":false,"configured_at":"2026-07-08T21:07:42.286037+00:00","contract":{"asset_label":"Aguardando leitura","entry_value":6.0,"initial_bank":500.0,"profit_goal":15.0,"recovery_mode":"soros","simulation_only":true},"credentials_allowed":false,"orders_enabled":false,"real_money_enabled":false,"simulation_only":true,"status":"configured"},"signal":{"confidence":null,"direction":"NEUTRO","reason":null,"status":"aguardando_leitura","strategy":null},"status":"session_configured","updated_at":"2026-07-08T21:07:42.287048+00:00"}}
+
+===== STATE CURRENT =====
+session.status= configured
+CHECK_initial_bank= PASS
+CHECK_entry_value= PASS
+CHECK_profit_goal= PASS
+CHECK_recovery_mode= PASS
+CHECK_asset_label= PASS
+contract= {'asset_label': 'Aguardando leitura', 'entry_value': 6.0, 'initial_bank': 500.0, 'profit_goal': 15.0, 'recovery_mode': 'soros', 'simulation_only': True}
+CONTRACT_STATUS=PASS
+EXACT_VALUES_STATUS=PASS
+
+===== CHECKSUMS ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+d272e576a3ed29578506dd2a86fef83fca391557810f1fc422d0348c39e3d344  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUMS DEPOIS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUM DIFF =====
+--- /tmp/predixai_PTP-113C.8.3.4.2_20260708_180739_final/checksums_before.txt	2026-07-08 18:07:39.744119251 -0300
++++ /tmp/predixai_PTP-113C.8.3.4.2_20260708_180739_final/checksums_after.txt	2026-07-08 18:07:42.419320731 -0300
+@@ -1,4 +1,4 @@
+ 59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+ 61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+-d272e576a3ed29578506dd2a86fef83fca391557810f1fc422d0348c39e3d344  src/predixai/mobile_v2/templates/session_setup.html
++699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+ f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== STATUS GIT DE ARQUIVOS PROIBIDOS =====
+LIMPO
+
+===== STATUS GIT SESSION TEMPLATE =====
+ M src/predixai/mobile_v2/templates/session_setup.html
+
+===== GIT DIFF CHECK =====
+
+DIFF_CHECK_CODE=0
+
+===== LOG DE STOP =====
+Parando PID 67952...
+
+===== LOG DE RESTART =====
+SEM_RESTART_LOG
+
+===== 10 PONTOS DA AUDITORIA =====
+1. Lógica booleana/condicional:
+   OK. Não mexe em observer, sinal, resultado, saldo ou recovery real.
+
+2. Falha silenciosa:
+   OK. HTML servido, tokens visíveis, asset hidden, POST e state foram validados.
+
+3. Rollback planejado:
+   NOT_RUN. Backup fora do repo: /tmp/predixai_backups/20260708_180739_PTP-113C.8.3.4.2_recovery_visual_tela1_pos_c8341_final
+
+4. Checksum de arquivos protegidos:
+   CORE=PASS. app.py, state_store.py e mobile_v2_index.html protegidos.
+
+5. Persistência real:
+   SESSION_CREATE=PASS; STATE=PASS; EXACT=PASS.
+
+6. Estado antes/depois:
+   OK. HEAD, PID, HTTP, checksums e git registrados.
+
+7. Idempotência:
+   OK. Script aborta se marcador C.8.3.4.2 já existir.
+
+8. Git seguro:
+   OK. Sanity check antes do commit.
+
+9. Hash de commit confirmado:
+   HEAD antes registrado. HEAD depois será exibido no terminal.
+
+10. Diff final contra promessa:
+   PASS — nenhum arquivo proibido alterado.
+
+===== OBSERVAÇÃO VISUAL =====
+Este script valida tecnicamente que a Tela 1 voltou a ter conteúdo HTML visível e que a lógica agressiva foi removida.
+O PASS visual ainda depende de print do navegador/celular.
+
+===== PRÓXIMA AÇÃO =====
+Validar /session/setup no navegador e no celular.
+
+FIM DO RELATÓRIO.

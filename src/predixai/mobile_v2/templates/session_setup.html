@@ -322,20 +322,14 @@ form.addEventListener("submit", async (event) => {
     input.value = DEFAULT_ASSET_LABEL;
     input.dataset.ptp113c8341AssetHidden = "true";
 
-    const possibleGroups = [];
-    let el = input;
+    document.querySelectorAll('label[for="asset_label"]').forEach(function (label) {
+      label.style.display = "none";
+    });
 
-    for (let i = 0; i < 4 && el; i += 1) {
-      possibleGroups.push(el);
-      el = el.parentElement;
-    }
-
-    possibleGroups.forEach(function (node) {
-      if (!node || node === document.body || node.tagName === "FORM") return;
-      const text = (node.textContent || "").toLowerCase();
+    document.querySelectorAll("label").forEach(function (label) {
+      const text = (label.textContent || "").toLowerCase();
       if (text.includes("ativo observado")) {
-        node.style.display = "none";
-        node.setAttribute("data-ptp113c8341-asset-visual-hidden", "true");
+        label.style.display = "none";
       }
     });
   }
@@ -486,6 +480,108 @@ form.addEventListener("submit", async (event) => {
 })();
 </script>
 <!-- PTP113C8341_NORMALIZAR_VISUAL_CONTRATO_SESSION_END -->
+
+
+<!-- PTP113C8342_RECOVERY_VISUAL_TELA1_START -->
+<script>
+(function () {
+  function byNameOrId(name) {
+    return document.querySelector('[name="' + name + '"]') || document.getElementById(name);
+  }
+
+  function ensureTela1Visible() {
+    document.documentElement.style.display = "";
+    document.documentElement.style.visibility = "visible";
+    document.documentElement.style.opacity = "1";
+
+    if (document.body) {
+      document.body.style.display = "";
+      document.body.style.visibility = "visible";
+      document.body.style.opacity = "1";
+    }
+
+    ["main", "form", ".top", ".card"].forEach(function (selector) {
+      document.querySelectorAll(selector).forEach(function (el) {
+        el.style.display = "";
+        el.style.visibility = "visible";
+        el.style.opacity = "1";
+      });
+    });
+  }
+
+  function ensureHiddenAssetFieldSafe() {
+    let input = byNameOrId("asset_label");
+
+    if (!input) {
+      const form = document.querySelector("form") || document.body;
+      input = document.createElement("input");
+      input.name = "asset_label";
+      input.id = "asset_label";
+      form.appendChild(input);
+    }
+
+    input.type = "hidden";
+    input.value = "Aguardando leitura";
+    input.dataset.ptp113c8342AssetSafe = "true";
+
+    document.querySelectorAll('label[for="asset_label"]').forEach(function (label) {
+      label.style.display = "none";
+    });
+
+    document.querySelectorAll("label").forEach(function (label) {
+      const text = (label.textContent || "").toLowerCase();
+      if (text.includes("ativo observado")) {
+        label.style.display = "none";
+      }
+    });
+  }
+
+  function ensureObserverNote() {
+    if (document.getElementById("ptp113c8342-recovery-note")) return;
+
+    const note = document.createElement("div");
+    note.id = "ptp113c8342-recovery-note";
+    note.className = "ptp113c8341-observer-note";
+    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, permanece como <strong>Aguardando leitura</strong>.";
+
+    const existing = document.getElementById("ptp113c8341-observer-note");
+    if (existing && existing.parentElement) {
+      existing.parentElement.insertBefore(note, existing.nextSibling);
+      return;
+    }
+
+    const buttons = Array.from(document.querySelectorAll("button, a")).filter(function (el) {
+      return (el.textContent || "").toLowerCase().includes("criar contrato");
+    });
+
+    const target = buttons[0];
+
+    if (target && target.parentElement) {
+      target.parentElement.insertBefore(note, target);
+    } else {
+      const form = document.querySelector("form") || document.body;
+      form.appendChild(note);
+    }
+  }
+
+  function bootRecoveryTela1() {
+    ensureTela1Visible();
+    ensureHiddenAssetFieldSafe();
+    ensureObserverNote();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootRecoveryTela1);
+  } else {
+    bootRecoveryTela1();
+  }
+
+  setTimeout(bootRecoveryTela1, 50);
+  setTimeout(bootRecoveryTela1, 250);
+  setTimeout(bootRecoveryTela1, 700);
+})();
+</script>
+<!-- PTP113C8342_RECOVERY_VISUAL_TELA1_END -->
 
 </body>
 </html>
