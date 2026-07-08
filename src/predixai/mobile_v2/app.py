@@ -56,6 +56,45 @@ def _session_payload_from_request() -> Dict[str, Any]:
     }
 
 
+
+# PTP113C83_CONTRATO_VISUAL_HELPERS_START
+def _ptp113c83_money(value):
+    try:
+        if value is None or value == "":
+            return "Não informado"
+        number = float(value)
+        return f"R$ {number:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return str(value)
+
+def _ptp113c83_contract_view(state):
+    state = state or {}
+    config = state.get("config") or {}
+    session = state.get("session") or {}
+    reading = state.get("reading") or {}
+
+    contract = session.get("contract")
+    if not isinstance(contract, dict):
+        contract = {}
+
+    has_contract = bool(contract)
+
+    return {
+        "has_contract": has_contract,
+        "session_status": session.get("status") if has_contract else "Nenhum contrato simulado ativo",
+        "initial_bank": _ptp113c83_money(contract.get("initial_bank") or config.get("initial_bank")),
+        "entry_value": _ptp113c83_money(contract.get("entry_value") or config.get("entry_value")),
+        "profit_target": _ptp113c83_money(contract.get("profit_target") or config.get("profit_target")),
+        "recovery_mode": contract.get("recovery_mode") or config.get("recovery_mode") or "Não informado",
+        "observed_asset": reading.get("asset") or "Sem leitura ativa — Observer OFF",
+        "signal_status": "Aguardando etapa C.8.5",
+        "history_status": "Disponível na etapa C.8.6",
+        "result_status": "Disponível na etapa C.8.7",
+        "dynamic_balance_status": "Disponível na etapa C.8.7",
+    }
+# PTP113C83_CONTRATO_VISUAL_HELPERS_END
+
+
 def create_mobile_v2_app(store: Optional[RuntimeStateStore] = None) -> Flask:
     """Create a standalone Mobile V2 Flask app."""
     app = Flask(__name__)
@@ -113,7 +152,7 @@ def create_mobile_v2_app(store: Optional[RuntimeStateStore] = None) -> Flask:
 
     @app.get("/session/setup")
     def session_setup_screen() -> Any:
-        return render_template("session_setup.html")
+        return render_template("session_setup.html", contract_view=_ptp113c83_contract_view(store.read()))
 
     @app.post("/session/create")
     def session_create() -> Any:
@@ -163,7 +202,7 @@ def create_mobile_v2_app(store: Optional[RuntimeStateStore] = None) -> Flask:
 
     @app.get("/mobile")
     def mobile_screen() -> Any:
-        return render_template("mobile_v2_index.html")
+        return render_template("mobile_v2_index.html", contract_view=_ptp113c83_contract_view(store.read()))
 
     return app
 

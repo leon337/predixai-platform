@@ -138,6 +138,18 @@ credentials_allowed=false
     <strong>Resultado</strong>
     <pre id="output" class="output">Aguardando configuração.</pre>
   </section>
+
+<!-- PTP113C83_CONTRATO_VISUAL_TELA1_START -->
+<section style="margin:12px 0;padding:14px;border-radius:14px;border:1px solid #24405f;background:#101d33;color:#eef6ff">
+  <h3>Prévia do contrato simulado</h3>
+  <p><b>Status:</b> {{ contract_view.session_status }}</p>
+  <p><b>Ativo observado:</b> {{ contract_view.observed_asset }}</p>
+  <p><b>Sinal:</b> {{ contract_view.signal_status }}</p>
+  <p><b>Saldo dinâmico:</b> {{ contract_view.dynamic_balance_status }}</p>
+  <small>PTP 113 C.8.3: visual apenas. Sem Observer, sem sinal, sem histórico e sem cálculo.</small>
+</section>
+<!-- PTP113C83_CONTRATO_VISUAL_TELA1_END -->
+
 </main>
 
 <script>

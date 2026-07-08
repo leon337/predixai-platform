@@ -1,0 +1,81 @@
+PREDIXAI PTP-113C.8.3 — contrato_visual_sessao_simulada
+Data: qua 08 jul 2026 05:30:23 -03
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== INVESTIGAR =====
+Branch: main
+?? reports/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada_SAFE_BUILD.txt
+ee97498 PTP 113 C.8.2.3 validar mobile v2 standalone
+
+===== CHECKSUM ANTES =====
+app.py: 59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78
+state_store.py: 61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848
+mobile_server.py: af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+session_setup.html: 15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517
+mobile_v2_index.html: 51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19
+
+===== ROTAS ANTES =====
+/
+/health
+/mobile
+/observer/start
+/observer/stop
+/session/create
+/session/setup
+/state/current
+/static/<path:filename>
+
+===== AUDITORIA RuntimeStateStore =====
+TOP_KEYS: ['history', 'observer', 'operation', 'reading', 'schema_version', 'session', 'signal', 'status', 'updated_at']
+config = NoneType
+session = {'status': 'not_created', 'simulation_only': True, 'orders_enabled': False, 'real_money_enabled': False, 'auto_click_enabled': False, 'broker_login_enabled': False, 'credentials_allowed': False}
+reading = {'status': 'no_active_reading', 'asset': None, 'price': None, 'captured_at': None, 'source': 'none'}
+
+===== BACKUP =====
+Backup criado: /home/leo/Documentos/GitHub/predixai-platform/backups/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada/src/predixai/mobile_v2/app.py
+Backup criado: /home/leo/Documentos/GitHub/predixai-platform/backups/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada/src/predixai/mobile_v2/templates/session_setup.html
+Backup criado: /home/leo/Documentos/GitHub/predixai-platform/backups/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== PATCH SEGURO =====
+
+===== VALIDAR PYTHON =====
+
+===== VALIDAR TESTES =====
+pytest ausente; usando unittest fallback.
+FAIL: unittest Mobile V2 falhou
+
+===== VALIDAR ENDPOINTS SEM/COM CONTRATO =====
+GET /mobile sem contrato: 500
+fallback sem contrato: False
+observer placeholder: False
+FAIL: validação endpoints falhou
+
+===== ROTAS DEPOIS =====
+/
+/health
+/mobile
+/observer/start
+/observer/stop
+/session/create
+/session/setup
+/state/current
+/static/<path:filename>
+OK: nenhuma rota nova criada.
+
+===== CHECKSUM DEPOIS =====
+state_store.py antes/depois: 61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848 / 61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848
+mobile_server.py antes/depois: af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d / af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+
+===== SEGURANÇA =====
+OK: diff sem start observer/reader e sem liberação real.
+OK: runtime JSON ignorado
+
+===== REGISTRAR =====
+Markdown: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada_SAFE_BUILD.md
+
+===== FECHAR RELATÓRIO ANTES DO COMMIT =====
+Resultado final pré-commit: FAIL
+Relatório: /home/leo/Documentos/GitHub/predixai-platform/reports/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada_SAFE_BUILD.txt
+Markdown: /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_053023_PTP-113C.8.3_contrato_visual_sessao_simulada_SAFE_BUILD.md
+
+===== PUBLICAR =====

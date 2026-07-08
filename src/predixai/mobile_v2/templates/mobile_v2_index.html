@@ -180,6 +180,34 @@
     <h2>Travas simuladas</h2>
     <div id="safety" class="safe">Carregando...</div>
   </section>
+
+<!-- PTP113C83_CONTRATO_VISUAL_TELA2_START -->
+{% if not contract_view.has_contract %}
+<section style="margin:12px 0;padding:14px;border-radius:14px;border:1px solid #8a6b20;background:#1d1a10;color:#eef6ff">
+  <h3>Nenhum contrato simulado ativo</h3>
+  <p>Crie uma sessão simulada antes de acompanhar o painel.</p>
+</section>
+{% endif %}
+
+<section style="margin:12px 0;padding:14px;border-radius:14px;border:1px solid #24405f;background:#101d33;color:#eef6ff">
+  <h3>Contrato atual</h3>
+  <p><b>Status da sessão:</b> {{ contract_view.session_status }}</p>
+  <p><b>Banca inicial:</b> {{ contract_view.initial_bank }}</p>
+  <p><b>Entrada:</b> {{ contract_view.entry_value }}</p>
+  <p><b>Meta:</b> {{ contract_view.profit_target }}</p>
+  <p><b>Recuperação:</b> {{ contract_view.recovery_mode }}</p>
+  <p><b>Ativo observado:</b> {{ contract_view.observed_asset }}</p>
+</section>
+
+<section style="margin:12px 0;padding:14px;border-radius:14px;border:1px solid #24405f;background:#101d33;color:#eef6ff">
+  <h3>Próximas etapas bloqueadas</h3>
+  <p><b>Sinal:</b> {{ contract_view.signal_status }}</p>
+  <p><b>Histórico:</b> {{ contract_view.history_status }}</p>
+  <p><b>Resultado:</b> {{ contract_view.result_status }}</p>
+  <p><b>Saldo dinâmico:</b> {{ contract_view.dynamic_balance_status }}</p>
+</section>
+<!-- PTP113C83_CONTRATO_VISUAL_TELA2_END -->
+
 </main>
 
 <script>
