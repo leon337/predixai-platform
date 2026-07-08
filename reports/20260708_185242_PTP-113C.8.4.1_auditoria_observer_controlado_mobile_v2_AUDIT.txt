@@ -1,0 +1,257 @@
+PREDIXAI BR — PTP-113C.8.4.1 — AUDITORIA OBSERVER CONTROLADO MOBILE V2
+Data: 2026-07-08 18:52:42 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Tipo: AUDIT_ONLY / SEM ALTERAÇÃO DE CÓDIGO
+
+===== 1. IDENTIDADE / SEGURANÇA =====
+OBSERVER_MODE=PAPER/OBSERVER_ONLY
+PROCESSO_SO=NAO
+PIDFILE=NAO
+LOCKFILE=NAO
+LEITURA_REAL=NAO
+ORDEM_REAL=NAO
+AUTO_CLICK=NAO
+
+===== 2. GIT INICIAL =====
+INITIAL_COMMIT=b2f17b9
+?? reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+
+===== 3. DETECTAR BASE_URL =====
+BASE_URL_CONFIRMADA=http://127.0.0.1:5001
+
+===== 4. PROCESSO DA PORTA =====
+PORT=5001
+PID=70763
+CWD=/home/leo/Documentos/GitHub/predixai-platform
+CMDLINE=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+
+===== 5. CHECKSUM BEFORE =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== 6. HTTP ENDPOINTS =====
+/health HTTP=200 FILE=/tmp/predixai_PTP-113C.8.4.1_20260708_185242/_health.out
+/session/setup HTTP=200 FILE=/tmp/predixai_PTP-113C.8.4.1_20260708_185242/_session_setup.out
+/mobile HTTP=200 FILE=/tmp/predixai_PTP-113C.8.4.1_20260708_185242/_mobile.out
+/state/current HTTP=200 FILE=/tmp/predixai_PTP-113C.8.4.1_20260708_185242/_state_current.out
+
+===== 7. PYTHON COMPILE =====
+PY_COMPILE_STATUS=PASS
+
+===== 8. STATE CURRENT =====
+session.status= None
+contract.keys= []
+contract.initial_bank= None
+contract.entry_value= None
+contract.profit_goal= None
+contract.recovery_mode= None
+contract.asset_label= None
+reading.asset= None
+observer.exists= False
+observer.value= None
+
+===== 9. MAPEAR ROTAS OBSERVER/READER SEM EXECUTAR =====
+src/predixai/mobile_v2/routes.py:97:    def observer_start():
+src/predixai/mobile_v2/routes.py:117:                "route": "/observer/start",
+src/predixai/mobile_v2/routes.py:125:    def observer_stop():
+src/predixai/mobile_v2/routes.py:150:                "route": "/observer/stop",
+src/predixai/mobile_v2/routes.py:159:    add_rule("/observer/start", "mobile_v2_observer_start", observer_start, ["POST"])
+src/predixai/mobile_v2/routes.py:160:    add_rule("/observer/stop", "mobile_v2_observer_stop", observer_stop, ["POST"])
+src/predixai/mobile_v2/templates/mobile_v2_index.html:454:  await fetch("/observer/start", {method: "POST"});
+src/predixai/mobile_v2/templates/mobile_v2_index.html:459:  await fetch("/observer/stop", {method: "POST"});
+src/predixai/mobile_v2/app.py:6:- APIs clean: /state/current, /observer/start, /observer/stop
+src/predixai/mobile_v2/app.py:86:                    "POST /observer/start",
+src/predixai/mobile_v2/app.py:87:                    "POST /observer/stop",
+scripts/predixai_trader_mobile_server.py:2265:      const endpoint = checked ? "/api/mobile/reader/stop" : "/api/mobile/reader/start";
+scripts/predixai_trader_mobile_server.py:3174:      const result = await postJson("/api/mobile/observer/start", {
+scripts/predixai_trader_mobile_server.py:3194:      await postJson("/api/mobile/observer/stop", {
+scripts/predixai_trader_mobile_server.py:5072:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py:5076:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py:5082:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py:5090:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py:5169:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py:5175:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py:5180:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py:5300:def _stop_reader() -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py:5610:def _ptp113c2_reader_is_active(state):
+scripts/predixai_trader_mobile_server.py:8174:def _ptp113c72_reader_snapshot(force_refresh=True):
+scripts/predixai_trader_mobile_server.py:8217:def _ptp113c72_start_observer_payload():
+scripts/predixai_trader_mobile_server.py:8253:def _ptp113c72_stop_observer_payload():
+scripts/predixai_trader_mobile_server.py:8292:            def ptp113c72_observer_start():
+scripts/predixai_trader_mobile_server.py:8295:            def ptp113c72_observer_stop():
+scripts/predixai_trader_mobile_server.py:8298:            def ptp113c72_observer_status():
+scripts/predixai_trader_mobile_server.py:8301:            for rule in ("/api/mobile/observer/start", "/api/mobile/reader/start", "/mobile/reader/start"):
+scripts/predixai_trader_mobile_server.py:8312:            for rule in ("/api/mobile/observer/stop", "/api/mobile/reader/stop", "/mobile/reader/stop"):
+scripts/predixai_trader_mobile_server.py:8323:            for rule in ("/api/mobile/observer/status", "/api/mobile/reader/status"):
+scripts/predixai_trader_app.py:387:    def stop_reader(self):
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2635:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2639:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2645:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2653:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2732:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2738:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2743:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a41_20260706_162412:2863:def _stop_reader() -> dict[str, Any]:
+scripts/predixai_trader_compact_app.py:197:    def start_reader_1s(self) -> None:
+scripts/predixai_trader_compact_app.py:235:    def stop_reader(self) -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2635:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2639:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2645:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2653:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2732:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2738:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2743:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b2_20260706_144117:2863:def _stop_reader() -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2635:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2639:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2645:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2653:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2732:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2738:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2743:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a4_20260706_162138:2863:def _stop_reader() -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2635:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2639:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2645:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2653:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2732:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2738:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2743:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a_20260706_155001:2863:def _stop_reader() -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2635:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2639:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2645:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2653:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2732:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2738:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2743:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_20260706_155206:2863:def _stop_reader() -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2635:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2639:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2645:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2653:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2732:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2738:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2743:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a3_20260706_160659:2863:def _stop_reader() -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2635:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2639:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2645:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2653:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2732:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2738:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2743:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b31a1_v2_20260706_155334:2863:def _stop_reader() -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2635:def _reader_running() -> bool:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2639:def _clear_reader_process_cache() -> None:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2645:def _reader_interval_from_processes(processes: list[dict[str, Any]]) -> int:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2653:def _active_reader_processes(*, force_refresh: bool = False) -> list[dict[str, Any]]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2732:def _reader_warning(processes: list[dict[str, Any]]) -> str:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2738:def _start_reader(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2743:def _start_reader_locked(interval: Any) -> dict[str, Any]:
+scripts/predixai_trader_mobile_server.py.backup_ptp113b23_pre_20260706_150659:2863:def _stop_reader() -> dict[str, Any]:
+
+===== 10. TEMPLATE LOCAL VS SERVIDO =====
+LOCAL_ATIVO_OBSERVADO_COUNT=6
+SERVED_ATIVO_OBSERVADO_COUNT=6
+LOCAL_ASSET_LABEL_COUNT=11
+SERVED_ASSET_LABEL_COUNT=11
+
+===== 11. BUSCA DE BUGS COMUNS =====
+--- bool/string truthy ---
+src/predixai/mobile_v2/templates/mobile_v2_index.html:533:    if (statusEl) statusEl.textContent = label(statusLabels, session.status, "Não configurada");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:534:    if (pillEl) pillEl.textContent = session.status === "configured" ? "Configurada" : label(statusLabels, session.status, "Pendente");
+--- duplicidade JS/renderizadores ---
+src/predixai/mobile_v2/templates/session_setup.html:117:      <label>Ativo observado</label>
+src/predixai/mobile_v2/templates/session_setup.html:118:      <input type="hidden" name="asset_label" value="Aguardando leitura" data-ptp113c8341-asset-hidden="true">
+src/predixai/mobile_v2/templates/session_setup.html:175:  .ptp113c8341-observer-note {
+src/predixai/mobile_v2/templates/session_setup.html:311:    let input = byNameOrId("asset_label");
+src/predixai/mobile_v2/templates/session_setup.html:316:      input.name = "asset_label";
+src/predixai/mobile_v2/templates/session_setup.html:317:      input.id = "asset_label";
+src/predixai/mobile_v2/templates/session_setup.html:325:    document.querySelectorAll('label[for="asset_label"]').forEach(function (label) {
+src/predixai/mobile_v2/templates/session_setup.html:338:    if (document.getElementById("ptp113c8341-observer-note")) return;
+src/predixai/mobile_v2/templates/session_setup.html:341:    note.id = "ptp113c8341-observer-note";
+src/predixai/mobile_v2/templates/session_setup.html:342:    note.className = "ptp113c8341-observer-note";
+src/predixai/mobile_v2/templates/session_setup.html:343:    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, o contrato usa <strong>Aguardando leitura</strong>.";
+src/predixai/mobile_v2/templates/session_setup.html:391:  function renderContractSummary(payload) {
+src/predixai/mobile_v2/templates/session_setup.html:408:      "<div>Ativo observado: <strong>Aguardando leitura do observer</strong></div>" +
+src/predixai/mobile_v2/templates/session_setup.html:436:            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 50);
+src/predixai/mobile_v2/templates/session_setup.html:437:            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 250);
+src/predixai/mobile_v2/templates/session_setup.html:438:            setTimeout(function () { renderContractSummary(payload); formatMoneyFields(); }, 700);
+src/predixai/mobile_v2/templates/session_setup.html:476:    document.addEventListener("DOMContentLoaded", boot);
+src/predixai/mobile_v2/templates/session_setup.html:513:    let input = byNameOrId("asset_label");
+src/predixai/mobile_v2/templates/session_setup.html:518:      input.name = "asset_label";
+src/predixai/mobile_v2/templates/session_setup.html:519:      input.id = "asset_label";
+src/predixai/mobile_v2/templates/session_setup.html:527:    document.querySelectorAll('label[for="asset_label"]').forEach(function (label) {
+src/predixai/mobile_v2/templates/session_setup.html:544:    note.className = "ptp113c8341-observer-note";
+src/predixai/mobile_v2/templates/session_setup.html:545:    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, permanece como <strong>Aguardando leitura</strong>.";
+src/predixai/mobile_v2/templates/session_setup.html:547:    const existing = document.getElementById("ptp113c8341-observer-note");
+src/predixai/mobile_v2/templates/session_setup.html:574:    document.addEventListener("DOMContentLoaded", bootRecoveryTela1);
+src/predixai/mobile_v2/templates/mobile_v2_index.html:114:        <div id="observerStatus" class="value status-off">Carregando...</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:118:        <div id="observerRunning" class="value">-</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:122:      <button class="start" onclick="observerStart()">Ligar controle simulado</button>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:123:      <button class="stop" onclick="observerStop()">Desligar controle simulado</button>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:204:      <span>Ativo observado</span>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:369:  function render(payload) {
+src/predixai/mobile_v2/templates/mobile_v2_index.html:383:    byId("ptp113c834-asset").textContent = safeText(contract.asset_label, "Aguardando leitura");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:400:    .then(render)
+src/predixai/mobile_v2/templates/mobile_v2_index.html:422:  const observer = state.observer || {};
+src/predixai/mobile_v2/templates/mobile_v2_index.html:428:  document.getElementById("observerStatus").textContent = text(observer.status);
+src/predixai/mobile_v2/templates/mobile_v2_index.html:429:  document.getElementById("observerRunning").textContent = observer.running ? "SIM" : "NÃO";
+src/predixai/mobile_v2/templates/mobile_v2_index.html:453:async function observerStart() {
+src/predixai/mobile_v2/templates/mobile_v2_index.html:454:  await fetch("/observer/start", {method: "POST"});
+src/predixai/mobile_v2/templates/mobile_v2_index.html:458:async function observerStop() {
+src/predixai/mobile_v2/templates/mobile_v2_index.html:459:  await fetch("/observer/stop", {method: "POST"});
+src/predixai/mobile_v2/templates/mobile_v2_index.html:487:    "ON_WAITING_SOURCE": "Aguardando leitura do observer",
+src/predixai/mobile_v2/templates/mobile_v2_index.html:574:    document.addEventListener("DOMContentLoaded", refresh);
+src/predixai/mobile_v2/templates/mobile_v2_index.html:579:  const observer = new MutationObserver(function () {
+src/predixai/mobile_v2/templates/mobile_v2_index.html:583:  observer.observe(document.documentElement, {
+
+===== 12. RUNTIME FORA DO GIT =====
+.gitignore:233:data/runtime/	data/runtime/
+
+===== 13. NÃO ANTECIPAR C.8.5/C.8.6/C.8.7 =====
+src/predixai/mobile_v2/state_store.py:66:            "price": None,
+src/predixai/mobile_v2/state_store.py:79:        "signal": {
+src/predixai/mobile_v2/state_store.py:91:        "history": {
+src/predixai/mobile_v2/state_store.py:105:    "signal",
+src/predixai/mobile_v2/state_store.py:107:    "history",
+src/predixai/mobile_v2/state_store.py:123:    for key in ("observer", "reading", "session", "signal", "operation", "history"):
+src/predixai/mobile_v2/routes.py:137:            state["reading"]["price"] = None
+src/predixai/mobile_v2/routes.py:140:            state["signal"]["status"] = "aguardando_leitura"
+src/predixai/mobile_v2/routes.py:141:            state["signal"]["direction"] = "NEUTRO"
+src/predixai/mobile_v2/routes.py:142:            state["signal"]["confidence"] = None
+src/predixai/mobile_v2/templates/session_setup.html:93:    <p>Configuração simulada da sessão. Esta tela não usa saldo real, não faz login e não executa ordem.</p>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:138:        <div id="price" class="value">-</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:156:        <div id="signalStatus" class="value">-</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:160:        <div id="signalDirection" class="value">-</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:164:        <div id="signalConfidence" class="value">-</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:168:        <div id="signalStrategy" class="value">-</div>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:176:    <p id="historyBox">Histórico operacional ainda não implementado nesta PTP.</p>
+src/predixai/mobile_v2/templates/mobile_v2_index.html:424:  const signal = state.signal || {};
+src/predixai/mobile_v2/templates/mobile_v2_index.html:426:  const history = state.history || {};
+src/predixai/mobile_v2/templates/mobile_v2_index.html:432:  document.getElementById("price").textContent = text(reading.price, "Sem leitura ativa");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:436:  document.getElementById("signalStatus").textContent = text(signal.status, "aguardando_leitura");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:437:  document.getElementById("signalDirection").textContent = text(signal.direction, "NEUTRO");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:438:  document.getElementById("signalConfidence").textContent = text(signal.confidence, "-");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:439:  document.getElementById("signalStrategy").textContent = text(signal.strategy, "-");
+src/predixai/mobile_v2/templates/mobile_v2_index.html:441:  document.getElementById("historyBox").textContent =
+src/predixai/mobile_v2/templates/mobile_v2_index.html:442:    "Placeholder futuro. Eventos registrados: " + text(history.count, "0");
+src/predixai/mobile_v2/app.py:155:                "signal_generation": False,
+src/predixai/mobile_v2/app.py:156:                "history_recording": False,
+
+===== 14. CHECKSUM AFTER / DIFF =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+CODE_DIFF_STATUS=UNCHANGED_PASS
+
+===== 15. RESULTADO FINAL =====
+RESULTADO_FINAL=AUDIT_PASS
+IMPLEMENTACAO=NAO
+CODIGO_APP_ALTERADO=NAO
+DOCS_ALTERADOS=SIM
+
