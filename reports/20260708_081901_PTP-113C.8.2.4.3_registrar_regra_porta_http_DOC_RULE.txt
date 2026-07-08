@@ -1,0 +1,76 @@
+PREDIXAI BR — PTP-113C.8.2.4.3 — Registrar Regra de Porta HTTP
+Data: 2026-07-08 08:19:01 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Tipo: DOCUMENTAÇÃO / GOVERNANÇA / SEM ALTERAÇÃO DE CÓDIGO
+Objetivo: registrar regra para auditorias HTTP não assumirem porta pelo histórico.
+
+===== 1. GIT — ESTADO INICIAL =====
+?? reports/20260708_081901_PTP-113C.8.2.4.3_registrar_regra_porta_http_DOC_RULE.txt
+
+25c6e5c PTP 113 C.8.2.4.2 validar HTTP mobile v2 porta 5001
+14f1a0b PTP 113 C.8.2.4 auditoria estrutural mobile v2
+b3ddbe5 PTP 113 C.8.3.1 recovery contrato visual mobile v2
+d9491fd PTP 113 C.8.3 registrar falha contrato visual
+ee97498 PTP 113 C.8.2.3 validar mobile v2 standalone
+e83682f PTP 113 C.8.2.2.1 registrar PASS visual telas mobile v2
+
+===== 2. CHECKSUM ANTES — ARQUIVOS PROTEGIDOS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== 3. CONTEXTO DA REGRA =====
+A auditoria PTP 113 C.8.2.4 testou endpoints em http://127.0.0.1:8766.
+O serviço real informado pelo Leo estava em http://127.0.0.1:5001/mobile.
+A validação posterior PTP 113 C.8.2.4.2 confirmou PASS_VALIDATION na porta 5001.
+
+Conclusão:
+- 8766 foi premissa incorreta por histórico.
+- 5001 era a porta real ativa do Mobile V2 naquele momento.
+- Falha de conexão em porta não confirmada deve ser classificada como SERVER_NOT_RUNNING ou PORTA_NAO_CONFIRMADA.
+- Não deve ser classificada automaticamente como falha do app.
+
+===== 4. REGRA OFICIAL REGISTRADA =====
+REGRA — Auditoria HTTP PredixAI BR
+
+Nunca assumir porta pelo histórico.
+
+Antes de qualquer validação HTTP:
+1. detectar porta ativa quando possível;
+2. aceitar BASE_URL configurável;
+3. registrar BASE_URL no relatório;
+4. testar a porta real informada pelo Leo;
+5. se houver dúvida, testar portas candidatas, como 5001 e 8766;
+6. se nenhuma porta responder, classificar como SERVER_NOT_RUNNING ou PORTA_NAO_CONFIRMADA;
+7. não classificar como falha do app sem servidor confirmado;
+8. diferenciar:
+   - conexão recusada/HTTP 000 = porta/servidor não confirmado;
+   - HTTP 4xx = rota, método ou contrato possivelmente incorreto;
+   - HTTP 5xx = possível falha do app;
+   - HTTP 200/201 = endpoint saudável.
+
+===== 5. VALIDAÇÃO DOCUMENTAL =====
+OK: esta etapa não altera código do Mobile V2.
+OK: esta etapa registra regra operacional em relatório, Markdown histórico, fonte operacional e índice.
+
+===== 6. CHECKSUM DEPOIS — ARQUIVOS PROTEGIDOS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== 7. COMPARAÇÃO DE CHECKSUM =====
+OK: arquivos protegidos não foram alterados.
+
+===== 8. DIFF FINAL CONTRA A PROMESSA =====
+?? reports/20260708_081901_PTP-113C.8.2.4.3_registrar_regra_porta_http_DOC_RULE.txt
+
+PROMESSA: DOCUMENTAÇÃO / GOVERNANÇA / SEM ALTERAÇÃO DE CÓDIGO.
+OK: nenhum arquivo protegido aparece alterado no git status.
+
+===== 9. RESULTADO =====
+RESULTADO_FINAL: PASS_DOC_RULE
+CÓDIGO ALTERADO: NÃO
+REGRA_REGISTRADA: SIM
+PRÓXIMA AÇÃO: colar relatório no chat
