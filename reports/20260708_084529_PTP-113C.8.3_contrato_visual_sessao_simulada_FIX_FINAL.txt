@@ -1,0 +1,355 @@
+PREDIXAI BR — PTP-113C.8.3 — Contrato Visual da Sessão Simulada — Script Final
+Data: 2026-07-08 08:45:29 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Tipo: FIX/UX controlado com rollback automático
+Regra: alterar mobile_v2_index.html somente se PASS_FIX
+Backup: fora do repositório em /tmp/predixai_backups/20260708_084529_PTP-113C.8.3_contrato_visual_sessao_simulada
+Regra HTTP: não assumir porta pelo histórico
+
+===== INVESTIGAR — 1. GIT ESTADO INICIAL =====
+OK: git limpo antes do relatório atual.
+
+bdea502 PTP 113 C.8.2.4.3 registrar regra porta HTTP
+25c6e5c PTP 113 C.8.2.4.2 validar HTTP mobile v2 porta 5001
+14f1a0b PTP 113 C.8.2.4 auditoria estrutural mobile v2
+b3ddbe5 PTP 113 C.8.3.1 recovery contrato visual mobile v2
+d9491fd PTP 113 C.8.3 registrar falha contrato visual
+ee97498 PTP 113 C.8.2.3 validar mobile v2 standalone
+e83682f PTP 113 C.8.2.2.1 registrar PASS visual telas mobile v2
+19a2886 PTP 113 C.8.2.2 criar telas minimas mobile v2
+
+===== INVESTIGAR — 2. DETECTAR BASE_URL =====
+BASE_URL_CONFIRMADA=http://127.0.0.1:5001
+
+===== INVESTIGAR — 3. CHECKSUM ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== INVESTIGAR — 4. SINTAXE PYTHON =====
+OK: app.py compila.
+OK: state_store.py compila.
+
+===== INVESTIGAR — 5. USOS PROIBIDOS ANTES =====
+OK: profit_target não encontrado.
+OK: bool(session.status) não encontrado.
+
+===== PLANEJAR — 6. BACKUP FORA DO REPOSITÓRIO =====
+Backup criado: /tmp/predixai_backups/20260708_084529_PTP-113C.8.3_contrato_visual_sessao_simulada/mobile_v2_index.html.bak
+
+===== PLANEJAR — 7. IDEMPOTÊNCIA ANTES DO PATCH =====
+START_BEFORE=0
+END_BEFORE=0
+CARD_BEFORE=0
+
+===== CONSTRUIR — 8. APLICAR PATCH VISUAL ÚNICO =====
+OK: bloco C.8.3 inserido antes de </main>.
+
+===== VALIDAR — 9. VALIDAÇÃO DO TEMPLATE LOCAL =====
+START_COUNT=1
+END_COUNT=1
+CARD_COUNT=1
+OK: marcador/card C.8.3 único no template local.
+OK: template contém trava visual: simulation_only
+OK: template contém trava visual: orders_enabled
+OK: template contém trava visual: real_money_enabled
+OK: template contém trava visual: auto_click_enabled
+OK: template contém trava visual: broker_login_enabled
+OK: template contém trava visual: credentials_allowed
+
+===== VALIDAR — 10. HTTP, PERSISTÊNCIA E HTML SERVIDO =====
+
+===== HTTP GET /health =====
+URL=http://127.0.0.1:5001/health
+HTTP_CODE=200
+RC=0
+OK: endpoint respondeu.
+--- BODY PREVIEW ---
+{
+    "legacy_mobile_server": false,
+    "mobile_v2": true,
+    "observer_real_started": false,
+    "ok": true,
+    "simulation_only": true,
+    "standalone": true
+}
+
+===== HTTP GET /session/setup =====
+URL=http://127.0.0.1:5001/session/setup
+HTTP_CODE=200
+RC=0
+OK: endpoint respondeu.
+--- BODY PREVIEW ---
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PredixAI Mobile V2 — Tela 1</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #071018;
+      --card: #101d2a;
+      --line: #23364a;
+      --text: #e8f3ff;
+      --muted: #9db2c8;
+      --accent: #32d3ff;
+      --warn: #ffd166;
+      --ok: #69f0ae;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #12344a 0, var(--bg) 42%);
+      color: var(--text);
+    }
+    main {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      padding: 16px;
+    }
+    .top {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.92);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    h1 { font-size: 1.35rem; margin: 0 0 6px; }
+    p { color: var(--muted); line-height: 1.45; }
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(16,29,42,.88);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: .9rem;
+      margin: 12px 0 6px;
+    }
+    input, select, button, a.btn {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      padding: 13px;
+      background: #071421;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    button, a.btn {
+      display: block;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 12px;
+      background: linear-gradient(135deg, #0f7ea1, #124f86);
+      border-color: #2b8bb8;
+      font-weight: 700;
+    }
+    .ghost { background: #0c1824; }
+    .safety {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: .82rem;
+      line-height: 1.5;
+      color: var(--ok);
+      overflow-wrap: anywhere;
+    }
+
+===== POST /session/create — persistência real =====
+URL=http://127.0.0.1:5001/session/create
+HTTP_CODE=200
+RC=0
+--- BODY ---
+{
+    "history_recording": false,
+    "mobile_v2": true,
+    "next_screen": "/mobile",
+    "ok": true,
+    "operation_result": false,
+    "real_money": false,
+    "route": "/session/create",
+    "signal_generation": false,
+    "simulated_contract_only": true,
+    "state": {
+        "history": {
+            "count": 0,
+            "last_event_id": null
+        },
+        "observer": {
+            "last_error": null,
+            "pid": null,
+            "running": false,
+            "started_at": "2026-07-07T23:52:22.627519+00:00",
+            "status": "OFF",
+            "stopped_at": "2026-07-07T23:52:22.734533+00:00"
+        },
+        "operation": {
+            "operation_id": null,
+            "result": null,
+            "status": "none"
+        },
+        "reading": {
+            "asset": null,
+            "captured_at": null,
+            "price": null,
+            "source": "none",
+            "status": "no_active_reading"
+        },
+        "schema_version": "mobile_v2_state_v1",
+        "session": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "configured_at": "2026-07-08T11:45:30.194981+00:00",
+            "contract": {
+                "asset_label": "Aguardando leitura",
+                "entry_value": 5.0,
+                "initial_bank": 100.0,
+                "profit_goal": 10.0,
+                "recovery_mode": "none",
+                "simulation_only": true
+            },
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true,
+            "status": "configured"
+        },
+        "signal": {
+            "confidence": null,
+            "direction": "NEUTRO",
+            "reason": null,
+            "status": "aguardando_leitura",
+            "strategy": null
+        },
+        "status": "session_configured",
+        "updated_at": "2026-07-08T11:45:30.195612+00:00"
+    }
+}
+OK: POST respondeu.
+
+===== VALIDAÇÃO JSON — session.contract =====
+URL=http://127.0.0.1:5001/state/current
+HTTP_CODE=200
+RC=0
+OK: endpoint respondeu.
+session.status = configured
+contract = {'asset_label': 'Aguardando leitura', 'entry_value': 5.0, 'initial_bank': 100.0, 'profit_goal': 10.0, 'recovery_mode': 'none', 'simulation_only': True}
+OK: session.contract persistido com campos obrigatórios.
+
+===== VALIDAÇÃO DO HTML SERVIDO POR /mobile =====
+URL=http://127.0.0.1:5001/mobile
+HTTP_CODE=200
+RC=0
+OK: endpoint respondeu.
+FAIL: HTML servido não contém: PTP113C83_CONTRATO_VISUAL_START
+FAIL: HTML servido não contém: ptp113c83-contract-card
+FAIL: HTML servido não contém: Contrato da Sessão Simulada
+OK: HTML servido contém: simulation_only
+OK: HTML servido contém: orders_enabled
+OK: HTML servido contém: real_money_enabled
+OK: HTML servido contém: auto_click_enabled
+OK: HTML servido contém: broker_login_enabled
+OK: HTML servido contém: credentials_allowed
+
+===== VALIDAR — 11. USOS PROIBIDOS DEPOIS =====
+OK: profit_target não encontrado.
+OK: bool(session.status) não encontrado.
+
+===== VALIDAR — 12. TRAVAS SIMULADAS NO CÓDIGO =====
+src/predixai/mobile_v2/app.py:91:                    "simulation_only": True,
+src/predixai/mobile_v2/app.py:92:                    "orders_enabled": False,
+src/predixai/mobile_v2/app.py:93:                    "real_money_enabled": False,
+src/predixai/mobile_v2/app.py:94:                    "auto_click_enabled": False,
+src/predixai/mobile_v2/app.py:95:                    "broker_login_enabled": False,
+src/predixai/mobile_v2/app.py:96:                    "credentials_allowed": False,
+src/predixai/mobile_v2/app.py:110:                "simulation_only": True,
+src/predixai/mobile_v2/app.py:135:                "simulation_only": True,
+src/predixai/mobile_v2/app.py:138:            session["simulation_only"] = True
+src/predixai/mobile_v2/app.py:139:            session["orders_enabled"] = False
+src/predixai/mobile_v2/app.py:140:            session["real_money_enabled"] = False
+src/predixai/mobile_v2/app.py:141:            session["auto_click_enabled"] = False
+src/predixai/mobile_v2/app.py:142:            session["broker_login_enabled"] = False
+src/predixai/mobile_v2/app.py:143:            session["credentials_allowed"] = False
+src/predixai/mobile_v2/state_store.py:72:            "simulation_only": True,
+src/predixai/mobile_v2/state_store.py:73:            "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:74:            "real_money_enabled": False,
+src/predixai/mobile_v2/state_store.py:75:            "auto_click_enabled": False,
+src/predixai/mobile_v2/state_store.py:76:            "broker_login_enabled": False,
+src/predixai/mobile_v2/state_store.py:77:            "credentials_allowed": False,
+src/predixai/mobile_v2/state_store.py:129:        "simulation_only": True,
+src/predixai/mobile_v2/state_store.py:130:        "orders_enabled": False,
+src/predixai/mobile_v2/state_store.py:131:        "real_money_enabled": False,
+src/predixai/mobile_v2/state_store.py:132:        "auto_click_enabled": False,
+src/predixai/mobile_v2/state_store.py:133:        "broker_login_enabled": False,
+src/predixai/mobile_v2/state_store.py:134:        "credentials_allowed": False,
+src/predixai/mobile_v2/templates/session_setup.html:128:simulation_only=true<br>
+src/predixai/mobile_v2/templates/session_setup.html:129:orders_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:130:real_money_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:131:auto_click_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:132:broker_login_enabled=false<br>
+src/predixai/mobile_v2/templates/session_setup.html:133:credentials_allowed=false
+src/predixai/mobile_v2/templates/mobile_v2_index.html:221:    Segurança: 100% simulado · simulation_only=true · orders_enabled=false · real_money_enabled=false · auto_click_enabled=false · broker_login_enabled=false · credentials_allowed=false
+src/predixai/mobile_v2/templates/mobile_v2_index.html:287:        " · simulation_only=" + safeBool(session.simulation_only) +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:288:        " · orders_enabled=" + safeBool(session.orders_enabled) +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:289:        " · real_money_enabled=" + safeBool(session.real_money_enabled) +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:290:        " · auto_click_enabled=" + safeBool(session.auto_click_enabled) +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:291:        " · broker_login_enabled=" + safeBool(session.broker_login_enabled) +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:292:        " · credentials_allowed=" + safeBool(session.credentials_allowed);
+src/predixai/mobile_v2/templates/mobile_v2_index.html:342:    "simulation_only=" + text(session.simulation_only) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:343:    "orders_enabled=" + text(session.orders_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:344:    "real_money_enabled=" + text(session.real_money_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:345:    "auto_click_enabled=" + text(session.auto_click_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:346:    "broker_login_enabled=" + text(session.broker_login_enabled) + "<br>" +
+src/predixai/mobile_v2/templates/mobile_v2_index.html:347:    "credentials_allowed=" + text(session.credentials_allowed);
+OK: travas simuladas localizadas.
+
+===== VALIDAR — 13. CHECKSUM APÓS PATCH =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+495fef38e76070cbe79d195bb939654b30e5d960170f0fe8e73317fc52f8eb1f  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== ROLLBACK AUTOMÁTICO =====
+OK: backup restaurado em mobile_v2_index.html.
+Validando /mobile após rollback...
+URL=http://127.0.0.1:5001/mobile
+HTTP_CODE=200
+RC=0
+OK: endpoint respondeu.
+OK: /mobile respondeu após rollback.
+
+===== VALIDAR — 14. CHECKSUM FINAL =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== VALIDAR — 15. COMPARAÇÃO DE CHECKSUM CONTROLADA =====
+OK: arquivo protegido sem alteração: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/app.py
+OK: arquivo protegido sem alteração: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/state_store.py
+OK: arquivo protegido sem alteração: /home/leo/Documentos/GitHub/predixai-platform/src/predixai/mobile_v2/templates/session_setup.html
+OK: mobile_v2_index.html sem alteração final.
+
+===== VALIDAR — 16. DIFF FINAL CONTRA A PROMESSA =====
+?? reports/20260708_084529_PTP-113C.8.3_contrato_visual_sessao_simulada_FIX_FINAL.txt
+
+PROMESSA: mobile_v2_index.html só pode ser commitado se PASS_FIX.
+OK: app.py, state_store.py e session_setup.html não foram alterados.
+MOBILE_DIRTY=LIMPO
+
+===== REGISTRAR — 17. RESULTADO =====
+RESULTADO_FINAL: FAIL_ROLLBACK_APPLIED
+BASE_URL: http://127.0.0.1:5001
+PATCH_APLICADO: 1
+ROLLBACK_APLICADO: 1
+ROLLBACK_FALHOU: 0
+BACKUP_TMP: /tmp/predixai_backups/20260708_084529_PTP-113C.8.3_contrato_visual_sessao_simulada/mobile_v2_index.html.bak
+CÓDIGO ALTERADO: mobile_v2_index.html somente se PASS_FIX
+PRÓXIMA AÇÃO: colar relatório no chat
