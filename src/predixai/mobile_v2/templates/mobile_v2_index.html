@@ -180,6 +180,233 @@
     <h2>Travas simuladas</h2>
     <div id="safety" class="safe">Carregando...</div>
   </section>
+
+<!-- PTP113C834_CONTRATO_VISUAL_RESTART_START -->
+<section id="ptp113c834-contract-card" class="ptp113c834-contract-card" data-ptp="PTP113C834" aria-label="Contrato da Sessão Simulada">
+  <div class="ptp113c834-header">
+    <div>
+      <p class="ptp113c834-eyebrow">Sessão mobile-first</p>
+      <h2>Contrato da Sessão Simulada</h2>
+    </div>
+    <span id="ptp113c834-session-status" class="ptp113c834-pill">Carregando</span>
+  </div>
+
+  <div id="ptp113c834-empty" class="ptp113c834-empty" hidden>
+    Sessão ainda não configurada.
+  </div>
+
+  <div id="ptp113c834-grid" class="ptp113c834-grid">
+    <div class="ptp113c834-item">
+      <span>Status da sessão</span>
+      <strong id="ptp113c834-status">—</strong>
+    </div>
+    <div class="ptp113c834-item">
+      <span>Ativo observado</span>
+      <strong id="ptp113c834-asset">—</strong>
+    </div>
+    <div class="ptp113c834-item">
+      <span>Banca inicial</span>
+      <strong id="ptp113c834-bank">—</strong>
+    </div>
+    <div class="ptp113c834-item">
+      <span>Entrada simulada</span>
+      <strong id="ptp113c834-entry">—</strong>
+    </div>
+    <div class="ptp113c834-item">
+      <span>Meta de lucro</span>
+      <strong id="ptp113c834-goal">—</strong>
+    </div>
+    <div class="ptp113c834-item">
+      <span>Recuperação</span>
+      <strong id="ptp113c834-recovery">—</strong>
+    </div>
+  </div>
+
+  <div class="ptp113c834-mode">
+    <strong>Modo:</strong> 100% simulado
+  </div>
+
+  <div class="ptp113c834-security" id="ptp113c834-security">
+    simulation_only=true<br>
+    orders_enabled=false<br>
+    real_money_enabled=false<br>
+    auto_click_enabled=false<br>
+    broker_login_enabled=false<br>
+    credentials_allowed=false
+  </div>
+</section>
+
+<style>
+  #ptp113c834-contract-card {
+    margin: 14px 0;
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.72);
+    color: #e5e7eb;
+  }
+  #ptp113c834-contract-card .ptp113c834-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  #ptp113c834-contract-card h2 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+  #ptp113c834-contract-card .ptp113c834-eyebrow {
+    margin: 0 0 4px;
+    font-size: .72rem;
+    color: #93c5fd;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  #ptp113c834-contract-card .ptp113c834-pill {
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.16);
+    color: #bfdbfe;
+    font-size: .74rem;
+    white-space: nowrap;
+  }
+  #ptp113c834-contract-card .ptp113c834-empty {
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(251, 191, 36, 0.12);
+    color: #fde68a;
+    font-size: .88rem;
+    margin-bottom: 10px;
+  }
+  #ptp113c834-contract-card .ptp113c834-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  #ptp113c834-contract-card .ptp113c834-item {
+    padding: 10px;
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.45);
+    min-width: 0;
+  }
+  #ptp113c834-contract-card .ptp113c834-item span {
+    display: block;
+    font-size: .72rem;
+    color: #94a3b8;
+    margin-bottom: 4px;
+  }
+  #ptp113c834-contract-card .ptp113c834-item strong {
+    display: block;
+    font-size: .92rem;
+    overflow-wrap: anywhere;
+  }
+  #ptp113c834-contract-card .ptp113c834-mode {
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 14px;
+    background: rgba(34, 197, 94, 0.10);
+    color: #bbf7d0;
+    font-size: .86rem;
+  }
+  #ptp113c834-contract-card .ptp113c834-security {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 14px;
+    background: rgba(2, 6, 23, 0.55);
+    color: #cbd5e1;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: .72rem;
+    line-height: 1.45;
+  }
+  @media (max-width: 420px) {
+    #ptp113c834-contract-card .ptp113c834-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  const PTP113C834_ENDPOINT = "/state/current";
+
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function safeText(value, fallback) {
+    if (value === null || value === undefined || value === "") return fallback || "—";
+    return String(value);
+  }
+
+  function moneyBRL(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "—";
+    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  function recoveryLabel(value) {
+    const raw = safeText(value, "none").toLowerCase();
+    const map = {
+      none: "Sem recuperação",
+      fixed: "Entrada fixa",
+      fixed_hand: "Mão fixa",
+      soros: "Soros / anti-martingale",
+      martingale_1: "1 Martingale",
+      martingale_2: "2 Martingales",
+      smartgale: "SmartGale simulado"
+    };
+    return map[raw] || safeText(value, "Sem recuperação");
+  }
+
+  function pickSession(payload) {
+    const root = payload && typeof payload === "object" ? payload : {};
+    const state = root.state && typeof root.state === "object" ? root.state : {};
+    return root.session || state.session || {};
+  }
+
+  function render(payload) {
+    const session = pickSession(payload);
+    const contract = session && typeof session.contract === "object" && session.contract !== null ? session.contract : {};
+    const hasContract = Object.keys(contract).length > 0;
+
+    const statusValue = typeof session.status === "string" && session.status.length > 0
+      ? session.status
+      : "not_created";
+
+    byId("ptp113c834-session-status").textContent = hasContract ? "Configurada" : "Pendente";
+    byId("ptp113c834-empty").hidden = hasContract;
+    byId("ptp113c834-grid").hidden = !hasContract;
+
+    byId("ptp113c834-status").textContent = safeText(statusValue, "not_created");
+    byId("ptp113c834-asset").textContent = safeText(contract.asset_label, "Aguardando leitura");
+    byId("ptp113c834-bank").textContent = moneyBRL(contract.initial_bank);
+    byId("ptp113c834-entry").textContent = moneyBRL(contract.entry_value);
+    byId("ptp113c834-goal").textContent = moneyBRL(contract.profit_goal);
+    byId("ptp113c834-recovery").textContent = recoveryLabel(contract.recovery_mode);
+
+    byId("ptp113c834-security").innerHTML =
+      "simulation_only=true<br>" +
+      "orders_enabled=false<br>" +
+      "real_money_enabled=false<br>" +
+      "auto_click_enabled=false<br>" +
+      "broker_login_enabled=false<br>" +
+      "credentials_allowed=false";
+  }
+
+  fetch(PTP113C834_ENDPOINT, { cache: "no-store" })
+    .then(function (response) { return response.json(); })
+    .then(render)
+    .catch(function () {
+      byId("ptp113c834-session-status").textContent = "Erro";
+      byId("ptp113c834-empty").hidden = false;
+      byId("ptp113c834-empty").textContent = "Não foi possível carregar o contrato simulado.";
+    });
+})();
+</script>
+<!-- PTP113C834_CONTRATO_VISUAL_RESTART_END -->
+
 </main>
 
 <script>

@@ -155,3 +155,8 @@
   - Relatório: `reports/20260708_135748_PTP-113C.8.3.3_restart_revalidar_template_5001_VALIDATION_REVISED.txt`
   - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260708_135748_PTP-113C.8.3.3_restart_revalidar_template_5001_VALIDATION_REVISED.md`
   - Base URL: `http://127.0.0.1:5001`
+
+- 2026-07-08 14:48:46 -0300 — PTP-113C.8.3.4 — contrato_visual_restart_controlado — PASS_FIX
+  - Relatório: `reports/20260708_144843_PTP-113C.8.3.4_contrato_visual_restart_controlado_FIX_FINAL.txt`
+  - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260708_144843_PTP-113C.8.3.4_contrato_visual_restart_controlado_FIX_FINAL.md`
+  - Base URL: `http://127.0.0.1:5001`

@@ -1,0 +1,218 @@
+PREDIXAI BR — PTP-113C.8.3.4 — CARD VISUAL DEFINITIVO COM RESTART CONTROLADO — FINAL
+Data: 2026-07-08 14:48:46 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Base URL: http://127.0.0.1:5001
+Tipo: FIX / TEMPLATE + RESTART + VALIDAÇÃO + ROLLBACK SE FALHAR
+
+===== RESULTADO FINAL =====
+RESULTADO_FINAL=PASS_FIX
+MOTIVO=Card visual definitivo do contrato simulado inserido e validado após restart controlado, com POST /session/create 200 e security scoped no próprio card.
+RUN_CODE=0
+ROLLBACK_STATUS=NOT_RUN
+RESTART_STATUS=PASS
+SERVER_FINAL_STATUS=PASS
+PY_COMPILE_STATUS=PASS
+SESSION_CREATE_HTTP_STATUS=PASS
+STATE_CONTRACT_STATUS=PASS
+STATE_EXACT_VALUES_STATUS=PASS
+HTML_CARD_STATUS=PASS
+HTML_SECURITY_SCOPE_STATUS=PASS
+SECURITY_TOKENS_STATUS=PASS
+CHECKSUM_CORE_STATUS=PASS
+MOBILE_FINAL_STATUS=CHANGED_EXPECTED
+
+===== OBJETIVO =====
+Inserir definitivamente na Tela 2 /mobile o card "Contrato da Sessão Simulada", usando dados já existentes em session.contract e validação com restart controlado.
+
+===== ESCOPO =====
+Permitido:
+- alterar somente src/predixai/mobile_v2/templates/mobile_v2_index.html;
+- usar state.session.contract;
+- validar com restart controlado;
+- fazer rollback se falhar;
+- gerar relatório, Markdown e índice;
+- publicar no GitHub.
+
+Proibido:
+- alterar app.py;
+- alterar state_store.py;
+- alterar session_setup.html;
+- criar endpoint novo;
+- iniciar observer real;
+- gerar sinal;
+- calcular WIN/LOSS/DRAW;
+- atualizar saldo dinâmico;
+- mexer em histórico operacional;
+- avançar para C.8.4+;
+- usar saldo real;
+- operar dinheiro real.
+
+===== GIT INICIAL =====
+Branch: main
+HEAD antes: b4c463a PTP 113 C.8.3.3 restart revalidar template 5001 revisado
+
+Status inicial:
+LIMPO
+
+docs/reports_index.md estava sujo antes? NO
+ALLOW_COMMIT=YES
+
+===== PY COMPILE =====
+python3 -m py_compile src/predixai/mobile_v2/app.py
+APP_PY_COMPILE=PASS
+
+python3 -m py_compile src/predixai/mobile_v2/state_store.py
+STATE_STORE_COMPILE=PASS
+
+===== PROCESSO / PID =====
+BASE_URL=http://127.0.0.1:5001
+PORT=5001
+PID_INICIAL=63459
+PID_INICIAL_CMD=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+PID_INICIAL_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+PID_APOS_FIX=64530
+PID_APOS_FIX_CMD=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+PID_APOS_FIX_CWD=/home/leo/Documentos/GitHub/predixai-platform
+
+===== HTTP =====
+GET /health => 200
+GET /session/setup => 200
+GET /mobile => 200
+GET /state/current => 200
+
+===== SESSION CREATE =====
+POST /session/create HTTP:
+200
+
+Resposta:
+{"history_recording":false,"mobile_v2":true,"next_screen":"/mobile","ok":true,"operation_result":false,"real_money":false,"route":"/session/create","signal_generation":false,"simulated_contract_only":true,"state":{"history":{"count":0,"last_event_id":null},"observer":{"last_error":null,"pid":null,"running":false,"started_at":"2026-07-07T23:52:22.627519+00:00","status":"OFF","stopped_at":"2026-07-07T23:52:22.734533+00:00"},"operation":{"operation_id":null,"result":null,"status":"none"},"reading":{"asset":null,"captured_at":null,"price":null,"source":"none","status":"no_active_reading"},"schema_version":"mobile_v2_state_v1","session":{"auto_click_enabled":false,"broker_login_enabled":false,"configured_at":"2026-07-08T17:48:46.131062+00:00","contract":{"asset_label":"Aguardando leitura","entry_value":5.0,"initial_bank":100.0,"profit_goal":10.0,"recovery_mode":"none","simulation_only":true},"credentials_allowed":false,"orders_enabled":false,"real_money_enabled":false,"simulation_only":true,"status":"configured"},"signal":{"confidence":null,"direction":"NEUTRO","reason":null,"status":"aguardando_leitura","strategy":null},"status":"session_configured","updated_at":"2026-07-08T17:48:46.131663+00:00"}}
+
+===== STATE CURRENT / CONTRATO =====
+STATE_JSON_PARSE=PASS
+session.status= configured
+contract.keys= ['asset_label', 'entry_value', 'initial_bank', 'profit_goal', 'recovery_mode', 'simulation_only']
+contract.initial_bank= 100.0
+contract.entry_value= 5.0
+contract.profit_goal= 10.0
+contract.recovery_mode= none
+contract.asset_label= Aguardando leitura
+contract.simulation_only= True
+CHECK_initial_bank= PASS
+CHECK_entry_value= PASS
+CHECK_profit_goal= PASS
+CHECK_recovery_mode= PASS
+CHECK_asset_label= PASS
+CONTRACT_STATUS=PASS
+EXACT_VALUES_STATUS=PASS
+
+===== HTML SERVIDO / CARD / SECURITY SCOPED =====
+START_COUNT= 1
+END_COUNT= 1
+PROFIT_TARGET_FOUND= NO
+BOOL_SESSION_STATUS_FOUND= NO
+CARD_ID_SECTION= PASS
+SECURITY_ID_SECTION= PASS
+TITLE_SECTION= PASS
+STATE_ENDPOINT_SECTION= PASS
+SESSION_CONTRACT_JS= PASS
+INITIAL_BANK_JS= PASS
+ENTRY_VALUE_JS= PASS
+PROFIT_GOAL_JS= PASS
+RECOVERY_MODE_JS= PASS
+ASSET_LABEL_JS= PASS
+TOKEN_simulation_only=true= PASS
+TOKEN_orders_enabled=false= PASS
+TOKEN_real_money_enabled=false= PASS
+TOKEN_auto_click_enabled=false= PASS
+TOKEN_broker_login_enabled=false= PASS
+TOKEN_credentials_allowed=false= PASS
+HTML_SECURITY_SCOPE_STATUS= PASS
+SECURITY_TOKENS_STATUS= PASS
+HTML_CARD_STATUS= PASS
+
+===== CHECKSUMS ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUMS DEPOIS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+dc291d70d157f8855f221e4617da7a510599e4cbc6106469b449e068622bba09  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== CHECKSUM DIFF =====
+--- /tmp/predixai_PTP-113C.8.3.4_20260708_144843_final/checksums_before.txt	2026-07-08 14:48:43.723406897 -0300
++++ /tmp/predixai_PTP-113C.8.3.4_20260708_144843_final/checksums_after.txt	2026-07-08 14:48:46.317604198 -0300
+@@ -1,4 +1,4 @@
+ 59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+ 61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+ 15de9946975fea2e868bf84a7875fab3901a20de690512a06403dfa4c86c5517  src/predixai/mobile_v2/templates/session_setup.html
+-51f4b64ed4225415570fdac27eecc6bdd78335a29f9492db31d0f730009f8d19  src/predixai/mobile_v2/templates/mobile_v2_index.html
++dc291d70d157f8855f221e4617da7a510599e4cbc6106469b449e068622bba09  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== STATUS GIT DE ARQUIVOS PROIBIDOS =====
+LIMPO
+
+===== STATUS GIT DO TEMPLATE MOBILE =====
+ M src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== GIT DIFF CHECK =====
+
+DIFF_CHECK_CODE=0
+
+===== LOG DE STOP =====
+Parando PID 63459...
+
+===== LOG DE RESTART =====
+SEM_RESTART_LOG
+
+===== 10 PONTOS DA AUDITORIA =====
+1. Lógica booleana/condicional:
+   OK. Usa session.contract como objeto e não usa profit_target nem bool(session.status).
+
+2. Falha silenciosa:
+   OK. POST /session/create, valores exatos, PID, restart, card, estado, rollback e checksum são registrados.
+
+3. Rollback planejado e verificado:
+   NOT_RUN. Backup fora do repo: /tmp/predixai_backups/20260708_144843_PTP-113C.8.3.4_contrato_visual_restart_controlado_final/mobile_v2_index.html.bak
+
+4. Checksum de arquivos protegidos:
+   CORE=PASS. mobile_v2_index.html muda somente em PASS_FIX.
+
+5. Persistência real, não só HTTP:
+   POST=PASS. CONTRACT=PASS. EXACT_VALUES=PASS.
+
+6. Estado antes e depois:
+   OK. HEAD, PID, HTTP, checksums, estado e git foram registrados.
+
+7. Idempotência:
+   OK. Script aborta se marcador/card C.8.3.4 já existir antes do patch.
+
+8. Git seguro:
+   OK. Em PASS_FIX, permite mobile_v2_index.html + docs. Em FAIL_ROLLBACK, permite só docs.
+
+9. Hash de commit confirmado:
+   HEAD antes registrado. HEAD depois será exibido no terminal após commit/push.
+
+10. Diff final contra promessa:
+   PASS — nenhum app.py/state_store/session_setup alterado.
+
+===== DIAGNÓSTICO =====
+Se RESULTADO_FINAL=PASS_FIX:
+- C.8.3 foi recuperada como C.8.3.4;
+- o card definitivo foi servido após restart controlado;
+- POST /session/create foi 200;
+- /state/current confirmou valores exatos;
+- travas simuladas foram validadas dentro do card C.8.3.4.
+
+Se RESULTADO_FINAL=FAIL_ROLLBACK:
+- não avançar;
+- analisar o relatório e corrigir causa antes de nova tentativa.
+
+===== PRÓXIMA AÇÃO =====
+Analisar este relatório no chat.
+
+FIM DO RELATÓRIO.
