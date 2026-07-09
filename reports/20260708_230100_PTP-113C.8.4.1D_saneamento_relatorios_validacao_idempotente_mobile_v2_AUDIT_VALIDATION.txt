@@ -1,0 +1,88 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP-113C.8.4.1D
+Nome curto: saneamento_relatorios_validacao_idempotente_mobile_v2
+Tipo: AUDIT_VALIDATION
+Código alterado: NÃO
+Data: 2026-07-08 23:01:00 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== GIT INICIAL =====
+HEAD_INICIAL=14c19ed
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_230100_PTP-113C.8.4.1D_saneamento_relatorios_validacao_idempotente_mobile_v2_AUDIT_VALIDATION.txt
+14c19ed PTP-113C.8.4.1C unificar_session_create_state_current_mobile_v2
+3065dae PTP 113 C.8.4.1B auditar payload real formulario mobile v2
+769a96a PTP 113 C.8.4.1A auditar contrato ativo mobile v2
+ff50b7a PTP 113 C.8.4.1 auditar observer controlado mobile v2
+32ba3ac PTP 113 C.8.4.1 auditar observer controlado mobile v2
+b2f17b9 PTP 113 C.8.3.4.2 recovery visual tela 1
+
+===== CHECKSUMS ANTES =====
+APP_SHA_BEFORE=59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78
+STATE_SHA_BEFORE=61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848
+ROUTES_SHA_BEFORE=5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79
+SETUP_TEMPLATE_SHA_BEFORE=699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7
+MOBILE_TEMPLATE_SHA_BEFORE=f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9
+LEGACY_SERVER_SHA_BEFORE=af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+
+===== DIRTY CHECK DE CÓDIGO =====
+CODE_DIRTY=NAO
+
+===== SANEAMENTO DE RELATÓRIOS HERDADOS =====
+HERDADO_FOUND=reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+HERDADO_SIZE_BYTES=24233
+HERDADO_LINES=263
+HERDADO_SHA256=32913b1271f2f268901e1308e49d65a4d1ab68f6db87021e26cf7313c7208dfc
+HERDADO_FOUND=reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+HERDADO_SIZE_BYTES=12463
+HERDADO_LINES=173
+HERDADO_SHA256=19804f8b6c1b3371997cd89c24961e25ce2cb4c1b950a67cb88e0c867a667425
+HERDADO_FOUND=reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+HERDADO_SIZE_BYTES=12555
+HERDADO_LINES=174
+HERDADO_SHA256=4c71684ef1faceec06a8fcb5786ee46015642150991937111891d24240adadb3
+HERDADOS_FOUND=3
+HERDADOS_NONEMPTY=3
+HERDADOS_EMPTY=0
+HERDADOS_MISSING=0
+
+===== BASE URL =====
+BASE_URL=http://127.0.0.1:5001
+PORT=5001
+
+===== SERVIDOR MOBILE V2 =====
+SERVER_STATUS=ALREADY_RUNNING
+
+===== HTTP BÁSICO =====
+GET_HEALTH_HTTP=200
+GET_SESSION_SETUP_HTTP=200
+GET_MOBILE_HTTP=200
+GET_STATE_CURRENT_HTTP=200
+
+===== REGISTRO FINAL =====
+RESULTADO_FINAL=FAIL_HTTP_BASIC
+RELATORIOS_HERDADOS_TRATADOS=PASS
+HTTP_STATUS=FAIL
+IDEMPOTENCIA_A=NOT_RUN
+IDEMPOTENCIA_B=NOT_RUN
+STALE_CONTRACT_A_AFTER_B=UNKNOWN
+CHECKSUM_STATUS=NOT_RUN
+SECURITY_STATUS=NOT_RUN
+GIT_ALLOWED_DIFF_STATUS=NOT_RUN
+
+===== GIT FINAL ANTES DO COMMIT =====
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_230100_PTP-113C.8.4.1D_saneamento_relatorios_validacao_idempotente_mobile_v2_AUDIT_VALIDATION.txt
+
+===== RELATORIO_FECHADO =====
+RELATORIO_TXT=/home/leo/Documentos/GitHub/predixai-platform/reports/20260708_230100_PTP-113C.8.4.1D_saneamento_relatorios_validacao_idempotente_mobile_v2_AUDIT_VALIDATION.txt
+MARKDOWN_HISTORICO=/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_230100_PTP-113C.8.4.1D_saneamento_relatorios_validacao_idempotente_mobile_v2_AUDIT_VALIDATION.md
+INDEX_ATUALIZADO=/home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+OBS=Relatório fechado antes do commit/push. Status final será impresso no terminal.
