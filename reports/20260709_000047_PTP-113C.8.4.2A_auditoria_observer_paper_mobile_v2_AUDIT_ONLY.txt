@@ -1,0 +1,326 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP-113C.8.4.2A
+Nome curto: auditoria_observer_paper_mobile_v2
+Tipo: AUDIT_ONLY
+Data: 2026-07-09 00:00:47 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Código alterado: NÃO
+
+===== GIT INICIAL =====
+HEAD_INICIAL=b174e3f
+BRANCH=main
+
+$ git status --short
+?? reports/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.txt
+
+$ git log -6 --oneline
+b174e3f PTP-113C.8.4.1D.1 recovery_validacao_idempotente_mobile_v2
+ee3c746 PTP-113C.8.4.1D saneamento_relatorios_validacao_idempotente_mobile_v2
+14c19ed PTP-113C.8.4.1C unificar_session_create_state_current_mobile_v2
+3065dae PTP 113 C.8.4.1B auditar payload real formulario mobile v2
+769a96a PTP 113 C.8.4.1A auditar contrato ativo mobile v2
+ff50b7a PTP 113 C.8.4.1 auditar observer controlado mobile v2
+
+===== ARQUIVOS ALVO =====
+FOUND: src/predixai/mobile_v2/app.py
+FOUND: src/predixai/mobile_v2/state_store.py
+FOUND: src/predixai/mobile_v2/routes.py
+FOUND: src/predixai/mobile_v2/templates/session_setup.html
+FOUND: src/predixai/mobile_v2/templates/mobile_v2_index.html
+FOUND: scripts/predixai_trader_mobile_server.py
+
+===== CHECKSUMS ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79  src/predixai/mobile_v2/routes.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d  scripts/predixai_trader_mobile_server.py
+
+===== PY COMPILE =====
+PY_COMPILE_STATUS=PASS
+
+===== DETECÇÃO DE PORTA HTTP =====
+BASE_URL_CONFIRMADA=http://127.0.0.1:5001
+
+===== HTTP BÁSICO =====
+GET /health=200
+GET /session/setup=200
+GET /mobile=200
+GET /state/current=200
+HTTP_STATUS=PASS
+
+===== ESTADO ATUAL /state/current =====
+{
+    "mobile_v2": true,
+    "note": "reading.age_seconds is calculated at response time and is not persisted.",
+    "ok": true,
+    "route": "/state/current",
+    "runtime_persisted": true,
+    "state": {
+        "history": {
+            "count": 0,
+            "last_event_id": null
+        },
+        "observer": {
+            "last_error": null,
+            "pid": null,
+            "running": false,
+            "started_at": "2026-07-08T18:48:51.675036+00:00",
+            "status": "OFF",
+            "stopped_at": "2026-07-08T18:49:13.206158+00:00"
+        },
+        "operation": {
+            "operation_id": null,
+            "result": null,
+            "status": "none"
+        },
+        "reading": {
+            "age_seconds": null,
+            "asset": null,
+            "captured_at": null,
+            "price": null,
+            "source": "none",
+            "status": "no_active_reading"
+        },
+        "schema_version": "mobile_v2_state_v1",
+        "session": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "configured_at": "2026-07-09T02:20:02.748274+00:00",
+            "contract": {
+                "asset_label": "Aguardando leitura",
+                "entry_value": 75.0,
+                "initial_bank": 1500.0,
+                "profit_goal": 300.0,
+                "recovery_mode": "none",
+                "simulation_only": true
+            },
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true,
+            "status": "configured"
+        },
+        "signal": {
+            "confidence": null,
+            "direction": "NEUTRO",
+            "reason": null,
+            "status": "aguardando_leitura",
+            "strategy": null
+        },
+        "status": "session_configured",
+        "updated_at": "2026-07-09T02:20:02.748788+00:00"
+    }
+}
+
+SESSION_STATUS=JSON_ERROR:Expecting value: line 1 column 1 (char 0)
+CONTRACT=JSON_ERROR:Expecting value: line 1 column 1 (char 0)
+OBSERVER_STATUS=JSON_ERROR:Expecting value: line 1 column 1 (char 0)
+OBSERVER_MODE=JSON_ERROR:Expecting value: line 1 column 1 (char 0)
+OBSERVER_RUNNING=JSON_ERROR:Expecting value: line 1 column 1 (char 0)
+SIGNAL_STATUS=JSON_ERROR:Expecting value: line 1 column 1 (char 0)
+OPERATION_STATUS=JSON_ERROR:Expecting value: line 1 column 1 (char 0)
+
+===== ROTAS OBSERVER/READER EXISTENTES =====
+src/predixai/mobile_v2/app.py:6:- APIs clean: /state/current, /observer/start, /observer/stop
+src/predixai/mobile_v2/app.py:86:                    "POST /observer/start",
+src/predixai/mobile_v2/app.py:87:                    "POST /observer/stop",
+src/predixai/mobile_v2/routes.py:117:                "route": "/observer/start",
+src/predixai/mobile_v2/routes.py:150:                "route": "/observer/stop",
+src/predixai/mobile_v2/routes.py:159:    add_rule("/observer/start", "mobile_v2_observer_start", observer_start, ["POST"])
+src/predixai/mobile_v2/routes.py:160:    add_rule("/observer/stop", "mobile_v2_observer_stop", observer_stop, ["POST"])
+
+===== TESTE CONTROLADO DE ROTAS OBSERVER SEM PROCESSO REAL =====
+POST observer start candidate HTTP=200
+POST observer stop candidate HTTP=200
+
+--- STATE AFTER START HEAD ---
+{
+    "mobile_v2": true,
+    "note": "reading.age_seconds is calculated at response time and is not persisted.",
+    "ok": true,
+    "route": "/state/current",
+    "runtime_persisted": true,
+    "state": {
+        "history": {
+            "count": 0,
+            "last_event_id": null
+        },
+        "observer": {
+            "last_error": null,
+            "pid": null,
+            "running": false,
+            "started_at": "2026-07-09T03:00:47.860855+00:00",
+            "status": "ON_WAITING_SOURCE",
+            "stopped_at": null
+        },
+        "operation": {
+            "operation_id": null,
+            "result": null,
+            "status": "none"
+        },
+        "reading": {
+            "age_seconds": null,
+            "asset": null,
+            "captured_at": null,
+            "price": null,
+            "source": "simulated_control_only",
+            "status": "waiting_source"
+        },
+        "schema_version": "mobile_v2_state_v1",
+        "session": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "configured_at": "2026-07-09T02:20:02.748274+00:00",
+            "contract": {
+                "asset_label": "Aguardando leitura",
+                "entry_value": 75.0,
+                "initial_bank": 1500.0,
+                "profit_goal": 300.0,
+                "recovery_mode": "none",
+                "simulation_only": true
+            },
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true,
+            "status": "configured"
+        },
+        "signal": {
+            "confidence": null,
+            "direction": "NEUTRO",
+            "reason": null,
+            "status": "aguardando_leitura",
+            "strategy": null
+        },
+        "status": "observer_waiting_source",
+        "updated_at": "2026-07-09T03:00:47.861539+00:00"
+    }
+}
+
+--- STATE AFTER STOP HEAD ---
+{
+    "mobile_v2": true,
+    "note": "reading.age_seconds is calculated at response time and is not persisted.",
+    "ok": true,
+    "route": "/state/current",
+    "runtime_persisted": true,
+    "state": {
+        "history": {
+            "count": 0,
+            "last_event_id": null
+        },
+        "observer": {
+            "last_error": null,
+            "pid": null,
+            "running": false,
+            "started_at": "2026-07-09T03:00:47.860855+00:00",
+            "status": "OFF",
+            "stopped_at": "2026-07-09T03:00:47.971403+00:00"
+        },
+        "operation": {
+            "operation_id": null,
+            "result": null,
+            "status": "none"
+        },
+        "reading": {
+            "age_seconds": null,
+            "asset": null,
+            "captured_at": null,
+            "price": null,
+            "source": "none",
+            "status": "no_active_reading"
+        },
+        "schema_version": "mobile_v2_state_v1",
+        "session": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "configured_at": "2026-07-09T02:20:02.748274+00:00",
+            "contract": {
+                "asset_label": "Aguardando leitura",
+                "entry_value": 75.0,
+                "initial_bank": 1500.0,
+                "profit_goal": 300.0,
+                "recovery_mode": "none",
+                "simulation_only": true
+            },
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true,
+            "status": "configured"
+        },
+        "signal": {
+            "confidence": null,
+            "direction": "NEUTRO",
+            "reason": null,
+            "status": "aguardando_leitura",
+            "strategy": null
+        },
+        "status": "idle",
+        "updated_at": "2026-07-09T03:00:47.972156+00:00"
+    }
+}
+OBSERVER_ROUTE_STATUS=PASS_ROUTES_EXIST
+
+===== AUDITORIA TEMPLATE — ATIVO OBSERVADO =====
+ATIVO_OBSERVADO_COUNT_SESSION_SETUP_TEMPLATE=4
+ATIVO_OBSERVADO_COUNT_MOBILE_TEMPLATE=1
+ATIVO_OBSERVADO_COUNT_SESSION_SETUP_SERVED=4
+ATIVO_OBSERVADO_COUNT_MOBILE_SERVED=1
+
+===== TRAVAS SIMULADAS =====
+simulation_only=PRESENT
+orders_enabled=PRESENT
+real_money_enabled=PRESENT
+auto_click_enabled=PRESENT
+broker_login_enabled=PRESENT
+credentials_allowed=PRESENT
+SECURITY_STATUS=PASS
+
+===== PROCESSO REAL / PIDFILE / LOCKFILE =====
+PROCESS_RISK_STATUS=WARN_FOUND_PROCESS_TOKENS
+
+===== 10 PONTOS — AUDITORIA DE BUGS PRÉ/PÓS-SCRIPT =====
+1. Lógica booleana/condicional: auditar observer.status/running/mode para não tratar string truthy como estado real.
+2. Falha silenciosa: HTTP parcial ou JSON inválido vira WARN/FAIL explícito.
+3. Rollback planejado: não aplicável, pois esta etapa não altera código.
+4. Checksum de arquivos protegidos: calculado antes/depois.
+5. Persistência real: /state/current capturado antes/depois de start/stop candidato.
+6. Estado antes/depois: STATE CURRENT registrado e comparado por relatório.
+7. Idempotência: start/stop candidato testado sem assumir processo real.
+8. Git seguro: somente reports/docs/reports_index.md serão versionados.
+9. Hash de commit confirmado: HEAD_INICIAL=b174e3f.
+10. Diff final contra promessa: validar que código do app não mudou.
+
+===== CHECKSUMS DEPOIS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79  src/predixai/mobile_v2/routes.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d  scripts/predixai_trader_mobile_server.py
+CHECKSUM_STATUS=PASS
+
+===== DIFF FINAL =====
+
+$ git diff -- src/predixai/mobile_v2/app.py src/predixai/mobile_v2/state_store.py src/predixai/mobile_v2/routes.py src/predixai/mobile_v2/templates/session_setup.html src/predixai/mobile_v2/templates/mobile_v2_index.html scripts/predixai_trader_mobile_server.py
+CODE_DIFF_STATUS=PASS_NO_CODE_DIFF
+
+===== CLASSIFICAÇÃO FINAL =====
+RESULTADO_FINAL=WARN_AUDIT_FINDINGS
+PY_STATUS=PASS
+HTTP_STATUS=PASS
+OBSERVER_ROUTE_STATUS=PASS_ROUTES_EXIST
+SECURITY_STATUS=PASS
+PROCESS_RISK_STATUS=WARN_FOUND_PROCESS_TOKENS
+CHECKSUM_STATUS=PASS
+CODE_DIFF_STATUS=PASS_NO_CODE_DIFF
+
+===== PUBLICAÇÃO =====
+
+$ git add /home/leo/Documentos/GitHub/predixai-platform/reports/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.txt /home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.md /home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md

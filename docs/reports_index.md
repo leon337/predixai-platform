@@ -187,3 +187,7 @@
 | 2026-07-08 22:23:03 -0300 | PTP-113C.8.4.1C | unificar_session_create_state_current_mobile_v2 | FIX_CONTROLADO | PASS_ALREADY_FIXED_NO_CODE_CHANGE | reports/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2_FIX_CONTROLADO.txt | docs/history/ptp/PTP-113/PTP-113C/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2_FIX_CONTROLADO.md |
 | 2026-07-08 23:01:00 -0300 | PTP-113C.8.4.1D | saneamento_relatorios_validacao_idempotente_mobile_v2 | AUDIT_VALIDATION | FAIL_HTTP_BASIC | reports/20260708_230100_PTP-113C.8.4.1D_saneamento_relatorios_validacao_idempotente_mobile_v2_AUDIT_VALIDATION.txt | docs/history/ptp/PTP-113/PTP-113C/20260708_230100_PTP-113C.8.4.1D_saneamento_relatorios_validacao_idempotente_mobile_v2_AUDIT_VALIDATION.md |
 | 2026-07-08 23:20:01 -0300 | PTP-113C.8.4.1D.1 | recovery_validacao_idempotente_mobile_v2 | RECOVERY_VALIDATION | PASS_RECOVERY_VALIDATION | reports/20260708_232001_PTP-113C.8.4.1D.1_recovery_validacao_idempotente_mobile_v2_RECOVERY_VALIDATION.txt | docs/history/ptp/PTP-113/PTP-113C/20260708_232001_PTP-113C.8.4.1D.1_recovery_validacao_idempotente_mobile_v2_RECOVERY_VALIDATION.md |
+
+- 2026-07-09 00:00:48 -0300 — PTP-113C.8.4.2A — auditoria_observer_paper_mobile_v2 — AUDIT_ONLY
+  - Relatório: `reports/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.txt`
+  - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.md`
