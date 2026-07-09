@@ -1,0 +1,105 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP-113C.8.4.1C
+Nome curto: unificar_session_create_state_current_mobile_v2
+Tipo: FIX_CONTROLADO
+Data: 2026-07-08 22:23:03 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== GIT INICIAL =====
+HEAD_INICIAL=3065dae
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2_FIX_CONTROLADO.txt
+3065dae PTP 113 C.8.4.1B auditar payload real formulario mobile v2
+769a96a PTP 113 C.8.4.1A auditar contrato ativo mobile v2
+ff50b7a PTP 113 C.8.4.1 auditar observer controlado mobile v2
+32ba3ac PTP 113 C.8.4.1 auditar observer controlado mobile v2
+b2f17b9 PTP 113 C.8.3.4.2 recovery visual tela 1
+
+===== ARQUIVOS ALVO =====
+FOUND=src/predixai/mobile_v2/app.py
+FOUND=src/predixai/mobile_v2/state_store.py
+FOUND=src/predixai/mobile_v2/routes.py
+FOUND=src/predixai/mobile_v2/templates/session_setup.html
+FOUND=src/predixai/mobile_v2/templates/mobile_v2_index.html
+FOUND=scripts/predixai_trader_mobile_server.py
+
+===== CHECKSUMS ANTES =====
+APP_SHA_BEFORE=59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78
+STATE_SHA_BEFORE=61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848
+ROUTES_SHA_BEFORE=5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79
+SESSION_SETUP_SHA_BEFORE=699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7
+MOBILE_TEMPLATE_SHA_BEFORE=f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9
+LEGACY_SERVER_SHA_BEFORE=af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d
+
+===== DIRTY CHECK DOS ARQUIVOS DE CÓDIGO =====
+TARGET_DIRTY=NAO
+
+===== BACKUP =====
+BACKUP_OK=/tmp/predixai_backups/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2/src/predixai/mobile_v2/app.py
+BACKUP_OK=/tmp/predixai_backups/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2/src/predixai/mobile_v2/state_store.py
+BACKUP_OK=/tmp/predixai_backups/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2/src/predixai/mobile_v2/routes.py
+BASE_URL=http://127.0.0.1:5001
+PORT=5001
+
+===== VERIFICAÇÃO DE PORTA =====
+PID_PORT_5001=70763
+CMD_PORT_5001=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+SERVER_OWNERSHIP_PRE=PID_PORT_5001=70763
+CMD_PORT_5001=/home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python scripts/run_mobile_v2_server.py 
+SAFE_RESTART_ALLOWED
+HEALTH_PRE=PASS
+
+===== TESTE CONTRATO PRE_A =====
+HTTP_BEFORE=200
+HTTP_POST=200
+HTTP_AFTER=200
+PASS=1
+POST_SESSION_STATUS="configured"
+AFTER_SESSION_STATUS="configured"
+POST_CONTRACT_INITIAL_BANK=1000.0
+AFTER_CONTRACT_INITIAL_BANK=1000.0
+POST_CONTRACT_ENTRY_VALUE=50.0
+AFTER_CONTRACT_ENTRY_VALUE=50.0
+POST_CONTRACT_PROFIT_GOAL=250.0
+AFTER_CONTRACT_PROFIT_GOAL=250.0
+POST_CONTRACT_RECOVERY_MODE="soros"
+AFTER_CONTRACT_RECOVERY_MODE="soros"
+POST_CONTRACT_ASSET_LABEL="Aguardando leitura"
+AFTER_CONTRACT_ASSET_LABEL="Aguardando leitura"
+POST_HAS_CONTRACT=1
+AFTER_HAS_CONTRACT=1
+POST_STATUS_CONFIGURED=1
+AFTER_STATUS_CONFIGURED=1
+AFTER_INITIAL_BANK_OK=1
+AFTER_ENTRY_VALUE_OK=1
+AFTER_PROFIT_GOAL_OK=1
+AFTER_RECOVERY_MODE_OK=1
+AFTER_ASSET_LABEL_OK=1
+TEST_PRE_A=PASS
+
+===== REGISTRO FINAL =====
+RESULTADO_FINAL=PASS_ALREADY_FIXED_NO_CODE_CHANGE
+CODE_CHANGED=NAO
+ROLLBACK_APPLIED=0
+PATCH_STATUS=NOT_RUN
+PRE_TEST_STATUS=PASS_ALREADY_FIXED
+POST_TEST_STATUS=NOT_RUN
+IDEMPOTENCE_STATUS=NOT_RUN
+SERVER_RESTART_STATUS=NOT_RUN
+
+===== GIT FINAL ANTES DO COMMIT =====
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2_FIX_CONTROLADO.txt
+
+===== RELATORIO_FECHADO =====
+RELATORIO_TXT=/home/leo/Documentos/GitHub/predixai-platform/reports/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2_FIX_CONTROLADO.txt
+MARKDOWN_HISTORICO=/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_222303_PTP-113C.8.4.1C_unificar_session_create_state_current_mobile_v2_FIX_CONTROLADO.md
+INDEX_ATUALIZADO=/home/leo/Documentos/GitHub/predixai-platform/docs/reports_index.md
+OBS=Por regra do projeto, o relatório é fechado antes do commit/push. O hash final será mostrado no terminal após o push, sem reabrir o relatório.
