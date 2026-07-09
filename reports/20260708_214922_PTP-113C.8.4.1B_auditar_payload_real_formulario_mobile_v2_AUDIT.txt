@@ -1,0 +1,112 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+PTP: PTP-113C.8.4.1B
+Nome curto: auditar_payload_real_formulario_mobile_v2
+Tipo: AUDIT_ONLY
+Código alterado: NÃO
+Data: 2026-07-08 21:49:22 -0300
+
+===== ESCOPO =====
+OBJETIVO=auditar payload real do formulário da Tela 1
+IMPLEMENTACAO=NAO
+OBSERVER_START=NAO
+SINAL=NAO
+LEITURA_CORRETORA=NAO
+
+===== GIT INICIAL =====
+HEAD_INICIAL=769a96a
+$ git status --short
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_214922_PTP-113C.8.4.1B_auditar_payload_real_formulario_mobile_v2_AUDIT.txt
+
+===== CHECKSUM BEFORE =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== DETECTAR BASE_URL =====
+BASE_URL=http://127.0.0.1:5001
+
+===== HTTP BASE =====
+GET /health = 200
+GET /session/setup = 200
+GET /mobile = 200
+GET /state/current = 200
+
+===== CAPTURA HTML SERVIDO =====
+HTML_SESSION_SERVED_BYTES=17745
+HTML_MOBILE_SERVED_BYTES=18666
+
+===== MAPEAMENTO DO FORMULÁRIO REAL =====
+FORMS_COUNT= 1
+FORM_1_ACTION= None
+FORM_1_METHOD= None
+INPUT_NAMES=
+ - initial_bank | id= None | type= None | value= 100,00
+ - entry_value | id= None | type= None | value= 5,00
+ - profit_goal | id= None | type= None | value= 10,00
+ - asset_label | id= None | type= hidden | value= Aguardando leitura
+SELECT_NAMES=
+ - recovery_mode | id= None
+TEXTAREA_NAMES=
+
+===== STATE ANTES DO TESTE =====
+SESSION_STATUS_BEFORE= None
+CONTRACT_KEYS_BEFORE= []
+
+===== TESTE CONTROLADO COM PAYLOAD FORM REALISTA =====
+POST_FORM_SESSION_CREATE=200
+POST_FORM_RESPONSE_BEGIN
+{"history_recording":false,"mobile_v2":true,"next_screen":"/mobile","ok":true,"operation_result":false,"real_money":false,"route":"/session/create","signal_generation":false,"simulated_contract_only":true,"state":{"history":{"count":0,"last_event_id":null},"observer":{"last_error":null,"pid":null,"running":false,"started_at":"2026-07-08T18:48:51.675036+00:00","status":"OFF","stopped_at":"2026-07-08T18:49:13.206158+00:00"},"operation":{"operation_id":null,"result":null,"status":"none"},"reading":{"asset":null,"captured_at":null,"price":null,"source":"none","status":"no_active_reading"},"schema_version":"mobile_v2_state_v1","session":{"auto_click_enabled":false,"broker_login_enabled":false,"configured_at":"2026-07-09T00:49:22.700507+00:00","contract":{"asset_label":"Aguardando leitura","entry_value":50.0,"initial_bank":1000.0,"profit_goal":250.0,"recovery_mode":"soros","simulation_only":true},"credentials_allowed":false,"orders_enabled":false,"real_money_enabled":false,"simulation_only":true,"status":"configured"},"signal":{"confidence":null,"direction":"NEUTRO","reason":null,"status":"aguardando_leitura","strategy":null},"status":"session_configured","updated_at":"2026-07-09T00:49:22.701447+00:00"}}
+POST_FORM_RESPONSE_END
+SESSION_CREATE_STATUS=PASS_FORM
+
+===== STATE DEPOIS DO FORM =====
+STATE_AFTER_PARSE=PASS
+SESSION_STATUS_AFTER= None
+CONTRACT_INITIAL_BANK= None
+CONTRACT_ENTRY_VALUE= None
+CONTRACT_PROFIT_GOAL= None
+CONTRACT_RECOVERY_MODE= None
+CONTRACT_ASSET_LABEL= None
+STATE_CONTRACT_EXPLICIT_STATUS= FAIL
+STATE_CONTRACT_STATUS=FAIL
+
+===== HTML MOBILE DEPOIS DO FORM =====
+MOBILE_HAS_CONTRATO_CARD=YES
+MOBILE_HAS_CONFIGURADA=YES
+MOBILE_HAS_1000=NO
+MOBILE_HAS_50=YES
+MOBILE_HAS_250=NO
+
+===== DUPLICIDADE ATIVO OBSERVADO =====
+SESSION_SERVED_ATIVO_OBSERVADO_COUNT=4
+117:      <label>Ativo observado</label>
+343:    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, o contrato usa <strong>Aguardando leitura</strong>.";
+408:      "<div>Ativo observado: <strong>Aguardando leitura do observer</strong></div>" +
+545:    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, permanece como <strong>Aguardando leitura</strong>.";
+
+===== CHECKSUM AFTER =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== VALIDAÇÃO FINAL =====
+CHECKSUM_STATUS=UNCHANGED_PASS
+CODE_DIFF_STATUS=UNCHANGED_PASS
+RESULTADO_FINAL=AUDIT_PASS
+IMPLEMENTACAO=NAO
+CODIGO_ALTERADO=NAO
+PROXIMA_ETAPA=analisar se /state/current e UI usam o mesmo estado
+
+===== GIT FINAL ANTES DO COMMIT =====
+GIT_LOG_PRE_COMMIT=769a96a PTP 113 C.8.4.1A auditar contrato ativo mobile v2
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_214922_PTP-113C.8.4.1B_auditar_payload_real_formulario_mobile_v2_AUDIT.txt
