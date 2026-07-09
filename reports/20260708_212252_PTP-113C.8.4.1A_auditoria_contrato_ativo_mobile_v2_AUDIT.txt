@@ -1,0 +1,76 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+PTP: PTP-113C.8.4.1A
+Nome curto: auditoria_contrato_ativo_mobile_v2
+Tipo: AUDIT_TEST_ONLY
+Código alterado: NÃO
+Data: 2026-07-08 21:22:52 -0300
+
+===== GIT INICIAL =====
+HEAD_INICIAL=ff50b7a
+$ git status --short
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_212252_PTP-113C.8.4.1A_auditoria_contrato_ativo_mobile_v2_AUDIT.txt
+
+===== CHECKSUM BEFORE =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== DETECTAR BASE_URL =====
+BASE_URL=http://127.0.0.1:5001
+
+===== HTTP BASE =====
+GET /health = 200
+GET /session/setup = 200
+GET /mobile = 200
+GET /state/current = 200
+
+===== STATE ANTES =====
+SESSION_STATUS_BEFORE= None
+CONTRACT_KEYS_BEFORE= []
+
+===== CRIAR CONTRATO SIMULADO =====
+POST_JSON_SESSION_CREATE=200
+SESSION_CREATE_STATUS=PASS_JSON
+
+===== STATE DEPOIS =====
+STATE_AFTER_PARSE=PASS
+SESSION_STATUS_AFTER= None
+CONTRACT_INITIAL_BANK= None
+CONTRACT_ENTRY_VALUE= None
+CONTRACT_PROFIT_GOAL= None
+CONTRACT_RECOVERY_MODE= None
+CONTRACT_ASSET_LABEL= None
+CONTRACT_EXACT_VALUES_STATUS= FAIL
+STATE_CONTRACT_STATUS=FAIL
+
+===== HTML SERVIDO =====
+SESSION_ATIVO_OBSERVADO_COUNT=4
+MOBILE_HAS_CONTRATO_CARD=YES
+MOBILE_HAS_AGUARDANDO_LEITURA=YES
+
+===== CHECKSUM AFTER =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+
+===== VALIDAÇÃO FINAL =====
+CHECKSUM_STATUS=UNCHANGED_PASS
+CODE_DIFF_STATUS=UNCHANGED_PASS
+RESULTADO_FINAL=AUDIT_WARN
+IMPLEMENTACAO=NAO
+CODIGO_ALTERADO=NAO
+PROXIMA_ETAPA=PTP 113 C.8.4.2 — Observer Controlado PAPER/OBSERVER_ONLY
+
+===== GIT FINAL ANTES DO COMMIT =====
+GIT_LOG_PRE_COMMIT=ff50b7a PTP 113 C.8.4.1 auditar observer controlado mobile v2
+ M reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202027_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_202722_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
+?? reports/20260708_212252_PTP-113C.8.4.1A_auditoria_contrato_ativo_mobile_v2_AUDIT.txt

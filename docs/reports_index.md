@@ -180,3 +180,5 @@
 - 2026-07-08 19:53:25 — PTP-113C.8.4.1 — auditoria_observer_controlado_mobile_v2 — AUDIT_PASS — reports/20260708_185242_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt
 
 - 2026-07-08 20:36:44 — PTP-113C.8.4.1 — auditoria_observer_controlado_mobile_v2 — AUDIT_PASS — relatório: `/home/leo/Documentos/GitHub/predixai-platform/reports/20260708_203643_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.txt` — md: `/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_203643_PTP-113C.8.4.1_auditoria_observer_controlado_mobile_v2_AUDIT.md`
+
+- 2026-07-08 21:22:52 — PTP-113C.8.4.1A — auditoria_contrato_ativo_mobile_v2 — AUDIT_WARN — relatório: `/home/leo/Documentos/GitHub/predixai-platform/reports/20260708_212252_PTP-113C.8.4.1A_auditoria_contrato_ativo_mobile_v2_AUDIT.txt` — md: `/home/leo/Documentos/GitHub/predixai-platform/docs/history/ptp/PTP-113/PTP-113C/20260708_212252_PTP-113C.8.4.1A_auditoria_contrato_ativo_mobile_v2_AUDIT.md`
