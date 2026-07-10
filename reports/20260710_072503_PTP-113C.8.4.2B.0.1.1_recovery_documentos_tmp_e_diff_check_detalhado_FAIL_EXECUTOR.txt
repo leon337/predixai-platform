@@ -1,0 +1,27 @@
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP-113C.8.4.2B.0.1.1
+Nome curto: recovery_documentos_tmp_e_diff_check_detalhado
+Tipo: FAIL_EXECUTOR
+Data: 2026-07-10T07:25:04-03:00
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+
+===== FALHA =====
+RESULTADO_FINAL=FAIL_EXECUTOR
+CURRENT_PHASE=VALIDATE_TMP
+RETURN_CODE=1
+FAILED_LINE=185
+FAILED_COMMAND=git diff --no-index --check -- "$old_file" "$new_file" > "$log_file" 2>&1
+ROOT_CAUSE=GUARD_TEST_FAIL
+FAILED_FILE=/tmp/predixai_PTP_113C_8_4_2B_0_1_1_20260710_072503_4jsquR/build/test_predixai_preflight_guard.sh
+FAILED_FILE_LINE=
+VALIDATOR_OUTPUT=Teste do guard falhou na execução 1
+ROLLBACK_STATUS=NOT_NEEDED
+PUBLICATION_STATUS=PENDING_BY_DESIGN
+DELIVERY_STATUS=REPORT_OPEN_REQUESTED
+TMP_EVIDENCE=/tmp/predixai_PTP_113C_8_4_2B_0_1_1_20260710_072503_4jsquR
+
+===== SEGURANÇA =====
+PROTECTED_CODE_CHANGE_NOT_AUTHORIZED=YES
+REPORT_CLOSED_BEFORE_COMMIT_PUSH=YES
