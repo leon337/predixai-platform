@@ -1,3 +1,15 @@
+<!-- PREDIXAI_PTP_113C842A21_START -->
+## 2026-07-10 — PTP-113C.8.4.2A.2.1 — Recovery do Executor e Preflight Permanente
+
+- Publicação posterior das evidências FAIL da `PTP-113C.8.4.2A.2`.
+- Correção do preflight do executor desta PTP.
+- Criação da política documental permanente de preflight.
+- Sincronização de `PROJECT_STATE.md`, `predixai_context.json` e índice de relatórios.
+- Criação do backlog estratégico de benchmark de mercado.
+- Código e templates do PredixAI Trader preservados sem alterações.
+- Etapa tecnicamente publicada, ainda aguardando validação do relatório no chat.
+<!-- PREDIXAI_PTP_113C842A21_END -->
+
 ## 2026-06-30 - PTP-091 PredixAI Supervised Agent Wrapper
 
 - Criado wrapper supervisionado para executar o agente local PredixAI via OpenClaw.

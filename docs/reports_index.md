@@ -195,3 +195,17 @@
 - 2026-07-10 03:10:07 -0300 — PTP-113C.8.4.2A.1 — recovery_auditoria_observer_paper_mobile_v2 — AUDIT_RECOVERY — WARN_PASS_AUDIT_RECOVERY_VISUAL_PENDING
   - Relatório: `reports/20260710_031007_PTP-113C.8.4.2A.1_recovery_auditoria_observer_paper_mobile_v2_AUDIT_RECOVERY.txt`
   - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260710_031007_PTP-113C.8.4.2A.1_recovery_auditoria_observer_paper_mobile_v2_AUDIT_RECOVERY.md`
+
+<!-- PREDIXAI_PTP_113C842A21_START -->
+## 2026-07-10T05:45:01-03:00 — Linha do tempo A.2 / A.2.1
+
+- `reports/20260710_045717_PTP-113C.8.4.2A.2_sincronizar_memoria_oficial_mobile_v2_DOC_STATE_SYNC.txt` — `PTP-113C.8.4.2A.2` — `FAIL_DOC_STATE_SYNC`
+  - Gerado em `2026-07-10 04:57:17 -0300`.
+  - Publicado posteriormente pela `PTP-113C.8.4.2A.2.1`.
+  - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260710_045717_PTP-113C.8.4.2A.2_sincronizar_memoria_oficial_mobile_v2_DOC_STATE_SYNC.md`.
+
+- `reports/20260710_054501_PTP-113C.8.4.2A.2.1_recovery_executor_preflight_permanente_RECOVERY_DOC_STATE_SYNC.txt` — `PTP-113C.8.4.2A.2.1` — `RECOVERY_DOC_STATE_SYNC`
+  - Resultado pré-publicação: `PASS_READY_TO_PUBLISH`.
+  - Publicação técnica confirmada somente pelo recibo terminal.
+  - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260710_054501_PTP-113C.8.4.2A.2.1_recovery_executor_preflight_permanente_RECOVERY_DOC_STATE_SYNC.md`.
+<!-- PREDIXAI_PTP_113C842A21_END -->

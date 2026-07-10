@@ -1,0 +1,163 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP-113C.8.4.2A.2
+Nome curto: sincronizar_memoria_oficial_mobile_v2
+Tipo: DOC_STATE_SYNC
+Data: 2026-07-10 04:57:17 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Python: /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python
+Código da aplicação alterado: NÃO
+Servidor Flask alterado: NÃO
+Observer/Leitor iniciado: NÃO
+Automação real autorizada: NÃO
+
+===== GIT INICIAL =====
+BRANCH_INICIAL=main
+HEAD_INICIAL=9908559830e541ab430deb0d070c2c902b62b22d
+EXPECTED_BASE=9908559830e541ab430deb0d070c2c902b62b22d
+
+$ git status --short
+ M reports/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.txt
+?? reports/20260710_045717_PTP-113C.8.4.2A.2_sincronizar_memoria_oficial_mobile_v2_DOC_STATE_SYNC.txt
+PRE_STAGED_STATUS=PASS_NONE
+FAIL: Existem arquivos untracked anteriores à execução.
+reports/20260710_045717_PTP-113C.8.4.2A.2_sincronizar_memoria_oficial_mobile_v2_DOC_STATE_SYNC.txt
+PREEXISTING_DIRTY_POLICY=PASS
+KNOWN_RESIDUE_STATUS=PRESENT_AND_PROTECTED
+
+===== CONFIRMAÇÃO DA BASE =====
+From https://github.com/leon337/predixai-platform
+ * branch            main       -> FETCH_HEAD
+FETCH_STATUS=PASS
+HEAD_CURRENT=9908559830e541ab430deb0d070c2c902b62b22d
+ORIGIN_MAIN=9908559830e541ab430deb0d070c2c902b62b22d
+HEAD_BASE_STATUS=PASS
+ORIGIN_BASE_STATUS=PASS
+DUPLICATE_PTP_STATUS=PASS_NOT_FOUND
+
+===== ARQUIVOS OBRIGATÓRIOS =====
+FOUND=PROJECT_STATE.md
+FOUND=predixai_context.json
+FOUND=docs/reports_index.md
+BACKLOG_TARGET_STATUS=PASS_NOT_EXISTS
+
+===== PROTEÇÃO DA SOBRA LOCAL ANTERIOR =====
+KNOWN_RESIDUE=reports/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.txt
+RESIDUE_FILE_SHA_BEFORE=8370547cb93bd87c1bc5549796dfe741f18d92f9e6382046d292b1adea3276aa
+RESIDUE_DIFF_SHA_BEFORE=e49014b4dbed32a211f0259edbb7649e4c5392e9fb5a54e3b02fb20941576c98
+RESIDUE_ACTION=NAO_RESTAURAR_NAO_APAGAR_NAO_VERSIONAR
+
+===== CHECKSUMS DO CÓDIGO — ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79  src/predixai/mobile_v2/routes.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d  scripts/predixai_trader_mobile_server.py
+64e64c64b6df3f3459ee4d841476f96154dc8c31af9ba4c30f8b8f97ec3a601e  scripts/run_mobile_v2_server.py
+
+===== ESTADO DOCUMENTAL ANTES =====
+PROJECT_STATE_SHA_BEFORE=f6d2766f08bb011c693cd753e5732abb5ee2fb22a5876949c7bc29ea2346a1b2
+PROJECT_STATE_LINES_BEFORE=1006
+CONTEXT_SHA_BEFORE=ca54538eb4c8ca1282053bb50c037ba8437c65b6bdfb995e368cced873d1e563
+CONTEXT_LINES_BEFORE=1463
+INDEX_SHA_BEFORE=517e56289bfa2867b4643d0ba33ce83283ba51f8ad7caf983ea70fb4c5f81155
+INDEX_LINES_BEFORE=197
+
+===== VALIDAÇÃO DO JSON ANTES =====
+PREDIXAI_CONTEXT_JSON_BEFORE=PASS
+
+===== EVIDÊNCIAS HISTÓRICAS NO ÍNDICE =====
+HISTORY_MARKER=PASS | PTP-113C.1
+HISTORY_MARKER=PASS | PTP-113C.7.7A
+HISTORY_MARKER=PASS | PTP 113 C.8.0
+HISTORY_MARKER=PASS | PTP-113C.8.3.4.2
+HISTORY_MARKER=PASS | PTP-113C.8.4.1D.1
+HISTORY_MARKER=PASS | PTP-113C.8.4.2A
+HISTORY_MARKER=PASS | PTP-113C.8.4.2A.1
+
+===== BACKUP DOCUMENTAL =====
+BACKUP_STATUS=PASS
+BACKUP_DIR=/tmp/predixai_PTP_113C_8_4_2A_2_20260710_045717/backups
+
+===== VALIDAÇÃO — MARCADORES =====
+PROJECT_START_COUNT=0
+PROJECT_END_COUNT=0
+INDEX_START_COUNT=0
+INDEX_END_COUNT=0
+
+===== VALIDAÇÃO — predixai_context.json =====
+PREDIXAI_CONTEXT_JSON_AFTER=PASS
+FAIL: A estrutura histórica do JSON não foi preservada.
+
+===== VALIDAÇÃO — CONTEÚDO =====
+FAIL: Texto obrigatório ausente no PROJECT_STATE.md: PTP 113 C.8.4.2A.1
+FAIL: Texto obrigatório ausente no PROJECT_STATE.md: Leitor de Tela Controlado
+FAIL: Texto obrigatório ausente no PROJECT_STATE.md: não armazenar prints por padrão
+FAIL: Texto obrigatório ausente no PROJECT_STATE.md: preço com leitura planejada a cada segundo
+FAIL: Texto obrigatório ausente no PROJECT_STATE.md: conta demonstrativa
+FAIL: Texto obrigatório ausente no PROJECT_STATE.md: conta real na V2
+FAIL: Texto obrigatório ausente no PROJECT_STATE.md: português do Brasil simples
+FAIL: Texto obrigatório ausente no PROJECT_STATE.md: um único controle de alternância persistente
+FAIL: Texto obrigatório ausente no backlog: Diagnóstico inteligente
+FAIL: Texto obrigatório ausente no backlog: Período de teste inteligente
+FAIL: Texto obrigatório ausente no backlog: Painel de evolução
+FAIL: Texto obrigatório ausente no backlog: IA como mentora
+FAIL: Texto obrigatório ausente no backlog: Leitor de Tela Controlado
+FAIL: Texto obrigatório ausente no backlog: conta demonstrativa
+FAIL: Texto obrigatório ausente no backlog: conta real na V2
+FAIL: Texto obrigatório ausente no backlog: não armazenar prints por padrão
+
+===== ESTADO DOCUMENTAL DEPOIS =====
+PROJECT_STATE_SHA_AFTER=f6d2766f08bb011c693cd753e5732abb5ee2fb22a5876949c7bc29ea2346a1b2
+PROJECT_STATE_LINES_AFTER=1006
+CONTEXT_SHA_AFTER=ca54538eb4c8ca1282053bb50c037ba8437c65b6bdfb995e368cced873d1e563
+CONTEXT_LINES_AFTER=1463
+INDEX_SHA_AFTER=517e56289bfa2867b4643d0ba33ce83283ba51f8ad7caf983ea70fb4c5f81155
+INDEX_LINES_AFTER=197
+BACKLOG_SHA_AFTER=MISSING
+BACKLOG_LINES_AFTER=0
+FAIL: PROJECT_STATE.md não mudou.
+FAIL: predixai_context.json não mudou.
+FAIL: docs/reports_index.md não mudou.
+
+===== CHECKSUMS DO CÓDIGO — DEPOIS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79  src/predixai/mobile_v2/routes.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d  scripts/predixai_trader_mobile_server.py
+64e64c64b6df3f3459ee4d841476f96154dc8c31af9ba4c30f8b8f97ec3a601e  scripts/run_mobile_v2_server.py
+PROTECTED_CODE_CHECKSUM=PASS
+
+===== PROTEÇÃO DA SOBRA LOCAL — DEPOIS =====
+RESIDUE_FILE_SHA_AFTER=8370547cb93bd87c1bc5549796dfe741f18d92f9e6382046d292b1adea3276aa
+RESIDUE_DIFF_SHA_AFTER=e49014b4dbed32a211f0259edbb7649e4c5392e9fb5a54e3b02fb20941576c98
+KNOWN_RESIDUE_PRESERVATION=PASS
+
+===== DIFF CONTRA A PROMESSA =====
+TRACKED_DIFF_SCOPE=PASS
+UNTRACKED_SCOPE=PASS
+
+===== GIT DIFF CHECK =====
+GIT_DIFF_CHECK_STATUS=PASS
+
+===== RESULTADO FINAL =====
+RESULTADO_FINAL=FAIL_DOC_STATE_SYNC_ROLLBACK_NOT_NEEDED
+FAILS=21
+WARNINGS=0
+ROLLBACK_STATUS=NOT_NEEDED
+BASE_COMMIT=9908559830e541ab430deb0d070c2c902b62b22d
+PROJECT_STATE_SYNC=FAIL
+PREDIXAI_CONTEXT_JSON_VALID=FAIL
+REPORTS_INDEX_SYNC=FAIL
+BACKLOG_STRATEGIC_STATUS=NOT_APPLIED
+PROTECTED_CODE_STATUS=CHECK_REPORT
+KNOWN_RESIDUE_STATUS=PRESERVED_NOT_STAGED
+CODE_CHANGED=NO
+REPORT=reports/20260710_045717_PTP-113C.8.4.2A.2_sincronizar_memoria_oficial_mobile_v2_DOC_STATE_SYNC.txt
+MARKDOWN=docs/history/ptp/PTP-113/PTP-113C/20260710_045717_PTP-113C.8.4.2A.2_sincronizar_memoria_oficial_mobile_v2_DOC_STATE_SYNC.md
+REPORT_CLOSED_BEFORE_COMMIT_PUSH=YES

@@ -1,5 +1,49 @@
 # PredixAI BR â€” Estado Oficial do Projeto
 
+<!-- PREDIXAI_PTP_113C842A21_START -->
+## PTP 113 C.8 — Mobile V2 Standalone — Estado consolidado
+
+- Atualizado em: `2026-07-10T05:45:01-03:00`
+- Última publicação anterior: `PTP-113C.8.4.2A.1`
+- Commit-base confirmado: `9908559830e541ab430deb0d070c2c902b62b22d`
+- Tentativa `PTP-113C.8.4.2A.2`: FAIL do executor por autodetecção do próprio relatório.
+- Código do Trader alterado na tentativa FAIL: **não**.
+- Etapa técnica atual: `PTP-113C.8.4.2A.2.1` — Recovery do Executor e Preflight Permanente.
+- Estado operacional após publicação: aguardando validação do relatório no chat.
+- `PTP-113C.8.4.2B`: bloqueada até análise e fechamento desta recovery.
+
+### Objetivo do protótipo
+
+`observar → capturar dados → gerar sinal → abrir operação simulada → calcular resultado → atualizar banca simulada → registrar histórico`
+
+### Travas permanentes
+
+- `simulation_only=true`
+- `orders_enabled=false`
+- `real_money_enabled=false`
+- `auto_click_enabled=false`
+- `broker_login_enabled=false`
+- `credentials_allowed=false`
+
+### Governança do executor
+
+- snapshot do Git antes de qualquer mutação do working tree;
+- relatório construído inicialmente em `/tmp`;
+- bloqueio de falhas em cascata;
+- allowlist exata no stage e no commit;
+- relatório imutável antes de commit/push;
+- confirmação de commit/push apenas no recibo terminal;
+- política documentada, sem afirmar enforcement automático global.
+
+### Próximas etapas bloqueadas
+
+- `PTP-113C.8.4.2B` — consolidar controle simulado do Observador;
+- `PTP-113C.8.4.2R` — Leitor de Tela Controlado;
+- `PTP-113C.8.5` — geração de sinal;
+- `PTP-113C.8.6` — operação, resultado e banca simulada;
+- `PTP-113C.8.7` — histórico operacional.
+<!-- PREDIXAI_PTP_113C842A21_END -->
+
 ## Projeto
 
 PredixAI Platform

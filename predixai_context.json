@@ -1249,7 +1249,7 @@
       "pending_calibration": "Calibrate signal thresholds and support/resistance logic with clean per-asset sessions."
     }
   },
-  "last_ptp": "PTP-112",
+  "last_ptp": "PTP-113C.8.4.2A.2.1",
   "trader_v1_final_closure": {
     "ptp": "PTP-104",
     "name": "TRADER V1 FINAL CLOSURE",
@@ -1259,24 +1259,25 @@
     "closed_at": "2026-07-01 14:15:15"
   },
   "current_ptp": {
-    "ptp": "PTP-112",
-    "title": "Mobile-First Strategy Engine e Sessao Simulada",
-    "date": "2026-07-05",
-    "status": "published",
-    "summary": "Publicacao final controlada da milestone mobile-first do PredixAI Trader.",
+    "ptp": "PTP-113C.8.4.2A.2.1",
+    "title": "Recovery do Executor e Preflight Permanente",
+    "date": "2026-07-10",
+    "status": "awaiting_chat_validation",
+    "summary": "Publicação técnica da recovery documental; fechamento operacional depende da análise do relatório no chat.",
     "changes": [
-      "PTP-112A ate PTP-112I concluidas",
-      "PTP-112J.0, J.0.1, J.1 e J.2 realizadas",
-      "Fluxo Strategy Engine -> Confluence Engine -> Mobile Signal Screen -> Paper Trade -> saldo simulado validado",
-      "Validadores scripts/ptp112*.py publicados",
-      "Nucleo mobile-first e paper trade simulado versionados",
-      "Documentacao oficial atualizada para publicacao"
+      "preflight sem mutação do working tree antes do snapshot",
+      "falhas em cascata bloqueadas",
+      "evidência FAIL da A.2 preservada e publicada",
+      "política documental de preflight criada",
+      "backlog estratégico separado",
+      "código do Trader preservado"
     ],
     "next_steps": [
-      "decidir destino dos arquivos untracked fora do nucleo em src/predixai/trader",
-      "tratar legados scripts/run_minimal_trader_test.py e tests/test_trader_basic.py em mini-PTP futura"
+      "colar relatório e recibo terminal no chat",
+      "validar a recovery",
+      "manter PTP-113C.8.4.2B bloqueada até o fechamento"
     ],
-    "published_at": "2026-07-05T15:30:23-03:00"
+    "published_at": "2026-07-10T05:45:01-03:00"
   },
   "operational_history": [
     {
@@ -1318,12 +1319,33 @@
         "tratar legados que importam PaperTrader inexistente em mini-PTP futura"
       ],
       "published_at": "2026-07-05T15:30:23-03:00"
+    },
+    {
+      "ptp": "PTP-113C.8.4.2A.2.1",
+      "title": "Recovery do Executor e Preflight Permanente",
+      "date": "2026-07-10",
+      "status": "published_awaiting_chat_validation",
+      "summary": "Recovery documental do executor, publicação da evidência FAIL A.2 e sincronização da memória oficial.",
+      "changes": [
+        "preflight sem mutação do working tree antes do snapshot",
+        "falhas em cascata bloqueadas",
+        "evidência FAIL da A.2 preservada e publicada",
+        "política documental de preflight criada",
+        "backlog estratégico separado",
+        "código do Trader preservado"
+      ],
+      "next_steps": [
+        "colar relatório e recibo terminal no chat",
+        "validar a recovery",
+        "manter PTP-113C.8.4.2B bloqueada até o fechamento"
+      ],
+      "published_at": "2026-07-10T05:45:01-03:00"
     }
   ],
   "last_published_ptp": {
-    "ptp": "PTP-112",
-    "title": "Mobile-First Strategy Engine e Sessao Simulada",
-    "published_at": "2026-07-05T15:30:23-03:00",
+    "ptp": "PTP-113C.8.4.2A.2.1",
+    "title": "Recovery do Executor e Preflight Permanente",
+    "published_at": "2026-07-10T05:45:01-03:00",
     "status": "published"
   },
   "ptp_108b": {
@@ -1459,5 +1481,39 @@
       "reason": "Leo recomendou subir tudo para manter memória real do projeto e permitir auditoria futura pelo GitHub.",
       "next_step": "Gerar checkpoint geral e continuar melhorias em outro chat."
     }
-  ]
+  ],
+  "ptp_113c_8_4_2a_2_1": {
+    "ptp": "PTP-113C.8.4.2A.2.1",
+    "schema_version": 1,
+    "type": "RECOVERY_DOC_STATE_SYNC",
+    "status": "published_awaiting_chat_validation",
+    "base_commit": "9908559830e541ab430deb0d070c2c902b62b22d",
+    "remote_is_authoritative": true,
+    "local_worktree_is_draft_until_push": true,
+    "failed_attempt": {
+      "ptp": "PTP-113C.8.4.2A.2",
+      "result": "FAIL_DOC_STATE_SYNC",
+      "root_cause": "PREFLIGHT_SELF_REPORT_DETECTION",
+      "code_changed": false,
+      "official_documents_changed": false,
+      "rollback_needed": false,
+      "report": "reports/20260710_045717_PTP-113C.8.4.2A.2_sincronizar_memoria_oficial_mobile_v2_DOC_STATE_SYNC.txt",
+      "markdown": "docs/history/ptp/PTP-113/PTP-113C/20260710_045717_PTP-113C.8.4.2A.2_sincronizar_memoria_oficial_mobile_v2_DOC_STATE_SYNC.md"
+    },
+    "recovery": {
+      "preflight_policy_documented": true,
+      "executor_current_ptp_corrected": true,
+      "global_automatic_enforcement": false,
+      "protected_trader_code": true,
+      "next_stage_blocked": "PTP-113C.8.4.2B"
+    },
+    "safety": {
+      "simulation_only": true,
+      "orders_enabled": false,
+      "real_money_enabled": false,
+      "auto_click_enabled": false,
+      "broker_login_enabled": false,
+      "credentials_allowed": false
+    }
+  }
 }
