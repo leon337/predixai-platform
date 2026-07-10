@@ -1,0 +1,421 @@
+
+===== IDENTIFICAÇÃO =====
+Projeto: PredixAI BR
+Produto: PredixAI Trader
+PTP: PTP-113C.8.4.2A.1
+Nome curto: recovery_auditoria_observer_paper_mobile_v2
+Tipo: AUDIT_RECOVERY
+Data: 2026-07-10 03:10:07 -0300
+Repo: /home/leo/Documentos/GitHub/predixai-platform
+Código da aplicação alterado: NÃO
+Atualização da memória oficial: NÃO — reservada para C.8.4.2A.2
+Python selecionado: /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python
+
+===== INVESTIGAR — GIT INICIAL =====
+BRANCH_INICIAL=main
+HEAD_INICIAL=9a18386067084339f80e3650918bee269532333d
+EXPECTED_BASE=9a18386067084339f80e3650918bee269532333d
+
+$ git status --short antes do relatório
+ M reports/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.txt
+PRE_STAGED_STATUS=PASS_NONE
+
+===== INVESTIGAR — FETCH ORIGIN/MAIN =====
+From https://github.com/leon337/predixai-platform
+ * branch            main       -> FETCH_HEAD
+FETCH_STATUS=PASS
+HEAD_CURRENT=9a18386067084339f80e3650918bee269532333d
+ORIGIN_MAIN=9a18386067084339f80e3650918bee269532333d
+HEAD_APOS_ALINHAMENTO=9a18386067084339f80e3650918bee269532333d
+ORIGIN_APOS_ALINHAMENTO=9a18386067084339f80e3650918bee269532333d
+GIT_BASE_STATUS=PASS
+DUPLICATE_PTP_STATUS=PASS_NOT_FOUND
+
+===== INVESTIGAR — ARQUIVOS ALVO =====
+FOUND: src/predixai/mobile_v2/app.py
+FOUND: src/predixai/mobile_v2/state_store.py
+FOUND: src/predixai/mobile_v2/routes.py
+FOUND: src/predixai/mobile_v2/templates/session_setup.html
+FOUND: src/predixai/mobile_v2/templates/mobile_v2_index.html
+FOUND: scripts/predixai_trader_mobile_server.py
+FOUND: scripts/run_mobile_v2_server.py
+TARGET_BASE_DIFF_STATUS=PASS_CLEAN
+
+===== CHECKSUMS ANTES =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79  src/predixai/mobile_v2/routes.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d  scripts/predixai_trader_mobile_server.py
+64e64c64b6df3f3459ee4d841476f96154dc8c31af9ba4c30f8b8f97ec3a601e  scripts/run_mobile_v2_server.py
+
+===== AUDITORIA DA MEMÓRIA OFICIAL — SEM ALTERAÇÃO =====
+--- PROJECT_STATE.md: referências principais ---
+9:## Fase atual
+17:PTP-112 - Mobile-First Strategy Engine e Sessao Simulada.
+21:Saneamento futuro dos arquivos trader untracked e legados fora do nucleo PTP-112.
+84:- O PTP-112 publicou o Mobile-First Strategy Engine e Sessao Simulada, validando o fluxo Strategy Engine -> Confluence Engine -> Mobile Signal Screen -> Paper Trade -> saldo simulado.
+85:- O PTP-112 preserva o escopo seguro: sem execucao real, sem clique automatico, sem corretora real, sem login, sem senha e sem saldo real.
+897:## PTP-112 — Mobile-First Strategy Engine e Sessao Simulada
+904:- PTP-112 publicada como milestone mobile-first do PredixAI Trader.
+905:- PTP-112A ate PTP-112I concluidas.
+906:- PTP-112J.0, PTP-112J.0.1, PTP-112J.1 e PTP-112J.2 realizadas como auditoria, saneamento e publicacao final controlada.
+928:## PTP-113B.3.1A — Construção do contrato completo da tela inicial
+944:## PTP-113B.3.1A.1 — Fix Pullback no contrato público V2
+953:## PTP-113B.3.1A.3 — Fix POST /session/setup
+962:## PTP-113B.3.1A.4 — Meta de lucro e cancelamento no sinal
+972:## PTP-113B.3.1A.4.1 — Meta de lucro V2 aplicada
+977:- Criada correção robusta porque a PTP-113B.3.1A.4 não inseriu os campos na tela/contrato.
+985:## PTP-113B.3.1A.5.0 — Regularização dos arquivos pendentes no GitHub
+
+--- predixai_context.json: fase atual ---
+5:  "version": "0.1.0-foundation",
+6:  "current_phase": "Fase 3 - Live Candle Analyzer",
+7:  "first_product": "PredixAI Trader",
+9:    "mode": "Observador",
+946:        "mode",
+1208:    "mode": "observer_simulated",
+1257:    "version": "V1 Observador",
+WARN: Memória oficial permanece desatualizada e será tratada somente na C.8.4.2A.2.
+MEMORY_UPDATE_STATUS=PENDING_C842A2
+MEMORY_FILES_CHANGED=NO
+
+===== PY_COMPILE — src/predixai/mobile_v2/app.py =====
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python -m py_compile src/predixai/mobile_v2/app.py 
+STATUS=0
+
+===== PY_COMPILE — src/predixai/mobile_v2/routes.py =====
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python -m py_compile src/predixai/mobile_v2/routes.py 
+STATUS=0
+
+===== PY_COMPILE — src/predixai/mobile_v2/state_store.py =====
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python -m py_compile src/predixai/mobile_v2/state_store.py 
+STATUS=0
+
+===== PY_COMPILE — scripts/run_mobile_v2_server.py =====
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python -m py_compile scripts/run_mobile_v2_server.py 
+STATUS=0
+
+===== TESTE — tests/test_mobile_v2_state_store.py =====
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python tests/test_mobile_v2_state_store.py 
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.124s
+
+OK
+STATUS=0
+
+===== TESTE — tests/test_mobile_v2_routes.py =====
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python tests/test_mobile_v2_routes.py 
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.082s
+
+OK
+STATUS=0
+
+===== TESTE — tests/test_mobile_v2_standalone_app.py =====
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python tests/test_mobile_v2_standalone_app.py 
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.056s
+
+OK
+STATUS=0
+
+===== TESTE — tests/test_mobile_v2_html.py =====
+$ /home/leo/Documentos/GitHub/predixai-platform/.venv/bin/python tests/test_mobile_v2_html.py 
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.082s
+
+OK
+STATUS=0
+
+===== AUDITORIA ESTÁTICA — TOKENS DE PROCESSO =====
+--- Ocorrências gerais classificáveis ---
+src/predixai/mobile_v2/state_store.py:58:            "pid": None,
+src/predixai/mobile_v2/state_store.py:151:        lock_path: Optional[Path | str] = None,
+src/predixai/mobile_v2/state_store.py:155:        self.lock_path = Path(lock_path) if lock_path else self.state_path.with_suffix(
+src/predixai/mobile_v2/state_store.py:161:        self.lock_path.parent.mkdir(parents=True, exist_ok=True)
+src/predixai/mobile_v2/state_store.py:162:        lock_file = self.lock_path.open("a+", encoding="utf-8")
+src/predixai/mobile_v2/state_store.py:168:                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+src/predixai/mobile_v2/state_store.py:180:                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+src/predixai/mobile_v2/state_store.py:228:            f".{self.state_path.name}.{os.getpid()}.{threading.get_ident()}.tmp"
+src/predixai/mobile_v2/routes.py:104:            state["observer"]["pid"] = None
+src/predixai/mobile_v2/routes.py:132:            state["observer"]["pid"] = None
+REAL_OBSERVER_PROCESS_CODE=NOT_FOUND
+OBSERVER_PIDFILE_CODE=NOT_FOUND
+OBSERVER_LOCKFILE_CODE=NOT_FOUND
+PROCESS_TOKEN_CLASSIFICATION=PASS
+
+CLASSIFICAÇÃO PERMITIDA:
+- observer.pid=null: campo neutro de estado.
+- fcntl.flock: proteção de escrita do JSON.
+- lock_path: lock exclusivo da persistência.
+- os.getpid(): nome temporário atômico.
+- Nenhum desses itens equivale a processo real do Observer.
+
+===== AUDITORIA ESTÁTICA — FALHA SILENCIOSA DA TELA 2 =====
+WARN: A Tela 2 não valida response.ok nas chamadas fetch.
+UI_RESPONSE_OK_VALIDATION=WARN_MISSING
+418:async function loadState() {
+453:async function observerStart() {
+458:async function observerStop() {
+UI_ASYNC_FUNCTIONS=FOUND
+UI_SILENT_FAILURE_FINDING=CONFIRMED_FOR_FUTURE_C842B
+AÇÃO_NESTA_PTP=APENAS_REGISTRAR
+
+===== MAPEAMENTO — ATIVO OBSERVADO =====
+--- Ocorrências no template fonte ---
+117:      <label>Ativo observado</label>
+331:      if (text.includes("ativo observado")) {
+343:    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, o contrato usa <strong>Aguardando leitura</strong>.";
+408:      "<div>Ativo observado: <strong>Aguardando leitura do observer</strong></div>" +
+533:      if (text.includes("ativo observado")) {
+545:    note.innerHTML = "<strong>Ativo observado:</strong> será preenchido automaticamente pelo observer. Nesta etapa, permanece como <strong>Aguardando leitura</strong>.";
+ATIVO_OBSERVADO_COUNT_SOURCE=6
+WARN: A quantidade atual difere das quatro ocorrências esperadas.
+ATIVO_OBSERVADO_MAPPING_STATUS=WARN_COUNT_CHANGED
+
+CLASSIFICAÇÃO ESPERADA:
+1. Label original ligado ao input hidden.
+2. Primeira nota visual do Observer.
+3. Resumo visual após criar o contrato.
+4. Segunda nota criada pelo recovery visual.
+
+INFERÊNCIA VISUAL:
+- Antes do contrato: duas notas semelhantes podem aparecer.
+- Depois do contrato: duas notas + resumo do contrato.
+- O label original deve ser ocultado pelo JavaScript.
+- Confirmação final exige prints do navegador/celular.
+
+===== DETECÇÃO DO SERVIDOR MOBILE V2 =====
+TESTANDO_BASE_URL=http://127.0.0.1:5001
+TESTANDO_BASE_URL=http://127.0.0.1:8766
+Mobile V2 válida não encontrada. Tentando start controlado.
+SERVER_START_REQUESTED=YES
+SERVER_PID=7947
+SERVER_LOG=/tmp/predixai_PTP_113C_8_4_2A_1_20260710_031007/mobile_v2_server.log
+SERVER_START_STATUS=PASS
+BASE_URL_CONFIRMADA=http://127.0.0.1:5001
+SERVER_STARTED_BY_SCRIPT=YES
+
+===== HTTP BÁSICO =====
+GET /health=200
+GET /session/setup=200
+GET /mobile=200
+GET /state/current=200
+HTTP_STATUS=PASS
+
+===== HTML SERVIDO — ATIVO OBSERVADO =====
+ATIVO_OBSERVADO_COUNT_SESSION_SETUP_SERVED=6
+ATIVO_OBSERVADO_COUNT_MOBILE_SERVED=1
+
+===== JSON INICIAL =====
+{
+    "mobile_v2": true,
+    "note": "reading.age_seconds is calculated at response time and is not persisted.",
+    "ok": true,
+    "route": "/state/current",
+    "runtime_persisted": true,
+    "state": {
+        "history": {
+            "count": 0,
+            "last_event_id": null
+        },
+        "observer": {
+            "last_error": null,
+            "pid": null,
+            "running": false,
+            "started_at": "2026-07-09T03:00:47.860855+00:00",
+            "status": "OFF",
+            "stopped_at": "2026-07-09T03:00:47.971403+00:00"
+        },
+        "operation": {
+            "operation_id": null,
+            "result": null,
+            "status": "none"
+        },
+        "reading": {
+            "age_seconds": null,
+            "asset": null,
+            "captured_at": null,
+            "price": null,
+            "source": "none",
+            "status": "no_active_reading"
+        },
+        "schema_version": "mobile_v2_state_v1",
+        "session": {
+            "auto_click_enabled": false,
+            "broker_login_enabled": false,
+            "configured_at": "2026-07-09T02:20:02.748274+00:00",
+            "contract": {
+                "asset_label": "Aguardando leitura",
+                "entry_value": 75.0,
+                "initial_bank": 1500.0,
+                "profit_goal": 300.0,
+                "recovery_mode": "none",
+                "simulation_only": true
+            },
+            "credentials_allowed": false,
+            "orders_enabled": false,
+            "real_money_enabled": false,
+            "simulation_only": true,
+            "status": "configured"
+        },
+        "signal": {
+            "confidence": null,
+            "direction": "NEUTRO",
+            "reason": null,
+            "status": "aguardando_leitura",
+            "strategy": null
+        },
+        "status": "idle",
+        "updated_at": "2026-07-09T03:00:47.972156+00:00"
+    }
+}
+
+SESSION_STATUS=configured
+CONTRACT={"asset_label":"Aguardando leitura","entry_value":75.0,"initial_bank":1500.0,"profit_goal":300.0,"recovery_mode":"none","simulation_only":true}
+OBSERVER_STATUS=OFF
+OBSERVER_RUNNING=false
+OBSERVER_PID=null
+SIGNAL_STATUS=aguardando_leitura
+OPERATION_STATUS=none
+JSON_EXTRACTION_STATUS=PASS
+
+===== PROCESSOS OBSERVER/READER ANTES =====
+Nenhum processo PredixAI Observer/Reader detectado.
+
+===== START PAPER — PRIMEIRA CHAMADA =====
+POST /observer/start #1=200
+GET /state/current após start #1=200
+START1_READER_PROCESS_STARTED=PASS | valor=false
+START1_OBSERVER_STATUS=PASS | valor=ON_WAITING_SOURCE
+START1_OBSERVER_RUNNING=PASS | valor=false
+START1_OBSERVER_PID=PASS | valor=null
+START1_READING_STATUS=PASS | valor=waiting_source
+START1_READING_SOURCE=PASS | valor=simulated_control_only
+
+===== START PAPER — SEGUNDA CHAMADA IDEMPOTENTE =====
+POST /observer/start #2=200
+GET /state/current após start #2=200
+START2_READER_PROCESS_STARTED=PASS | valor=false
+START2_OBSERVER_STATUS=PASS | valor=ON_WAITING_SOURCE
+START2_OBSERVER_RUNNING=PASS | valor=false
+START2_OBSERVER_PID=PASS | valor=null
+START2_SIGNAL_STATUS=PASS | valor=aguardando_leitura
+START2_OPERATION_STATUS=PASS | valor=none
+
+===== STOP PAPER — PRIMEIRA CHAMADA =====
+POST /observer/stop #1=200
+GET /state/current após stop #1=200
+STOP1_READER_PROCESS_STOPPED=PASS | valor=false
+STOP1_OBSERVER_STATUS=PASS | valor=OFF
+STOP1_OBSERVER_RUNNING=PASS | valor=false
+STOP1_OBSERVER_PID=PASS | valor=null
+STOP1_READING_STATUS=PASS | valor=no_active_reading
+STOP1_READING_SOURCE=PASS | valor=none
+
+===== STOP PAPER — SEGUNDA CHAMADA IDEMPOTENTE =====
+POST /observer/stop #2=200
+GET /state/current após stop #2=200
+STOP2_OBSERVER_STATUS=PASS | valor=OFF
+STOP2_OBSERVER_RUNNING=PASS | valor=false
+STOP2_OBSERVER_PID=PASS | valor=null
+STOP2_SIGNAL_STATUS=PASS | valor=aguardando_leitura
+STOP2_SIGNAL_DIRECTION=PASS | valor=NEUTRO
+STOP2_OPERATION_STATUS=PASS | valor=none
+
+===== PERSISTÊNCIA E PRESERVAÇÃO =====
+CONTRACT_PRESERVATION_STATUS=PASS
+HISTORY_PRESERVATION_STATUS=PASS
+
+===== PROCESSOS OBSERVER/READER DEPOIS =====
+Nenhum processo PredixAI Observer/Reader detectado.
+PROCESS_RUNTIME_STATUS=PASS_NO_NEW_PROCESS
+
+===== VALIDAÇÃO VISUAL PENDENTE =====
+BASE_URL_NOTEBOOK=http://127.0.0.1:5001
+BASE_URL_CELULAR=http://192.168.10.101:5001
+
+PRINT_1=http://192.168.10.101:5001/session/setup — antes de criar contrato
+PRINT_2=http://192.168.10.101:5001/session/setup — depois de criar contrato
+PRINT_3=http://192.168.10.101:5001/mobile — Observer OFF
+PRINT_4=http://192.168.10.101:5001/mobile — após Ligar controle simulado
+PRINT_5=http://192.168.10.101:5001/mobile — após Desligar controle simulado
+
+VISUAL_STATUS=PENDING_LEO_5_PRINTS
+WARN: PASS visual depende dos cinco prints enviados pelo Leo.
+
+===== RUNTIME FORA DO TRACKING =====
+RUNTIME_GITIGNORE_STATUS=PASS
+
+===== CHECKSUMS DEPOIS =====
+59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78  src/predixai/mobile_v2/app.py
+61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848  src/predixai/mobile_v2/state_store.py
+5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79  src/predixai/mobile_v2/routes.py
+699524d9d5db4071866983936bc441a13415c9ce04d1098973639edd301dead7  src/predixai/mobile_v2/templates/session_setup.html
+f1db8ab3405826411f0af5a7d1bde62062496e613070b966a325e261a9a6b9e9  src/predixai/mobile_v2/templates/mobile_v2_index.html
+af5436d71011873a51eac082b67c96789dcd27f660ffedaa8f444fba5b1d812d  scripts/predixai_trader_mobile_server.py
+64e64c64b6df3f3459ee4d841476f96154dc8c31af9ba4c30f8b8f97ec3a601e  scripts/run_mobile_v2_server.py
+CHECKSUM_STATUS=PASS
+CODE_DIFF_STATUS=PASS_NO_CODE_DIFF
+
+===== GIT DIFF CHECK =====
+$ git diff --check 
+STATUS=0
+GIT_DIFF_CHECK_STATUS=PASS
+
+===== 10 PONTOS — SKILL AUDITORIA DE BUGS =====
+1. Lógica booleana/condicional:
+   observer.status separado de observer.running/pid.
+
+2. Falha silenciosa:
+   WARN confirmado na Tela 2 por ausência de response.ok.
+
+3. Rollback:
+   Não aplicável: nenhum código foi alterado.
+
+4. Checksum:
+   Arquivos protegidos comparados antes/depois.
+
+5. Persistência real:
+   Estado consultado após cada POST.
+
+6. Estado antes/depois:
+   Start e stop registrados em arquivos JSON separados.
+
+7. Idempotência:
+   Start duas vezes e stop duas vezes.
+
+8. Git seguro:
+   Apenas relatório, Markdown e índice serão staged.
+
+9. Hash confirmado:
+   Base esperada: 9a18386067084339f80e3650918bee269532333d
+   Base executada: 9a18386067084339f80e3650918bee269532333d
+
+10. Diff contra a promessa:
+   Código da aplicação deve permanecer inalterado.
+
+===== CLASSIFICAÇÃO FINAL =====
+RESULTADO_FINAL=WARN_PASS_AUDIT_RECOVERY_VISUAL_PENDING
+FAILS=0
+WARNINGS=4
+HTTP_STATUS=PASS
+JSON_EXTRACTION_STATUS=PASS
+IDEMPOTENCE_STATUS=PASS
+PROCESS_RUNTIME_STATUS=PASS_NO_NEW_PROCESS
+VISUAL_STATUS=PENDING_LEO_5_PRINTS
+SERVER_STARTED_BY_SCRIPT=YES
+SERVER_PID=7947
+BASE_URL_CONFIRMADA=http://127.0.0.1:5001
+BASE_URL_CELULAR=http://192.168.10.101:5001
+MEMORY_UPDATE_STATUS=PENDING_C842A2
+CODE_CHANGED=NO
+REPORT=reports/20260710_031007_PTP-113C.8.4.2A.1_recovery_auditoria_observer_paper_mobile_v2_AUDIT_RECOVERY.txt
+MARKDOWN=docs/history/ptp/PTP-113/PTP-113C/20260710_031007_PTP-113C.8.4.2A.1_recovery_auditoria_observer_paper_mobile_v2_AUDIT_RECOVERY.md
+REPORT_CLOSED_BEFORE_COMMIT_PUSH=YES

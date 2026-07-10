@@ -191,3 +191,7 @@
 - 2026-07-09 00:00:48 -0300 — PTP-113C.8.4.2A — auditoria_observer_paper_mobile_v2 — AUDIT_ONLY
   - Relatório: `reports/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.txt`
   - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.md`
+
+- 2026-07-10 03:10:07 -0300 — PTP-113C.8.4.2A.1 — recovery_auditoria_observer_paper_mobile_v2 — AUDIT_RECOVERY — WARN_PASS_AUDIT_RECOVERY_VISUAL_PENDING
+  - Relatório: `reports/20260710_031007_PTP-113C.8.4.2A.1_recovery_auditoria_observer_paper_mobile_v2_AUDIT_RECOVERY.txt`
+  - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260710_031007_PTP-113C.8.4.2A.1_recovery_auditoria_observer_paper_mobile_v2_AUDIT_RECOVERY.md`
