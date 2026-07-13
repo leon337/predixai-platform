@@ -220,3 +220,4 @@
   - Markdown: `docs/history/ptp/PTP-113/PTP-113C/20260710_054501_PTP-113C.8.4.2A.2.1_recovery_executor_preflight_permanente_RECOVERY_DOC_STATE_SYNC.md`.
 <!-- PREDIXAI_PTP_113C842A21_END -->
 | 2026-07-13 | PTP-GOV.4.6B.2 | captura_linux_janela_autorizada | PASS_FINAL_AUTHORIZED_LINUX_WINDOW_CAPTURE | `reports/20260713_PTP-GOV.4.6B.2_captura_linux_janela_autorizada_FIX.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6B.2/20260713_PTP-GOV.4.6B.2_captura_linux_janela_autorizada_FIX.md` |
+| 2026-07-13 | PTP-GOV.4.6C.0 | reconciliacao_gate_visual_legado | PASS_FINAL_LOGICAL_TOPOLOGY_GATE_RECONCILIATION | `reports/20260713_PTP-GOV.4.6C.0_reconciliacao_gate_visual_legado_FIX.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.0/20260713_PTP-GOV.4.6C.0_reconciliacao_gate_visual_legado_FIX.md` |

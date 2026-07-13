@@ -25,6 +25,64 @@ def matching_observation():
     return VALIDATOR.build_example_observation()
 
 
+def derived_topology(
+    *,
+    second_geometry="1024x768+0+0",
+    root="1366 x 768",
+    panning=None,
+    transform=(
+        (1.0, 0.0, 0.0),
+        (0.0, 1.0, 0.0),
+        (0.0, 0.0, 1.0),
+    ),
+    declared_count=2,
+):
+    first_geometry = "1366x768+0+0"
+    query = "\n".join(
+        (
+            f"Screen 0: minimum 320 x 200, current {root}, maximum 8192 x 8192",
+            f"LVDS-1 connected primary {first_geometry} (normal left inverted right x axis y axis) 300mm x 200mm",
+            "   1366x768      60.00*+",
+            f"VGA-1-1 connected {second_geometry} (normal left inverted right x axis y axis) 0mm x 0mm",
+            f"   {second_geometry.split('+')[0]}      60.00*+",
+        )
+    ) + "\n"
+
+    def verbose_output(name, geometry, crtc, matrix, panning_value=None):
+        rows = [
+            f"{name} connected {geometry} (0x45) normal (normal left inverted right x axis y axis) 0mm x 0mm",
+            f"\tCRTC:       {crtc}",
+            "\tTransform:  " + " ".join(f"{value:.6f}" for value in matrix[0]),
+            "\t            " + " ".join(f"{value:.6f}" for value in matrix[1]),
+            "\t            " + " ".join(f"{value:.6f}" for value in matrix[2]),
+            "\t           filter:",
+        ]
+        if panning_value is not None:
+            rows.append(f"\tPanning: {panning_value}")
+        return rows
+
+    identity = ((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+    verbose = "\n".join(
+        (
+            f"Screen 0: minimum 320 x 200, current {root}, maximum 8192 x 8192",
+            *verbose_output("LVDS-1", first_geometry, 0, identity),
+            *verbose_output("VGA-1-1", second_geometry, 1, transform, panning),
+        )
+    ) + "\n"
+    width, height, x, y = map(
+        int,
+        __import__("re").fullmatch(r"(\d+)x(\d+)\+(\d+)\+(\d+)", second_geometry).groups(),
+    )
+    active = "\n".join(
+        (
+            f"Monitors: {declared_count}",
+            " 0: +*LVDS-1 1366/300x768/200+0+0  LVDS-1",
+            f" 1: VGA-1-1 {width}/0x{height}/0+{x}+{y}  VGA-1-1",
+        )
+    ) + "\n"
+    return VALIDATOR.derive_topology(query, verbose, active)
+
+
 def synthetic_png(width: int = 8, height: int = 6) -> bytes:
     def chunk(kind: bytes, payload: bytes) -> bytes:
         body = kind + payload
@@ -85,12 +143,69 @@ class PtpGov46AVisualContractTests(unittest.TestCase):
                 self.assertEqual(result["CAPTURE_ALLOWED"], "NO")
                 self.assertEqual(result["SOURCE_STATE"], "WAITING_SOURCE_OR_SOURCE_NOT_CONFIRMED")
 
-    def test_single_monitor_is_mandatory(self) -> None:
+    def test_single_logical_capture_surface_is_required(self) -> None:
         observation = matching_observation()
-        observation["MONITOR_COUNT"] = 2
+        topology = dict(observation["DISPLAY_TOPOLOGY"])
+        topology.update(
+            {
+                "LOGICAL_DESKTOP_COUNT": 2,
+                "CAPTURE_SURFACE_COUNT": 2,
+                "TOPOLOGY_GATE_PASS": "NO",
+            }
+        )
+        observation["DISPLAY_TOPOLOGY"] = topology
         result = VALIDATOR.evaluate_capture_gate(matching_contract(), observation)
         self.assertEqual(result["CAPTURE_ALLOWED"], "NO")
-        self.assertIn("SINGLE_MONITOR_CONTRACT_VIOLATED", result["REASONS"])
+        self.assertIn("LOGICAL_DESKTOP_COUNT_NOT_ONE", result["REASONS"])
+        self.assertIn("CAPTURE_SURFACE_COUNT_NOT_ONE", result["REASONS"])
+
+    def test_mirrored_outputs_with_one_logical_surface_are_allowed(self) -> None:
+        observation = matching_observation()
+        observation["DISPLAY_TOPOLOGY"] = derived_topology()
+        result = VALIDATOR.evaluate_capture_gate(matching_contract(), observation)
+        self.assertEqual(result["CAPTURE_ALLOWED"], "YES")
+
+    def test_extended_desktop_fails_closed(self) -> None:
+        observation = matching_observation()
+        observation["DISPLAY_TOPOLOGY"] = derived_topology(
+            second_geometry="1024x768+1366+0",
+            root="2390 x 768",
+        )
+        result = VALIDATOR.evaluate_capture_gate(matching_contract(), observation)
+        self.assertEqual(result["CAPTURE_ALLOWED"], "NO")
+        self.assertIn("EXTENDED_DESKTOP_NOT_ALLOWED", result["REASONS"])
+
+    def test_inconclusive_topology_fails_closed(self) -> None:
+        observation = matching_observation()
+        observation["DISPLAY_TOPOLOGY"] = derived_topology(declared_count=1)
+        result = VALIDATOR.evaluate_capture_gate(matching_contract(), observation)
+        self.assertEqual(result["CAPTURE_ALLOWED"], "NO")
+        self.assertIn("LOGICAL_TOPOLOGY_GATE_FAILED", result["REASONS"])
+
+    def test_panning_fails_closed(self) -> None:
+        observation = matching_observation()
+        observation["DISPLAY_TOPOLOGY"] = derived_topology(panning="1024x768+0+0")
+        result = VALIDATOR.evaluate_capture_gate(matching_contract(), observation)
+        self.assertEqual(result["CAPTURE_ALLOWED"], "NO")
+        self.assertIn("PANNING_NOT_ALLOWED", result["REASONS"])
+
+    def test_non_identity_transform_fails_closed(self) -> None:
+        observation = matching_observation()
+        observation["DISPLAY_TOPOLOGY"] = derived_topology(
+            transform=((1.2, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+        )
+        result = VALIDATOR.evaluate_capture_gate(matching_contract(), observation)
+        self.assertEqual(result["CAPTURE_ALLOWED"], "NO")
+        self.assertIn("NON_IDENTITY_TRANSFORM_NOT_ALLOWED", result["REASONS"])
+
+    def test_monitor_count_is_informational_only(self) -> None:
+        observation = matching_observation()
+        observation["MONITOR_COUNT"] = 99
+        observation["ACTIVE_OUTPUT_COUNT"] = 7
+        observation["CONNECTED_OUTPUT_COUNT"] = 9
+        result = VALIDATOR.evaluate_capture_gate(matching_contract(), observation)
+        self.assertEqual(result["CAPTURE_ALLOWED"], "YES")
+        self.assertNotIn("SINGLE_MONITOR_CONTRACT_VIOLATED", result["REASONS"])
 
     def test_full_screen_or_generic_active_window_fallback_is_prohibited(self) -> None:
         for mode in ("FULL_SCREEN", "ACTIVE_WINDOW_GENERIC", "DESKTOP"):

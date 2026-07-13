@@ -3,7 +3,8 @@
 
 This validator is intentionally preflight-only.  It may inspect environment variables,
 tool availability and X11 root metadata.  It never lists window titles, captures pixels,
-starts a server, imports PredixAI functional modules or invokes an OCR provider.
+starts a server or invokes an OCR provider.  Logical topology interpretation is delegated
+to the functional X11 topology component.
 """
 
 from __future__ import annotations
@@ -15,8 +16,20 @@ import re
 import shutil
 import struct
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
+from predixai.capture.x11_display_topology import (  # noqa: E402
+    X11DisplayTopology,
+    derive_topology,
+)
 
 
 PTP_ID = "PTP-GOV.4.6A"
@@ -48,7 +61,9 @@ OBSERVATION_FIELDS = (
     "WINDOW_FOREGROUND",
     "GEOMETRY_STABLE",
     "SOURCE_CONFIRMED",
-    "MONITOR_COUNT",
+    "DISPLAY_TOPOLOGY",
+    "DISPLAY_TOPOLOGY_STABLE",
+    "EXPLICIT_WINDOW_ID_CAPTURE_ISOLATION",
     "CAPTURE_TARGET_MODE",
 )
 
@@ -158,6 +173,35 @@ def _bool_is(value: Any, expected: bool) -> bool:
     return isinstance(value, bool) and value is expected
 
 
+def _logical_topology_reasons(observation: Mapping[str, Any]) -> tuple[str, ...]:
+    raw = observation.get("DISPLAY_TOPOLOGY")
+    if not isinstance(raw, Mapping):
+        return ("DISPLAY_TOPOLOGY_MISSING_OR_INVALID",)
+    topology = X11DisplayTopology.from_values(raw)
+    values = topology.values
+    reasons: list[str] = []
+    if values.get("LOGICAL_DESKTOP_COUNT") != 1:
+        reasons.append("LOGICAL_DESKTOP_COUNT_NOT_ONE")
+    if values.get("CAPTURE_SURFACE_COUNT") != 1:
+        reasons.append("CAPTURE_SURFACE_COUNT_NOT_ONE")
+    if values.get("EXTENDED_DESKTOP") != "NO":
+        reasons.append("EXTENDED_DESKTOP_NOT_ALLOWED")
+    if values.get("OUTPUTS_DO_NOT_EXPAND_ROOT_DESKTOP") != "YES":
+        reasons.append("OUTPUTS_EXPAND_ROOT_DESKTOP")
+    if not topology.gate_pass:
+        reasons.append("LOGICAL_TOPOLOGY_GATE_FAILED")
+    contradictions = set(values.get("CONTRADICTIONS") or ())
+    if "PANNING_DECLARED" in contradictions:
+        reasons.append("PANNING_NOT_ALLOWED")
+    if "NON_IDENTITY_TRANSFORM" in contradictions:
+        reasons.append("NON_IDENTITY_TRANSFORM_NOT_ALLOWED")
+    if observation.get("DISPLAY_TOPOLOGY_STABLE") != "YES":
+        reasons.append("DISPLAY_TOPOLOGY_NOT_STABLE")
+    if observation.get("EXPLICIT_WINDOW_ID_CAPTURE_ISOLATION") != "PASS":
+        reasons.append("EXPLICIT_WINDOW_ID_CAPTURE_ISOLATION_NOT_CONFIRMED")
+    return tuple(dict.fromkeys(reasons))
+
+
 def evaluate_capture_gate(
     contract: Mapping[str, Any],
     observation: Mapping[str, Any],
@@ -245,8 +289,7 @@ def evaluate_capture_gate(
     if not _bool_is(observation.get("SOURCE_CONFIRMED"), True):
         reasons.append("SOURCE_NOT_CONFIRMED")
 
-    if observation.get("MONITOR_COUNT") != 1:
-        reasons.append("SINGLE_MONITOR_CONTRACT_VIOLATED")
+    reasons.extend(_logical_topology_reasons(observation))
     if observation.get("CAPTURE_TARGET_MODE") != "EXPLICIT_WINDOW_ID":
         reasons.append("EXPLICIT_WINDOW_TARGET_REQUIRED")
     if contract.get("FULL_SCREEN_FALLBACK") != "PROHIBITED":
@@ -413,7 +456,22 @@ def build_example_observation() -> dict[str, Any]:
         "WINDOW_FOREGROUND": True,
         "GEOMETRY_STABLE": True,
         "SOURCE_CONFIRMED": True,
-        "MONITOR_COUNT": 1,
+        "DISPLAY_TOPOLOGY": {
+            "LOGICAL_DESKTOP_COUNT": 1,
+            "CAPTURE_SURFACE_COUNT": 1,
+            "OUTPUT_LAYOUT_MODE": "MIRRORED_OR_CLONED",
+            "EXTENDED_DESKTOP": "NO",
+            "OUTPUTS_DO_NOT_EXPAND_ROOT_DESKTOP": "YES",
+            "PANNING": {"LVDS-1": "NONE_DECLARED", "VGA-1-1": "NONE_DECLARED"},
+            "TRANSFORM": {"LVDS-1": "IDENTITY", "VGA-1-1": "IDENTITY"},
+            "CONTRADICTIONS": (),
+            "TOPOLOGY_GATE_PASS": "YES",
+        },
+        "DISPLAY_TOPOLOGY_STABLE": "YES",
+        "EXPLICIT_WINDOW_ID_CAPTURE_ISOLATION": "PASS",
+        "MONITOR_COUNT": 2,
+        "ACTIVE_OUTPUT_COUNT": 2,
+        "CONNECTED_OUTPUT_COUNT": 2,
         "CAPTURE_TARGET_MODE": "EXPLICIT_WINDOW_ID",
     }
 

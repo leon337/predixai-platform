@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """PTP-GOV.4.6B.1: characterize xwd capture of explicit synthetic X11 windows.
 
-This file is a standalone test harness.  It does not import capture, OCR, Mobile V2 or
-Observer application modules.  The synthetic override is private to this validator and
-can target only window IDs created by its own child processes.
+This file is a standalone test harness.  It does not start capture, OCR, Mobile V2 or
+Observer application modules.  Logical topology metadata comes from the functional X11
+topology component.  The synthetic override is private to this validator and can target
+only window IDs created by its own child processes.
 """
 
 from __future__ import annotations
@@ -28,6 +29,13 @@ from typing import Any, Callable, Mapping, Sequence
 
 
 ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
+from predixai.capture.x11_display_topology import X11DisplayTopologyInspector  # noqa: E402
+
+
 CONTRACT_VALIDATOR_PATH = ROOT / "scripts" / "ptp_gov_4_6a_characterize_visual_contracts.py"
 PTP_ID = "PTP-GOV.4.6B.1"
 SYNTHETIC_CHARACTERIZATION_OVERRIDE = True
@@ -672,9 +680,14 @@ def build_observation(
     snapshot: Mapping[str, Any],
     *,
     monitor_count: int,
+    display_topology: Mapping[str, Any] | None = None,
     geometry_stable: bool = True,
     source_confirmed: bool = True,
 ) -> dict[str, Any]:
+    logical_topology = dict(
+        display_topology
+        or CONTRACT.build_example_observation()["DISPLAY_TOPOLOGY"]
+    )
     return {
         "OBSERVED_WINDOW_ID": snapshot["WINDOW_ID"],
         "OBSERVED_WINDOW_PID": snapshot["WINDOW_PID"],
@@ -687,6 +700,9 @@ def build_observation(
         "WINDOW_FOREGROUND": bool(snapshot["WINDOW_FOREGROUND"]),
         "GEOMETRY_STABLE": geometry_stable,
         "SOURCE_CONFIRMED": source_confirmed,
+        "DISPLAY_TOPOLOGY": logical_topology,
+        "DISPLAY_TOPOLOGY_STABLE": "YES",
+        "EXPLICIT_WINDOW_ID_CAPTURE_ISOLATION": "PASS",
         "MONITOR_COUNT": monitor_count,
         "CAPTURE_TARGET_MODE": "EXPLICIT_WINDOW_ID",
     }
@@ -751,6 +767,7 @@ def classify_operational_gate(
     snapshot: Mapping[str, Any],
     *,
     monitor_count: int,
+    display_topology: Mapping[str, Any] | None = None,
     geometry_stable: bool = True,
     source_confirmed: bool = True,
     observation_mutations: Mapping[str, Any] | None = None,
@@ -758,6 +775,7 @@ def classify_operational_gate(
     observation = build_observation(
         snapshot["AUTHORIZED"],
         monitor_count=monitor_count,
+        display_topology=display_topology,
         geometry_stable=geometry_stable,
         source_confirmed=source_confirmed,
     )
@@ -788,8 +806,6 @@ def classify_operational_gate(
         {"WINDOW_ID_MISMATCH", "WINDOW_PID_MISMATCH", "PROCESS_NAME_MISMATCH", "TITLE_PATTERN_MISMATCH"}
     ):
         label = "BLOCKED_IDENTITY_MISMATCH"
-    elif "SINGLE_MONITOR_CONTRACT_VIOLATED" in reasons:
-        label = "BLOCKED_SINGLE_MONITOR_CONTRACT_VIOLATED"
     else:
         label = "BLOCKED_FAIL_CLOSED"
     return label, gate
@@ -937,6 +953,8 @@ def run_characterization() -> dict[str, Any]:
 
     monitor_result = run_metadata_command(("xrandr", "--listactivemonitors"))
     monitor_count = parse_monitor_count(monitor_result.stdout)
+    display_topology_snapshot = X11DisplayTopologyInspector().read_snapshot()
+    display_topology = display_topology_snapshot.to_dict()
     wm_result = run_metadata_command(("wmctrl", "-m"))
     runtime_path = ROOT / "data" / "runtime"
     runtime_hash_before = hash_tree(runtime_path)
@@ -979,6 +997,7 @@ def run_characterization() -> dict[str, Any]:
                 contract,
                 before,
                 monitor_count=int(monitor_count or 0),
+                display_topology=display_topology,
                 geometry_stable=geometry_stable,
                 source_confirmed=source_confirmed,
                 observation_mutations=mutations,
@@ -1107,6 +1126,7 @@ def run_characterization() -> dict[str, Any]:
                 contract,
                 before,
                 monitor_count=int(monitor_count or 0),
+                display_topology=display_topology,
                 observation_mutations={field: value},
             )
             identity_results.append({"FIELD": field, "OPERATIONAL_GATE_RESULT": operational, "REASONS": gate["REASONS"]})
@@ -1189,14 +1209,10 @@ def run_characterization() -> dict[str, Any]:
         )
     ]
     cleanup_pass = cleanup["OPERATIONAL_GATE_RESULT"] == "PASS_CLEANUP"
-    preflight_pass = monitor_count == 1 and not missing and session == "x11"
+    preflight_pass = display_topology_snapshot.gate_pass and not missing and session == "x11"
     backend_overall = "PIXEL_ISOLATION_NOT_CONFIRMED" if unsafe else "ISOLATED_PIXELS_CONFIRMED"
     if unsafe:
         overall = "BLOCKED_BACKEND_PIXEL_ISOLATION_NOT_CONFIRMED"
-        b2_blocked = "YES"
-        operational_capture_allowed = "NO"
-    elif monitor_count != 1:
-        overall = "BLOCKED_SINGLE_MONITOR_CONTRACT_VIOLATED"
         b2_blocked = "YES"
         operational_capture_allowed = "NO"
     elif not cleanup_pass or not preflight_pass:
@@ -1214,6 +1230,11 @@ def run_characterization() -> dict[str, Any]:
         "DISPLAY_SERVER": "X11",
         "WINDOW_MANAGER": next((line.split(":", 1)[1].strip() for line in wm_result.stdout.splitlines() if line.startswith("Name:")), "UNKNOWN"),
         "MONITOR_COUNT": monitor_count,
+        "MONITOR_COUNT_INFORMATIONAL_ONLY": "YES",
+        "LOGICAL_DESKTOP_COUNT": display_topology.get("LOGICAL_DESKTOP_COUNT"),
+        "CAPTURE_SURFACE_COUNT": display_topology.get("CAPTURE_SURFACE_COUNT"),
+        "EXTENDED_DESKTOP": display_topology.get("EXTENDED_DESKTOP"),
+        "DISPLAY_TOPOLOGY_HASH": display_topology_snapshot.topology_hash,
         "BACKEND": "xwd -silent -nobdrs -id <owned-window-id>",
         "OPERATIONAL_GATE_RESULT": overall,
         "BACKEND_TECHNICAL_CAPTURE_RESULT": backend_overall,
