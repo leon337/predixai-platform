@@ -19,6 +19,9 @@ from .routes import register_mobile_v2_routes
 from .state_store import RuntimeStateStore
 
 
+APPLICATION_ID = "MOBILE_V2"
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -103,6 +106,7 @@ def create_mobile_v2_app(store: Optional[RuntimeStateStore] = None) -> Flask:
         return jsonify(
             {
                 "ok": True,
+                "application_id": APPLICATION_ID,
                 "mobile_v2": True,
                 "standalone": True,
                 "legacy_mobile_server": False,

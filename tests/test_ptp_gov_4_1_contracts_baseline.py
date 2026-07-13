@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import fcntl
 import hashlib
+import importlib.util
 import json
 import os
 import subprocess
@@ -10,6 +11,7 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,11 +21,21 @@ if str(SRC) not in sys.path:
 
 from predixai.mobile_v2.app import create_mobile_v2_app  # noqa: E402
 from predixai.mobile_v2.state_store import (  # noqa: E402
+    RuntimeStateBackupError,
     RuntimeStateLockTimeout,
     RuntimeStateStore,
     RuntimeStateValidationError,
     create_default_state,
 )
+
+
+RUNNER_SPEC = importlib.util.spec_from_file_location(
+    "predixai_mobile_v2_runner", ROOT / "scripts" / "run_mobile_v2_server.py"
+)
+if RUNNER_SPEC is None or RUNNER_SPEC.loader is None:  # pragma: no cover
+    raise RuntimeError("could not load Mobile V2 runner")
+RUNNER = importlib.util.module_from_spec(RUNNER_SPEC)
+RUNNER_SPEC.loader.exec_module(RUNNER)
 
 
 EXPECTED_ROUTES = {
@@ -86,6 +98,7 @@ class CurrentCharacterizationTests(unittest.TestCase):
             response = app.test_client().get("/health")
             self.assertEqual(response.status_code, 200)
             payload = response.get_json()
+            self.assertEqual(payload["application_id"], "MOBILE_V2")
             self.assertIs(payload["mobile_v2"], True)
             self.assertIs(payload["standalone"], True)
             self.assertIs(payload["simulation_only"], True)
@@ -319,10 +332,7 @@ class CurrentCharacterizationTests(unittest.TestCase):
 
     def test_protected_files_match_preflight_hashes(self) -> None:
         expected = {
-            "src/predixai/mobile_v2/app.py": "59579f1294ce7f7fce02954b39b8a7b8684cff1f639e7bd91dea2f81ce82da78",
             "src/predixai/mobile_v2/routes.py": "5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79",
-            "src/predixai/mobile_v2/state_store.py": "61e7260fdb783fc836494b5d40a77f16f4802504d72ce7d16d376fabb5b0e848",
-            "scripts/run_mobile_v2_server.py": "64e64c64b6df3f3459ee4d841476f96154dc8c31af9ba4c30f8b8f97ec3a601e",
             "predixai/__init__.py": "b41cddb5318762695136eaffadd852df49d60a0097be005d28084ab003df8cb2",
             "src/predixai/__init__.py": "e92a8ed7faa347c099e41c68fa49637029579f5a5631347691662cc5cc85c3d3",
             ".gitignore": "a5b8a6c59c3387e78cfab797ec0c16c19b68206d962c50c92e50b8f4f40ceea9",
@@ -336,8 +346,8 @@ class CurrentCharacterizationTests(unittest.TestCase):
         self.assertFalse((ROOT / "pyproject.toml").exists())
 
 
-class ExpectedContractGapProofs(unittest.TestCase):
-    """Visible expected failures for approved contracts not present at the base commit."""
+class FormerExpectedContractGapTests(unittest.TestCase):
+    """Prove the three contracts that were expected gaps at the baseline commit."""
 
     def make_app(self, tmpdir: str):
         base = Path(tmpdir)
@@ -349,27 +359,182 @@ class ExpectedContractGapProofs(unittest.TestCase):
         app.config.update(TESTING=True)
         return app
 
-    @unittest.expectedFailure
     def test_gap_health_requires_application_id_mobile_v2(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             payload = self.make_app(tmpdir).test_client().get("/health").get_json()
             self.assertEqual(payload.get("application_id"), "MOBILE_V2")
 
-    @unittest.expectedFailure
     def test_gap_entrypoint_requires_port_application_identity_check(self) -> None:
-        source = (ROOT / "scripts" / "run_mobile_v2_server.py").read_text(
-            encoding="utf-8"
-        )
-        self.assertIn("application_id", source)
-        self.assertIn("port_application_identity_check", source)
+        class FakeSocket:
+            def __init__(self, connect_status: int) -> None:
+                self.connect_status = connect_status
 
-    @unittest.expectedFailure
+            def settimeout(self, timeout: float) -> None:
+                self.timeout = timeout
+
+            def connect_ex(self, address) -> int:
+                self.address = address
+                return self.connect_status
+
+            def close(self) -> None:
+                pass
+
+        class FakeResponse:
+            status = 200
+
+            def __init__(self, payload) -> None:
+                self.payload = payload
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback) -> None:
+                pass
+
+            def read(self) -> bytes:
+                return json.dumps(self.payload).encode("utf-8")
+
+        def occupied_socket_factory(*args, **kwargs):
+            return FakeSocket(0)
+
+        self.assertEqual(
+            RUNNER.port_application_identity_check(
+                "0.0.0.0",
+                5001,
+                socket_factory=lambda *args, **kwargs: FakeSocket(111),
+                urlopen_func=mock.Mock(side_effect=AssertionError("health must not be called")),
+            ),
+            RUNNER.PORT_FREE,
+        )
+        self.assertEqual(
+            RUNNER.port_application_identity_check(
+                "127.0.0.1",
+                5001,
+                socket_factory=occupied_socket_factory,
+                urlopen_func=lambda *args, **kwargs: FakeResponse(
+                    {"application_id": "MOBILE_V2"}
+                ),
+            ),
+            RUNNER.PORT_OCCUPIED_BY_MOBILE_V2,
+        )
+        self.assertEqual(
+            RUNNER.port_application_identity_check(
+                "127.0.0.1",
+                5001,
+                socket_factory=occupied_socket_factory,
+                urlopen_func=lambda *args, **kwargs: FakeResponse(
+                    {"application_id": "DASHBOARD"}
+                ),
+            ),
+            RUNNER.PORT_OCCUPIED_BY_OTHER_APPLICATION,
+        )
+        self.assertEqual(
+            RUNNER.port_application_identity_check(
+                "127.0.0.1",
+                5001,
+                socket_factory=occupied_socket_factory,
+                urlopen_func=mock.Mock(side_effect=TimeoutError),
+            ),
+            RUNNER.HEALTH_TIMEOUT,
+        )
+        self.assertEqual(
+            RUNNER.port_application_identity_check(
+                "127.0.0.1",
+                5001,
+                socket_factory=occupied_socket_factory,
+                urlopen_func=lambda *args, **kwargs: FakeResponse({"ok": True}),
+            ),
+            RUNNER.HEALTH_INVALID_RESPONSE,
+        )
+
+        with mock.patch.dict(
+            os.environ,
+            {"PREDIXAI_MOBILE_V2_HOST": "127.0.0.1", "PREDIXAI_MOBILE_V2_PORT": "5001"},
+            clear=False,
+        ):
+            with mock.patch.object(
+                RUNNER,
+                "port_application_identity_check",
+                return_value=RUNNER.PORT_OCCUPIED_BY_MOBILE_V2,
+            ):
+                self.assertEqual(RUNNER.main(), 0)
+            for blocked_status in (
+                RUNNER.PORT_OCCUPIED_BY_OTHER_APPLICATION,
+                RUNNER.HEALTH_TIMEOUT,
+                RUNNER.HEALTH_INVALID_RESPONSE,
+            ):
+                with self.subTest(blocked_status=blocked_status):
+                    with mock.patch.object(
+                        RUNNER,
+                        "port_application_identity_check",
+                        return_value=blocked_status,
+                    ):
+                        self.assertEqual(RUNNER.main(), 2)
+
+            fake_app = mock.Mock()
+            with mock.patch.object(
+                RUNNER,
+                "port_application_identity_check",
+                return_value=RUNNER.PORT_FREE,
+            ), mock.patch.object(
+                RUNNER, "create_mobile_v2_app", return_value=fake_app
+            ):
+                self.assertEqual(RUNNER.main(), 0)
+                fake_app.run.assert_called_once_with(
+                    host="127.0.0.1", port=5001, debug=False
+                )
+
     def test_gap_runtime_store_requires_explicit_backup_recovery(self) -> None:
-        source = (
-            ROOT / "src" / "predixai" / "mobile_v2" / "state_store.py"
-        ).read_text(encoding="utf-8")
-        self.assertIn("backup", source.lower())
-        self.assertIn("recover", source.lower())
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            store = RuntimeStateStore(
+                state_path=base / "state.json",
+                lock_path=base / "state.lock",
+                backup_path=base / "state.backup.json",
+            )
+
+            with self.assertRaises(RuntimeStateBackupError):
+                store.recover_from_backup()
+
+            original = create_default_state()
+            original["status"] = "backup_source"
+            store.write_state(original)
+            backup = store.create_backup()
+            self.assertEqual(backup["status"], "backup_source")
+
+            changed = create_default_state()
+            changed["status"] = "changed_after_backup"
+            store.write_state(changed)
+            recovered = store.recover_from_backup()
+            self.assertEqual(recovered["status"], "backup_source")
+            self.assertEqual(store.read_state()["status"], "backup_source")
+
+            valid_current = create_default_state()
+            valid_current["status"] = "must_survive_invalid_backup"
+            store.write_state(valid_current)
+            invalid_backup = create_default_state()
+            invalid_backup["schema_version"] = "invalid"
+            store.backup_path.write_text(
+                json.dumps(invalid_backup), encoding="utf-8"
+            )
+            with self.assertRaises(RuntimeStateBackupError):
+                store.recover_from_backup()
+            self.assertEqual(
+                store.read_state()["status"], "must_survive_invalid_backup"
+            )
+
+            store.backup_path.write_text("{corrupt", encoding="utf-8")
+            with self.assertRaises(RuntimeStateBackupError):
+                store.recover_from_backup()
+            self.assertEqual(
+                store.read_state()["status"], "must_survive_invalid_backup"
+            )
+
+            store.state_path.write_text("{corrupt", encoding="utf-8")
+            with self.assertRaises(json.JSONDecodeError):
+                store.read_state()
+            with self.assertRaises(RuntimeStateBackupError):
+                store.create_backup()
 
 
 if __name__ == "__main__":

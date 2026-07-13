@@ -29,6 +29,10 @@ class RuntimeStateLockTimeout(TimeoutError):
     """Raised when the state lock cannot be acquired in time."""
 
 
+class RuntimeStateBackupError(RuntimeError):
+    """Raised when an explicit backup or recovery operation cannot complete."""
+
+
 StateDict = Dict[str, Any]
 
 
@@ -149,11 +153,17 @@ class RuntimeStateStore:
         self,
         state_path: Optional[Path | str] = None,
         lock_path: Optional[Path | str] = None,
+        backup_path: Optional[Path | str] = None,
     ) -> None:
         default_state_path = _repo_root() / "data" / "runtime" / "mobile_v2_state.json"
         self.state_path = Path(state_path) if state_path else default_state_path
         self.lock_path = Path(lock_path) if lock_path else self.state_path.with_suffix(
             self.state_path.suffix + ".lock"
+        )
+        self.backup_path = (
+            Path(backup_path)
+            if backup_path
+            else self.state_path.with_suffix(self.state_path.suffix + ".backup")
         )
 
     @contextmanager
@@ -223,15 +233,54 @@ class RuntimeStateStore:
             validated["updated_at"] = _utc_now_iso()
             return self._write_unlocked(validated)
 
+    def create_backup(self, *, lock_timeout: float = 5.0) -> StateDict:
+        """Explicitly create an atomic backup of the validated current state."""
+        with self._exclusive_lock(timeout=lock_timeout):
+            if not self.state_path.exists():
+                raise RuntimeStateBackupError("runtime state does not exist")
+
+            try:
+                with self.state_path.open("r", encoding="utf-8") as handle:
+                    validated = validate_state(json.load(handle))
+            except (OSError, json.JSONDecodeError, RuntimeStateValidationError) as exc:
+                raise RuntimeStateBackupError(
+                    "runtime state is invalid and cannot be backed up"
+                ) from exc
+
+            return self._atomic_write_path_unlocked(self.backup_path, validated)
+
+    def recover_from_backup(self, *, lock_timeout: float = 5.0) -> StateDict:
+        """Explicitly restore a validated backup; recovery is never automatic."""
+        with self._exclusive_lock(timeout=lock_timeout):
+            if not self.backup_path.exists():
+                raise RuntimeStateBackupError("runtime state backup does not exist")
+
+            try:
+                with self.backup_path.open("r", encoding="utf-8") as handle:
+                    validated = validate_state(json.load(handle))
+            except (OSError, json.JSONDecodeError, RuntimeStateValidationError) as exc:
+                raise RuntimeStateBackupError(
+                    "runtime state backup is invalid and cannot be recovered"
+                ) from exc
+
+            return self._atomic_write_path_unlocked(self.state_path, validated)
+
     def _write_unlocked(self, state: StateDict) -> StateDict:
+        return self._atomic_write_path_unlocked(self.state_path, state)
+
+    def _atomic_write_path_unlocked(
+        self, target_path: Path, state: StateDict
+    ) -> StateDict:
+        validated = validate_state(state)
+        target_path.parent.mkdir(parents=True, exist_ok=True)
         tmp_name = (
-            f".{self.state_path.name}.{os.getpid()}.{threading.get_ident()}.tmp"
+            f".{target_path.name}.{os.getpid()}.{threading.get_ident()}.tmp"
         )
-        tmp_path = self.state_path.with_name(tmp_name)
+        tmp_path = target_path.with_name(tmp_name)
 
         try:
             with tmp_path.open("w", encoding="utf-8") as handle:
-                json.dump(state, handle, ensure_ascii=False, indent=2, sort_keys=True)
+                json.dump(validated, handle, ensure_ascii=False, indent=2, sort_keys=True)
                 handle.write("\n")
                 handle.flush()
                 os.fsync(handle.fileno())
@@ -239,8 +288,8 @@ class RuntimeStateStore:
             with tmp_path.open("r", encoding="utf-8") as handle:
                 validate_state(json.load(handle))
 
-            os.replace(tmp_path, self.state_path)
-            return copy.deepcopy(state)
+            os.replace(tmp_path, target_path)
+            return copy.deepcopy(validated)
         finally:
             if tmp_path.exists():
                 tmp_path.unlink()
