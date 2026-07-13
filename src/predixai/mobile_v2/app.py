@@ -3,7 +3,7 @@
 Scope:
 - Tela 1: /session/setup
 - Tela 2: /mobile
-- APIs clean: /state/current, /observer/start, /observer/stop
+- APIs clean: /state/current and controlled Observer commands
 - No legacy mobile_server.py integration.
 - No real observer, no real orders, no real money.
 """
@@ -15,6 +15,7 @@ from typing import Any, Dict, Optional
 
 from flask import Flask, jsonify, render_template, request
 
+from .observer_runtime import ObserverRuntimeController
 from .routes import register_mobile_v2_routes
 from .state_store import RuntimeStateStore
 
@@ -59,12 +60,32 @@ def _session_payload_from_request() -> Dict[str, Any]:
     }
 
 
-def create_mobile_v2_app(store: Optional[RuntimeStateStore] = None) -> Flask:
+def create_mobile_v2_app(
+    store: Optional[RuntimeStateStore] = None,
+    *,
+    observer_runtime: Optional[ObserverRuntimeController] = None,
+    observer_source: Optional[Any] = None,
+    observer_interval: float = 1.0,
+    observer_clock: Optional[Any] = None,
+    observer_event_factory: Optional[Any] = None,
+) -> Flask:
     """Create a standalone Mobile V2 Flask app."""
     app = Flask(__name__)
-    runtime_store = store or RuntimeStateStore()
+    runtime_store = store or (
+        observer_runtime.store if observer_runtime is not None else RuntimeStateStore()
+    )
+    if observer_runtime is not None and observer_runtime.store is not runtime_store:
+        raise ValueError("Observer runtime and application must share one state store")
 
-    registration = register_mobile_v2_routes(app, store=runtime_store)
+    registration = register_mobile_v2_routes(
+        app,
+        store=runtime_store,
+        observer_runtime=observer_runtime,
+        observer_source=observer_source,
+        observer_interval=observer_interval,
+        observer_clock=observer_clock,
+        observer_event_factory=observer_event_factory,
+    )
     app.config["PREDIXAI_MOBILE_V2_ROUTE_REGISTRATION"] = registration
 
     @app.get("/")
@@ -87,6 +108,8 @@ def create_mobile_v2_app(store: Optional[RuntimeStateStore] = None) -> Flask:
                     "GET /mobile",
                     "GET /state/current",
                     "POST /observer/start",
+                    "POST /observer/pause",
+                    "POST /observer/resume",
                     "POST /observer/stop",
                     "GET /health",
                 ],

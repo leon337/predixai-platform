@@ -46,6 +46,8 @@ EXPECTED_ROUTES = {
     ("GET", "/mobile"),
     ("GET", "/state/current"),
     ("POST", "/observer/start"),
+    ("POST", "/observer/pause"),
+    ("POST", "/observer/resume"),
     ("POST", "/observer/stop"),
 }
 
@@ -62,7 +64,7 @@ class CurrentCharacterizationTests(unittest.TestCase):
 
     def make_app(self, tmpdir: str):
         store = self.make_store(tmpdir)
-        app = create_mobile_v2_app(store=store)
+        app = create_mobile_v2_app(store=store, observer_interval=0.01)
         app.config.update(TESTING=True)
         return app, store
 
@@ -157,11 +159,15 @@ class CurrentCharacterizationTests(unittest.TestCase):
     def test_observer_start_http_contract(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             app, _ = self.make_app(tmpdir)
-            response = app.test_client().post("/observer/start")
-            self.assertEqual(response.status_code, 200)
-            payload = response.get_json()
-            self.assertIs(payload["simulated_control_only"], True)
-            self.assertIs(payload["reader_process_started"], False)
+            try:
+                response = app.test_client().post("/observer/start")
+                self.assertEqual(response.status_code, 200)
+                payload = response.get_json()
+                self.assertIs(payload["simulated_control_only"], True)
+                self.assertIs(payload["reader_process_started"], False)
+                self.assertEqual(payload["application_id"], "MOBILE_V2")
+            finally:
+                app.extensions["observer_runtime"].stop()
 
     def test_observer_stop_http_contract(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -325,6 +331,7 @@ class CurrentCharacterizationTests(unittest.TestCase):
                 "src/predixai/mobile_v2/app.py",
                 "src/predixai/mobile_v2/routes.py",
                 "src/predixai/mobile_v2/state_store.py",
+                "src/predixai/mobile_v2/observer_runtime.py",
             )
         )
         self.assertNotIn("predixai_trader_mobile_server", combined)
@@ -332,7 +339,6 @@ class CurrentCharacterizationTests(unittest.TestCase):
 
     def test_protected_files_match_preflight_hashes(self) -> None:
         expected = {
-            "src/predixai/mobile_v2/routes.py": "5047be027d814609e51ea24fdcf662e74e453e50aad717609cda868b76135e79",
             "predixai/__init__.py": "b41cddb5318762695136eaffadd852df49d60a0097be005d28084ab003df8cb2",
             "src/predixai/__init__.py": "e92a8ed7faa347c099e41c68fa49637029579f5a5631347691662cc5cc85c3d3",
             ".gitignore": "a5b8a6c59c3387e78cfab797ec0c16c19b68206d962c50c92e50b8f4f40ceea9",

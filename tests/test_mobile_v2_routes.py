@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+import threading
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -26,6 +27,15 @@ from predixai.mobile_v2.state_store import (  # noqa: E402
 
 @unittest.skipIf(Flask is None, "Flask não disponível")
 class MobileV2RoutesTests(unittest.TestCase):
+    def wait_for(self, predicate, timeout: float = 1.0) -> bool:
+        gate = threading.Event()
+        remaining = int(timeout / 0.005)
+        for _ in range(max(1, remaining)):
+            if predicate():
+                return True
+            gate.wait(0.005)
+        return bool(predicate())
+
     def make_app_and_store(self, tmpdir: str):
         app = Flask(__name__)
         base = Path(tmpdir)
@@ -33,14 +43,16 @@ class MobileV2RoutesTests(unittest.TestCase):
             state_path=base / "mobile_v2_state.json",
             lock_path=base / "mobile_v2_state.lock",
         )
-        info = register_mobile_v2_routes(app, store=store)
+        info = register_mobile_v2_routes(app, store=store, observer_interval=0.01)
         return app, store, info
 
     def test_register_routes_and_get_default_state(self) -> None:
         with TemporaryDirectory() as tmpdir:
             app, store, info = self.make_app_and_store(tmpdir)
 
-            self.assertEqual(len(info["added"]), 3)
+            self.assertEqual(len(info["added"]), 5)
+            self.assertEqual(info["observer_runtime_extension"], "observer_runtime")
+            self.assertIsNotNone(app.extensions["observer_runtime"])
             client = app.test_client()
             response = client.get("/state/current")
 
@@ -56,15 +68,25 @@ class MobileV2RoutesTests(unittest.TestCase):
     def test_observer_start_is_control_only(self) -> None:
         with TemporaryDirectory() as tmpdir:
             app, store, _ = self.make_app_and_store(tmpdir)
-            response = app.test_client().post("/observer/start")
-
-            self.assertEqual(response.status_code, 200)
-            data = response.get_json()
-            self.assertTrue(data["simulated_control_only"])
-            self.assertFalse(data["reader_process_started"])
-            self.assertEqual(data["state"]["observer"]["status"], "ON_WAITING_SOURCE")
-            self.assertFalse(data["state"]["observer"]["running"])
-            self.assertTrue(store.state_path.exists())
+            controller = app.extensions["observer_runtime"]
+            try:
+                response = app.test_client().post("/observer/start")
+                self.assertEqual(response.status_code, 200)
+                data = response.get_json()
+                self.assertTrue(data["simulated_control_only"])
+                self.assertFalse(data["reader_process_started"])
+                self.assertEqual(data["application_id"], "MOBILE_V2")
+                self.assertEqual(data["observer_state"], "STARTING")
+                self.assertTrue(data["changed"])
+                self.assertTrue(
+                    self.wait_for(
+                        lambda: store.read_state()["observer_state"] == "ON_SIMULATED"
+                    )
+                )
+                self.assertTrue(controller.thread_alive)
+                self.assertTrue(store.state_path.exists())
+            finally:
+                controller.stop()
 
     def test_observer_stop_sets_off_without_real_kill(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -78,8 +100,12 @@ class MobileV2RoutesTests(unittest.TestCase):
             data = response.get_json()
             self.assertTrue(data["simulated_control_only"])
             self.assertFalse(data["reader_process_stopped"])
+            self.assertEqual(data["application_id"], "MOBILE_V2")
+            self.assertTrue(data["changed"])
+            self.assertIsNone(data["error"])
             self.assertEqual(data["state"]["observer"]["status"], "OFF")
             self.assertEqual(data["state"]["signal"]["status"], "aguardando_leitura")
+            self.assertFalse(app.extensions["observer_runtime"].thread_alive)
 
     def test_age_seconds_is_not_persisted(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -106,9 +132,13 @@ class MobileV2RoutesTests(unittest.TestCase):
             app, store, first = self.make_app_and_store(tmpdir)
             second = register_mobile_v2_routes(app, store=store)
 
-            self.assertEqual(len(first["added"]), 3)
+            self.assertEqual(len(first["added"]), 5)
             self.assertEqual(len(second["added"]), 0)
-            self.assertEqual(len(second["skipped"]), 3)
+            self.assertEqual(len(second["skipped"]), 5)
+            self.assertIs(
+                app.extensions["observer_runtime"],
+                app.extensions["observer_runtime"],
+            )
 
 
 if __name__ == "__main__":

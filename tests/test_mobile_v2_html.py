@@ -49,6 +49,13 @@ class MobileV2HtmlScreensTests(unittest.TestCase):
             self.assertIn("Sinal atual — placeholder", html)
             self.assertIn("Histórico — placeholder futuro", html)
             self.assertIn("Não existe geração de sinal", html)
+            self.assertIn('id="observerCycle"', html)
+            self.assertIn('id="observerLastReading"', html)
+            self.assertIn('id="observerUpdatedAt"', html)
+            self.assertIn('id="observerError"', html)
+            self.assertIn('fetch("/observer/pause"', html)
+            self.assertIn('fetch("/observer/resume"', html)
+            self.assertIn("window.predixaiMobileV2PollingTimer", html)
 
     def test_session_create_sets_simulated_contract_only(self) -> None:
         with TemporaryDirectory() as tmpdir:

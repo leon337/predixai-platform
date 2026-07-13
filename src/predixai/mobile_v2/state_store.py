@@ -35,6 +35,15 @@ class RuntimeStateBackupError(RuntimeError):
 
 StateDict = Dict[str, Any]
 
+OBSERVER_STATES = {
+    "OFF",
+    "STARTING",
+    "ON_WAITING_SOURCE",
+    "ON_SIMULATED",
+    "PAUSED",
+    "ERROR",
+}
+
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -56,6 +65,11 @@ def create_default_state() -> StateDict:
         "schema_version": "mobile_v2_state_v1",
         "status": "idle",
         "updated_at": now,
+        "observer_state": "OFF",
+        "observer_cycle": 0,
+        "observer_updated_at": now,
+        "observer_last_reading": None,
+        "observer_error": None,
         "observer": {
             "status": "OFF",
             "running": False,
@@ -112,11 +126,29 @@ _REQUIRED_TOP_LEVEL = {
 }
 
 
+def migrate_state(state: StateDict) -> StateDict:
+    """Add Observer V2 defaults to pre-PTP-GOV.4.4 states without schema break."""
+    migrated = copy.deepcopy(state)
+    observer = migrated.get("observer")
+    if not isinstance(observer, dict):
+        return migrated
+    observer_state = observer.get("status", "OFF")
+    if observer_state not in OBSERVER_STATES:
+        observer_state = "OFF"
+    migrated.setdefault("observer_state", observer_state)
+    migrated.setdefault("observer_cycle", 0)
+    migrated.setdefault("observer_updated_at", migrated.get("updated_at"))
+    migrated.setdefault("observer_last_reading", None)
+    migrated.setdefault("observer_error", observer.get("last_error"))
+    return migrated
+
+
 def validate_state(state: StateDict) -> StateDict:
     """Validate and return a deep copy of the state."""
     if not isinstance(state, dict):
         raise RuntimeStateValidationError("state must be a dict")
 
+    state = migrate_state(state)
     missing = sorted(_REQUIRED_TOP_LEVEL.difference(state.keys()))
     if missing:
         raise RuntimeStateValidationError(f"missing top-level fields: {missing}")
@@ -127,6 +159,23 @@ def validate_state(state: StateDict) -> StateDict:
     for key in ("observer", "reading", "session", "signal", "operation", "history"):
         if not isinstance(state.get(key), dict):
             raise RuntimeStateValidationError(f"{key} must be a dict")
+
+    if state["observer_state"] not in OBSERVER_STATES:
+        raise RuntimeStateValidationError("invalid observer_state")
+    if not isinstance(state["observer_cycle"], int) or state["observer_cycle"] < 0:
+        raise RuntimeStateValidationError("observer_cycle must be a non-negative int")
+    if state["observer_updated_at"] is not None and not isinstance(
+        state["observer_updated_at"], str
+    ):
+        raise RuntimeStateValidationError("observer_updated_at must be a string or null")
+    if state["observer_last_reading"] is not None and not isinstance(
+        state["observer_last_reading"], dict
+    ):
+        raise RuntimeStateValidationError("observer_last_reading must be a dict or null")
+    if state["observer_error"] is not None and not isinstance(
+        state["observer_error"], str
+    ):
+        raise RuntimeStateValidationError("observer_error must be a string or null")
 
     session = state["session"]
     required_safety = {

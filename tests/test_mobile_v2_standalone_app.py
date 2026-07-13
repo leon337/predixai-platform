@@ -23,7 +23,7 @@ class MobileV2StandaloneAppTests(unittest.TestCase):
             state_path=base / "mobile_v2_state.json",
             lock_path=base / "mobile_v2_state.lock",
         )
-        return create_mobile_v2_app(store=store), store
+        return create_mobile_v2_app(store=store, observer_interval=0.01), store
 
     def test_index_exposes_standalone_metadata(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -51,6 +51,7 @@ class MobileV2StandaloneAppTests(unittest.TestCase):
             self.assertTrue(data["ok"])
             self.assertTrue(data["mobile_v2"])
             self.assertTrue(data["standalone"])
+            self.assertEqual(data["application_id"], "MOBILE_V2")
 
     def test_mobile_v2_routes_are_available(self) -> None:
         with TemporaryDirectory() as tmpdir:
@@ -66,6 +67,7 @@ class MobileV2StandaloneAppTests(unittest.TestCase):
             start_data = start_response.get_json()
             self.assertTrue(start_data["simulated_control_only"])
             self.assertFalse(start_data["reader_process_started"])
+            self.assertEqual(start_data["application_id"], "MOBILE_V2")
             self.assertTrue(store.state_path.exists())
 
             stop_response = client.post("/observer/stop")
@@ -73,7 +75,9 @@ class MobileV2StandaloneAppTests(unittest.TestCase):
             stop_data = stop_response.get_json()
             self.assertTrue(stop_data["simulated_control_only"])
             self.assertFalse(stop_data["reader_process_stopped"])
+            self.assertEqual(stop_data["observer_state"], "OFF")
             self.assertEqual(stop_data["state"]["observer"]["status"], "OFF")
+            self.assertFalse(app.extensions["observer_runtime"].thread_alive)
 
 
 if __name__ == "__main__":

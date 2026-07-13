@@ -81,6 +81,8 @@
       cursor: pointer;
     }
     .start { background: linear-gradient(135deg, #127a54, #0e5642); }
+    .pause { background: linear-gradient(135deg, #9a6700, #6e4a00); }
+    .resume { background: linear-gradient(135deg, #5b45a5, #3f3177); }
     .stop { background: linear-gradient(135deg, #8c2f39, #5c1d28); }
     .refresh { background: linear-gradient(135deg, #0f7ea1, #124f86); }
     .safe {
@@ -114,13 +116,31 @@
         <div id="observerStatus" class="value status-off">Carregando...</div>
       </div>
       <div class="item">
-        <div class="label">Processo real</div>
+        <div class="label">Thread simulada ativa</div>
         <div id="observerRunning" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Ciclo</div>
+        <div id="observerCycle" class="value">0</div>
+      </div>
+      <div class="item">
+        <div class="label">Atualizado em</div>
+        <div id="observerUpdatedAt" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Última leitura simulada</div>
+        <div id="observerLastReading" class="value">-</div>
+      </div>
+      <div class="item">
+        <div class="label">Erro controlado</div>
+        <div id="observerError" class="value">-</div>
       </div>
     </div>
     <div class="actions" style="margin-top:12px">
-      <button class="start" onclick="observerStart()">Ligar controle simulado</button>
-      <button class="stop" onclick="observerStop()">Desligar controle simulado</button>
+      <button id="observerStartButton" class="start" onclick="observerStart()">Iniciar simulação</button>
+      <button id="observerPauseButton" class="pause" onclick="observerPause()">Pausar</button>
+      <button id="observerResumeButton" class="resume" onclick="observerResume()">Retomar</button>
+      <button id="observerStopButton" class="stop" onclick="observerStop()">Parar</button>
       <button class="refresh" onclick="loadState()">Atualizar</button>
       <a class="btn" href="/session/setup">Voltar para Tela 1</a>
     </div>
@@ -425,8 +445,24 @@ async function loadState() {
   const session = state.session || {};
   const history = state.history || {};
 
-  document.getElementById("observerStatus").textContent = text(observer.status);
+  const observerState = text(state.observer_state || observer.status, "OFF");
+  const observerCycle = Number(state.observer_cycle || 0);
+  const lastReading = state.observer_last_reading || null;
+  document.getElementById("observerStatus").textContent = observerState;
   document.getElementById("observerRunning").textContent = observer.running ? "SIM" : "NÃO";
+  document.getElementById("observerCycle").textContent = String(observerCycle);
+  document.getElementById("observerUpdatedAt").textContent = text(state.observer_updated_at);
+  document.getElementById("observerLastReading").textContent = lastReading
+    ? text(lastReading.asset) + " @ " + text(lastReading.price)
+    : "Sem leitura simulada";
+  document.getElementById("observerError").textContent = text(state.observer_error, "Sem erro");
+
+  document.getElementById("observerStartButton").disabled = observerState !== "OFF";
+  document.getElementById("observerPauseButton").disabled = observerState !== "ON_SIMULATED";
+  document.getElementById("observerResumeButton").disabled = observerState !== "PAUSED";
+  document.getElementById("observerStopButton").disabled = ![
+    "STARTING", "ON_WAITING_SOURCE", "ON_SIMULATED", "PAUSED", "ERROR"
+  ].includes(observerState);
 
   document.getElementById("asset").textContent = text(reading.asset, "Sem leitura ativa");
   document.getElementById("price").textContent = text(reading.price, "Sem leitura ativa");
@@ -455,13 +491,25 @@ async function observerStart() {
   await loadState();
 }
 
+async function observerPause() {
+  await fetch("/observer/pause", {method: "POST"});
+  await loadState();
+}
+
+async function observerResume() {
+  await fetch("/observer/resume", {method: "POST"});
+  await loadState();
+}
+
 async function observerStop() {
   await fetch("/observer/stop", {method: "POST"});
   await loadState();
 }
 
 loadState();
-setInterval(loadState, 5000);
+if (!window.predixaiMobileV2PollingTimer) {
+  window.predixaiMobileV2PollingTimer = window.setInterval(loadState, 5000);
+}
 </script>
 
 <!-- PTP113C8341_NORMALIZAR_VISUAL_CONTRATO_MOBILE_START -->
@@ -485,6 +533,10 @@ setInterval(loadState, 5000);
     "not_created": "Não configurada",
     "aguardando_leitura": "Aguardando leitura",
     "ON_WAITING_SOURCE": "Aguardando leitura do observer",
+    "STARTING": "Iniciando observer simulado",
+    "ON_SIMULATED": "Observer simulado ativo",
+    "PAUSED": "Observer simulado pausado",
+    "ERROR": "Erro controlado no observer",
     "OFF": "Desligado",
     "simulated_control_only": "Controle simulado",
     "none": "Nenhuma"

@@ -1,8 +1,8 @@
 """Clean Mobile V2 routes for PredixAI Trader.
 
-These routes are intentionally minimal and controlled:
+These routes are intentionally controlled:
 - They do not replace the legacy /mobile screen.
-- They do not start a real observer process yet.
+- They own only a deterministic simulation thread per application.
 - They do not execute orders, clicks, broker login or real-money actions.
 """
 
@@ -12,11 +12,12 @@ import copy
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
+from .observer_runtime import (
+    APPLICATION_ID,
+    DeterministicSimulatedSource,
+    ObserverRuntimeController,
+)
 from .state_store import RuntimeStateStore
-
-
-def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
 
 
 def _parse_iso(value: Optional[str]) -> Optional[datetime]:
@@ -59,7 +60,16 @@ def _endpoint_exists(app: Any, endpoint: str) -> bool:
     return endpoint in getattr(app, "view_functions", {})
 
 
-def register_mobile_v2_routes(app: Any, store: Optional[RuntimeStateStore] = None) -> Dict[str, Any]:
+def register_mobile_v2_routes(
+    app: Any,
+    store: Optional[RuntimeStateStore] = None,
+    *,
+    observer_runtime: Optional[ObserverRuntimeController] = None,
+    observer_source: Optional[Any] = None,
+    observer_interval: float = 1.0,
+    observer_clock: Optional[Any] = None,
+    observer_event_factory: Optional[Any] = None,
+) -> Dict[str, Any]:
     """Register clean Mobile V2 routes on a Flask app.
 
     Returns a small registration report for auditability.
@@ -71,6 +81,25 @@ def register_mobile_v2_routes(app: Any, store: Optional[RuntimeStateStore] = Non
         raise RuntimeError("Flask is required to register Mobile V2 routes") from exc
 
     runtime_store = store or RuntimeStateStore()
+    existing_controller = app.extensions.get("observer_runtime")
+    if existing_controller is not None:
+        if observer_runtime is not None and observer_runtime is not existing_controller:
+            raise ValueError("one Observer runtime controller is allowed per application")
+        controller = existing_controller
+    else:
+        controller_kwargs: Dict[str, Any] = {
+            "source": observer_source or DeterministicSimulatedSource(),
+            "interval": observer_interval,
+            "clock": observer_clock,
+        }
+        if observer_event_factory is not None:
+            controller_kwargs["event_factory"] = observer_event_factory
+        controller = observer_runtime or ObserverRuntimeController(
+            runtime_store, **controller_kwargs
+        )
+        app.extensions["observer_runtime"] = controller
+    if controller.store is not runtime_store:
+        raise ValueError("Observer runtime and routes must share one state store")
     added = []
     skipped = []
 
@@ -94,69 +123,40 @@ def register_mobile_v2_routes(app: Any, store: Optional[RuntimeStateStore] = Non
             }
         )
 
+    def observer_response(route: str, result: Dict[str, Any]):
+        error = result["error"]
+        payload = {
+            "ok": error is None,
+            "application_id": APPLICATION_ID,
+            "mobile_v2": True,
+            "route": route,
+            "simulated_control_only": True,
+            "reader_process_started": False,
+            "reader_process_stopped": False,
+            "observer_state": result["observer_state"],
+            "observer_cycle": result["observer_cycle"],
+            "changed": result["changed"],
+            "error": error,
+            "state": _with_runtime_fields(result["state"]),
+        }
+        return jsonify(payload), (200 if error is None else 409)
+
     def observer_start():
-        now = _now_iso()
+        return observer_response("/observer/start", controller.start())
 
-        def mutate(state: Dict[str, Any]) -> Dict[str, Any]:
-            state["status"] = "observer_waiting_source"
-            state["observer"]["status"] = "ON_WAITING_SOURCE"
-            state["observer"]["running"] = False
-            state["observer"]["pid"] = None
-            state["observer"]["last_error"] = None
-            state["observer"]["started_at"] = now
-            state["observer"]["stopped_at"] = None
-            state["reading"]["status"] = "waiting_source"
-            state["reading"]["source"] = "simulated_control_only"
-            return state
+    def observer_pause():
+        return observer_response("/observer/pause", controller.pause())
 
-        state = runtime_store.update_state(mutate)
-        return jsonify(
-            {
-                "ok": True,
-                "mobile_v2": True,
-                "route": "/observer/start",
-                "simulated_control_only": True,
-                "reader_process_started": False,
-                "message": "Observer V2 control state set to ON_WAITING_SOURCE. No real reader process was started.",
-                "state": _with_runtime_fields(state),
-            }
-        )
+    def observer_resume():
+        return observer_response("/observer/resume", controller.resume())
 
     def observer_stop():
-        now = _now_iso()
-
-        def mutate(state: Dict[str, Any]) -> Dict[str, Any]:
-            state["status"] = "idle"
-            state["observer"]["status"] = "OFF"
-            state["observer"]["running"] = False
-            state["observer"]["pid"] = None
-            state["observer"]["last_error"] = None
-            state["observer"]["stopped_at"] = now
-            state["reading"]["status"] = "no_active_reading"
-            state["reading"]["asset"] = None
-            state["reading"]["price"] = None
-            state["reading"]["captured_at"] = None
-            state["reading"]["source"] = "none"
-            state["signal"]["status"] = "aguardando_leitura"
-            state["signal"]["direction"] = "NEUTRO"
-            state["signal"]["confidence"] = None
-            return state
-
-        state = runtime_store.update_state(mutate)
-        return jsonify(
-            {
-                "ok": True,
-                "mobile_v2": True,
-                "route": "/observer/stop",
-                "simulated_control_only": True,
-                "reader_process_stopped": False,
-                "message": "Observer V2 control state set to OFF. No real process kill was executed.",
-                "state": _with_runtime_fields(state),
-            }
-        )
+        return observer_response("/observer/stop", controller.stop())
 
     add_rule("/state/current", "mobile_v2_state_current", state_current, ["GET"])
     add_rule("/observer/start", "mobile_v2_observer_start", observer_start, ["POST"])
+    add_rule("/observer/pause", "mobile_v2_observer_pause", observer_pause, ["POST"])
+    add_rule("/observer/resume", "mobile_v2_observer_resume", observer_resume, ["POST"])
     add_rule("/observer/stop", "mobile_v2_observer_stop", observer_stop, ["POST"])
 
     return {
@@ -164,4 +164,5 @@ def register_mobile_v2_routes(app: Any, store: Optional[RuntimeStateStore] = Non
         "added": added,
         "skipped": skipped,
         "simulated_control_only": True,
+        "observer_runtime_extension": "observer_runtime",
     }

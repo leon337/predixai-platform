@@ -39,6 +39,11 @@ class RuntimeStateStoreTests(unittest.TestCase):
         self.assertFalse(state["session"]["auto_click_enabled"])
         self.assertFalse(state["session"]["broker_login_enabled"])
         self.assertFalse(state["session"]["credentials_allowed"])
+        self.assertEqual(state["observer_state"], "OFF")
+        self.assertEqual(state["observer_cycle"], 0)
+        self.assertIsNone(state["observer_last_reading"])
+        self.assertIsNone(state["observer_error"])
+        self.assertIsInstance(state["observer_updated_at"], str)
 
     def test_write_and_read_state_sequential(self) -> None:
         with TemporaryDirectory() as tmpdir:
