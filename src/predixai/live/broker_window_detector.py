@@ -8,6 +8,8 @@ import subprocess
 import sys
 from ctypes import Structure, byref, c_int, create_unicode_buffer
 from datetime import datetime
+from pathlib import Path
+from typing import Callable, Sequence
 
 if sys.platform.startswith("win"):
     from ctypes import windll
@@ -27,6 +29,17 @@ class _RECT(Structure):
 
 
 class BrokerWindowDetector:
+    def __init__(
+        self,
+        *,
+        command_runner: Callable[
+            [Sequence[str]], subprocess.CompletedProcess[str]
+        ] | None = None,
+        process_name_reader: Callable[[int], str] | None = None,
+    ) -> None:
+        self._command_runner = command_runner or self._run_targeted_command
+        self._process_name_reader = process_name_reader or self._read_process_name
+
     def detect(self) -> BrokerWindowState:
         detected_at = datetime.now().astimezone().isoformat()
 
@@ -136,6 +149,112 @@ class BrokerWindowDetector:
             },
         )
 
+    def inspect_explicit_linux_window(self, window_id: str) -> BrokerWindowState:
+        """Inspect exactly one X11 client without enumerating or selecting fallbacks."""
+        if not sys.platform.startswith("linux"):
+            raise RuntimeError("explicit X11 inspection is available only on Linux")
+        normalized = self._normalize_window_id(window_id)
+        if not normalized:
+            raise ValueError("explicit non-zero hexadecimal window ID is required")
+        if shutil.which("xprop") is None or shutil.which("xwininfo") is None:
+            raise RuntimeError("xprop and xwininfo are required for explicit X11 inspection")
+
+        properties = self._command_runner(
+            (
+                "xprop",
+                "-id",
+                normalized,
+                "_NET_WM_PID",
+                "WM_CLASS",
+                "_NET_WM_NAME",
+                "WM_NAME",
+                "_NET_WM_STATE",
+            )
+        )
+        geometry_result = self._command_runner(
+            ("xwininfo", "-id", normalized, "-stats", "-wm")
+        )
+        active_result = self._command_runner(
+            ("xprop", "-root", "_NET_ACTIVE_WINDOW")
+        )
+        for label, result in (
+            ("xprop-window", properties),
+            ("xwininfo-window", geometry_result),
+            ("xprop-active", active_result),
+        ):
+            if result.returncode != 0:
+                raise RuntimeError(
+                    f"{label} failed with return code {result.returncode}"
+                )
+
+        pid_match = re.search(r"_NET_WM_PID\(CARDINAL\)\s*=\s*(\d+)", properties.stdout)
+        title_match = re.search(
+            r'_NET_WM_NAME\([^)]*\)\s*=\s*"([^"]*)"',
+            properties.stdout,
+        )
+        if title_match is None:
+            title_match = re.search(
+                r'WM_NAME\([^)]*\)\s*=\s*"([^"]*)"',
+                properties.stdout,
+            )
+        if pid_match is None or title_match is None:
+            raise RuntimeError("targeted X11 identity metadata is incomplete")
+        pid = int(pid_match.group(1))
+        process_name = self._process_name_reader(pid).strip()
+        if not process_name:
+            raise RuntimeError("targeted X11 process name is unavailable")
+
+        def integer(label: str) -> int:
+            match = re.search(
+                rf"{re.escape(label)}:\s+(-?\d+)", geometry_result.stdout
+            )
+            if match is None:
+                raise RuntimeError(f"targeted X11 geometry missing: {label}")
+            return int(match.group(1))
+
+        left = integer("Absolute upper-left X")
+        top = integer("Absolute upper-left Y")
+        width = integer("Width")
+        height = integer("Height")
+        if width <= 0 or height <= 0:
+            raise RuntimeError("targeted X11 geometry is invalid")
+        map_match = re.search(r"Map State:\s+([^\n]+)", geometry_result.stdout)
+        if map_match is None:
+            raise RuntimeError("targeted X11 map state is unavailable")
+        visible = map_match.group(1).strip() == "IsViewable"
+        minimized = "_NET_WM_STATE_HIDDEN" in properties.stdout or not visible
+        active_match = re.search(
+            r"#\s*(0x[0-9a-fA-F]+)", active_result.stdout
+        )
+        active_id = (
+            self._normalize_window_id(active_match.group(1)) if active_match else ""
+        )
+        foreground = active_id == normalized
+        detected_at = datetime.now().astimezone().isoformat()
+        title = title_match.group(1)
+
+        return BrokerWindowState(
+            title=title,
+            resolution_width=width,
+            resolution_height=height,
+            left=left,
+            top=top,
+            maximized=False,
+            foreground=foreground,
+            detected_at=detected_at,
+            metadata={
+                "detected": True,
+                "detector": "linux_x11_explicit_window",
+                "window_id": normalized,
+                "window_pid": pid,
+                "process_name": process_name,
+                "window_visible": visible,
+                "window_minimized": minimized,
+                "active_window_id": active_id,
+                "fallback_used": False,
+            },
+        )
+
     def _unsupported_platform(self, detected_at: str, reason: str | None = None) -> BrokerWindowState:
         return BrokerWindowState(
             title="WINDOW_DETECTION_UNAVAILABLE",
@@ -211,6 +330,46 @@ class BrokerWindowDetector:
             return int(match.group(1), 16)
         except ValueError:
             return None
+
+    @staticmethod
+    def _normalize_window_id(value: object) -> str:
+        text = str(value or "").strip().lower()
+        if not re.fullmatch(r"0x[0-9a-f]+", text):
+            return ""
+        numeric = int(text, 16)
+        return hex(numeric) if numeric > 0 else ""
+
+    @staticmethod
+    def _run_targeted_command(
+        command: Sequence[str],
+    ) -> subprocess.CompletedProcess[str]:
+        allowed = (
+            tuple(command[:2]) in {
+                ("xprop", "-id"),
+                ("xwininfo", "-id"),
+                ("xprop", "-root"),
+            }
+            and "-root" not in command[2:]
+        )
+        if not allowed:
+            raise ValueError(f"targeted X11 command is not allowlisted: {tuple(command)!r}")
+        return subprocess.run(
+            list(command),
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=3.0,
+        )
+
+    @staticmethod
+    def _read_process_name(pid: int) -> str:
+        if pid <= 0:
+            return ""
+        path = Path("/proc") / str(pid) / "comm"
+        try:
+            return path.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeError):
+            return ""
 
     def _window_text(self, user32: object, hwnd: int) -> str:
         length = user32.GetWindowTextLengthW(hwnd)

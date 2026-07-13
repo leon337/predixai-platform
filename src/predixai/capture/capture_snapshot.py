@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 import ctypes
+import hashlib
+import os
 import platform
+import re
+import stat
 import struct
+import subprocess
 import zlib
 from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
+from typing import Callable, Sequence
 
 _BI_RGB = 0
 _DIB_RGB_COLORS = 0
@@ -46,6 +53,225 @@ class ManualScreenSnapshot:
             height=height,
             file_size_bytes=output_path.stat().st_size,
         )
+
+
+@dataclass(frozen=True)
+class LinuxXwdSnapshotResult:
+    """Validated pixels captured from one explicit X11 client."""
+
+    width: int
+    height: int
+    file_size_bytes: int
+    xwd_sha256: str
+    pixel_sha256: str
+    pixel_format: str = "RGB24"
+    pixel_bytes: bytes = field(repr=False, compare=False, default=b"")
+
+
+class LinuxXwdWindowSnapshot:
+    """Capture only a caller-supplied X11 client ID through xwd."""
+
+    PROHIBITED_OPTIONS = frozenset({"-root", "-screen", "-name", "-frame"})
+
+    def __init__(
+        self,
+        *,
+        command_runner: Callable[..., subprocess.CompletedProcess[str]] | None = None,
+        timeout: float = 3.0,
+    ) -> None:
+        self._command_runner = command_runner or subprocess.run
+        self._timeout = timeout
+
+    @staticmethod
+    def normalize_window_id(value: object) -> str:
+        text = str(value or "").strip().lower()
+        if not re.fullmatch(r"0x[0-9a-f]+", text):
+            return ""
+        numeric = int(text, 16)
+        return hex(numeric) if numeric > 0 else ""
+
+    @classmethod
+    def build_command(
+        cls, window_id: object, output_path: Path
+    ) -> tuple[str, ...]:
+        normalized = cls.normalize_window_id(window_id)
+        if not normalized:
+            raise ValueError("explicit non-zero hexadecimal window ID is required")
+        if not output_path.is_absolute():
+            raise ValueError("xwd output must use an absolute temporary path")
+        command = (
+            "xwd",
+            "-silent",
+            "-nobdrs",
+            "-id",
+            normalized,
+            "-out",
+            str(output_path),
+        )
+        if cls.PROHIBITED_OPTIONS.intersection(command) or "-id" not in command:
+            raise ValueError("prohibited xwd fallback option")
+        return command
+
+    def capture(
+        self,
+        *,
+        window_id: object,
+        output_path: Path,
+        expected_width: int,
+        expected_height: int,
+    ) -> LinuxXwdSnapshotResult:
+        """Capture, validate and decode one XWD file without persisting its path."""
+        command = self.build_command(window_id, output_path)
+        if output_path.exists() or output_path.is_symlink():
+            raise RuntimeError("temporary XWD output must not pre-exist")
+        completed = self._command_runner(
+            list(command),
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=self._timeout,
+            shell=False,
+        )
+        if completed.returncode != 0:
+            raise RuntimeError(f"xwd failed with return code {completed.returncode}")
+        metadata = output_path.lstat()
+        if (
+            stat.S_ISLNK(metadata.st_mode)
+            or not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_uid != os.getuid()
+            or metadata.st_nlink != 1
+        ):
+            raise RuntimeError("xwd output is not a regular non-symlink file")
+        descriptor = os.open(output_path, os.O_RDONLY | os.O_NOFOLLOW)
+        try:
+            opened = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or (opened.st_dev, opened.st_ino)
+                != (metadata.st_dev, metadata.st_ino)
+            ):
+                raise RuntimeError("xwd output changed during secure open")
+            with os.fdopen(descriptor, "rb", closefd=False) as handle:
+                data = handle.read()
+        finally:
+            os.close(descriptor)
+        width, height, pixels = _decode_xwd_rgb24(
+            data,
+            expected_width=expected_width,
+            expected_height=expected_height,
+        )
+        return LinuxXwdSnapshotResult(
+            width=width,
+            height=height,
+            file_size_bytes=len(data),
+            xwd_sha256=hashlib.sha256(data).hexdigest(),
+            pixel_sha256=hashlib.sha256(pixels).hexdigest(),
+            pixel_bytes=pixels,
+        )
+
+
+_XWD_HEADER_NAMES = (
+    "header_size",
+    "file_version",
+    "pixmap_format",
+    "pixmap_depth",
+    "pixmap_width",
+    "pixmap_height",
+    "xoffset",
+    "byte_order",
+    "bitmap_unit",
+    "bitmap_bit_order",
+    "bitmap_pad",
+    "bits_per_pixel",
+    "bytes_per_line",
+    "visual_class",
+    "red_mask",
+    "green_mask",
+    "blue_mask",
+    "bits_per_rgb",
+    "colormap_entries",
+    "ncolors",
+    "window_width",
+    "window_height",
+    "window_x",
+    "window_y",
+    "window_bdrwidth",
+)
+
+
+def _mask_channel(pixel: int, mask: int) -> int:
+    shift = (mask & -mask).bit_length() - 1
+    maximum = mask >> shift
+    return round(((pixel & mask) >> shift) * 255 / maximum)
+
+
+def _decode_xwd_rgb24(
+    data: bytes, *, expected_width: int, expected_height: int
+) -> tuple[int, int, bytes]:
+    if len(data) < 100:
+        raise ValueError("XWD header is truncated")
+    values = struct.unpack(">25I", data[:100])
+    header = dict(zip(_XWD_HEADER_NAMES, values))
+    if header["file_version"] != 7:
+        little = dict(zip(_XWD_HEADER_NAMES, struct.unpack("<25I", data[:100])))
+        if little["file_version"] == 7:
+            raise ValueError("unsupported XWD header endianness")
+        raise ValueError("unsupported XWD file version")
+    if header["header_size"] < 100 or header["header_size"] > len(data):
+        raise ValueError("contradictory XWD header size")
+    if header["pixmap_format"] != 2:
+        raise ValueError("unsupported XWD pixmap format")
+    if header["bits_per_pixel"] not in {24, 32}:
+        raise ValueError("unsupported XWD pixel format")
+    if header["byte_order"] not in {0, 1}:
+        raise ValueError("unsupported XWD pixel endianness")
+    if header["bitmap_pad"] not in {8, 16, 32}:
+        raise ValueError("unsupported XWD bitmap padding")
+    width = int(header["pixmap_width"])
+    height = int(header["pixmap_height"])
+    if (
+        width != expected_width
+        or height != expected_height
+        or header["window_width"] != expected_width
+        or header["window_height"] != expected_height
+    ):
+        raise ValueError("XWD dimensions contradict authorized client geometry")
+    bytes_per_pixel = header["bits_per_pixel"] // 8
+    minimum_stride = width * bytes_per_pixel
+    stride = int(header["bytes_per_line"])
+    pad_bytes = header["bitmap_pad"] // 8
+    if stride < minimum_stride or stride % pad_bytes != 0:
+        raise ValueError("XWD stride contradicts dimensions or bitmap padding")
+    masks = (
+        int(header["red_mask"]),
+        int(header["green_mask"]),
+        int(header["blue_mask"]),
+    )
+    pixel_limit = (1 << header["bits_per_pixel"]) - 1
+    if (
+        any(mask <= 0 or mask > pixel_limit for mask in masks)
+        or masks[0] & masks[1]
+        or masks[0] & masks[2]
+        or masks[1] & masks[2]
+    ):
+        raise ValueError("XWD RGB masks are absent, overlapping or out of range")
+    pixel_offset = int(header["header_size"] + header["ncolors"] * 12)
+    required_size = pixel_offset + stride * height
+    if pixel_offset < 100 or required_size > len(data):
+        raise ValueError("XWD pixel payload is truncated or contradictory")
+    byte_order = "little" if header["byte_order"] == 0 else "big"
+    pixels = bytearray(width * height * 3)
+    target = 0
+    for y in range(height):
+        row = pixel_offset + y * stride
+        for x in range(width):
+            start = row + x * bytes_per_pixel
+            raw = int.from_bytes(data[start : start + bytes_per_pixel], byte_order)
+            pixels[target] = _mask_channel(raw, masks[0])
+            pixels[target + 1] = _mask_channel(raw, masks[1])
+            pixels[target + 2] = _mask_channel(raw, masks[2])
+            target += 3
+    return width, height, bytes(pixels)
 
 
 class _BitmapInfoHeader(ctypes.Structure):
