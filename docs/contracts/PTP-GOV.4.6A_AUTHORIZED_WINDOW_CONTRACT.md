@@ -1,6 +1,6 @@
 # PTP-GOV.4.6A — Contrato da janela autorizada e falha fechada
 
-Status: `CONTRACT_CHARACTERIZED_NOT_FUNCTIONALLY_INTEGRATED`
+Status: `CONTRACT_UPDATED_BY_PTP-GOV.4.6B.1B_NOT_FUNCTIONALLY_INTEGRATED`
 
 Este contrato governa as futuras PTP-GOV.4.6B–4.6E. Ele não autoriza captura, OCR,
 corretora, servidor, integração funcional ou uso de runtime real.
@@ -27,11 +27,34 @@ presentes e forem revalidados imediatamente antes de cada captura:
 Também são vinculantes:
 
 ```text
-MONITOR_COUNT=1
+SINGLE_LOGICAL_CAPTURE_SURFACE_REQUIRED=YES
+LOGICAL_DESKTOP_COUNT=REQUIRED_1
+CAPTURE_SURFACE_COUNT=REQUIRED_1
+EXTENDED_DESKTOP=REQUIRED_NO
+OUTPUTS_DO_NOT_EXPAND_ROOT_DESKTOP=REQUIRED_YES
+PANNING=REQUIRED_NONE
+TRANSFORM=REQUIRED_IDENTITY
+DISPLAY_TOPOLOGY_STABLE=REQUIRED_YES
+EXPLICIT_WINDOW_ID_CAPTURE_ISOLATION=REQUIRED_PASS
+DISPLAY_TOPOLOGY_REVALIDATION_BEFORE_CAPTURE=REQUIRED
+DISPLAY_TOPOLOGY_REVALIDATION_AFTER_CAPTURE=REQUIRED
+FAIL_CLOSED_ON_INCONCLUSIVE_TOPOLOGY=YES
 CAPTURE_TARGET_MODE=EXPLICIT_WINDOW_ID
 FULL_SCREEN_FALLBACK=PROHIBITED
 ACTIVE_WINDOW_GENERIC_FALLBACK=PROHIBITED
 DESKTOP_CAPTURE_FALLBACK=PROHIBITED
+```
+
+As contagens abaixo são evidências informativas e nunca constituem, isoladamente, um
+gate de bloqueio ou autorização:
+
+```text
+CONNECTED_OUTPUT_COUNT=INFORMATIONAL
+ACTIVE_OUTPUT_COUNT=INFORMATIONAL
+EDID_BACKED_OUTPUT_COUNT=INFORMATIONAL
+EDID_DISTINCT_PHYSICAL_CANDIDATE_COUNT=INFORMATIONAL
+PHYSICAL_DISPLAY_COUNT_CONFIRMED=NO
+PHYSICAL_DISPLAY_COUNT_INFORMATIONAL_ONLY=YES
 ```
 
 Um navegador pode hospedar a fonte visual somente quando ID, PID, processo, título e
@@ -43,10 +66,12 @@ primeiro plano não confirma a fonte.
 1. Ler novamente ID, PID, processo, título e geometria da janela autorizada.
 2. Confirmar visibilidade e estado não minimizado.
 3. Confirmar foreground quando o backend exigir.
-4. Confirmar uma única tela e geometria estável.
-5. Capturar diretamente pelo ID ou retângulo autorizado.
-6. Revalidar identidade e geometria depois da captura para reduzir risco de TOCTOU.
-7. Publicar somente se as duas validações e a leitura normalizada forem válidas.
+4. Revalidar a topologia e confirmar exatamente um desktop lógico e uma superfície de captura.
+5. Confirmar ausência de desktop estendido, panning e transformação não identidade.
+6. Confirmar que as saídas não expandem o desktop raiz e que a topologia permanece estável.
+7. Capturar diretamente pelo ID ou retângulo autorizado.
+8. Revalidar topologia, identidade e geometria depois da captura para reduzir risco de TOCTOU.
+9. Publicar somente se as duas validações e a leitura normalizada forem válidas.
 
 Sobreposição não pode ser provada apenas com metadados X11/Wayland em todos os
 compositores. Quando não houver prova suficiente, a decisão obrigatória é falhar fechada.
