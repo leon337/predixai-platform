@@ -429,6 +429,7 @@ class PreflightAndPrivacyTests(unittest.TestCase):
             width_ratio=1.0,
             height_ratio=1.0,
             crop_sha256="0" * 64,
+            reading_mode="OCR",
         )
         with tempfile.TemporaryDirectory() as temporary:
             result = VALIDATOR.execute_ocr_if_allowed(
@@ -447,7 +448,7 @@ class PreflightAndPrivacyTests(unittest.TestCase):
         self.assertEqual(result[0].ocr_confidence, 0.0)
         self.assertEqual(
             result[0].calibration_status,
-            "VISUAL_STATE_REGION_CALIBRATED",
+            "OCR_PENDING_DEPENDENCY_MISSING",
         )
 
 

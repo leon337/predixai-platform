@@ -17,10 +17,10 @@ class FieldNormalizationResult:
     valid: bool
     reasons: tuple[str, ...] = ()
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self, *, redact_raw_text: bool = False) -> dict[str, object]:
         return {
             "FIELD_ID": self.field_id,
-            "RAW_TEXT": self.raw_text,
+            "RAW_TEXT": "REDACTED_LOCAL_VALUE" if redact_raw_text else self.raw_text,
             "NORMALIZED_TEXT": self.normalized_text,
             "FIELD_VALID": "YES" if self.valid else "NO",
             "REASONS": self.reasons,
@@ -279,11 +279,29 @@ class LiveMarketReader:
 
     def _normalize_numeric(self, field_id: str, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)
-        matches = re.findall(r"(?<!\d)\d+(?:[.,]\d+)?(?!\d)", clean)
+        matches = re.findall(r"(?<![\w\d])(?:R\$\s*)?[-+]?\s*\d+(?:[.,]\d+)*(?![\w\d])", clean, re.IGNORECASE)
         if len(matches) != 1:
             reason = f"{field_id}_NOT_FOUND" if not matches else f"MULTIPLE_{field_id}_VALUES"
             return FieldNormalizationResult(field_id, raw_text, "", False, (reason,))
-        return FieldNormalizationResult(field_id, raw_text, matches[0].replace(",", "."), True)
+        token = re.sub(r"R\$\s*", "", matches[0], flags=re.IGNORECASE).replace(" ", "")
+        sign = ""
+        if token[:1] in {"+", "-"}:
+            sign, token = token[0], token[1:]
+        if "." in token and "," in token:
+            if re.fullmatch(r"\d{1,3}(?:\.\d{3})+,\d+", token) is None:
+                return FieldNormalizationResult(field_id, raw_text, "", False, (f"AMBIGUOUS_{field_id}_FORMAT",))
+            normalized = token.replace(".", "").replace(",", ".")
+        elif "," in token:
+            if token.count(",") != 1:
+                return FieldNormalizationResult(field_id, raw_text, "", False, (f"AMBIGUOUS_{field_id}_FORMAT",))
+            normalized = token.replace(",", ".")
+        elif token.count(".") > 1:
+            if re.fullmatch(r"\d{1,3}(?:\.\d{3})+", token) is None:
+                return FieldNormalizationResult(field_id, raw_text, "", False, (f"AMBIGUOUS_{field_id}_FORMAT",))
+            normalized = token.replace(".", "")
+        else:
+            normalized = token
+        return FieldNormalizationResult(field_id, raw_text, f"{sign}{normalized}", True)
 
     def _normalize_duration(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)
@@ -301,11 +319,13 @@ class LiveMarketReader:
 
     def _normalize_account_type(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text).upper()
-        matches = [value for value in ("CONTA DEMO", "DEMO", "CONTA REAL", "REAL") if value in clean]
-        if not matches:
+        has_demo = re.search(r"\b(?:CONTA\s+)?DEMO\b", clean) is not None
+        has_real = re.search(r"\b(?:CONTA\s+)?REAL\b", clean) is not None
+        if has_demo and has_real:
+            return FieldNormalizationResult("ACCOUNT_TYPE", raw_text, "", False, ("ACCOUNT_TYPE_AMBIGUOUS",))
+        if not has_demo and not has_real:
             return FieldNormalizationResult("ACCOUNT_TYPE", raw_text, "", False, ("ACCOUNT_TYPE_NOT_FOUND",))
-        normalized = "DEMO" if any("DEMO" in value for value in matches) else "REAL"
-        return FieldNormalizationResult("ACCOUNT_TYPE", raw_text, normalized, True)
+        return FieldNormalizationResult("ACCOUNT_TYPE", raw_text, "DEMO" if has_demo else "REAL", True)
 
     def _normalize_profitability_filter(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)

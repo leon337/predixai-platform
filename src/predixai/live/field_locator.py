@@ -134,8 +134,8 @@ class FieldLocator:
             definitions=definitions,
             metadata={
                 "region_count": len(AUTHORIZED_VISUAL_REGION_SPECS),
-                "independent_regions": False,
-                "hierarchical_regions": True,
+                "independent_regions": True,
+                "hierarchical_regions": False,
                 "full_screen_fallback": "PROHIBITED",
                 "broker_time_region_required": False,
                 "time_source": "SYSTEM_CLOCK",
