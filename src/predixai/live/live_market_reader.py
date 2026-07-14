@@ -170,9 +170,13 @@ class LiveMarketReader:
             return FieldNormalizationResult("PRICE", raw_text, "", False, ("AMBIGUOUS_PRICE",))
         return FieldNormalizationResult("PRICE", raw_text, value.replace(",", "."), True)
 
-    def _normalize_price_source_browser_tab(self, raw_text: str) -> FieldNormalizationResult:
-        clean = self._clean(raw_text)
-        price = self._normalize_price(clean)
+    def _normalize_price_source_browser_tab(
+        self,
+        raw_text: str,
+    ) -> FieldNormalizationResult:
+        """Normalize exactly one price captured from the active browser tab."""
+        price = self._normalize_price(raw_text)
+
         if not price.valid:
             return FieldNormalizationResult(
                 "PRICE_SOURCE_BROWSER_TAB",
@@ -181,27 +185,11 @@ class LiveMarketReader:
                 False,
                 tuple(f"TAB_{reason}" for reason in price.reasons),
             )
-        without_price = re.sub(r"(?<!\d)\d+(?:[.,]\d+)?(?!\d)", " ", clean, count=1)
-        asset_matches = re.findall(
-            r"\b([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9._-]{1,40}(?:\s+OTC)?)\b",
-            without_price,
-            re.IGNORECASE,
-        )
-        rejected = {"predixai", "mobile", "fechar", "browser", "tab"}
-        assets = tuple(
-            dict.fromkeys(
-                " ".join(value.split()).upper()
-                for value in asset_matches
-                if value.casefold() not in rejected
-            )
-        )
-        if len(assets) != 1:
-            reason = "TAB_ASSET_NOT_FOUND" if not assets else "TAB_MULTIPLE_ASSETS"
-            return FieldNormalizationResult("PRICE_SOURCE_BROWSER_TAB", raw_text, "", False, (reason,))
+
         return FieldNormalizationResult(
             "PRICE_SOURCE_BROWSER_TAB",
             raw_text,
-            f"{price.normalized_text}|{assets[0]}",
+            price.normalized_text,
             True,
         )
 

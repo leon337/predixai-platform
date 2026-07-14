@@ -11,7 +11,7 @@ from predixai.live.field_definition import FieldDefinition, VisualRegionSpecific
 AUTHORIZED_VISUAL_REGION_SPECS = (
     VisualRegionSpecification("ASSET", "Selected asset card", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "BROKER_ASSET_CARD", "OCR", "ASSET_TEXT", "NORMALIZE_SPACES_PRESERVE_OTC_REJECT_MULTIPLE"),
     VisualRegionSpecification("PAYOUT", "Asset payout percentage", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "BROKER_ASSET_CARD_PAYOUT", "OCR", "PERCENTAGE", "EXACTLY_ONE_PERCENTAGE_RANGE_0_100", "ALWAYS", "ASSET"),
-    VisualRegionSpecification("PRICE_SOURCE_BROWSER_TAB", "Price and asset in the active browser tab", ("DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "ACTIVE_BROWSER_TAB_VISUAL_TITLE", "OCR", "PRICE_AND_ASSET", "ACTIVE_TAB_EXACT_PRICE_ASSET_CROSS_CHECK"),
+    VisualRegionSpecification("PRICE_SOURCE_BROWSER_TAB", "Price in the active browser tab", ("DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "ACTIVE_BROWSER_TAB_VISUAL_TITLE", "OCR", "PRICE", "EXACTLY_ONE_NUMERIC_PRICE"),
     VisualRegionSpecification("TIMEFRAME", "Selected chart timeframe", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "CHART_TIMEFRAME_CONTROL", "OCR", "TIMEFRAME_TOKEN", "EXACTLY_ONE_ALLOWED_TIMEFRAME"),
     VisualRegionSpecification("ENTRY_VALUE", "Configured simulated entry value", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "ORDER_ENTRY_VALUE", "OCR", "DECIMAL_TEXT", "EXACTLY_ONE_NUMERIC_VALUE"),
     VisualRegionSpecification("ENTRY_VALUE_MINUS", "Decrease entry value control", ("STATIC_POSITION",), "ORDER_ENTRY_MINUS_CONTROL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE"),

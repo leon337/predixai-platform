@@ -195,13 +195,35 @@ class NormalizationTests(unittest.TestCase):
         self.assertFalse(self.reader.normalize_field("PAYOUT", "90").valid)
         self.assertFalse(self.reader.normalize_field("PAYOUT", "101%").valid)
 
-    def test_price_source_browser_tab_requires_exact_price_and_asset(self):
-        result = self.reader.normalize_field("PRICE_SOURCE_BROWSER_TAB", "59.199 Solana")
-        self.assertTrue(result.valid)
-        self.assertEqual(result.normalized_text, "59.199|SOLANA")
-        self.assertFalse(
-            self.reader.normalize_field("PRICE_SOURCE_BROWSER_TAB", "59.199 59.200 Solana").valid
+    def test_price_source_browser_tab_requires_exactly_one_price(self):
+        result = self.reader.normalize_field(
+            "PRICE_SOURCE_BROWSER_TAB",
+            "59.199",
         )
+
+        self.assertTrue(result.valid)
+        self.assertEqual(result.normalized_text, "59.199")
+
+        comma = self.reader.normalize_field(
+            "PRICE_SOURCE_BROWSER_TAB",
+            "59,199",
+        )
+        self.assertTrue(comma.valid)
+        self.assertEqual(comma.normalized_text, "59.199")
+
+        multiple = self.reader.normalize_field(
+            "PRICE_SOURCE_BROWSER_TAB",
+            "59.199 59.200",
+        )
+        self.assertFalse(multiple.valid)
+        self.assertIn("TAB_MULTIPLE_PRICE_VALUES", multiple.reasons)
+
+        missing = self.reader.normalize_field(
+            "PRICE_SOURCE_BROWSER_TAB",
+            "Solana OTC",
+        )
+        self.assertFalse(missing.valid)
+        self.assertIn("TAB_PRICE_NOT_FOUND", missing.reasons)
 
     def test_countdown_is_dynamic_and_temporally_validated(self):
         self.assertTrue(self.reader.normalize_field("COUNTDOWN", "00:05").valid)
@@ -249,10 +271,21 @@ class CalibrationContractTests(unittest.TestCase):
             for classification in specification.classifications
         })
 
-    def test_price_source_is_active_browser_tab_not_chart_label(self):
-        specification = AUTHORIZED_VISUAL_REGION_BY_ID["PRICE_SOURCE_BROWSER_TAB"]
-        self.assertEqual(specification.source, "ACTIVE_BROWSER_TAB_VISUAL_TITLE")
-        self.assertNotIn("INDEX", specification.normalization_rule)
+    def test_price_source_is_active_browser_tab_price_only(self):
+        specification = AUTHORIZED_VISUAL_REGION_BY_ID[
+            "PRICE_SOURCE_BROWSER_TAB"
+        ]
+
+        self.assertEqual(
+            specification.source,
+            "ACTIVE_BROWSER_TAB_VISUAL_TITLE",
+        )
+        self.assertEqual(specification.expected_data_type, "PRICE")
+        self.assertEqual(
+            specification.normalization_rule,
+            "EXACTLY_ONE_NUMERIC_PRICE",
+        )
+        self.assertNotIn("ASSET", specification.expected_data_type)
         self.assertNotIn("GRAPH", specification.source)
 
     def test_final_map_contains_exactly_the_16_approved_regions(self):
