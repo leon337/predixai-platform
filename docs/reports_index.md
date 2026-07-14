@@ -221,3 +221,5 @@
 <!-- PREDIXAI_PTP_113C842A21_END -->
 | 2026-07-13 | PTP-GOV.4.6B.2 | captura_linux_janela_autorizada | PASS_FINAL_AUTHORIZED_LINUX_WINDOW_CAPTURE | `reports/20260713_PTP-GOV.4.6B.2_captura_linux_janela_autorizada_FIX.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6B.2/20260713_PTP-GOV.4.6B.2_captura_linux_janela_autorizada_FIX.md` |
 | 2026-07-13 | PTP-GOV.4.6C.0 | reconciliacao_gate_visual_legado | PASS_FINAL_LOGICAL_TOPOLOGY_GATE_RECONCILIATION | `reports/20260713_PTP-GOV.4.6C.0_reconciliacao_gate_visual_legado_FIX.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.0/20260713_PTP-GOV.4.6C.0_reconciliacao_gate_visual_legado_FIX.md` |
+
+- 20260714 | PTP-GOV.4.6C.1A-R0 | Remover COUNTDOWN da calibração fixa | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0_remover_countdown_calibrador_FIX.txt`

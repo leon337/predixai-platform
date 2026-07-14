@@ -385,7 +385,7 @@ def box_contains(parent: Sequence[int], child: Sequence[int]) -> bool:
 def validate_boxes(boxes: dict[str, tuple[int, int, int, int]], width: int, height: int) -> None:
     expected = set(AUTHORIZED_VISUAL_REGION_BY_ID)
     if set(boxes) != expected:
-        raise ValueError("exactly 24 manually selected regions are required")
+        raise ValueError(f"exactly {len(expected)} manually selected regions are required")
     for region_id, box in boxes.items():
         x, y, box_width, box_height = box
         RelativeRegionGeometry.from_pixels(
@@ -720,7 +720,8 @@ def write_artifacts(
         writer.writeheader()
         writer.writerows(rows)
     ocr_executed = any(proposal.ocr_text != "NOT_EXECUTED" for proposal in proposals)
-    status = "AWAITING_REGIONS_VISUAL_CONFIRMATION" if len(proposals) == 24 else "FAIL_REGION_CALIBRATION"
+    expected_region_count = len(REGION_SPECS)
+    status = "AWAITING_REGIONS_VISUAL_CONFIRMATION" if len(proposals) == expected_region_count else "FAIL_REGION_CALIBRATION"
     ocr_region_count = sum(item.reading_mode == "OCR" for item in proposals)
     lines = [
         f"{PTP_ID}={status}",
@@ -728,9 +729,9 @@ def write_artifacts(
         f"REFERENCE_IMAGE_SHA256={REFERENCE_IMAGE_SHA256}",
         f"CALIBRATION_UI_CANCELLED_BY_USER={preflight_data.get('CALIBRATION_UI_CANCELLED_BY_USER', 'NO')}",
         "REGION_CALIBRATION=PASS",
-        "REGION_EXPECTED_COUNT=24",
+        f"REGION_EXPECTED_COUNT={expected_region_count}",
         f"REGION_SELECTED_COUNT={len(proposals)}",
-        f"REGION_RECONCILIATION={'PASS' if len(proposals) == 24 else 'FAIL'}",
+        f"REGION_RECONCILIATION={'PASS' if len(proposals) == expected_region_count else 'FAIL'}",
         "PROHIBITED_AREA_COUNT=0",
         "TIME_SOURCE=SYSTEM_CLOCK",
         "BROKER_TIME_REGION_REQUIRED=NO",

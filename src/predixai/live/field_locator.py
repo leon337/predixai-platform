@@ -12,7 +12,6 @@ AUTHORIZED_VISUAL_REGION_SPECS = (
     VisualRegionSpecification("ASSET", "Selected asset card", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "BROKER_ASSET_CARD", "OCR", "ASSET_TEXT", "NORMALIZE_SPACES_PRESERVE_OTC_REJECT_MULTIPLE"),
     VisualRegionSpecification("PAYOUT", "Asset payout percentage", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "BROKER_ASSET_CARD_PAYOUT", "OCR", "PERCENTAGE", "EXACTLY_ONE_PERCENTAGE_RANGE_0_100"),
     VisualRegionSpecification("PRICE_SOURCE_BROWSER_TAB", "Price and asset in the active browser tab", ("DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "ACTIVE_BROWSER_TAB_VISUAL_TITLE", "OCR", "PRICE_AND_ASSET", "ACTIVE_TAB_EXACT_PRICE_ASSET_CROSS_CHECK"),
-    VisualRegionSpecification("COUNTDOWN", "Dynamic chart countdown", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "CHART_COUNTDOWN_LABEL", "OCR", "COUNTDOWN_TIME", "TEMPORAL_DECREASE_WITH_EXPLICIT_RESET", "ALWAYS", "CHART_AREA"),
     VisualRegionSpecification("CHART_AREA", "Complete candle chart area", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "BROKER_CHART", "VISUAL_STATE", "VISUAL_AREA", "PRESENCE_AND_GEOMETRY_ONLY"),
     VisualRegionSpecification("TIMEFRAME", "Selected chart timeframe", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "CHART_TIMEFRAME_CONTROL", "OCR", "TIMEFRAME_TOKEN", "EXACTLY_ONE_ALLOWED_TIMEFRAME", "ALWAYS", "CHART_AREA"),
     VisualRegionSpecification("ENTRY_VALUE", "Configured simulated entry value", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "ORDER_ENTRY_VALUE", "OCR", "DECIMAL_TEXT", "EXACTLY_ONE_NUMERIC_VALUE"),
@@ -112,7 +111,7 @@ class FieldLocator:
         """Build the complete C.1A visual map after manual client calibration."""
         expected_ids = set(AUTHORIZED_VISUAL_REGION_BY_ID)
         if set(geometries) != expected_ids:
-            raise ValueError("exactly 24 authorized visual region geometries are required")
+            raise ValueError(f"exactly {len(expected_ids)} authorized visual region geometries are required")
         definitions = tuple(
             FieldDefinition(
                 field_name=specification.region_id.lower(),
@@ -141,7 +140,7 @@ class FieldLocator:
         return FieldLocationMap(
             definitions=definitions,
             metadata={
-                "region_count": 24,
+                "region_count": len(AUTHORIZED_VISUAL_REGION_SPECS),
                 "independent_regions": False,
                 "hierarchical_regions": True,
                 "full_screen_fallback": "PROHIBITED",

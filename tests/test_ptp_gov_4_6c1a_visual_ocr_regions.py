@@ -71,7 +71,6 @@ def broker_state(title="61.373 Solana OTC", process="brave", foreground=True):
 def valid_boxes():
     boxes = {
         "CHART_AREA": (0, 0, 300, 300),
-        "COUNTDOWN": (240, 120, 40, 20),
         "TIMEFRAME": (10, 240, 40, 20),
         "ORDER_NOTIFICATION_POPUP": (350, 0, 300, 300),
         "ORDER_MODE_BY_PRICE": (370, 30, 70, 30),
@@ -226,7 +225,7 @@ class NormalizationTests(unittest.TestCase):
 
 
 class CalibrationContractTests(unittest.TestCase):
-    def test_contract_requires_complete_24_region_map(self):
+    def test_contract_requires_complete_23_region_map(self):
         geometries = {
             region_id: VALIDATOR.RelativeRegionGeometry.from_pixels(
                 x=box[0], y=box[1], width=box[2], height=box[3], window_width=700, window_height=600
@@ -235,7 +234,7 @@ class CalibrationContractTests(unittest.TestCase):
         }
         geometries = {region_id: tuple(values) for region_id, values in geometries.items()}
         result = FieldLocator().build_authorized_region_contracts(geometries)
-        self.assertEqual(len(result.definitions), 24)
+        self.assertEqual(len(result.definitions), 23)
         self.assertTrue(all(item.required for item in result.definitions))
         self.assertNotIn("FULL_SCREEN", {item.region_id for item in result.definitions})
         self.assertNotIn("BROKER_TIME", {item.region_id for item in result.definitions})
@@ -246,8 +245,8 @@ class CalibrationContractTests(unittest.TestCase):
             FieldLocator().build_authorized_region_contracts({"ASSET": (0.1, 0.1, 0.1, 0.1)})
 
     def test_visual_map_has_no_prohibited_area_and_exact_classifications(self):
-        self.assertEqual(len(AUTHORIZED_VISUAL_REGION_SPECS), 24)
-        self.assertEqual(len(AUTHORIZED_VISUAL_REGION_BY_ID), 24)
+        self.assertEqual(len(AUTHORIZED_VISUAL_REGION_SPECS), 23)
+        self.assertEqual(len(AUTHORIZED_VISUAL_REGION_BY_ID), 23)
         self.assertTrue(all(specification.classifications for specification in AUTHORIZED_VISUAL_REGION_SPECS))
         self.assertNotIn("PROHIBITED_AREA", {
             classification
@@ -290,18 +289,18 @@ class CalibrationContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unauthorized region overlap"):
             VALIDATOR.validate_boxes(invalid, 700, 600)
 
-    def test_build_proposals_reconciles_24_rows(self):
+    def test_build_proposals_reconciles_23_rows(self):
         boxes = valid_boxes()
         pixels = bytes((index % 256 for index in range(700 * 600 * 3)))
         proposals = VALIDATOR.build_region_proposals(
             boxes=boxes, pixel_bytes=pixels, width=700, height=600
         )
-        self.assertEqual(len(proposals), 24)
+        self.assertEqual(len(proposals), 23)
         self.assertEqual(tuple(item.field_id for item in proposals), tuple(item.region_id for item in AUTHORIZED_VISUAL_REGION_SPECS))
         self.assertTrue(all(item.ocr_text == "NOT_EXECUTED" for item in proposals))
 
     def test_ocr_and_visual_state_regions_are_reconciled(self):
-        self.assertEqual(sum(item.requires_ocr for item in AUTHORIZED_VISUAL_REGION_SPECS), 12)
+        self.assertEqual(sum(item.requires_ocr for item in AUTHORIZED_VISUAL_REGION_SPECS), 11)
         self.assertEqual(sum(not item.requires_ocr for item in AUTHORIZED_VISUAL_REGION_SPECS), 12)
 
 
