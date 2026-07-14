@@ -225,3 +225,5 @@
 - 20260714 | PTP-GOV.4.6C.1A-R0 | Remover COUNTDOWN da calibração fixa | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0_remover_countdown_calibrador_FIX.txt`
 
 - 20260714 | PTP-GOV.4.6C.1A-R0.1 | Hierarquia ASSET/PAYOUT | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0.1_hierarquia_asset_payout_FIX.txt`
+
+- 20260714 | PTP-GOV.4.6C.1A-R0.3 | Mapa definitivo de 16 regiões | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0.3_mapa_definitivo_16_regioes_FIX.txt`

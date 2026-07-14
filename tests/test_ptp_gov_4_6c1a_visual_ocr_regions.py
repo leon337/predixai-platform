@@ -72,14 +72,7 @@ def valid_boxes():
     boxes = {
         "ASSET": (600, 350, 90, 40),
         "PAYOUT": (610, 360, 30, 15),
-        "CHART_AREA": (0, 0, 300, 300),
         "TIMEFRAME": (10, 240, 40, 20),
-        "ORDER_NOTIFICATION_POPUP": (350, 0, 300, 300),
-        "ORDER_MODE_BY_PRICE": (370, 30, 70, 30),
-        "ORDER_MODE_BY_TIME": (460, 30, 70, 30),
-        "PROFITABILITY_FILTER": (370, 80, 160, 30),
-        "OPENING_TIME": (370, 130, 160, 30),
-        "SAVE_ORDER_BUTTON": (370, 190, 160, 40),
     }
     remaining = [
         specification.region_id
@@ -227,7 +220,7 @@ class NormalizationTests(unittest.TestCase):
 
 
 class CalibrationContractTests(unittest.TestCase):
-    def test_contract_requires_complete_23_region_map(self):
+    def test_contract_requires_complete_16_region_map(self):
         geometries = {
             region_id: VALIDATOR.RelativeRegionGeometry.from_pixels(
                 x=box[0], y=box[1], width=box[2], height=box[3], window_width=700, window_height=600
@@ -236,7 +229,7 @@ class CalibrationContractTests(unittest.TestCase):
         }
         geometries = {region_id: tuple(values) for region_id, values in geometries.items()}
         result = FieldLocator().build_authorized_region_contracts(geometries)
-        self.assertEqual(len(result.definitions), 23)
+        self.assertEqual(len(result.definitions), 16)
         self.assertTrue(all(item.required for item in result.definitions))
         self.assertNotIn("FULL_SCREEN", {item.region_id for item in result.definitions})
         self.assertNotIn("BROKER_TIME", {item.region_id for item in result.definitions})
@@ -247,8 +240,8 @@ class CalibrationContractTests(unittest.TestCase):
             FieldLocator().build_authorized_region_contracts({"ASSET": (0.1, 0.1, 0.1, 0.1)})
 
     def test_visual_map_has_no_prohibited_area_and_exact_classifications(self):
-        self.assertEqual(len(AUTHORIZED_VISUAL_REGION_SPECS), 23)
-        self.assertEqual(len(AUTHORIZED_VISUAL_REGION_BY_ID), 23)
+        self.assertEqual(len(AUTHORIZED_VISUAL_REGION_SPECS), 16)
+        self.assertEqual(len(AUTHORIZED_VISUAL_REGION_BY_ID), 16)
         self.assertTrue(all(specification.classifications for specification in AUTHORIZED_VISUAL_REGION_SPECS))
         self.assertNotIn("PROHIBITED_AREA", {
             classification
@@ -262,23 +255,40 @@ class CalibrationContractTests(unittest.TestCase):
         self.assertNotIn("INDEX", specification.normalization_rule)
         self.assertNotIn("GRAPH", specification.source)
 
-    def test_popup_has_closed_open_contract_and_five_open_only_children(self):
-        children = tuple(
+    def test_final_map_contains_exactly_the_16_approved_regions(self):
+        expected = (
+            "ASSET",
+            "PAYOUT",
+            "PRICE_SOURCE_BROWSER_TAB",
+            "TIMEFRAME",
+            "ENTRY_VALUE",
+            "ENTRY_VALUE_MINUS",
+            "ENTRY_VALUE_PLUS",
+            "DURATION",
+            "DURATION_MINUS",
+            "DURATION_PLUS",
+            "ENABLE_ORDERS",
+            "UP_BUTTON",
+            "DOWN_BUTTON",
+            "PROFIT_DISPLAY",
+            "ACCOUNT_BALANCE",
+            "ACCOUNT_TYPE",
+        )
+
+        actual = tuple(
             specification.region_id
             for specification in AUTHORIZED_VISUAL_REGION_SPECS
-            if specification.parent_region_id == "ORDER_NOTIFICATION_POPUP"
+        )
+
+        self.assertEqual(actual, expected)
+        self.assertIsNone(
+            AUTHORIZED_VISUAL_REGION_BY_ID["TIMEFRAME"].parent_region_id
         )
         self.assertEqual(
-            children,
-            (
-                "ORDER_MODE_BY_PRICE",
-                "ORDER_MODE_BY_TIME",
-                "PROFITABILITY_FILTER",
-                "OPENING_TIME",
-                "SAVE_ORDER_BUTTON",
-            ),
+            AUTHORIZED_VISUAL_REGION_BY_ID["PAYOUT"].parent_region_id,
+            "ASSET",
         )
-        self.assertTrue(all(AUTHORIZED_VISUAL_REGION_BY_ID[item].visibility_state == "POPUP_OPEN" for item in children))
+
 
     def test_region_overlap_is_detected(self):
         self.assertTrue(VALIDATOR.boxes_overlap((0, 0, 10, 10), (5, 5, 10, 10)))
@@ -291,19 +301,19 @@ class CalibrationContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unauthorized region overlap"):
             VALIDATOR.validate_boxes(invalid, 700, 600)
 
-    def test_build_proposals_reconciles_23_rows(self):
+    def test_build_proposals_reconciles_16_rows(self):
         boxes = valid_boxes()
         pixels = bytes((index % 256 for index in range(700 * 600 * 3)))
         proposals = VALIDATOR.build_region_proposals(
             boxes=boxes, pixel_bytes=pixels, width=700, height=600
         )
-        self.assertEqual(len(proposals), 23)
+        self.assertEqual(len(proposals), 16)
         self.assertEqual(tuple(item.field_id for item in proposals), tuple(item.region_id for item in AUTHORIZED_VISUAL_REGION_SPECS))
         self.assertTrue(all(item.ocr_text == "NOT_EXECUTED" for item in proposals))
 
     def test_ocr_and_visual_state_regions_are_reconciled(self):
-        self.assertEqual(sum(item.requires_ocr for item in AUTHORIZED_VISUAL_REGION_SPECS), 11)
-        self.assertEqual(sum(not item.requires_ocr for item in AUTHORIZED_VISUAL_REGION_SPECS), 12)
+        self.assertEqual(sum(item.requires_ocr for item in AUTHORIZED_VISUAL_REGION_SPECS), 9)
+        self.assertEqual(sum(not item.requires_ocr for item in AUTHORIZED_VISUAL_REGION_SPECS), 7)
 
 
 class PreflightAndPrivacyTests(unittest.TestCase):
