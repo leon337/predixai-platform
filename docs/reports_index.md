@@ -223,3 +223,5 @@
 | 2026-07-13 | PTP-GOV.4.6C.0 | reconciliacao_gate_visual_legado | PASS_FINAL_LOGICAL_TOPOLOGY_GATE_RECONCILIATION | `reports/20260713_PTP-GOV.4.6C.0_reconciliacao_gate_visual_legado_FIX.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.0/20260713_PTP-GOV.4.6C.0_reconciliacao_gate_visual_legado_FIX.md` |
 
 - 20260714 | PTP-GOV.4.6C.1A-R0 | Remover COUNTDOWN da calibração fixa | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0_remover_countdown_calibrador_FIX.txt`
+
+- 20260714 | PTP-GOV.4.6C.1A-R0.1 | Hierarquia ASSET/PAYOUT | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0.1_hierarquia_asset_payout_FIX.txt`
