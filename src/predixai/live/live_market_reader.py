@@ -145,30 +145,122 @@ class LiveMarketReader:
 
     def _normalize_asset(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)
-        matches: list[str] = []
         patterns = (
             r"\b[A-Z0-9]{2,12}/[A-Z0-9]{2,12}(?:\s+OTC)?\b",
             r"\b[A-Z][A-Z0-9]*(?:\s+[A-Z][A-Z0-9]*){0,3}\s+OTC\b",
             r"\b[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9]*(?:\s+[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9]*){0,3}\s+Index\b",
         )
+        candidates: list[tuple[int, int, str]] = []
         for pattern in patterns:
-            matches.extend(match.group(0) for match in re.finditer(pattern, clean, re.IGNORECASE))
-        unique = tuple(dict.fromkeys(" ".join(item.split()).upper() for item in matches))
-        if len(unique) != 1:
-            reason = "ASSET_NOT_FOUND" if not unique else "MULTIPLE_ASSETS"
-            return FieldNormalizationResult("ASSET", raw_text, "", False, (reason,))
-        return FieldNormalizationResult("ASSET", raw_text, unique[0], True)
+            for match in re.finditer(pattern, clean, re.IGNORECASE):
+                normalized = " ".join(match.group(0).split()).upper()
+                candidate = (match.start(), match.end(), normalized)
+                if candidate not in candidates:
+                    candidates.append(candidate)
+
+        top_level = [
+            candidate
+            for candidate in candidates
+            if not any(
+                other[0] <= candidate[0]
+                and candidate[1] <= other[1]
+                and (other[0], other[1]) != (
+                    candidate[0],
+                    candidate[1],
+                )
+                for other in candidates
+            )
+        ]
+        unique_spans: list[tuple[int, int, str]] = []
+        for candidate in sorted(top_level):
+            if candidate not in unique_spans:
+                unique_spans.append(candidate)
+
+        if not unique_spans:
+            return FieldNormalizationResult(
+                "ASSET",
+                raw_text,
+                "",
+                False,
+                ("ASSET_NOT_FOUND",),
+            )
+        if len(unique_spans) > 1:
+            return FieldNormalizationResult(
+                "ASSET",
+                raw_text,
+                "",
+                False,
+                ("MULTIPLE_ASSETS",),
+            )
+
+        start, end, normalized = unique_spans[0]
+        residue = (clean[:start] + " " + clean[end:]).strip()
+        if residue:
+            return FieldNormalizationResult(
+                "ASSET",
+                raw_text,
+                "",
+                False,
+                ("ASSET_CONTAMINATED",),
+            )
+        return FieldNormalizationResult(
+            "ASSET",
+            raw_text,
+            normalized,
+            True,
+        )
 
     def _normalize_price(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)
-        matches = re.findall(r"(?<!\d)\d+(?:[.,]\d+)?(?!\d)", clean)
-        if len(matches) != 1:
-            reason = "PRICE_NOT_FOUND" if not matches else "MULTIPLE_PRICE_VALUES"
-            return FieldNormalizationResult("PRICE", raw_text, "", False, (reason,))
-        value = matches[0]
+        matches = list(
+            re.finditer(
+                r"(?<!\d)\d+(?:[.,]\d+)?(?!\d)",
+                clean,
+            )
+        )
+        if not matches:
+            return FieldNormalizationResult(
+                "PRICE",
+                raw_text,
+                "",
+                False,
+                ("PRICE_NOT_FOUND",),
+            )
+        if len(matches) > 1:
+            return FieldNormalizationResult(
+                "PRICE",
+                raw_text,
+                "",
+                False,
+                ("MULTIPLE_PRICE_VALUES",),
+            )
+
+        match = matches[0]
+        residue = (clean[:match.start()] + " " + clean[match.end():]).strip()
+        if residue:
+            return FieldNormalizationResult(
+                "PRICE",
+                raw_text,
+                "",
+                False,
+                ("PRICE_CONTAMINATED",),
+            )
+
+        value = match.group(0)
         if value.count(".") + value.count(",") > 1:
-            return FieldNormalizationResult("PRICE", raw_text, "", False, ("AMBIGUOUS_PRICE",))
-        return FieldNormalizationResult("PRICE", raw_text, value.replace(",", "."), True)
+            return FieldNormalizationResult(
+                "PRICE",
+                raw_text,
+                "",
+                False,
+                ("AMBIGUOUS_PRICE",),
+            )
+        return FieldNormalizationResult(
+            "PRICE",
+            raw_text,
+            value.replace(",", "."),
+            True,
+        )
 
     def _normalize_price_source_browser_tab(
         self,
@@ -195,15 +287,57 @@ class LiveMarketReader:
 
     def _normalize_payout(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)
-        matches = re.findall(r"(?<!\d)(\d+(?:[.,]\d+)?)\s*%", clean)
-        if len(matches) != 1:
-            reason = "PAYOUT_NOT_FOUND" if not matches else "MULTIPLE_PAYOUT_VALUES"
-            return FieldNormalizationResult("PAYOUT", raw_text, "", False, (reason,))
-        number_text = matches[0].replace(",", ".")
+        matches = list(
+            re.finditer(
+                r"(?<!\d)(\d+(?:[.,]\d+)?)\s*%",
+                clean,
+            )
+        )
+        if not matches:
+            return FieldNormalizationResult(
+                "PAYOUT",
+                raw_text,
+                "",
+                False,
+                ("PAYOUT_NOT_FOUND",),
+            )
+        if len(matches) > 1:
+            return FieldNormalizationResult(
+                "PAYOUT",
+                raw_text,
+                "",
+                False,
+                ("MULTIPLE_PAYOUT_VALUES",),
+            )
+
+        match = matches[0]
+        residue = (clean[:match.start()] + " " + clean[match.end():]).strip()
+        residue = " ".join(residue.split()).upper()
+        if residue not in {"", "FT"}:
+            return FieldNormalizationResult(
+                "PAYOUT",
+                raw_text,
+                "",
+                False,
+                ("PAYOUT_CONTAMINATED",),
+            )
+
+        number_text = match.group(1).replace(",", ".")
         value = float(number_text)
         if not 0.0 <= value <= 100.0:
-            return FieldNormalizationResult("PAYOUT", raw_text, "", False, ("PAYOUT_OUT_OF_RANGE",))
-        return FieldNormalizationResult("PAYOUT", raw_text, f"{number_text}%", True)
+            return FieldNormalizationResult(
+                "PAYOUT",
+                raw_text,
+                "",
+                False,
+                ("PAYOUT_OUT_OF_RANGE",),
+            )
+        return FieldNormalizationResult(
+            "PAYOUT",
+            raw_text,
+            f"{number_text}%",
+            True,
+        )
 
     def _normalize_clock(self, field_id: str, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)
@@ -268,64 +402,167 @@ class LiveMarketReader:
 
     def _normalize_timeframe(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)
-        matches = re.findall(r"(?<!\w)(\d{1,4})\s*([smhd])(?!\w)", clean, re.IGNORECASE)
-        if len(matches) != 1:
-            reason = "TIMEFRAME_NOT_FOUND" if not matches else "MULTIPLE_TIMEFRAMES"
-            return FieldNormalizationResult("TIMEFRAME", raw_text, "", False, (reason,))
-        amount, unit = matches[0]
-        if int(amount) <= 0:
-            return FieldNormalizationResult("TIMEFRAME", raw_text, "", False, ("INVALID_TIMEFRAME",))
-        return FieldNormalizationResult("TIMEFRAME", raw_text, f"{int(amount)}{unit.lower()}", True)
+        if clean.casefold() == "im":
+            normalized = "1m"
+        else:
+            match = re.fullmatch(r"(\d{1,4})\s*([smhd])", clean, re.IGNORECASE)
+            if match is None:
+                return FieldNormalizationResult(
+                    "TIMEFRAME",
+                    raw_text,
+                    "",
+                    False,
+                    ("TIMEFRAME_NOT_FOUND_OR_CONTAMINATED",),
+                )
+            normalized = f"{int(match.group(1))}{match.group(2).lower()}"
+        allowed = {"30s", "1m", "2m", "3m", "5m"}
+        if normalized not in allowed:
+            return FieldNormalizationResult(
+                "TIMEFRAME",
+                raw_text,
+                "",
+                False,
+                ("TIMEFRAME_NOT_ALLOWED",),
+            )
+        return FieldNormalizationResult(
+            "TIMEFRAME",
+            raw_text,
+            normalized,
+            True,
+        )
 
     def _normalize_numeric(self, field_id: str, raw_text: str) -> FieldNormalizationResult:
-        clean = self._clean(raw_text)
-        matches = re.findall(r"(?<![\w\d])(?:R\$\s*)?[-+]?\s*\d+(?:[.,]\d+)*(?![\w\d])", clean, re.IGNORECASE)
-        if len(matches) != 1:
-            reason = f"{field_id}_NOT_FOUND" if not matches else f"MULTIPLE_{field_id}_VALUES"
-            return FieldNormalizationResult(field_id, raw_text, "", False, (reason,))
-        token = re.sub(r"R\$\s*", "", matches[0], flags=re.IGNORECASE).replace(" ", "")
-        sign = ""
-        if token[:1] in {"+", "-"}:
-            sign, token = token[0], token[1:]
-        if "." in token and "," in token:
-            if re.fullmatch(r"\d{1,3}(?:\.\d{3})+,\d+", token) is None:
-                return FieldNormalizationResult(field_id, raw_text, "", False, (f"AMBIGUOUS_{field_id}_FORMAT",))
-            normalized = token.replace(".", "").replace(",", ".")
-        elif "," in token:
-            if token.count(",") != 1:
-                return FieldNormalizationResult(field_id, raw_text, "", False, (f"AMBIGUOUS_{field_id}_FORMAT",))
-            normalized = token.replace(",", ".")
-        elif token.count(".") > 1:
-            if re.fullmatch(r"\d{1,3}(?:\.\d{3})+", token) is None:
-                return FieldNormalizationResult(field_id, raw_text, "", False, (f"AMBIGUOUS_{field_id}_FORMAT",))
-            normalized = token.replace(".", "")
-        else:
-            normalized = token
-        return FieldNormalizationResult(field_id, raw_text, f"{sign}{normalized}", True)
-
-    def _normalize_duration(self, raw_text: str) -> FieldNormalizationResult:
-        clean = self._clean(raw_text)
-        matches = re.findall(
-            r"(?<!\d)(\d+)\s*(seg(?:undos?)?\.?|min(?:utos?)?\.?|s|m)(?!\w)",
+        clean = self._clean(raw_text).translate(
+            str.maketrans({"−": "-", "–": "-", "—": "-"})
+        )
+        match = re.fullmatch(
+            r"(?P<currency>R\$\s*)?(?P<sign>[-+]?)\s*(?P<number>\d[\d.,]*)",
             clean,
             re.IGNORECASE,
         )
-        if len(matches) != 1:
-            reason = "DURATION_NOT_FOUND" if not matches else "MULTIPLE_DURATIONS"
-            return FieldNormalizationResult("DURATION", raw_text, "", False, (reason,))
-        amount, unit = matches[0]
-        normalized_unit = "s" if unit.casefold().startswith("s") else "m"
-        return FieldNormalizationResult("DURATION", raw_text, f"{int(amount)}{normalized_unit}", True)
+        if match is None:
+            return FieldNormalizationResult(
+                field_id,
+                raw_text,
+                "",
+                False,
+                (f"{field_id}_NOT_FOUND_OR_CONTAMINATED",),
+            )
+
+        currency_present = bool(match.group("currency"))
+        sign = match.group("sign")
+        token = match.group("number")
+
+        if "." in token and "," in token:
+            if re.fullmatch(r"\d{1,3}(?:\.\d{3})+,\d+", token) is None:
+                return FieldNormalizationResult(
+                    field_id,
+                    raw_text,
+                    "",
+                    False,
+                    (f"AMBIGUOUS_{field_id}_FORMAT",),
+                )
+            normalized = token.replace(".", "").replace(",", ".")
+        elif "," in token:
+            if token.count(",") != 1:
+                return FieldNormalizationResult(
+                    field_id,
+                    raw_text,
+                    "",
+                    False,
+                    (f"AMBIGUOUS_{field_id}_FORMAT",),
+                )
+            normalized = token.replace(",", ".")
+        elif "." in token:
+            if token.count(".") != 1:
+                return FieldNormalizationResult(
+                    field_id,
+                    raw_text,
+                    "",
+                    False,
+                    (f"AMBIGUOUS_{field_id}_FORMAT",),
+                )
+            decimal_digits = len(token.rsplit(".", 1)[1])
+            if currency_present and decimal_digits == 3:
+                return FieldNormalizationResult(
+                    field_id,
+                    raw_text,
+                    "",
+                    False,
+                    (f"AMBIGUOUS_{field_id}_BRL_FORMAT",),
+                )
+            normalized = token
+        else:
+            normalized = token
+
+        return FieldNormalizationResult(
+            field_id,
+            raw_text,
+            f"{sign}{normalized}",
+            True,
+        )
+
+    def _normalize_duration(self, raw_text: str) -> FieldNormalizationResult:
+        clean = self._clean(raw_text)
+        match = re.fullmatch(
+            r"(\d+)\s*(seg(?:undos?)?\.?|min(?:utos?)?\.?|s|m)",
+            clean,
+            re.IGNORECASE,
+        )
+        if match is None:
+            return FieldNormalizationResult(
+                "DURATION",
+                raw_text,
+                "",
+                False,
+                ("DURATION_NOT_FOUND_OR_CONTAMINATED",),
+            )
+        amount = int(match.group(1))
+        unit = match.group(2)
+        normalized_unit = (
+            "s"
+            if unit.casefold().startswith("s")
+            else "m"
+        )
+        normalized = f"{amount}{normalized_unit}"
+        allowed = {"30s", "1m", "2m", "3m", "5m"}
+        if normalized not in allowed:
+            return FieldNormalizationResult(
+                "DURATION",
+                raw_text,
+                "",
+                False,
+                ("DURATION_NOT_ALLOWED",),
+            )
+        return FieldNormalizationResult(
+            "DURATION",
+            raw_text,
+            normalized,
+            True,
+        )
 
     def _normalize_account_type(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text).upper()
-        has_demo = re.search(r"\b(?:CONTA\s+)?DEMO\b", clean) is not None
-        has_real = re.search(r"\b(?:CONTA\s+)?REAL\b", clean) is not None
-        if has_demo and has_real:
-            return FieldNormalizationResult("ACCOUNT_TYPE", raw_text, "", False, ("ACCOUNT_TYPE_AMBIGUOUS",))
-        if not has_demo and not has_real:
-            return FieldNormalizationResult("ACCOUNT_TYPE", raw_text, "", False, ("ACCOUNT_TYPE_NOT_FOUND",))
-        return FieldNormalizationResult("ACCOUNT_TYPE", raw_text, "DEMO" if has_demo else "REAL", True)
+        match = re.fullmatch(r"(?:CONTA\s+)?(DEMO|REAL)", clean)
+        if match is None:
+            reason = (
+                "ACCOUNT_TYPE_AMBIGUOUS"
+                if "DEMO" in clean and "REAL" in clean
+                else "ACCOUNT_TYPE_NOT_FOUND_OR_CONTAMINATED"
+            )
+            return FieldNormalizationResult(
+                "ACCOUNT_TYPE",
+                raw_text,
+                "",
+                False,
+                (reason,),
+            )
+        return FieldNormalizationResult(
+            "ACCOUNT_TYPE",
+            raw_text,
+            match.group(1),
+            True,
+        )
 
     def _normalize_profitability_filter(self, raw_text: str) -> FieldNormalizationResult:
         clean = self._clean(raw_text)

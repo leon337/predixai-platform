@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import tempfile
 import unittest
 from pathlib import Path
@@ -16,7 +17,12 @@ from predixai.ocr.providers.tesseract_provider import TesseractOCRProvider
 
 def png_file(root: Path) -> Path:
     path = root / "input.png"
-    path.write_bytes(b"\x89PNG\r\n\x1a\nsynthetic")
+    path.write_bytes(
+        base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91Jpz"
+            "AAAAFklEQVR4nGP8//8/AwMDEwMDAwMDAwAkBgMB/DXemwAAAABJRU5ErkJggg=="
+        )
+    )
     return path
 
 

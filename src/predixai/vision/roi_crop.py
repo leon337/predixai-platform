@@ -1,14 +1,13 @@
-"""ROI crop metadata for future visual processing."""
+"""ROI crop metadata."""
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
 class ROICrop:
-    """Mathematical ROI crop metadata without pixel extraction."""
-
     roi_id: str
     roi_name: str
     x: int
@@ -19,7 +18,6 @@ class ROICrop:
     created_at: str
 
     def to_dict(self) -> dict[str, object]:
-        """Return a serializable representation."""
         return {
             "roi_id": self.roi_id,
             "roi_name": self.roi_name,
@@ -34,7 +32,7 @@ class ROICrop:
 
 @dataclass(frozen=True)
 class RGB24Crop:
-    """Immutable in-memory crop whose pixels are never serialized or represented."""
+    """Immutable in-memory RGB24 crop with verified hash."""
 
     roi_id: str
     x: int
@@ -50,11 +48,17 @@ class RGB24Crop:
             raise ValueError("crop region id is required")
         if self.width <= 0 or self.height <= 0:
             raise ValueError("crop dimensions must be positive")
+        if self.pixel_format != "RGB24":
+            raise ValueError("crop pixel format must be RGB24")
         if len(self.pixel_bytes) != self.width * self.height * 3:
-            raise ValueError("RGB24 crop byte count contradicts its dimensions")
+            raise ValueError(
+                "RGB24 crop byte count contradicts its dimensions"
+            )
+        expected_hash = hashlib.sha256(self.pixel_bytes).hexdigest()
+        if self.sha256 != expected_hash:
+            raise ValueError("RGB24 crop SHA256 contradicts its pixels")
 
     def to_dict(self) -> dict[str, object]:
-        """Return safe metadata only, excluding pixel bytes."""
         return {
             "REGION_ID": self.roi_id,
             "PIXEL_GEOMETRY": {

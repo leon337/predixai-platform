@@ -12,6 +12,8 @@ from typing import Mapping
 
 
 class OCRCache:
+    """Atomic OCR cache namespaced by execution configuration."""
+
     def __init__(self, cache_directory: Path) -> None:
         self.cache_directory = cache_directory
 
@@ -23,12 +25,37 @@ class OCRCache:
                 digest.update(chunk)
         return digest.hexdigest()
 
-    def compute_key(self, image_path: Path, *, namespace: Mapping[str, object] | None = None) -> str:
+    @staticmethod
+    def compute_key_from_hash(
+        image_sha256: str,
+        *,
+        namespace: Mapping[str, object] | None = None,
+    ) -> str:
+        if re.fullmatch(r"[0-9a-f]{64}", image_sha256) is None:
+            raise ValueError("invalid OCR image SHA256")
         digest = hashlib.sha256()
-        digest.update(self.compute_image_sha256(image_path).encode("ascii"))
+        digest.update(image_sha256.encode("ascii"))
         digest.update(b"\0")
-        digest.update(json.dumps(dict(namespace or {}), ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+        digest.update(
+            json.dumps(
+                dict(namespace or {}),
+                ensure_ascii=True,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        )
         return digest.hexdigest()
+
+    def compute_key(
+        self,
+        image_path: Path,
+        *,
+        namespace: Mapping[str, object] | None = None,
+    ) -> str:
+        return self.compute_key_from_hash(
+            self.compute_image_sha256(image_path),
+            namespace=namespace,
+        )
 
     def load(self, cache_key: str) -> dict[str, object] | None:
         try:
@@ -42,10 +69,18 @@ class OCRCache:
         return data if isinstance(data, dict) else None
 
     def save(self, cache_key: str, data: dict[str, object]) -> Path:
-        self.cache_directory.mkdir(parents=True, exist_ok=True, mode=0o700)
+        self.cache_directory.mkdir(
+            parents=True,
+            exist_ok=True,
+            mode=0o700,
+        )
         os.chmod(self.cache_directory, 0o700)
         cache_path = self._cache_path(cache_key)
-        descriptor, temporary_name = tempfile.mkstemp(prefix=f".{cache_key}.", suffix=".tmp", dir=self.cache_directory)
+        descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{cache_key}.",
+            suffix=".tmp",
+            dir=self.cache_directory,
+        )
         temporary_path = Path(temporary_name)
         try:
             os.fchmod(descriptor, 0o600)
