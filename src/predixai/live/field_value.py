@@ -15,6 +15,8 @@ class FieldValue:
     confidence: float
     status: str
     metadata: dict[str, Any] = field(default_factory=dict)
+    valid: bool = True
+    rejection_reasons: tuple[str, ...] = field(default_factory=tuple)
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -25,4 +27,6 @@ class FieldValue:
             "confidence": self.confidence,
             "status": self.status,
             "metadata": dict(self.metadata),
+            "valid": self.valid,
+            "rejection_reasons": list(self.rejection_reasons),
         }

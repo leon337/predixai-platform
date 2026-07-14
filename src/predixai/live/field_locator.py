@@ -5,7 +5,40 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from predixai.live.field_definition import FieldDefinition
+from predixai.live.field_definition import FieldDefinition, VisualRegionSpecification
+
+
+AUTHORIZED_VISUAL_REGION_SPECS = (
+    VisualRegionSpecification("ASSET", "Selected asset card", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "BROKER_ASSET_CARD", "OCR", "ASSET_TEXT", "NORMALIZE_SPACES_PRESERVE_OTC_REJECT_MULTIPLE"),
+    VisualRegionSpecification("PAYOUT", "Asset payout percentage", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "BROKER_ASSET_CARD_PAYOUT", "OCR", "PERCENTAGE", "EXACTLY_ONE_PERCENTAGE_RANGE_0_100"),
+    VisualRegionSpecification("PRICE_SOURCE_BROWSER_TAB", "Price and asset in the active browser tab", ("DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "ACTIVE_BROWSER_TAB_VISUAL_TITLE", "OCR", "PRICE_AND_ASSET", "ACTIVE_TAB_EXACT_PRICE_ASSET_CROSS_CHECK"),
+    VisualRegionSpecification("COUNTDOWN", "Dynamic chart countdown", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "CHART_COUNTDOWN_LABEL", "OCR", "COUNTDOWN_TIME", "TEMPORAL_DECREASE_WITH_EXPLICIT_RESET", "ALWAYS", "CHART_AREA"),
+    VisualRegionSpecification("CHART_AREA", "Complete candle chart area", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "BROKER_CHART", "VISUAL_STATE", "VISUAL_AREA", "PRESENCE_AND_GEOMETRY_ONLY"),
+    VisualRegionSpecification("TIMEFRAME", "Selected chart timeframe", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "CHART_TIMEFRAME_CONTROL", "OCR", "TIMEFRAME_TOKEN", "EXACTLY_ONE_ALLOWED_TIMEFRAME", "ALWAYS", "CHART_AREA"),
+    VisualRegionSpecification("ENTRY_VALUE", "Configured simulated entry value", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "ORDER_ENTRY_VALUE", "OCR", "DECIMAL_TEXT", "EXACTLY_ONE_NUMERIC_VALUE"),
+    VisualRegionSpecification("ENTRY_VALUE_MINUS", "Decrease entry value control", ("STATIC_POSITION",), "ORDER_ENTRY_MINUS_CONTROL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE"),
+    VisualRegionSpecification("ENTRY_VALUE_PLUS", "Increase entry value control", ("STATIC_POSITION",), "ORDER_ENTRY_PLUS_CONTROL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE"),
+    VisualRegionSpecification("DURATION", "Configured simulated order duration", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "ORDER_DURATION_VALUE", "OCR", "DURATION_TEXT", "EXACTLY_ONE_DURATION"),
+    VisualRegionSpecification("DURATION_MINUS", "Decrease duration control", ("STATIC_POSITION",), "ORDER_DURATION_MINUS_CONTROL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE"),
+    VisualRegionSpecification("DURATION_PLUS", "Increase duration control", ("STATIC_POSITION",), "ORDER_DURATION_PLUS_CONTROL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE"),
+    VisualRegionSpecification("ENABLE_ORDERS", "Pending-order enablement control", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "ENABLE_ORDERS_CONTROL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE"),
+    VisualRegionSpecification("UP_BUTTON", "Up-direction action control", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "UP_DIRECTION_CONTROL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE"),
+    VisualRegionSpecification("DOWN_BUTTON", "Down-direction action control", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "DOWN_DIRECTION_CONTROL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE"),
+    VisualRegionSpecification("PROFIT_DISPLAY", "Displayed potential profit", ("STATIC_POSITION", "DYNAMIC_CONTENT", "ASSET_DEPENDENT"), "ORDER_PROFIT_DISPLAY", "OCR", "DECIMAL_TEXT", "EXACTLY_ONE_NUMERIC_VALUE"),
+    VisualRegionSpecification("ACCOUNT_BALANCE", "Displayed account balance", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "ACCOUNT_BALANCE_DISPLAY", "OCR", "DECIMAL_TEXT", "LOCAL_ONLY_REDACT_REPORT", privacy_sensitive=True),
+    VisualRegionSpecification("ACCOUNT_TYPE", "Displayed account type", ("STATIC_POSITION", "DYNAMIC_CONTENT"), "ACCOUNT_TYPE_DISPLAY", "OCR", "ACCOUNT_TYPE_TEXT", "LOCAL_ONLY_REDACT_REPORT", privacy_sensitive=True),
+    VisualRegionSpecification("ORDER_NOTIFICATION_POPUP", "Order notification popup open/closed state", ("CONDITIONAL_VISIBILITY", "DYNAMIC_CONTENT", "ORDER_MODE_DEPENDENT"), "ORDER_NOTIFICATION_PANEL", "VISUAL_STATE", "POPUP_STATE", "CLOSED_OR_OPEN"),
+    VisualRegionSpecification("ORDER_MODE_BY_PRICE", "Order mode by price", ("CONDITIONAL_VISIBILITY", "ORDER_MODE_DEPENDENT"), "ORDER_NOTIFICATION_PANEL", "VISUAL_STATE", "SELECTION_STATE", "PRESENCE_AND_SELECTED_STATE", "POPUP_OPEN", "ORDER_NOTIFICATION_POPUP"),
+    VisualRegionSpecification("ORDER_MODE_BY_TIME", "Order mode by time", ("CONDITIONAL_VISIBILITY", "ORDER_MODE_DEPENDENT"), "ORDER_NOTIFICATION_PANEL", "VISUAL_STATE", "SELECTION_STATE", "PRESENCE_AND_SELECTED_STATE", "POPUP_OPEN", "ORDER_NOTIFICATION_POPUP"),
+    VisualRegionSpecification("PROFITABILITY_FILTER", "Order profitability filter", ("CONDITIONAL_VISIBILITY", "DYNAMIC_CONTENT", "ORDER_MODE_DEPENDENT"), "ORDER_NOTIFICATION_PANEL", "OCR", "FILTER_TEXT", "EXACTLY_ONE_FILTER_VALUE", "POPUP_OPEN", "ORDER_NOTIFICATION_POPUP"),
+    VisualRegionSpecification("OPENING_TIME", "Configured order opening time", ("CONDITIONAL_VISIBILITY", "DYNAMIC_CONTENT", "ORDER_MODE_DEPENDENT"), "ORDER_NOTIFICATION_PANEL", "OCR", "CLOCK_TIME", "VALID_HH_MM_OR_HH_MM_SS", "POPUP_OPEN", "ORDER_NOTIFICATION_POPUP"),
+    VisualRegionSpecification("SAVE_ORDER_BUTTON", "Save-order control", ("CONDITIONAL_VISIBILITY", "ORDER_MODE_DEPENDENT"), "ORDER_NOTIFICATION_PANEL", "VISUAL_STATE", "CONTROL_STATE", "PRESENCE_AND_ENABLED_STATE", "POPUP_OPEN", "ORDER_NOTIFICATION_POPUP"),
+)
+
+AUTHORIZED_VISUAL_REGION_BY_ID = {
+    specification.region_id: specification
+    for specification in AUTHORIZED_VISUAL_REGION_SPECS
+}
 
 
 @dataclass(frozen=True)
@@ -67,5 +100,53 @@ class FieldLocator:
                 "window_title": window_title,
                 "timeframe": timeframe,
                 "region_count": len(definitions),
+            },
+        )
+
+    def build_authorized_region_contracts(
+        self,
+        geometries: dict[str, tuple[float, float, float, float]],
+        *,
+        min_confidence: float = 80.0,
+    ) -> FieldLocationMap:
+        """Build the complete C.1A visual map after manual client calibration."""
+        expected_ids = set(AUTHORIZED_VISUAL_REGION_BY_ID)
+        if set(geometries) != expected_ids:
+            raise ValueError("exactly 24 authorized visual region geometries are required")
+        definitions = tuple(
+            FieldDefinition(
+                field_name=specification.region_id.lower(),
+                region_id=specification.region_id,
+                region_name=specification.region_id.replace("_", " ").title(),
+                purpose=specification.purpose,
+                relative_geometry=geometries[specification.region_id],
+                expected_data_type=specification.expected_data_type,
+                normalization_rule=specification.normalization_rule,
+                min_confidence=float(min_confidence),
+                required=True,
+                failure_behavior="FAIL_CLOSED_PRESERVE_LAST_VALID_READING",
+                metadata={
+                    "calibration_stage": "PTP-GOV.4.6C.1A",
+                    "classifications": specification.classifications,
+                    "source": specification.source,
+                    "reading_mode": specification.reading_mode,
+                    "visibility_state": specification.visibility_state,
+                    "parent_region_id": specification.parent_region_id,
+                    "privacy_sensitive": specification.privacy_sensitive,
+                    "prohibited_area": False,
+                },
+            )
+            for specification in AUTHORIZED_VISUAL_REGION_SPECS
+        )
+        return FieldLocationMap(
+            definitions=definitions,
+            metadata={
+                "region_count": 24,
+                "independent_regions": False,
+                "hierarchical_regions": True,
+                "full_screen_fallback": "PROHIBITED",
+                "broker_time_region_required": False,
+                "time_source": "SYSTEM_CLOCK",
+                "popup_states": ("CLOSED", "OPEN"),
             },
         )
