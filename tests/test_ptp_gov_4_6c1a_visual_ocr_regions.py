@@ -71,7 +71,7 @@ def broker_state(title="61.373 Solana OTC", process="brave", foreground=True):
 def valid_boxes():
     boxes = {
         "ASSET": (600, 350, 90, 40),
-        "PAYOUT": (610, 360, 30, 15),
+        "PAYOUT": (600, 400, 30, 15),
         "TIMEFRAME": (10, 240, 40, 20),
     }
     remaining = [
@@ -317,9 +317,8 @@ class CalibrationContractTests(unittest.TestCase):
         self.assertIsNone(
             AUTHORIZED_VISUAL_REGION_BY_ID["TIMEFRAME"].parent_region_id
         )
-        self.assertEqual(
-            AUTHORIZED_VISUAL_REGION_BY_ID["PAYOUT"].parent_region_id,
-            "ASSET",
+        self.assertIsNone(
+            AUTHORIZED_VISUAL_REGION_BY_ID["PAYOUT"].parent_region_id
         )
 
 
@@ -327,7 +326,7 @@ class CalibrationContractTests(unittest.TestCase):
         self.assertTrue(VALIDATOR.boxes_overlap((0, 0, 10, 10), (5, 5, 10, 10)))
         self.assertFalse(VALIDATOR.boxes_overlap((0, 0, 10, 10), (10, 0, 10, 10)))
 
-    def test_complete_manual_boxes_allow_only_documented_parent_child_overlap(self):
+    def test_complete_manual_boxes_reject_undocumented_overlap(self):
         VALIDATOR.validate_boxes(valid_boxes(), 700, 600)
         invalid = valid_boxes()
         invalid["ENTRY_VALUE"] = invalid["DURATION"]

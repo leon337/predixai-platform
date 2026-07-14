@@ -46,12 +46,19 @@ from predixai.vision.roi_crop_engine import ROICropEngine  # noqa: E402
 
 
 PTP_ID = "PTP-GOV.4.6C.1A"
-BASE_COMMIT = "16d5b081c1674479626964852899d7328ec7b755"
+BASE_COMMIT = subprocess.run(
+    ["git", "rev-parse", "HEAD"],
+    cwd=ROOT,
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.strip()
 COUNTDOWN_MESSAGE = "CONTAGEM INICIADA — ABRA A CORRETORA AGORA"
 RETURN_MESSAGE = "CAPTURA E CALIBRAÇÃO CONTROLADAS CONCLUÍDAS — PODE RETORNAR AO CODEX"
-REPORT = ROOT / "reports/20260713_PTP-GOV.4.6C.1A_calibracao_visual_ocr_regioes_CALIBRATION.txt"
-PROPOSAL = ROOT / "reports/20260713_PTP-GOV.4.6C.1A_regioes_propostas.tsv"
-HISTORY = ROOT / "docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.1A/20260713_PTP-GOV.4.6C.1A_calibracao_visual_ocr_regioes_CALIBRATION.md"
+ARTIFACT_DATE = datetime.now().strftime("%Y%m%d")
+REPORT = ROOT / f"reports/{ARTIFACT_DATE}_PTP-GOV.4.6C.1A_calibracao_visual_ocr_regioes_CALIBRATION.txt"
+PROPOSAL = ROOT / f"reports/{ARTIFACT_DATE}_PTP-GOV.4.6C.1A_regioes_propostas.tsv"
+HISTORY = ROOT / f"docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.1A/{ARTIFACT_DATE}_PTP-GOV.4.6C.1A_calibracao_visual_ocr_regioes_CALIBRATION.md"
 INDEX = ROOT / "docs/reports_index.md"
 PREEXISTING_DIRTY = "reports/20260709_000047_PTP-113C.8.4.2A_auditoria_observer_paper_mobile_v2_AUDIT_ONLY.txt"
 REFERENCE_IMAGE_SHA256 = "e45c6a35aaf7f7df8361fdbed743cda86ae8eec318a3218f4fe2e33278e742c9"

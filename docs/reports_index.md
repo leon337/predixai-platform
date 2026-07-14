@@ -227,3 +227,7 @@
 - 20260714 | PTP-GOV.4.6C.1A-R0.1 | Hierarquia ASSET/PAYOUT | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0.1_hierarquia_asset_payout_FIX.txt`
 
 - 20260714 | PTP-GOV.4.6C.1A-R0.3 | Mapa definitivo de 16 regiões | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0.3_mapa_definitivo_16_regioes_FIX.txt`
+| 2026-07-14 | PTP-GOV.4.6C.1A | calibracao_visual_16_regioes | PASS_GEOMETRY_OCR_PENDING | `reports/20260713_PTP-GOV.4.6C.1A_calibracao_visual_ocr_regioes_CALIBRATION.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.1A/20260713_PTP-GOV.4.6C.1A_calibracao_visual_ocr_regioes_CALIBRATION.md` |
+| 2026-07-14 | PTP-GOV.4.6C.1A | regioes_aprovadas_16 | EVIDENCE | `reports/20260714_PTP-GOV.4.6C.1A_regioes_aprovadas.tsv` | — |
+| 2026-07-14 | PTP-GOV.4.6C.1A-R0.4 | browser_tab_price_only | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0.4_browser_tab_price_only_FIX.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.1A/20260714_PTP-GOV.4.6C.1A-R0.4_browser_tab_price_only_FIX.md` |
+| 2026-07-14 | PTP-GOV.4.6C.1A-R0.5 | fechamento_calibracao_16_regioes | PASS_FINAL_GEOMETRY_WITH_OCR_PENDING | `reports/20260714_PTP-GOV.4.6C.1A-R0.5_fechamento_calibracao_16_regioes_FINAL.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.1A/20260714_PTP-GOV.4.6C.1A-R0.5_fechamento_calibracao_16_regioes_FINAL.md` |
