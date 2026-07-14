@@ -231,3 +231,4 @@
 | 2026-07-14 | PTP-GOV.4.6C.1A | regioes_aprovadas_16 | EVIDENCE | `reports/20260714_PTP-GOV.4.6C.1A_regioes_aprovadas.tsv` | — |
 | 2026-07-14 | PTP-GOV.4.6C.1A-R0.4 | browser_tab_price_only | PASS | `reports/20260714_PTP-GOV.4.6C.1A-R0.4_browser_tab_price_only_FIX.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.1A/20260714_PTP-GOV.4.6C.1A-R0.4_browser_tab_price_only_FIX.md` |
 | 2026-07-14 | PTP-GOV.4.6C.1A-R0.5 | fechamento_calibracao_16_regioes | PASS_FINAL_GEOMETRY_WITH_OCR_PENDING | `reports/20260714_PTP-GOV.4.6C.1A-R0.5_fechamento_calibracao_16_regioes_FINAL.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.1A/20260714_PTP-GOV.4.6C.1A-R0.5_fechamento_calibracao_16_regioes_FINAL.md` |
+| 20260714 | PTP-GOV.4.6C.1B | instalacao_correcoes_validacao_ocr | FAIL | `reports/20260714_PTP-GOV.4.6C.1B_instalacao_correcoes_validacao_ocr_ALL_IN_ONE.txt` | `docs/history/ptp/PTP-GOV/PTP-GOV.4.6C.1B/20260714_PTP-GOV.4.6C.1B_instalacao_correcoes_validacao_ocr_ALL_IN_ONE.md` |
